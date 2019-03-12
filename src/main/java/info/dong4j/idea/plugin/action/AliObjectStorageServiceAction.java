@@ -1,5 +1,9 @@
 package info.dong4j.idea.plugin.action;
 
+import com.intellij.codeInsight.hint.HintManager;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -125,8 +129,7 @@ public final class AliObjectStorageServiceAction extends AnAction  {
                     // todo-dong4j : (2019年03月12日 19:02) [要求只是是图片表示, 则肯定是以 ![]() 的形式出现]
                     if (StringUtils.isNotBlank(textArray[i]) && textArray[i].trim().startsWith("![") && textArray[i].trim().endsWith(")")) {
                         log.trace(textArray[i]);
-                        // 替换
-                        // ![](./imgs/1eefcf26.png)
+                        // 替换字符串
                         Map<String, String> map = ParserUtils.parseImageTag(textArray[i]);
                         for (Map.Entry<String, String> result : map.entrySet()) {
                             log.trace("key = {}, value = {}", result.getKey(), result.getValue());
@@ -135,12 +138,16 @@ public final class AliObjectStorageServiceAction extends AnAction  {
                     }
                 }
 
+                // 替换全部字符串
                 StringBuilder stringBuilder = new StringBuilder();
                 for (String string : textArray) {
                     stringBuilder.append(string).append("\n");
                 }
-
                 PsiDocumentUtils.commitAndSaveDocument(project, document, stringBuilder.toString());
+
+                Editor editor = anActionEvent.getData(PlatformDataKeys.EDITOR);
+                // PsiFile currentEditorFile = PsiUtilBase.getPsiFileInEditor(editor, project);
+                showHintDialog(editor, psiFile.getOriginalFile().getName());
             }
         } else {
             log.trace("project is null");
@@ -155,5 +162,23 @@ public final class AliObjectStorageServiceAction extends AnAction  {
     @Contract("null -> false")
     private boolean isMardownFile(PsiFile psiFile) {
         return psiFile != null && isMardownFile(psiFile.getOriginalFile().getName());
+    }
+
+    /**
+     * 显示提示对话框
+     *
+     * @param editor the editor
+     * @param text   the text
+     */
+    private void showHintDialog(Editor editor, String text) {
+        HintManager hintManager = HintManager.getInstance();
+        hintManager.showInformationHint(editor, text);
+
+        Notification notification = new Notification("Facet Detector", null, NotificationType.INFORMATION);
+        notification.setContent("content");
+        notification.setTitle("title");
+        notification.setSubtitle("subTitle");
+        notification.setImportant(true);
+        Notifications.Bus.notify(notification);
     }
 }
