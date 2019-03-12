@@ -19,9 +19,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class HelloAction extends AnAction {
-    /**
-     * Instantiates a new Hello action.
-     */
     public HelloAction() {
         super("Hello");
     }
