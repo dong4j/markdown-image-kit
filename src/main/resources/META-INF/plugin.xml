@@ -1,0 +1,53 @@
+<idea-plugin>
+    <id>info.dong4j.aliyun-oss-upload</id>
+    <name>Aliyun OSS upload</name>
+    <version>0.0.1</version>
+    <vendor email="dong4j@gmail.com" url="http://www.dong4j.info">dong4j</vendor>
+
+    <depends>com.intellij.modules.lang</depends>
+    <description>
+        Aliyun OSS upload, xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    </description>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+        <applicationService serviceInterface="info.dong4j.test.HelloApplicationText"
+                            serviceImplementation="info.dong4j.test.impl.HelloApplicationTextImpl"/>
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+        <group id="MyPlugin.SampleMenu" text="Greeting" description="Greeting menu">
+            <add-to-group group-id="MainMenu" anchor="last"/>
+            <action id="Myplugin.Textboxes" class="info.dong4j.test.HelloAction" text="Hello"  description="Says hello" />
+        </group>
+        <action id="info.dong4j.aliyun-oss-upload" class="info.dong4j.test.AliyunOssUpload" text="upload aliyun oss"
+                description="上传文件到 aliyun OSS">
+            <add-to-group group-id="GenerateGroup" anchor="last"/>
+        </action>
+    </actions>
+
+    <application-components>
+        <component>
+            <implementation-class>info.dong4j.test.HelloApplication</implementation-class>
+        </component>
+    </application-components>
+
+    <project-components>
+        <component>
+            <implementation-class>info.dong4j.test.HelloProject</implementation-class>
+        </component>
+    </project-components>
+
+    <module-components>
+        <component>
+            <implementation-class>info.dong4j.test.HelloModule</implementation-class>
+        </component>
+    </module-components>
+</idea-plugin>
