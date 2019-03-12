@@ -5,6 +5,8 @@ import com.intellij.openapi.components.BaseComponent;
 
 import org.jetbrains.annotations.NotNull;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
  * <p>Description: </p>
@@ -13,26 +15,27 @@ import org.jetbrains.annotations.NotNull;
  * @email sjdong3@iflytek.com
  * @since 2019-03-11 21:24
  */
+@Slf4j
 public class HelloApplication implements BaseComponent, Disposable {
     @Override
     public void dispose() {
-        System.out.println("dispose");
+        log.debug("dispose");
     }
 
     @Override
     public void initComponent() {
-        System.out.println("HelloApplication --> initComponent");
+        log.debug("HelloApplication --> initComponent");
     }
 
     @Override
     public void disposeComponent() {
-        System.out.println("HelloApplication --> disposeComponent");
+        log.debug("HelloApplication --> disposeComponent");
     }
 
     @NotNull
     @Override
     public String getComponentName() {
-        System.out.println("HelloApplication --> disposeComponent");
+        log.debug("HelloApplication --> disposeComponent");
         return "HelloApplication";
     }
 }

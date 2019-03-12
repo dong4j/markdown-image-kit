@@ -17,8 +17,6 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <applicationService serviceInterface="info.dong4j.test.HelloApplicationText"
-                            serviceImplementation="info.dong4j.test.impl.HelloApplicationTextImpl"/>
     </extensions>
 
     <actions>
@@ -27,10 +25,25 @@
             <add-to-group group-id="MainMenu" anchor="last"/>
             <action id="Myplugin.Textboxes" class="info.dong4j.test.HelloAction" text="Hello"  description="Says hello" />
         </group>
+
         <action id="info.dong4j.aliyun-oss-upload" class="info.dong4j.test.AliyunOssUpload" text="upload aliyun oss"
                 description="上传文件到 aliyun OSS">
             <add-to-group group-id="GenerateGroup" anchor="last"/>
         </action>
+
+        <action id="AliObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.AliObjectStorageServiceAction"
+                popup="true" text="upload to Aliyun OSS">
+            <add-to-group group-id="MainToolBar" anchor="last"/>
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+            <add-to-group group-id="ChangesViewPopupMenu" anchor="last"/>
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+        </action>
+
+        <group popup="true" id="com.alibaba.p3c.analytics.action_group" text="Aliyun OSS">
+            <reference ref="AliObjectStorageServiceAction"/>
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </group>
+
     </actions>
 
     <application-components>
@@ -38,13 +51,11 @@
             <implementation-class>info.dong4j.test.HelloApplication</implementation-class>
         </component>
     </application-components>
-
     <project-components>
         <component>
             <implementation-class>info.dong4j.test.HelloProject</implementation-class>
         </component>
     </project-components>
-
     <module-components>
         <component>
             <implementation-class>info.dong4j.test.HelloModule</implementation-class>

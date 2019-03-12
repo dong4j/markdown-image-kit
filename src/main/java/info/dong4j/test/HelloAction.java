@@ -30,7 +30,7 @@ public class HelloAction extends AnAction {
      */
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
-        log.info(event.toString());
+        log.trace(event.toString());
         Project project = event.getProject();
         Messages.showMessageDialog(project,
                                    "Hello world!",
