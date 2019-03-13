@@ -1,6 +1,5 @@
 package info.dong4j.idea.plugin.action;
 
-import com.intellij.codeInsight.hint.HintManager;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
@@ -153,9 +152,7 @@ public final class AliObjectStorageServiceAction extends AnAction {
                     stringBuilder.append(string).append("\n");
                 }
                 PsiDocumentUtils.commitAndSaveDocument(project, document, stringBuilder.toString());
-
-                // PsiFile currentEditorFile = PsiUtilBase.getPsiFileInEditor(editor, project);
-                showHintDialog(anActionEvent, url);
+                showHintDialog(url);
             }
         } else {
             log.trace("project is null");
@@ -175,16 +172,10 @@ public final class AliObjectStorageServiceAction extends AnAction {
     /**
      * 显示提示对话框
      *
-     * @param anActionEvent the anActionEvent
      * @param text          the text
      */
-    private void showHintDialog(AnActionEvent anActionEvent, String text) {
-        HintManager hintManager = HintManager.getInstance();
-        Editor editor = anActionEvent.getData(PlatformDataKeys.EDITOR);
-        hintManager.showInformationHint(Objects.requireNonNull(editor), text);
-
+    private void showHintDialog(String text) {
         Notification notification = new Notification("Upload Aliyun OSS", null, NotificationType.INFORMATION);
-
         // 可使用 HTML 标签
         notification.setContent(text);
         notification.setTitle("title");
