@@ -41,6 +41,9 @@ public final class UploadUtils {
         init();
     }
 
+    /**
+     * Init.
+     */
     public static void init() {
         AliyunOssSettings aliyunOssSettings = AliyunOssSettings.getInstance();
         bucketName = aliyunOssSettings.getState().getBucketName();
@@ -113,6 +116,35 @@ public final class UploadUtils {
      * @return 出错返回 "" ,唯一MD5数字签名
      */
     public static String uploadFile2OSS(InputStream instream, String fileName) {
+        return uploadFile2OSS(instream, filedir, fileName);
+    }
+
+
+    /**
+     * Upload file 2 oss string.
+     *
+     * @param instream the instream
+     * @param filedir  the filedir
+     * @param fileName the file name
+     * @return the string
+     */
+    public static String uploadFile2OSS(InputStream instream, String filedir,String fileName) {
+        return uploadFile2OSS(ossClient, instream, filedir, fileName);
+    }
+
+    /**
+     * Upload file 2 oss string.
+     *
+     * @param ossClient the oss client
+     * @param instream  the instream
+     * @param filedir   the filedir
+     * @param fileName  the file name
+     * @return the string
+     */
+    public static String uploadFile2OSS(OSSClient ossClient,
+                                        InputStream instream,
+                                        String filedir,
+                                        String fileName) {
         String ret = "";
         try {
             // 创建上传 Object 的 Metadata
@@ -184,9 +216,13 @@ public final class UploadUtils {
      * 获得url链接
      *
      * @param name the name
-     * @return url
+     * @return url url
      */
     public static String getUrl(String name) {
+        return getUrl(filedir, name);
+    }
+
+    public static String getUrl(String filedir, String name) {
         // 设置URL过期时间为10年  3600l* 1000*24*365*10
         Date expiration = new Date(System.currentTimeMillis() + 3600L * 1000 * 24 * 365 * 10);
         // 生成URL

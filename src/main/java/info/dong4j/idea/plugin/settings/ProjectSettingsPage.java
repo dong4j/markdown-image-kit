@@ -1,8 +1,10 @@
 package info.dong4j.idea.plugin.settings;
 
+import com.aliyun.oss.OSSClient;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.ui.DocumentAdapter;
+import com.intellij.ui.JBColor;
 
 import info.dong4j.idea.plugin.enums.SuffixSelectTypeEnum;
 import info.dong4j.idea.plugin.util.EnumsUtils;
@@ -12,12 +14,14 @@ import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.*;
 import java.util.Objects;
 import java.util.Optional;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
@@ -50,6 +54,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JButton helpButton;
 
     private JTextField exampleTextField;
+    private JPanel myUploadPanel;
+    private JLabel message;
 
     private AliyunOssSettings aliyunOssSettings;
 
@@ -110,6 +116,32 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             log.trace("itemStateChanged e = {}", e.getItem());
             String fileDirText = StringUtils.isBlank(fileDirTextField.getText()) ? "" : fileDirTextField.getText();
             exampleTextField.setText(endpointTextField.getText() + fileDirText + getSufixString(e.getItem().toString()));
+        });
+
+        // "Test" 按钮点击事件处理
+        testButton.addActionListener(e -> {
+            // 获取输入框文本, 进行请求处理
+            String tempBucketName = bucketNameTextField.getText().trim();
+            String tempAccessKey = accessKeyTextField.getText().trim();
+            String tempAccessSecretKey = accessSecretKeyTextField.getText().trim();
+            String tempEndpoint = endpointTextField.getText().trim().replace(tempBucketName + ".", "");
+            String tempFileDir = fileDirTextField.getText().trim();
+            tempFileDir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";
+            OSSClient ossClient = new OSSClient(tempEndpoint, tempAccessKey, tempAccessSecretKey);
+            try {
+                // 返回读取指定资源的输入流
+                InputStream is = this.getClass().getResourceAsStream("/test.png");
+
+                UploadUtils.uploadFile2OSS(ossClient, is, tempFileDir, "test.png");
+                UploadUtils.getUrl(tempFileDir, "test.png");
+                message.setText("test succeed");
+                message.setForeground(JBColor.GREEN);
+            } catch (Exception e1) {
+                message.setText(e1.getMessage());
+                message.setForeground(JBColor.RED);
+            } finally {
+                ossClient.shutdown();
+            }
         });
     }
 
