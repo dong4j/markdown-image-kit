@@ -15,15 +15,20 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.search.FilenameIndex;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiUtilBase;
 
 import info.dong4j.idea.plugin.util.ParserUtils;
 import info.dong4j.idea.plugin.util.PsiDocumentUtils;
+import info.dong4j.idea.plugin.util.UploadUtils;
 
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.io.*;
 import java.util.Map;
 import java.util.Objects;
 
@@ -38,10 +43,11 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019 -03-12 17:20
  */
 @Slf4j
-public final class AliObjectStorageServiceAction extends AnAction  {
+public final class AliObjectStorageServiceAction extends AnAction {
     private static final String MARKDOWN_FILE_TYPE = ".md";
     private static final String NODE_MODULES_FILE = "node_modules";
-    private static final String HTML_TAG = "<a data-fancybox title='${}' href='${}' >![${}](${})</a>";
+    private static final String HTML_TAG_EXTEND = "<a data-fancybox title='${}' href='${}' >![${}](${})</a>";
+    private static final String HTML_TAG = "<a title='${}' href='${}' >![${}](${})</a>";
 
     /**
      * 更新 "upload to Aliyun OSS" 按钮是否可用
@@ -125,6 +131,7 @@ public final class AliObjectStorageServiceAction extends AnAction  {
 
                 // 用回车键来分隔几个元素
                 String[] textArray = text.split("\n");
+                String url = "";
                 for (int i = 0; i < textArray.length; i++) {
                     // todo-dong4j : (2019年03月12日 19:02) [要求只是是图片表示, 则肯定是以 ![]() 的形式出现]
                     if (StringUtils.isNotBlank(textArray[i]) && textArray[i].trim().startsWith("![") && textArray[i].trim().endsWith(")")) {
@@ -133,7 +140,9 @@ public final class AliObjectStorageServiceAction extends AnAction  {
                         Map<String, String> map = ParserUtils.parseImageTag(textArray[i]);
                         for (Map.Entry<String, String> result : map.entrySet()) {
                             log.trace("key = {}, value = {}", result.getKey(), result.getValue());
-                            textArray[i] = ParserUtils.parse0(HTML_TAG, result.getKey(), result.getValue(), result.getKey(), result.getValue());
+                            // 上传到 OSS
+                            url = upload(anActionEvent, result.getValue());
+                            textArray[i] = ParserUtils.parse0(HTML_TAG_EXTEND, result.getKey(), url, result.getKey(), url);
                         }
                     }
                 }
@@ -145,9 +154,8 @@ public final class AliObjectStorageServiceAction extends AnAction  {
                 }
                 PsiDocumentUtils.commitAndSaveDocument(project, document, stringBuilder.toString());
 
-                Editor editor = anActionEvent.getData(PlatformDataKeys.EDITOR);
                 // PsiFile currentEditorFile = PsiUtilBase.getPsiFileInEditor(editor, project);
-                showHintDialog(editor, psiFile.getOriginalFile().getName());
+                showHintDialog(anActionEvent, url);
             }
         } else {
             log.trace("project is null");
@@ -167,18 +175,46 @@ public final class AliObjectStorageServiceAction extends AnAction  {
     /**
      * 显示提示对话框
      *
-     * @param editor the editor
-     * @param text   the text
+     * @param anActionEvent the anActionEvent
+     * @param text          the text
      */
-    private void showHintDialog(Editor editor, String text) {
+    private void showHintDialog(AnActionEvent anActionEvent, String text) {
         HintManager hintManager = HintManager.getInstance();
-        hintManager.showInformationHint(editor, text);
+        Editor editor = anActionEvent.getData(PlatformDataKeys.EDITOR);
+        hintManager.showInformationHint(Objects.requireNonNull(editor), text);
 
-        Notification notification = new Notification("Facet Detector", null, NotificationType.INFORMATION);
-        notification.setContent("content");
+        Notification notification = new Notification("Upload Aliyun OSS", null, NotificationType.INFORMATION);
+
+        // 可使用 HTML 标签
+        notification.setContent(text);
         notification.setTitle("title");
         notification.setSubtitle("subTitle");
         notification.setImportant(true);
         Notifications.Bus.notify(notification);
+    }
+
+    private String upload( AnActionEvent anActionEvent, String filePath){
+        final Project project = anActionEvent.getProject();
+        PsiFile psiFile = findImageResource(project, filePath);
+        if (psiFile != null) {
+            filePath = psiFile.getVirtualFile().getPath();
+            String name = UploadUtils.uploadImg2Oss(new File(filePath));
+            return UploadUtils.getUrl(name);
+        }
+        return filePath;
+    }
+
+    @Nullable
+    private static PsiFile findImageResource(Project project, String filePath) {
+
+        // ./imgs/1eefcf26.png
+        String fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
+
+        PsiFile[] foundFiles = FilenameIndex.getFilesByName(project, fileName, GlobalSearchScope.allScope(project));
+        if (foundFiles.length <= 0) {
+            return null;
+        }
+
+        return foundFiles[0];
     }
 }

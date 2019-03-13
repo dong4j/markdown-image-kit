@@ -22,5 +22,9 @@ public class ParserUtilsTest {
         for(Map.Entry<String, String> result : map.entrySet()){
             log.info("key = {}, value = {}", result.getKey(), result.getValue());
         }
+
+        String filePath = "./imgs/1eefcf26.png";
+        String fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
+        log.info(fileName);
     }
 }
