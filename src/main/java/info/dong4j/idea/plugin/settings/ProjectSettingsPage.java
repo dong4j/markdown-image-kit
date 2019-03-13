@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -141,6 +142,48 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                 message.setForeground(JBColor.RED);
             } finally {
                 ossClient.shutdown();
+            }
+        });
+
+        // help button 监听
+        helpButton.addActionListener(e -> {
+            // 打开浏览器到帮助页面
+            String url = "http://dong4j.info";
+            try {
+                String osName = System.getProperty("os.name", "");
+                if (osName.startsWith("Mac OS")) {
+                    // 苹果
+                    Class fileMgr = Class.forName("com.apple.eio.FileManager");
+                    Method openURL = fileMgr.getDeclaredMethod("openURL", String.class);
+                    openURL.invoke(null, url);
+                } else if (osName.startsWith("Windows")) {
+                    // windows
+                    Runtime.getRuntime().exec(
+                        "rundll32 url.dll,FileProtocolHandler " + url);
+                } else {
+                    // Unix or Linux
+                    String[] browsers = {"firefox", "opera", "konqueror", "epiphany",
+                                         "mozilla", "netscape"};
+                    String browser = null;
+                    // 执行代码，在brower有值后跳出，
+                    // 这里是如果进程创建成功了，==0是表示正常结束。
+                    for (int count = 0; count < browsers.length && browser == null; count++) {
+                        if (Runtime.getRuntime()
+                                .exec(new String[] {"which", browsers[count]})
+                                .waitFor() == 0) {
+                            browser = browsers[count];
+                        }
+                    }
+                    if (browser == null) {
+                        throw new Exception("Could not find web browser");
+                    }
+                    // 这个值在上面已经成功的得到了一个进程。
+                    else {
+                        Runtime.getRuntime().exec(new String[] {browser, url});
+                    }
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         });
     }
