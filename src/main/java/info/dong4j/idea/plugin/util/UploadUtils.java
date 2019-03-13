@@ -4,14 +4,16 @@ import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.model.ObjectMetadata;
 import com.aliyun.oss.model.PutObjectResult;
 
+import info.dong4j.idea.plugin.enums.SuffixSelectTypeEnum;
 import info.dong4j.idea.plugin.exception.ImgException;
+import info.dong4j.idea.plugin.settings.AliyunOssSettings;
 
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
 import java.net.*;
+import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Random;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,22 +27,35 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public final class UploadUtils {
-    private static String endpoint = "<your endpoint>";
-    private static String accessKeyId = "<your accessKeyId>";
-    private static String accessKeySecret = "<your accessKeySecret>";
-    private static String bucketName = "<your bucketName>";
+    private static String bucketName;
     /** 文件存储目录 */
-    private static String filedir = "<your filedir>";
+    private static String filedir;
     private static OSSClient ossClient;
 
+    private static String sufix;
+
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-");
+
+
     static {
+        init();
+    }
+
+    public static void init() {
+        AliyunOssSettings aliyunOssSettings = AliyunOssSettings.getInstance();
+        bucketName = aliyunOssSettings.getState().getBucketName();
+        String accessKeyId = aliyunOssSettings.getState().getAccessKey();
+        String accessKeySecret = aliyunOssSettings.getState().getAccessSecretKey();
+        String endpoint = aliyunOssSettings.getState().getEndpoint().replace(bucketName + ".", "");
+        filedir = StringUtils.isBlank(aliyunOssSettings.getState().getFiledir()) ? "" : aliyunOssSettings.getState().getFiledir() + "/";
+        sufix = aliyunOssSettings.getState().getSuffix();
         ossClient = new OSSClient(endpoint, accessKeyId, accessKeySecret);
     }
 
     /**
      * 销毁
      */
-    public void destory() {
+    public static void destory() {
         ossClient.shutdown();
     }
 
@@ -68,28 +83,26 @@ public final class UploadUtils {
      * @return the string
      */
     public static String uploadImg2Oss(File file) {
-        Random random = new Random();
-        String name = random.nextInt(10000) + System.currentTimeMillis() + file.getName();
+        String name = getSufixName(file.getName());
         try {
             uploadFile2OSS(new FileInputStream(file), name);
             return name;
         } catch (Exception e) {
-            throw new ImgException("图片上传失败");
+            throw new ImgException("upload error");
         }
     }
 
-    /**
-     * 获得图片路径
-     *
-     * @param fileUrl the file url
-     * @return img url
-     */
-    public static String getImgUrl(String fileUrl) {
-        if (!StringUtils.isEmpty(fileUrl)) {
-            String[] split = fileUrl.split("/");
-            return getUrl(filedir + split[split.length - 1]);
+    private static String getSufixName(String fileName) {
+        if (SuffixSelectTypeEnum.FILE_NAME.name.equals(sufix)) {
+            return fileName;
+        } else if (SuffixSelectTypeEnum.DATE_FILE_NAME.name.equals(sufix)) {
+            // todo-dong4j : (2019年03月13日 18:01) [修改为线程安全的]
+            return dateFormat.format(new Date()) + fileName;
+        } else if (SuffixSelectTypeEnum.RANDOM.name.equals(sufix)) {
+            return CharacterUtils.getRandomString(6) + fileName.substring(fileName.lastIndexOf("."));
+        } else {
+            return "";
         }
-        return null;
     }
 
     /**
@@ -102,14 +115,14 @@ public final class UploadUtils {
     public static String uploadFile2OSS(InputStream instream, String fileName) {
         String ret = "";
         try {
-            //创建上传Object的Metadata
+            // 创建上传 Object 的 Metadata
             ObjectMetadata objectMetadata = new ObjectMetadata();
             objectMetadata.setContentLength(instream.available());
             objectMetadata.setCacheControl("no-cache");
             objectMetadata.setHeader("Pragma", "no-cache");
             objectMetadata.setContentType(getcontentType(fileName.substring(fileName.lastIndexOf("."))));
             objectMetadata.setContentDisposition("inline;filename=" + fileName);
-            //上传文件
+            // 上传文件
             PutObjectResult putResult = ossClient.putObject(bucketName, filedir + fileName, instream, objectMetadata);
             ret = putResult.getETag();
         } catch (IOException e) {
@@ -133,35 +146,35 @@ public final class UploadUtils {
      * @return String
      */
     private static String getcontentType(String FilenameExtension) {
-        if (FilenameExtension.equalsIgnoreCase(".bmp")) {
+        if (".bmp".equalsIgnoreCase(FilenameExtension)) {
             return "image/bmp";
         }
-        if (FilenameExtension.equalsIgnoreCase(".gif")) {
+        if (".gif".equalsIgnoreCase(FilenameExtension)) {
             return "image/gif";
         }
-        if (FilenameExtension.equalsIgnoreCase(".jpeg") ||
-            FilenameExtension.equalsIgnoreCase(".jpg") ||
-            FilenameExtension.equalsIgnoreCase(".png")) {
+        if (".jpeg".equalsIgnoreCase(FilenameExtension) ||
+            ".jpg".equalsIgnoreCase(FilenameExtension) ||
+            ".png".equalsIgnoreCase(FilenameExtension)) {
             return "image/jpeg";
         }
-        if (FilenameExtension.equalsIgnoreCase(".html")) {
+        if (".html".equalsIgnoreCase(FilenameExtension)) {
             return "text/html";
         }
-        if (FilenameExtension.equalsIgnoreCase(".txt")) {
+        if (".txt".equalsIgnoreCase(FilenameExtension)) {
             return "text/plain";
         }
-        if (FilenameExtension.equalsIgnoreCase(".vsd")) {
+        if (".vsd".equalsIgnoreCase(FilenameExtension)) {
             return "application/vnd.visio";
         }
-        if (FilenameExtension.equalsIgnoreCase(".pptx") ||
-            FilenameExtension.equalsIgnoreCase(".ppt")) {
+        if (".pptx".equalsIgnoreCase(FilenameExtension) ||
+            ".ppt".equalsIgnoreCase(FilenameExtension)) {
             return "application/vnd.ms-powerpoint";
         }
-        if (FilenameExtension.equalsIgnoreCase(".docx") ||
-            FilenameExtension.equalsIgnoreCase(".doc")) {
+        if (".docx".equalsIgnoreCase(FilenameExtension) ||
+            ".doc".equalsIgnoreCase(FilenameExtension)) {
             return "application/msword";
         }
-        if (FilenameExtension.equalsIgnoreCase(".xml")) {
+        if (".xml".equalsIgnoreCase(FilenameExtension)) {
             return "text/xml";
         }
         return "image/jpeg";
@@ -179,7 +192,8 @@ public final class UploadUtils {
         // 生成URL
         URL url = ossClient.generatePresignedUrl(bucketName, filedir + name, expiration);
         if (url != null) {
-            return url.toString();
+            String[] split = url.toString().split("\\?");
+            return split[0];
         }
         return null;
     }

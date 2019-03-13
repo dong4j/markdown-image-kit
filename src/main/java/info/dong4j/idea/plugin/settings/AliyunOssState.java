@@ -17,4 +17,5 @@ public class AliyunOssState {
     private String accessSecretKey = "";
     private String bucketName = "";
     private String filedir = "";
+    private String suffix = "日期-文件名";
 }
