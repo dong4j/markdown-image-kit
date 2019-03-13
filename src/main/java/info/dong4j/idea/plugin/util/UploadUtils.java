@@ -69,7 +69,7 @@ public final class UploadUtils {
      */
     public static String uploadImg2Oss(File file) {
         Random random = new Random();
-        String name = file.getName() + random.nextInt(10000) + System.currentTimeMillis();
+        String name = random.nextInt(10000) + System.currentTimeMillis() + file.getName();
         try {
             uploadFile2OSS(new FileInputStream(file), name);
             return name;

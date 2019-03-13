@@ -17,6 +17,11 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
+        <!-- 设置面板 -->
+        <applicationConfigurable instance="info.dong4j.idea.plugin.settings.ProjectSettingsPage"/>
+        <!-- 持久化 -->
+        <applicationService serviceInterface="info.dong4j.idea.plugin.settings.AliyunOssSettings"
+                            serviceImplementation="info.dong4j.idea.plugin.settings.AliyunOssSettings"/>
     </extensions>
 
     <actions>
