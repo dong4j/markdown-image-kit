@@ -44,6 +44,9 @@ public abstract class AbstractObjectStorageService extends AnAction {
 
     /**
      * 检查 "upload to XXX OSS" 按钮是否可用
+     * 1. 相关 test 通过后
+     *  a. 如果全是目录则可用
+     *  b. 如果文件是 markdown 才可用
      *
      * @param event the event
      */

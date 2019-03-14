@@ -32,7 +32,6 @@ import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 
 import lombok.extern.slf4j.Slf4j;
@@ -81,6 +80,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JTabbedPane authorizationTabbedPanel;
     private JPanel weiboOssAuthorizationPanel;
     private JPanel qiniuOssAuthorizationPanel;
+    private JTextField compresstextField;
 
     private OssPersistenSettings ossPersistenSettings;
 
@@ -228,6 +228,17 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
 
         this.compressSlider.setEnabled(compressStatus && beforeCompressStatus);
         this.compressSlider.setValue(ossPersistenSettings.getState().getCompressBeforeUploadOfPercent());
+
+        // 设置主刻度间隔
+        compressSlider.setMajorTickSpacing(10);
+        // 设置次刻度间隔
+        compressSlider.setMinorTickSpacing(2);
+        // 绘制 刻度 和 标签
+        compressSlider.setPaintTicks(true);
+        compressSlider.setPaintLabels(true);
+        compressSlider.addChangeListener(e -> compresstextField.setText(String.valueOf(compressSlider.getValue())));
+
+        this.compresstextField.setText(String.valueOf(compressSlider.getValue()));
         this.styleNameTextField.setEnabled(compressStatus && lookUpCompressStatus);
         this.styleNameTextField.setText(ossPersistenSettings.getState().getStyleName());
 
@@ -245,26 +256,14 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             }
         });
 
-        addCheckBoxListener(compressBeforeUploadCheckBox, compressSlider);
-        addCheckBoxListener(compressAtLookupCheckBox, styleNameTextField);
-    }
-
-    /**
-     * 为 checkBox 添加监听器
-     *
-     * @param master    the master
-     * @param component the component
-     */
-    private void addCheckBoxListener(JCheckBox master, JComponent component) {
-        ChangeListener changeListener = e -> {
+        compressBeforeUploadCheckBox.addChangeListener(e -> {
             JCheckBox checkBox = (JCheckBox) e.getSource();
-            if (checkBox.isSelected()) {
-                component.setEnabled(true);
-            } else {
-                component.setEnabled(false);
-            }
-        };
-        master.addChangeListener(changeListener);
+            compressSlider.setEnabled(checkBox.isSelected());
+        });
+        compressAtLookupCheckBox.addChangeListener(e -> {
+            JCheckBox checkBox = (JCheckBox) e.getSource();
+            styleNameTextField.setEnabled(checkBox.isSelected());
+        });
     }
 
     /**
