@@ -30,6 +30,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSlider;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
@@ -49,9 +50,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
 
     private JPanel myGeneralPanel;
 
-    private JPanel myAuthenticationPanel;
+    private JPanel aliyunOssAuthorizationPanel;
     private JPanel myUploadPanel;
-    private JPanel myOtherPanel;
 
     private JTextField bucketNameTextField;
     private JTextField accessKeyTextField;
@@ -78,6 +78,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JTextField styleNameTextField;
     private JCheckBox transportCheckBox;
     private JCheckBox backupCheckBox;
+    private JTabbedPane authorizationTabbedPanel;
+    private JPanel weiboOssAuthorizationPanel;
+    private JPanel qiniuOssAuthorizationPanel;
 
     private AliyunOssSettings aliyunOssSettings;
 
