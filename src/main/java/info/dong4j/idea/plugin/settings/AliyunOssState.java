@@ -18,4 +18,24 @@ public class AliyunOssState {
     private String bucketName = "";
     private String filedir = "";
     private String suffix = "日期-文件名";
+    /** 是否替换标签*/
+    private boolean changeToHtmlTag = false;
+    /** 替换的标签类型 */
+    private String tagType = "";
+    /** 替换的标签类型 code */
+    private String tagTypeCode = "";
+    /** 是否压缩图片 */
+    private boolean compress = false;
+    /** 上传前压缩 */
+    private boolean compressBeforeUpload = false;
+    /** 压缩比例 */
+    private int compressBeforeUploadOfPercent = 80;
+    /** 查看时压缩*/
+    private boolean compressAtLookup = false;
+    /** Aliyun OSS 图片压缩配置*/
+    private String styleName = "";
+    /** 图床迁移*/
+    private boolean transport = false;
+    /** 图片备份*/
+    private boolean backup = false;
 }

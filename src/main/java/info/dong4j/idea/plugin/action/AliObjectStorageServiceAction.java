@@ -152,7 +152,7 @@ public final class AliObjectStorageServiceAction extends AnAction {
                     stringBuilder.append(string).append("\n");
                 }
                 PsiDocumentUtils.commitAndSaveDocument(project, document, stringBuilder.toString());
-                showHintDialog(url);
+                notifucation(url);
             }
         } else {
             log.trace("project is null");
@@ -172,9 +172,9 @@ public final class AliObjectStorageServiceAction extends AnAction {
     /**
      * 显示提示对话框
      *
-     * @param text          the text
+     * @param text the text
      */
-    private void showHintDialog(String text) {
+    private void notifucation(String text) {
         Notification notification = new Notification("Upload Aliyun OSS", null, NotificationType.INFORMATION);
         // 可使用 HTML 标签
         notification.setContent(text);
@@ -184,7 +184,7 @@ public final class AliObjectStorageServiceAction extends AnAction {
         Notifications.Bus.notify(notification);
     }
 
-    private String upload( AnActionEvent anActionEvent, String filePath){
+    private String upload(AnActionEvent anActionEvent, String filePath) {
         final Project project = anActionEvent.getProject();
         PsiFile psiFile = findImageResource(project, filePath);
         if (psiFile != null) {
@@ -197,15 +197,12 @@ public final class AliObjectStorageServiceAction extends AnAction {
 
     @Nullable
     private static PsiFile findImageResource(Project project, String filePath) {
-
-        // ./imgs/1eefcf26.png
         String fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
 
         PsiFile[] foundFiles = FilenameIndex.getFilesByName(project, fileName, GlobalSearchScope.allScope(project));
         if (foundFiles.length <= 0) {
             return null;
         }
-
         return foundFiles[0];
     }
 }

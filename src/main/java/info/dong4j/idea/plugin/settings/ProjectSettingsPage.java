@@ -1,11 +1,13 @@
 package info.dong4j.idea.plugin.settings;
 
 import com.aliyun.oss.OSSClient;
+import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.JBColor;
 
+import info.dong4j.idea.plugin.enums.HtmlTagTypeEnum;
 import info.dong4j.idea.plugin.enums.SuffixSelectTypeEnum;
 import info.dong4j.idea.plugin.util.EnumsUtils;
 import info.dong4j.idea.plugin.util.UploadUtils;
@@ -14,17 +16,22 @@ import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.event.ActionListener;
 import java.io.*;
-import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.Optional;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JSlider;
 import javax.swing.JTextField;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 
 import lombok.extern.slf4j.Slf4j;
@@ -42,8 +49,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
 
     private JPanel myGeneralPanel;
 
-    private JPanel mySettingsPanel;
-    private JPanel mySupportPanel;
+    private JPanel myAuthenticationPanel;
+    private JPanel myUploadPanel;
+    private JPanel myOtherPanel;
 
     private JTextField bucketNameTextField;
     private JTextField accessKeyTextField;
@@ -55,8 +63,21 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JButton helpButton;
 
     private JTextField exampleTextField;
-    private JPanel myUploadPanel;
     private JLabel message;
+    private JCheckBox changeToHtmlTagCheckBox;
+    private JRadioButton largePictureRadioButton;
+    private JRadioButton commonRadioButton;
+    private JRadioButton customRadioButton;
+    private JTextField customHtmlTypeTextField;
+    private JTextField commontextField;
+    private JTextField largePicturetextField;
+    private JCheckBox compressCheckBox;
+    private JCheckBox compressBeforeUploadCheckBox;
+    private JCheckBox compressAtLookupCheckBox;
+    private JSlider compressSlider;
+    private JTextField styleNameTextField;
+    private JCheckBox transportCheckBox;
+    private JCheckBox backupCheckBox;
 
     private AliyunOssSettings aliyunOssSettings;
 
@@ -89,17 +110,23 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      * 每次打开设置面板时执行
      */
     private void initFromSettings() {
+        initAuthenticationPanel();
+        initUploadPanel();
+    }
+
+    /**
+     * 初始化认证相关设置
+     */
+    private void initAuthenticationPanel() {
         // 根据持久化配置设置为被选中的 item
         suffixBoxField.setSelectedItem(aliyunOssSettings.getState().getSuffix());
         // 处理当 fileDirTextField.getText() 为 空字符时, 不拼接 "/
-        String fileDir = StringUtils.isBlank(fileDirTextField.getText()) ? "" : "/" + fileDirTextField.getText();
-        // 拼接字符串
-        exampleTextField.setText(endpointTextField.getText() + fileDir + getSufixString(suffixBoxField.getSelectedItem().toString()));
+        setExampleText();
 
         endpointTextField.getDocument().addDocumentListener(new DocumentAdapter() {
             @Override
             protected void textChanged(@NotNull DocumentEvent e) {
-                exampleTextField.setText(endpointTextField.getText() + fileDirTextField.getText() + getSufixString(suffixBoxField.getSelectedItem().toString()));
+                setExampleText();
             }
         });
 
@@ -107,16 +134,13 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         fileDirTextField.getDocument().addDocumentListener(new DocumentAdapter() {
             @Override
             protected void textChanged(@NotNull DocumentEvent e) {
-                String fileDirText = StringUtils.isBlank(fileDirTextField.getText()) ? "" : "/" + fileDirTextField.getText();
-                exampleTextField.setText(endpointTextField.getText() + fileDirText + getSufixString(suffixBoxField.getSelectedItem().toString()));
+                setExampleText();
             }
         });
 
         // 添加监听器, 当选项被修改后, 修改 exampleTextField 中的 text
         suffixBoxField.addItemListener(e -> {
-            log.trace("itemStateChanged e = {}", e.getItem());
-            String fileDirText = StringUtils.isBlank(fileDirTextField.getText()) ? "" : fileDirTextField.getText();
-            exampleTextField.setText(endpointTextField.getText() + fileDirText + getSufixString(e.getItem().toString()));
+            setExampleText();
         });
 
         // "Test" 按钮点击事件处理
@@ -128,11 +152,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             String tempEndpoint = endpointTextField.getText().trim().replace(tempBucketName + ".", "");
             String tempFileDir = fileDirTextField.getText().trim();
             tempFileDir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";
-            OSSClient ossClient = new OSSClient(tempEndpoint, tempAccessKey, tempAccessSecretKey);
+            OSSClient ossClient = null;
             try {
+                ossClient = new OSSClient(tempEndpoint, tempAccessKey, tempAccessSecretKey);
                 // 返回读取指定资源的输入流
                 InputStream is = this.getClass().getResourceAsStream("/test.png");
-
                 UploadUtils.uploadFile2OSS(ossClient, is, tempFileDir, "test.png");
                 UploadUtils.getUrl(tempFileDir, "test.png");
                 message.setText("test succeed");
@@ -141,7 +165,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                 message.setText(e1.getMessage());
                 message.setForeground(JBColor.RED);
             } finally {
-                ossClient.shutdown();
+                if (ossClient != null) {
+                    ossClient.shutdown();
+                }
             }
         });
 
@@ -149,45 +175,175 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         helpButton.addActionListener(e -> {
             // 打开浏览器到帮助页面
             String url = "http://dong4j.info";
-            try {
-                String osName = System.getProperty("os.name", "");
-                if (osName.startsWith("Mac OS")) {
-                    // 苹果
-                    Class fileMgr = Class.forName("com.apple.eio.FileManager");
-                    Method openURL = fileMgr.getDeclaredMethod("openURL", String.class);
-                    openURL.invoke(null, url);
-                } else if (osName.startsWith("Windows")) {
-                    // windows
-                    Runtime.getRuntime().exec(
-                        "rundll32 url.dll,FileProtocolHandler " + url);
-                } else {
-                    // Unix or Linux
-                    String[] browsers = {"firefox", "opera", "konqueror", "epiphany",
-                                         "mozilla", "netscape"};
-                    String browser = null;
-                    // 执行代码，在brower有值后跳出，
-                    // 这里是如果进程创建成功了，==0是表示正常结束。
-                    for (int count = 0; count < browsers.length && browser == null; count++) {
-                        if (Runtime.getRuntime()
-                                .exec(new String[] {"which", browsers[count]})
-                                .waitFor() == 0) {
-                            browser = browsers[count];
-                        }
-                    }
-                    if (browser == null) {
-                        throw new Exception("Could not find web browser");
-                    }
-                    // 这个值在上面已经成功的得到了一个进程。
-                    else {
-                        Runtime.getRuntime().exec(new String[] {browser, url});
-                    }
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+            BrowserUtil.browse(url);
         });
     }
 
+    /**
+     * 实时更新此字段
+     */
+    private void setExampleText() {
+        String fileDir = StringUtils.isBlank(fileDirTextField.getText()) ? "" : "/" + fileDirTextField.getText();
+        exampleTextField.setText(endpointTextField.getText() + fileDir + getSufixString(Objects.requireNonNull(suffixBoxField.getSelectedItem()).toString()));
+    }
+
+    /**
+     * 初始化 upload 配置组
+     */
+    private void initUploadPanel() {
+        initChangeToHtmlGroup();
+        initCompressGroup();
+        initExpandGroup();
+    }
+
+    /**
+     * 初始化图片备份和图床迁移
+     */
+    private void initExpandGroup() {
+        this.transportCheckBox.setSelected(aliyunOssSettings.getState().isTransport());
+        this.backupCheckBox.setSelected(aliyunOssSettings.getState().isBackup());
+    }
+
+    /**
+     * 初始化图片压缩配置组
+     */
+    private void initCompressGroup() {
+        styleNameTextField.addFocusListener(new JTextFieldHintListener(styleNameTextField, "请提前在 Aliyun OSS 控制台设置"));
+
+        boolean compressStatus = aliyunOssSettings.getState().isCompress();
+        boolean beforeCompressStatus = aliyunOssSettings.getState().isCompressBeforeUpload();
+        boolean lookUpCompressStatus = aliyunOssSettings.getState().isCompressAtLookup();
+        // 设置被选中
+        this.compressCheckBox.setSelected(compressStatus);
+        // 设置组下多选框状态
+        this.compressBeforeUploadCheckBox.setEnabled(compressStatus);
+        this.compressBeforeUploadCheckBox.setSelected(beforeCompressStatus);
+        this.compressAtLookupCheckBox.setEnabled(compressStatus);
+        this.compressAtLookupCheckBox.setSelected(lookUpCompressStatus);
+
+        this.compressSlider.setEnabled(compressStatus && beforeCompressStatus);
+        this.compressSlider.setValue(aliyunOssSettings.getState().getCompressBeforeUploadOfPercent());
+        this.styleNameTextField.setEnabled(compressStatus && lookUpCompressStatus);
+        this.styleNameTextField.setText(aliyunOssSettings.getState().getStyleName());
+
+        // compressCheckBox 监听, 修改组下组件状态
+        compressCheckBox.addChangeListener(e -> {
+            JCheckBox checkBox = (JCheckBox) e.getSource();
+            if (checkBox.isSelected()) {
+                compressBeforeUploadCheckBox.setEnabled(true);
+                compressAtLookupCheckBox.setEnabled(true);
+            } else {
+                compressBeforeUploadCheckBox.setEnabled(false);
+                compressAtLookupCheckBox.setEnabled(false);
+                compressSlider.setEnabled(false);
+                styleNameTextField.setEnabled(false);
+            }
+        });
+
+        addCheckBoxListener(compressBeforeUploadCheckBox, compressSlider);
+        addCheckBoxListener(compressAtLookupCheckBox, styleNameTextField);
+    }
+
+    /**
+     * 为 checkBox 添加监听器
+     *
+     * @param master    the master
+     * @param component the component
+     */
+    private void addCheckBoxListener(JCheckBox master, JComponent component) {
+        ChangeListener changeListener = e -> {
+            JCheckBox checkBox = (JCheckBox) e.getSource();
+            if (checkBox.isSelected()) {
+                component.setEnabled(true);
+            } else {
+                component.setEnabled(false);
+            }
+        };
+        master.addChangeListener(changeListener);
+    }
+
+    /**
+     * 初始化替换标签设置组
+     */
+    private void initChangeToHtmlGroup() {
+        customHtmlTypeTextField.addFocusListener(new JTextFieldHintListener(customHtmlTypeTextField, "格式: <a title='${}' href='${}' >![${}](${})</a>"));
+
+        // 初始化 changeToHtmlTagCheckBox 选中状态
+        // 设置被选中
+        this.changeToHtmlTagCheckBox.setSelected(aliyunOssSettings.getState().isChangeToHtmlTag());
+        // 设置组下单选框可用
+        this.largePictureRadioButton.setEnabled(aliyunOssSettings.getState().isChangeToHtmlTag());
+        this.commonRadioButton.setEnabled(aliyunOssSettings.getState().isChangeToHtmlTag());
+        this.customRadioButton.setEnabled(aliyunOssSettings.getState().isChangeToHtmlTag());
+
+        // 初始化 changeToHtmlTagCheckBox 组下单选框状态
+        if (HtmlTagTypeEnum.COMMON_PICTURE.text.equals(aliyunOssSettings.getState().getTagType())) {
+            commonRadioButton.setSelected(true);
+        } else if (HtmlTagTypeEnum.LARGE_PICTURE.text.equals(aliyunOssSettings.getState().getTagType())) {
+            largePictureRadioButton.setSelected(true);
+        } else if (HtmlTagTypeEnum.CUSTOM.text.equals(aliyunOssSettings.getState().getTagType())) {
+            customRadioButton.setSelected(true);
+            customHtmlTypeTextField.setEnabled(true);
+            customHtmlTypeTextField.setText(aliyunOssSettings.getState().getTagTypeCode());
+        } else {
+            commonRadioButton.setSelected(true);
+        }
+
+        // changeToHtmlTagCheckBox 监听, 修改组下组件状态
+        changeToHtmlTagCheckBox.addChangeListener(e -> {
+            JCheckBox checkBox = (JCheckBox) e.getSource();
+            if (checkBox.isSelected()) {
+                largePictureRadioButton.setEnabled(true);
+                commonRadioButton.setEnabled(true);
+                customRadioButton.setEnabled(true);
+                // 如果原来自定义选项被选中, 则将输入框设置为可用
+                if (customRadioButton.isSelected()) {
+                    customHtmlTypeTextField.setEnabled(true);
+                }
+            } else {
+                largePictureRadioButton.setEnabled(false);
+                commonRadioButton.setEnabled(false);
+                customRadioButton.setEnabled(false);
+                customHtmlTypeTextField.setEnabled(false);
+            }
+        });
+        ButtonGroup group = new ButtonGroup();
+        addRadioButton(group, largePictureRadioButton);
+        addRadioButton(group, commonRadioButton);
+        addRadioButton(group, customRadioButton);
+    }
+
+    /**
+     * 处理被选中的单选框
+     *
+     * @param group  the group
+     * @param button the button
+     */
+    private void addRadioButton(ButtonGroup group, JRadioButton button) {
+        // 设置name即为 actionCommand
+        group.add(button);
+        // 构造一个监听器，响应checkBox事件
+        ActionListener actionListener = e -> {
+            Object sourceObject = e.getSource();
+            if (sourceObject instanceof JRadioButton) {
+                JRadioButton sourceButton = (JRadioButton) sourceObject;
+                if (HtmlTagTypeEnum.CUSTOM.text.equals(sourceButton.getText())) {
+                    customHtmlTypeTextField.setEnabled(true);
+                } else {
+                    customHtmlTypeTextField.setEnabled(false);
+                }
+            }
+        };
+        button.addActionListener(actionListener);
+    }
+
+    /**
+     * 生成文件名后缀
+     *
+     * @param name the name
+     * @return the sufix string
+     */
+    @NotNull
     private String getSufixString(String name) {
         if (SuffixSelectTypeEnum.FILE_NAME.name.equals(name)) {
             return "/image.png";
@@ -213,7 +369,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         String newAccessSecretKey = accessSecretKeyTextField.getText().trim();
         String newEndpoint = endpointTextField.getText().trim();
         String newFileDir = fileDirTextField.getText().trim();
-
         String newSuffix = "";
 
         int index = suffixBoxField.getSelectedIndex();
@@ -222,12 +377,67 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             newSuffix = type.get().getName();
         }
 
+        // 是否替换标签
+        boolean changeToHtmlTag = changeToHtmlTagCheckBox.isSelected();
+        // 替换的标签类型
+        String tagType = "";
+        // 替换的标签类型 code
+        String tagTypeCode = "";
+        if (changeToHtmlTag) {
+            // 正常的
+            if (commonRadioButton.isSelected()) {
+                tagType = HtmlTagTypeEnum.COMMON_PICTURE.text;
+                tagTypeCode = HtmlTagTypeEnum.COMMON_PICTURE.code;
+            }
+            // 点击看大图
+            else if (largePictureRadioButton.isSelected()) {
+                tagType = HtmlTagTypeEnum.LARGE_PICTURE.text;
+                tagTypeCode = HtmlTagTypeEnum.LARGE_PICTURE.code;
+            }
+            // 自定义
+            else if (customRadioButton.isSelected()) {
+                tagType = HtmlTagTypeEnum.CUSTOM.text;
+                // todo-dong4j : (2019年03月14日 14:30) [格式验证]
+                tagTypeCode = customHtmlTypeTextField.getText().trim();
+            }
+        }
+
+        // 是否压缩图片
+        boolean compress = compressCheckBox.isSelected();
+        // 上传前压缩
+        boolean compressBeforeUpload = compressBeforeUploadCheckBox.isSelected();
+        // 压缩比例
+        int compressBeforeUploadOfPercent = compressSlider.getValue();
+        // 查看时压缩
+        boolean compressAtLookup = compressAtLookupCheckBox.isSelected();
+        // Aliyun OSS 图片压缩配置
+        String styleName = "";
+        if (compressAtLookup) {
+            styleName = styleNameTextField.getText().trim();
+        }
+        // 图床迁移
+        boolean transport = transportCheckBox.isSelected();
+        // 图片备份
+        boolean backup = backupCheckBox.isSelected();
+
         return !(newBucketName.equals(aliyunOssSettings.getState().getBucketName())
                  && newAccessKey.equals(aliyunOssSettings.getState().getAccessKey())
                  && newAccessSecretKey.equals(aliyunOssSettings.getState().getAccessSecretKey())
                  && newEndpoint.equals(aliyunOssSettings.getState().getEndpoint())
                  && newFileDir.equals(aliyunOssSettings.getState().getFiledir())
-                 && newSuffix.equals(aliyunOssSettings.getState().getSuffix()));
+                 && newSuffix.equals(aliyunOssSettings.getState().getSuffix())
+
+                 && changeToHtmlTag == aliyunOssSettings.getState().isChangeToHtmlTag()
+                 && tagType.equals(aliyunOssSettings.getState().getTagType())
+                 && tagTypeCode.equals(aliyunOssSettings.getState().getTagTypeCode())
+                 && compress == aliyunOssSettings.getState().isCompress()
+                 && compressBeforeUpload == aliyunOssSettings.getState().isCompressBeforeUpload()
+                 && compressBeforeUploadOfPercent == aliyunOssSettings.getState().getCompressBeforeUploadOfPercent()
+                 && compressAtLookup == aliyunOssSettings.getState().isCompressAtLookup()
+                 && styleName.equals(aliyunOssSettings.getState().getStyleName())
+                 && transport == aliyunOssSettings.getState().isTransport()
+                 && backup == aliyunOssSettings.getState().isBackup()
+        );
     }
 
     /**
@@ -243,9 +453,36 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         aliyunOssSettings.getState().setFiledir(this.fileDirTextField.getText().trim());
         aliyunOssSettings.getState().setSuffix(Objects.requireNonNull(this.suffixBoxField.getSelectedItem()).toString());
 
+        aliyunOssSettings.getState().setChangeToHtmlTag(this.changeToHtmlTagCheckBox.isSelected());
+        if (this.changeToHtmlTagCheckBox.isSelected()) {
+            // 正常的
+            if (commonRadioButton.isSelected()) {
+                aliyunOssSettings.getState().setTagType(HtmlTagTypeEnum.COMMON_PICTURE.text);
+                aliyunOssSettings.getState().setTagTypeCode(HtmlTagTypeEnum.COMMON_PICTURE.code);
+            }
+            // 点击看大图
+            else if (largePictureRadioButton.isSelected()) {
+                aliyunOssSettings.getState().setTagType(HtmlTagTypeEnum.LARGE_PICTURE.text);
+                aliyunOssSettings.getState().setTagTypeCode(HtmlTagTypeEnum.LARGE_PICTURE.code);
+            }
+            // 自定义
+            else if (customRadioButton.isSelected()) {
+                aliyunOssSettings.getState().setTagType(HtmlTagTypeEnum.CUSTOM.text);
+                // todo-dong4j : (2019年03月14日 14:30) [格式验证]
+                aliyunOssSettings.getState().setTagTypeCode(customHtmlTypeTextField.getText().trim());
+            }
+        }
+        aliyunOssSettings.getState().setCompress(this.compressCheckBox.isSelected());
+        aliyunOssSettings.getState().setCompressBeforeUpload(this.compressBeforeUploadCheckBox.isSelected());
+        aliyunOssSettings.getState().setCompressBeforeUploadOfPercent(this.compressSlider.getValue());
+        aliyunOssSettings.getState().setCompressAtLookup(this.compressAtLookupCheckBox.isSelected());
+        aliyunOssSettings.getState().setStyleName(this.styleNameTextField.getText().trim());
+        aliyunOssSettings.getState().setTransport(this.transportCheckBox.isSelected());
+        aliyunOssSettings.getState().setBackup(this.backupCheckBox.isSelected());
+
         // 重新创建 OSSClient
         UploadUtils.destory();
-        UploadUtils.init();
+        UploadUtils.reset();
     }
 
     /**

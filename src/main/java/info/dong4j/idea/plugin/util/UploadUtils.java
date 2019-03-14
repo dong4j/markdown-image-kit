@@ -36,14 +36,10 @@ public final class UploadUtils {
 
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-");
 
-
     static {
         init();
     }
 
-    /**
-     * Init.
-     */
     public static void init() {
         AliyunOssSettings aliyunOssSettings = AliyunOssSettings.getInstance();
         bucketName = aliyunOssSettings.getState().getBucketName();
@@ -52,14 +48,23 @@ public final class UploadUtils {
         String endpoint = aliyunOssSettings.getState().getEndpoint().replace(bucketName + ".", "");
         filedir = StringUtils.isBlank(aliyunOssSettings.getState().getFiledir()) ? "" : aliyunOssSettings.getState().getFiledir() + "/";
         sufix = aliyunOssSettings.getState().getSuffix();
-        ossClient = new OSSClient(endpoint, accessKeyId, accessKeySecret);
+        try{
+            ossClient = new OSSClient(endpoint, accessKeyId, accessKeySecret);
+        }catch (Exception ignored){
+        }
+    }
+
+    public static void reset(){
+        init();
     }
 
     /**
      * 销毁
      */
     public static void destory() {
-        ossClient.shutdown();
+        if(ossClient != null){
+            ossClient.shutdown();
+        }
     }
 
     /**
