@@ -18,30 +18,30 @@ import lombok.extern.slf4j.Slf4j;
  * @email sjdong3 @iflytek.com
  */
 @Slf4j
-@State(name = "AliyunOssUploadSettings", storages = @Storage(file = "aliyun-oss-upload.xml"))
-public class AliyunOssSettings implements PersistentStateComponent<AliyunOssState> {
+@State(name = "OssUploadSettings", storages = @Storage(file = "oss-upload.xml"))
+public class OssPersistenSettings implements PersistentStateComponent<OssState> {
 
     /**
      * Get the instance of this service.
      *
-     * @return the unique {@link AliyunOssSettings} instance.
+     * @return the unique {@link OssPersistenSettings} instance.
      */
-    public static AliyunOssSettings getInstance() {
+    public static OssPersistenSettings getInstance() {
         log.trace("get AliyunOssSettings getInstance");
-        return ServiceManager.getService(AliyunOssSettings.class);
+        return ServiceManager.getService(OssPersistenSettings.class);
     }
 
-    private AliyunOssState myState = new AliyunOssState();
+    private OssState myState = new OssState();
 
     @Override
-    public void loadState(@NotNull AliyunOssState state) {
+    public void loadState(@NotNull OssState state) {
         log.trace("loadState = {}", state);
         this.myState = state;
     }
 
     @NotNull
     @Override
-    public AliyunOssState getState() {
+    public OssState getState() {
         log.trace("get state = {}", myState);
         return this.myState;
     }

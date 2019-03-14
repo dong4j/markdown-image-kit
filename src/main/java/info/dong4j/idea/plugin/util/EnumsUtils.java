@@ -1,13 +1,12 @@
 package info.dong4j.idea.plugin.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
@@ -17,10 +16,9 @@ import java.util.function.Predicate;
  * @date 2019 -03-13 16:00
  * @email sjdong3 @iflytek.com
  */
+@Slf4j
+@SuppressWarnings("unchecked")
 public class EnumsUtils {
-
-    private static Logger logger = LoggerFactory.getLogger(EnumsUtils.class);
-
     private static Map<Class, Object> map = new ConcurrentHashMap<>();
 
     /**
@@ -33,7 +31,7 @@ public class EnumsUtils {
      */
     public static <T> Optional<T> getEnumObject(Class<T> className, Predicate<T> predicate) {
         if (!className.isEnum()) {
-            logger.info("Class 不是枚举类");
+            log.info("Class 不是枚举类");
             return Optional.empty();
         }
         Object obj = map.get(className);

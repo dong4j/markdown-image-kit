@@ -7,18 +7,18 @@ import java.io.*;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: 上传到微博 OSS 事件</p>
+ * <p>Description: 上传到七牛云 OSS 事件</p>
  *
  * @author dong4j
  * @email sjdong3@iflytek.com
- * @since 2019-03-14 16:39
+ * @since 2019-03-14 17:09
  */
-public final class WeiboObjectStorageServiceAction extends AbstractObjectStorageService {
+public final class QiniuObjectStorageServiceAction extends AbstractObjectStorageService {
+
     @Contract(pure = true)
     @Override
     boolean isPassedTest() {
-        // weibo 图床不需要测试
-        return true;
+        return false;
     }
 
     @Nullable

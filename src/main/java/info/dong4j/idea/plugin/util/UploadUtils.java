@@ -6,7 +6,7 @@ import com.aliyun.oss.model.PutObjectResult;
 
 import info.dong4j.idea.plugin.enums.SuffixSelectTypeEnum;
 import info.dong4j.idea.plugin.exception.ImgException;
-import info.dong4j.idea.plugin.settings.AliyunOssSettings;
+import info.dong4j.idea.plugin.settings.OssPersistenSettings;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -41,13 +41,14 @@ public final class UploadUtils {
     }
 
     public static void init() {
-        AliyunOssSettings aliyunOssSettings = AliyunOssSettings.getInstance();
-        bucketName = aliyunOssSettings.getState().getBucketName();
-        String accessKeyId = aliyunOssSettings.getState().getAccessKey();
-        String accessKeySecret = aliyunOssSettings.getState().getAccessSecretKey();
-        String endpoint = aliyunOssSettings.getState().getEndpoint().replace(bucketName + ".", "");
-        filedir = StringUtils.isBlank(aliyunOssSettings.getState().getFiledir()) ? "" : aliyunOssSettings.getState().getFiledir() + "/";
-        sufix = aliyunOssSettings.getState().getSuffix();
+        OssPersistenSettings ossPersistenSettings = OssPersistenSettings.getInstance();
+        bucketName = ossPersistenSettings.getState().getAliyunOssState().getBucketName();
+        String accessKeyId = ossPersistenSettings.getState().getAliyunOssState().getAccessKey();
+        String accessKeySecret = ossPersistenSettings.getState().getAliyunOssState().getAccessSecretKey();
+        String endpoint = ossPersistenSettings.getState().getAliyunOssState().getEndpoint().replace(bucketName + ".", "");
+        String tempFileDir = ossPersistenSettings.getState().getAliyunOssState().getFiledir();
+        filedir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";
+        sufix = ossPersistenSettings.getState().getAliyunOssState().getSuffix();
         try{
             ossClient = new OSSClient(endpoint, accessKeyId, accessKeySecret);
         }catch (Exception ignored){
