@@ -18,7 +18,7 @@ import java.util.Map;
  * @email sjdong3@iflytek.com
  * @since 2019-03-14 17:09
  */
-public final class QiniuObjectStorageServiceAction extends AbstractObjectStorageService {
+public final class QiniuObjectStorageServiceAction extends AbstractObjectStorageServiceAction {
 
     @Contract(pure = true)
     @Override

@@ -34,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019 -03-12 17:20
  */
 @Slf4j
-public final class AliyunObjectStorageServiceAction extends AbstractObjectStorageService {
+public final class AliyunObjectStorageServiceAction extends AbstractObjectStorageServiceAction {
     /** 是否有上传的任务*/
     private static boolean uploading = false;
 

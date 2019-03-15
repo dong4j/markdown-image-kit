@@ -47,10 +47,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ProjectSettingsPage implements SearchableConfigurable, Configurable.NoScroll {
 
-    private JPanel myGeneralPanel;
+    private JPanel myMainPanel;
 
+    private JTabbedPane authorizationTabbedPanel;
+    private JPanel weiboOssAuthorizationPanel;
+    private JPanel qiniuOssAuthorizationPanel;
     private JPanel aliyunOssAuthorizationPanel;
-    private JPanel generalUploadPanel;
+    private JPanel globalUploadPanel;
 
     private JTextField bucketNameTextField;
     private JTextField accessKeyTextField;
@@ -60,7 +63,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JComboBox suffixBoxField;
     private JButton testButton;
     private JButton helpButton;
-
     private JTextField exampleTextField;
     private JLabel message;
     private JCheckBox changeToHtmlTagCheckBox;
@@ -77,9 +79,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JTextField styleNameTextField;
     private JCheckBox transportCheckBox;
     private JCheckBox backupCheckBox;
-    private JTabbedPane authorizationTabbedPanel;
-    private JPanel weiboOssAuthorizationPanel;
-    private JPanel qiniuOssAuthorizationPanel;
     private JTextField compresstextField;
 
     private OssPersistenSettings ossPersistenSettings;
@@ -106,7 +105,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     public JComponent createComponent() {
         log.trace("createComponent");
         initFromSettings();
-        return myGeneralPanel;
+        return myMainPanel;
     }
 
     /**
@@ -205,6 +204,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      * 初始化图片备份和图床迁移
      */
     private void initExpandGroup() {
+        // todo-dong4j : (2019年03月15日 20:52) [删除此设置, 使用 MoveToOtherStorageAction 替代]
         this.transportCheckBox.setSelected(ossPersistenSettings.getState().isTransport());
         this.backupCheckBox.setSelected(ossPersistenSettings.getState().isBackup());
     }

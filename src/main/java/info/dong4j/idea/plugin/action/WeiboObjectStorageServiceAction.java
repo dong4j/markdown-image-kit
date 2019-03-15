@@ -18,7 +18,7 @@ import java.util.Map;
  * @email sjdong3@iflytek.com
  * @since 2019-03-14 16:39
  */
-public final class WeiboObjectStorageServiceAction extends AbstractObjectStorageService {
+public final class WeiboObjectStorageServiceAction extends AbstractObjectStorageServiceAction {
     @Contract(pure = true)
     @Override
     boolean isPassedTest() {

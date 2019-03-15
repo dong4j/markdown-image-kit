@@ -51,11 +51,9 @@ import lombok.extern.slf4j.Slf4j;
  * @email sjdong3 @iflytek.com
  */
 @Slf4j
-public abstract class AbstractObjectStorageService extends AnAction {
+public abstract class AbstractObjectStorageServiceAction extends AnAction {
     private static final String MARKDOWN_FILE_TYPE = ".md";
     private static final String NODE_MODULES_FILE = "node_modules";
-
-
 
     /**
      * 检查 "upload to XXX OSS" 按钮是否可用
@@ -129,7 +127,7 @@ public abstract class AbstractObjectStorageService extends AnAction {
      * @return the boolean
      */
     @Contract(pure = true)
-    boolean isMardownFile(String name) {
+    private boolean isMardownFile(String name) {
         return name.endsWith(MARKDOWN_FILE_TYPE);
     }
 

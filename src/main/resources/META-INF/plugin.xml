@@ -1,6 +1,6 @@
 <idea-plugin>
     <id>info.dong4j.upload_oss</id>
-    <name>OSS upload</name>
+    <name>Markdown Image Upload</name>
     <version>0.0.1</version>
     <vendor email="dong4j@gmail.com" url="http://www.dong4j.info">dong4j</vendor>
 
@@ -11,12 +11,8 @@
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
-    <!-- uncomment to enable plugin in all products
-    <depends>com.intellij.modules.lang</depends>
-    -->
 
     <extensions defaultExtensionNs="com.intellij">
-        <!-- Add your extensions here -->
         <!-- 设置面板 -->
         <applicationConfigurable instance="info.dong4j.idea.plugin.settings.ProjectSettingsPage"/>
         <!-- 持久化 -->
@@ -28,19 +24,25 @@
         <action id="AliyunObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.AliyunObjectStorageServiceAction"
                 popup="true" text="Upload to Aliyun OSS">
         </action>
-
         <action id="WeiboObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.WeiboObjectStorageServiceAction"
                 popup="true" text="Upload to Weibo OSS">
         </action>
-
         <action id="QiniuObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.QiniuObjectStorageServiceAction"
                 popup="true" text="Upload to Qiniu OSS">
         </action>
+        <action id="ImageCompressAction" class="info.dong4j.idea.plugin.action.ImageCompressAction"
+                popup="true" text="Compress image">
+        </action>
+        <action id="MoveToOtherStorageAction" class="info.dong4j.idea.plugin.action.MoveToOtherStorageAction"
+                popup="true" text="Move to other storage">
+        </action>
 
-        <group popup="true" id="info.dong4j.idea.plugin.graph_bed_plan" text="Upload OSS">
+        <group popup="true" id="info.dong4j.idea.plugin.graph_bed_plan" text="Markdown Image Manager">
             <reference ref="WeiboObjectStorageServiceAction"/>
             <reference ref="AliyunObjectStorageServiceAction"/>
             <reference ref="QiniuObjectStorageServiceAction"/>
+            <reference ref="ImageCompressAction"/>
+            <reference ref="MoveToOtherStorageAction"/>
             <add-to-group group-id="ToolsMenu" anchor="last"/>
             <add-to-group group-id="MainToolBar" anchor="last"/>
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
