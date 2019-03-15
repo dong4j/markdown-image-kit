@@ -14,7 +14,9 @@
             <preferred-size width="200" height="200"/>
           </grid>
         </constraints>
-        <properties/>
+        <properties>
+          <enabled value="true"/>
+        </properties>
         <border type="none"/>
         <children>
           <grid id="b8ea7" binding="aliyunOssAuthorizationPanel" layout-manager="GridLayoutManager" row-count="8" column-count="25" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -227,7 +229,9 @@
             <constraints>
               <tabbedpane title="Qiniu OSS"/>
             </constraints>
-            <properties/>
+            <properties>
+              <enabled value="false"/>
+            </properties>
             <border type="none"/>
             <children/>
           </grid>

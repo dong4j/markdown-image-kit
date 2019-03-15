@@ -27,11 +27,28 @@ public class OssState {
         private boolean passedTest = false;
     }
 
+    @Data
+    public static class QiniuOssState {
+        private String endpoint = "";
+        private String accessKey = "";
+        private String accessSecretKey = "";
+        private String bucketName = "";
+        private String filedir = "";
+        private String suffix = "日期-文件名";
+        /** 查看时压缩*/
+        private boolean compressAtLookup = false;
+        /** Aliyun OSS 图片压缩配置*/
+        private String styleName = "";
+        private boolean passedTest = false;
+    }
+
     OssState(){
         this.aliyunOssState = new OssState.AliyunOssState();
+        this.qiniuOssState = new OssState.QiniuOssState();
     }
 
     private AliyunOssState aliyunOssState;
+    private QiniuOssState qiniuOssState;
     /** 是否替换标签*/
     private boolean changeToHtmlTag = false;
     /** 替换的标签类型 */

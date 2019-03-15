@@ -1,9 +1,14 @@
 package info.dong4j.idea.plugin.action;
 
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.editor.Document;
 
-import java.io.*;
+import info.dong4j.idea.plugin.entity.MarkdownImage;
+
+import org.jetbrains.annotations.Contract;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
@@ -21,10 +26,8 @@ public final class WeiboObjectStorageServiceAction extends AbstractObjectStorage
         return true;
     }
 
-    @Nullable
     @Contract(pure = true)
     @Override
-    String upload(File file) {
-        return null;
+    protected void upload(AnActionEvent event, Map<Document, List<MarkdownImage>> waitingForUploadImages) {
     }
 }
