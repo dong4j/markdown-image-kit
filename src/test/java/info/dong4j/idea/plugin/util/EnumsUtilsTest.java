@@ -54,4 +54,14 @@ public class EnumsUtilsTest {
             return name;
         }
     }
+
+    @Test
+    public void test1(){
+        String[] allCloud = new String[] {"网易云", "百度云", "京东云", "又拍云", "sm.ms", "Imgur", "Ucloud", "QingCloud"};
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String s : allCloud) {
+            stringBuilder.append("next").append(" ");
+            System.out.println(String.format("「%s」 \tsee you %sversion.", s, stringBuilder));
+        }
+    }
 }
