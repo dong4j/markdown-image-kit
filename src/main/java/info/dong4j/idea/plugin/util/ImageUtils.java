@@ -41,9 +41,7 @@ public class ImageUtils {
      */
     public static Image getImageFromClipboard() {
         Transferable transferable = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
-
         try {
-
             if (transferable != null && transferable.isDataFlavorSupported(DataFlavor.imageFlavor)) {
                 return (Image) transferable.getTransferData(DataFlavor.imageFlavor);
             } else {
@@ -103,7 +101,8 @@ public class ImageUtils {
             return null;
         }
 
-        int type = BufferedImage.TYPE_INT_ARGB;  // other options
+        // other options
+        int type = BufferedImage.TYPE_INT_ARGB;
         BufferedImage dest = new BufferedImage(w, h, type);
         Graphics2D g2 = dest.createGraphics();
         g2.drawImage(src, 0, 0, null);
@@ -122,7 +121,8 @@ public class ImageUtils {
      */
     public static void save(BufferedImage image, File file, String format) {
         try {
-            ImageIO.write(image, format, file);  // ignore returned boolean
+            // ignore returned boolean
+            ImageIO.write(image, format, file);
         } catch (Throwable e) {
             System.out.println("Write error for " + file.getPath() + ": " + e.getMessage());
         }
@@ -161,7 +161,6 @@ public class ImageUtils {
         }
 
         try {
-            //            //            related to http://bugs.java.com/bugdatabase/view_bug.do;jsessionid=dc84943191e06dffffffffdf200f5210dd319?bug_id=6967419
             for (int i = 0; i < 3; i++) {
                 BufferedImage read = null;
                 try {
@@ -178,10 +177,6 @@ public class ImageUtils {
 
                 return read;
             }
-            //            return toBufferedImage(read);
-
-            //            return ImageIO.read(cachedImageFile);
-
         } catch (Throwable e) {
             System.err.println("deleting " + cachedImageFile);
             cachedImageFile.delete();
@@ -219,24 +214,11 @@ public class ImageUtils {
         int w = image.getWidth();
         int h = image.getHeight();
         BufferedImage output = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-
         Graphics2D g2 = output.createGraphics();
-
-        // This is what we want, but it only does hard-clipping, i.e. aliasing
-        // g2.setClip(new RoundRectangle2D ...)
-
-        // so instead fake soft-clipping by first drawing the desired clip shape
-        // in fully opaque white with antialiasing enabled...
         g2.setComposite(AlphaComposite.Src);
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setColor(Color.WHITE);
         g2.fill(new RoundRectangle2D.Float(0, 0, w, h, cornerRadius, cornerRadius));
-        //        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
-        //        g2.fillRect(0,0,256,256);
-
-
-        // ... then compositing the image on top,
-        // using the white shape from above as alpha source
         g2.setComposite(AlphaComposite.SrcAtop);
         g2.drawImage(image, 0, 0, null);
 
@@ -271,20 +253,10 @@ public class ImageUtils {
      * @return the image
      */
     public static Image whiteToTransparent(BufferedImage image) {
-        //        ImageFilter filter = new RGBImageFilter() {
-        //            public final int filterRGB(int x, int y, int rgb) {
-        //                return (rgb << 8) & 0xFF000000;
-        //            }
-        //        };
-        //
-        //        ImageProducer ip = new FilteredImageSource(image.getSource(), filter);
-        //        return toBufferedImage(Toolkit.getDefaultToolkit().createImage(ip));
         ImageFilter filter = new RGBImageFilter() {
-
-            // the color we are looking for... Alpha bits are set to opaque
             public int markerRGB = Color.WHITE.getRGB() | 0xFF000000;
 
-
+            @Override
             public final int filterRGB(int x, int y, int rgb) {
                 if ((rgb | 0xFF000000) == markerRGB) {
                     // Mark the alpha bits as zero - transparent
@@ -298,7 +270,5 @@ public class ImageUtils {
 
         ImageProducer ip = new FilteredImageSource(image.getSource(), filter);
         return Toolkit.getDefaultToolkit().createImage(ip);
-
     }
-
 }

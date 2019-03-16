@@ -1,7 +1,5 @@
 package info.dong4j.idea.plugin.handler;
 
-import com.aliyun.oss.OSS;
-import com.aliyun.oss.OSSClientBuilder;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Caret;
@@ -15,9 +13,10 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Producer;
 
 import info.dong4j.idea.plugin.content.MarkdownContents;
+import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.OssPersistenConfig;
-import info.dong4j.idea.plugin.settings.OssState;
-import info.dong4j.idea.plugin.util.AliyunUploadUtils;
+import info.dong4j.idea.plugin.util.CharacterUtils;
+import info.dong4j.idea.plugin.util.EnumsUtils;
 import info.dong4j.idea.plugin.util.ImageUtils;
 
 import org.apache.commons.lang.StringUtils;
@@ -28,6 +27,11 @@ import java.awt.Image;
 import java.awt.datatransfer.Transferable;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Optional;
+
+import javax.imageio.ImageIO;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -62,20 +66,29 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                 Image imageFromClipboard = ImageUtils.getImageFromClipboard();
                 if (imageFromClipboard != null) {
                     BufferedImage bufferedImage = ImageUtils.toBufferedImage(imageFromClipboard);
-                    OssState.QiniuOssState qiniuOssState = OssPersistenConfig.getInstance().getState().getQiniuOssState();
-                    String accessKey = qiniuOssState.getAccessKey();
-                    String secretKey = qiniuOssState.getAccessSecretKey();
-                    String bucket = qiniuOssState.getBucketName();
-                    String upHost = qiniuOssState.getUrl();
-                    // String key = ImageUtils.save(bufferedImage, "preFix", "png", accessKey, secretKey, bucket);
-                    // String imageUrl = upHost + "/" + key;
+                    ByteArrayOutputStream os = new ByteArrayOutputStream();
+                    if (bufferedImage != null) {
+                        // 统一转成 png
+                        try {
+                            ImageIO.write(bufferedImage, "png", os);
+                        } catch (IOException e) {
+                            // todo-dong4j : (2019年03月17日 03:20) [添加通知]
+                            log.trace("", e);
+                            return;
+                        }
+                        InputStream is = new ByteArrayInputStream(os.toByteArray());
+                        int defaultCloudType = OssPersistenConfig.getInstance().getState().getCloudType();
+                        CloudEnum cloudEnum = getCloudEnum(defaultCloudType);
+                        // todo-dong4j : (2019年03月17日 03:45) [获取不到文件名, 只能随机]
+                        String imageUrl = upload(cloudEnum, is, CharacterUtils.getRandomString(12) + ".png");
+                        if (StringUtils.isNotBlank(imageUrl)) {
+                            // 在光标位置插入指定字符串
+                            WriteCommandAction.runWriteCommandAction(editor.getProject(),
+                                                                     () -> EditorModificationUtil.insertStringAtCaret(editor,
+                                                                                                                      "![](" + imageUrl + ")"));
+                        }
+                    }
 
-                    String imageUrl = uploadTest();
-
-                    // 在光标位置插入指定字符串
-                    WriteCommandAction.runWriteCommandAction(editor.getProject(),
-                                                             () -> EditorModificationUtil.insertStringAtCaret(editor,
-                                                                                                              "![](" + imageUrl + ")"));
                     return;
                 }
             }
@@ -86,30 +99,22 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
         }
     }
 
-    private String uploadTest(){
-        OssState.AliyunOssState aliyunOssState = OssPersistenConfig.getInstance().getState().getAliyunOssState();
-        String tempBucketName = aliyunOssState.getBucketName();
-        String tempAccessKey = aliyunOssState.getAccessKey();
-        String tempAccessSecretKey = aliyunOssState.getAccessSecretKey();
-        String tempEndpoint = aliyunOssState.getEndpoint();
-        String tempFileDir = aliyunOssState.getFiledir();
-        tempFileDir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";
-        OSS oss = null;
+    /**
+     * 通过反射调用调用, 避免条件判断
+     *
+     * @param cloudEnum   the cloud enum
+     * @param inputStream the input stream
+     * @return the string
+     */
+    private String upload(CloudEnum cloudEnum, InputStream inputStream, String fileName) {
         try {
-            OSSClientBuilder ossClientBuilder = new OSSClientBuilder();
-            // 返回读取指定资源的输入流
-            InputStream is = this.getClass().getResourceAsStream("/test.png");
-            oss = ossClientBuilder.build(tempEndpoint, tempAccessKey, tempAccessSecretKey);
-            oss.putObject(tempBucketName,
-                          tempFileDir + "test.png",
-                          is);
-            return AliyunUploadUtils.getUrl(tempFileDir, "test.png");
-        } catch (Exception e) {
+            Class<?> cls = Class.forName(cloudEnum.getClassName());
+            Object obj = cls.newInstance();
+            Method setFunc = cls.getMethod("upload", InputStream.class, String.class);
+            return (String) setFunc.invoke(obj, inputStream, fileName);
+        } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException | InstantiationException | NoSuchMethodException e) {
+            // todo-dong4j : (2019年03月17日 03:20) [添加通知]
             log.trace("", e);
-        } finally {
-            if (oss != null) {
-                oss.shutdown();
-            }
         }
         return "";
     }
@@ -117,5 +122,15 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
     @Override
     public void execute(Editor editor, DataContext dataContext, Producer<Transferable> producer) {
 
+    }
+
+    @NotNull
+    private CloudEnum getCloudEnum(int index) {
+        CloudEnum defaultCloud = CloudEnum.WEIBO_CLOUD;
+        Optional<CloudEnum> defaultCloudType = EnumsUtils.getEnumObject(CloudEnum.class, e -> e.getIndex() == index);
+        if (defaultCloudType.isPresent()) {
+            defaultCloud = defaultCloudType.get();
+        }
+        return defaultCloud;
     }
 }

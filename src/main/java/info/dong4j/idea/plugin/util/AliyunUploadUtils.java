@@ -41,7 +41,7 @@ public final class AliyunUploadUtils {
         init();
     }
 
-    public static void init() {
+    private static void init() {
         OssPersistenConfig ossPersistenConfig = OssPersistenConfig.getInstance();
         bucketName = ossPersistenConfig.getState().getAliyunOssState().getBucketName();
         String accessKeyId = ossPersistenConfig.getState().getAliyunOssState().getAccessKey();

@@ -8,7 +8,6 @@ import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.JBColor;
 
-import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.HtmlTagTypeEnum;
 import info.dong4j.idea.plugin.enums.SuffixSelectTypeEnum;
 import info.dong4j.idea.plugin.util.AliyunUploadUtils;
@@ -102,8 +101,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JButton testButton;
     private JLabel testMessage;
     private JButton helpButton;
-    private JPanel clipboardPanel;
 
+    private JPanel clipboardPanel;
     /** clipboard group */
     private JCheckBox clipboardControlCheckBox;
     private JCheckBox copyToDirCheckBox;
@@ -200,13 +199,13 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             int selectedIndex = authorizationTabbedPanel.getSelectedIndex();
             // 获得指定索引的选项卡标签
             String title = authorizationTabbedPanel.getTitleAt(selectedIndex);
-            System.out.println(title);
+            log.trace("change {}", title);
         });
 
         initAliyunOssAuthenticationPanel();
         initWeiboOssAuthenticationPanel();
         initQiniuOssAuthenticationPanel();
-        testAndHelpListener("title");
+        testAndHelpListener(authorizationTabbedPanel.getSelectedIndex());
     }
 
     /**
@@ -263,12 +262,22 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     /**
-     * 添加 test 和 help 按钮监听
+     * 添加 test 和 help 按钮监听, 根据选中的图床进行测试
      */
-    private void testAndHelpListener(String title) {
+    private void testAndHelpListener(int index) {
         // "Test" 按钮点击事件处理
         testButton.addActionListener(e -> {
             testButton.setEnabled(false);
+
+            // todo-dong4j : (2019年03月17日 01:57) [使用策略模式]
+            // if(index == CloudEnum.WEIBO_CLOUD.index){
+            //     uploadWeiboTest();
+            // } else if(int = CloudEnum.ALIYUN_CLOUD.index){
+            //     uploadWeiboTest();
+            // }...
+
+
+
             // 获取输入框文本, 进行请求处理
             String tempBucketName = aliyunOssBucketNameTextField.getText().trim();
             String tempAccessKey = aliyunOssAccessKeyTextField.getText().trim();
@@ -632,17 +641,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         // 重新创建 OSSClient
         AliyunUploadUtils.destory();
         AliyunUploadUtils.reset();
-    }
-
-    @NotNull
-    private CloudEnum getCloudEnum() {
-        CloudEnum defaultCloud = CloudEnum.WEIBO_CLOUD;
-        int defaultCloudIndex = defaultCloudComboBox.getSelectedIndex();
-        Optional<CloudEnum> defaultCloudType = EnumsUtils.getEnumObject(CloudEnum.class, e -> e.getIndex() == defaultCloudIndex);
-        if (defaultCloudType.isPresent()) {
-            defaultCloud = defaultCloudType.get();
-        }
-        return defaultCloud;
     }
 
     /**

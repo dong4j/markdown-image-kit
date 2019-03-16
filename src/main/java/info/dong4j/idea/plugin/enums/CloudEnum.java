@@ -11,25 +11,27 @@ import org.jetbrains.annotations.Contract;
  * @email sjdong3@iflytek.com
  */
 public enum CloudEnum {
-    WEIBO_CLOUD(0, "微博"),
-    ALIYUN_CLOUD(1, "阿里云"),
-    QINIU_CLOUD(2, "七牛云"),
-    WANGYI_CLOUD(3, "网易云"),
-    BAIDU_CLOUD(4, "百度云"),
-    JINGDONG_CLOUD(5, "京东云"),
-    YOUPAI_CLOUD(6, "又拍云"),
-    SM_MS_CLOUD(7, "sm.ms"),
-    IMGUR_CLOUD(8, "Imgur"),
-    U_CLOUD(9, "Ucloud"),
-    QING_CLOUD(10, "QIngCloud"),
-    CUSTOMIZE(11, "自定义");
+    WEIBO_CLOUD(0, "微博", "info.dong4j.idea.plugin.strategy.WeiboUploadStrategy"),
+    ALIYUN_CLOUD(1, "阿里云", "info.dong4j.idea.plugin.strategy.AliyunUploadStrategy"),
+    QINIU_CLOUD(2, "七牛云", ""),
+    WANGYI_CLOUD(3, "网易云", ""),
+    BAIDU_CLOUD(4, "百度云", ""),
+    JINGDONG_CLOUD(5, "京东云", ""),
+    YOUPAI_CLOUD(6, "又拍云", ""),
+    SM_MS_CLOUD(7, "sm.ms", ""),
+    IMGUR_CLOUD(8, "Imgur", ""),
+    U_CLOUD(9, "Ucloud", ""),
+    QING_CLOUD(10, "QIngCloud", ""),
+    CUSTOMIZE(11, "自定义", "");
 
     public int index;
     public String title;
+    public String className;
 
-    CloudEnum(int index, String title) {
+    CloudEnum(int index, String title, String className) {
         this.index = index;
         this.title = title;
+        this.className = className;
     }
 
     @Contract(pure = true)
@@ -40,5 +42,10 @@ public enum CloudEnum {
     @Contract(pure = true)
     public String getTitle() {
         return title;
+    }
+
+    @Contract(pure = true)
+    public String getClassName(){
+        return className;
     }
 }
