@@ -8,8 +8,7 @@ package info.dong4j.idea.plugin.enums;
  * @date 2019-03-15 18:07
  * @email sjdong3@iflytek.com
  */
-public enum MarkdownImageLocation {
+public enum ImageLocationEnum {
     LOCAL,
     NETWORK
-
 }

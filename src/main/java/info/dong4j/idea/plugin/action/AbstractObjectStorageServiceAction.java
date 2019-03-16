@@ -28,7 +28,7 @@ import com.intellij.psi.util.PsiUtilBase;
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
-import info.dong4j.idea.plugin.enums.MarkdownImageLocation;
+import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Contract;
@@ -315,7 +315,7 @@ public abstract class AbstractObjectStorageServiceAction extends AnAction {
                                          lineText.indexOf(ImageContents.IMAGE_MARK_SUFFIX));
         markdownImage.setTitle(title);
         if (path.startsWith(ImageContents.IMAGE_LOCATION)) {
-            markdownImage.setLocation(MarkdownImageLocation.NETWORK);
+            markdownImage.setLocation(ImageLocationEnum.NETWORK);
             markdownImage.setPath(path);
         } else {
             // 本地文件只需要文件名

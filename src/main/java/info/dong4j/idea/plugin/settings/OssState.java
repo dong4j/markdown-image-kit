@@ -47,6 +47,7 @@ public class OssState {
     public static class WeiboOssState{
         private String userName = "";
         private String password = "";
+        private boolean passedTest = false;
     }
 
     OssState(){
@@ -78,4 +79,14 @@ public class OssState {
     private boolean transport = false;
     /** 图片备份*/
     private boolean backup = false;
+    /** clipboard 监听 */
+    private boolean clipboardControl = false;
+    /** 拷贝图片到目录*/
+    private boolean copyToDir = false;
+    /** 上传图片并备份*/
+    private boolean uploadAndReplace = false;
+    /** 图片保存路径*/
+    private String imageSavePath = "";
+    /** 默认图床 */
+    private int cloudType = 0;
 }

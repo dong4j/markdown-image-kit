@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Document;
 
 import info.dong4j.idea.plugin.entity.MarkdownImage;
+import info.dong4j.idea.plugin.settings.OssPersistenConfig;
 
 import org.jetbrains.annotations.Contract;
 
@@ -23,7 +24,7 @@ public final class QiniuObjectStorageServiceAction extends AbstractObjectStorage
     @Contract(pure = true)
     @Override
     boolean isPassedTest() {
-        return false;
+        return OssPersistenConfig.getInstance().getState().getQiniuOssState().isPassedTest();
     }
 
     @Contract(pure = true)

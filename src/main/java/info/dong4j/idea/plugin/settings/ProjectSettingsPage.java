@@ -8,6 +8,7 @@ import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.JBColor;
 
+import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.HtmlTagTypeEnum;
 import info.dong4j.idea.plugin.enums.SuffixSelectTypeEnum;
 import info.dong4j.idea.plugin.util.AliyunUploadUtils;
@@ -102,10 +103,13 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JLabel testMessage;
     private JButton helpButton;
     private JPanel clipboardPanel;
-    private JCheckBox clipboardControl;
+
+    /** clipboard group */
+    private JCheckBox clipboardControlCheckBox;
     private JCheckBox copyToDirCheckBox;
-    private JCheckBox uploadAndReplaceCheckBox;
     private JTextField whereToCopyTextField;
+    private JCheckBox uploadAndReplaceCheckBox;
+    private JComboBox defaultCloudComboBox;
 
 
     /**
@@ -137,19 +141,84 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      * 每次打开设置面板时执行
      */
     private void initFromSettings() {
-        initAuthenticationPanel();
+        initAuthorizationTabbedPanel();
         initUploadPanel();
+        initClipboardControl();
     }
 
     /**
-     * 初始化认证相关设置
+     * 初始化 clipboard group
      */
-    private void initAuthenticationPanel() {
+    private void initClipboardControl() {
+        // 设置是否勾选
+        boolean isClipboardControl = ossPersistenConfig.getState().isClipboardControl();
+        boolean isCopyToDir = ossPersistenConfig.getState().isCopyToDir();
+        boolean isUploadAndReplace = ossPersistenConfig.getState().isUploadAndReplace();
+        this.clipboardControlCheckBox.setSelected(isClipboardControl);
+        this.copyToDirCheckBox.setSelected(isCopyToDir);
+        this.uploadAndReplaceCheckBox.setSelected(isUploadAndReplace);
+
+        // 设置是否可用
+        this.copyToDirCheckBox.setEnabled(isClipboardControl);
+        this.uploadAndReplaceCheckBox.setEnabled(isClipboardControl);
+        // 设置 copy 位置
+        this.whereToCopyTextField.setText(ossPersistenConfig.getState().getImageSavePath());
+        this.whereToCopyTextField.setEnabled(isClipboardControl && isCopyToDir);
+        // 默认上传图床
+        this.defaultCloudComboBox.setEnabled(isUploadAndReplace && isClipboardControl);
+        this.defaultCloudComboBox.setSelectedIndex(ossPersistenConfig.getState().getCloudType());
+
+        // 设置 clipboardControlCheckBox 监听
+        clipboardControlCheckBox.addChangeListener(e -> {
+            JCheckBox checkBox = (JCheckBox) e.getSource();
+            copyToDirCheckBox.setEnabled(checkBox.isSelected());
+            uploadAndReplaceCheckBox.setEnabled(checkBox.isSelected());
+            // 如果都被选中才设置为可用
+            whereToCopyTextField.setEnabled(copyToDirCheckBox.isSelected() && checkBox.isSelected());
+            defaultCloudComboBox.setEnabled(uploadAndReplaceCheckBox.isSelected() && checkBox.isSelected());
+        });
+
+        // 设置 copyToDirCheckBox 监听
+        copyToDirCheckBox.addChangeListener(e -> {
+            JCheckBox checkBox = (JCheckBox) e.getSource();
+            whereToCopyTextField.setEnabled(checkBox.isSelected());
+        });
+
+        // 设置 uploadAndReplaceCheckBox 监听
+        uploadAndReplaceCheckBox.addChangeListener(e -> {
+            JCheckBox checkBox = (JCheckBox) e.getSource();
+            defaultCloudComboBox.setEnabled(checkBox.isSelected());
+        });
+    }
+
+    /**
+     * 初始化 authorizationTabbedPanel group
+     */
+    private void initAuthorizationTabbedPanel() {
+        authorizationTabbedPanel.addChangeListener(e -> {
+            // 获得被选中选项卡的索引
+            int selectedIndex = authorizationTabbedPanel.getSelectedIndex();
+            // 获得指定索引的选项卡标签
+            String title = authorizationTabbedPanel.getTitleAt(selectedIndex);
+            System.out.println(title);
+        });
+
+        initAliyunOssAuthenticationPanel();
+        initWeiboOssAuthenticationPanel();
+        initQiniuOssAuthenticationPanel();
+        testAndHelpListener("title");
+    }
+
+    /**
+     * 初始化 aliyun oss 认证相关设置
+     */
+    private void initAliyunOssAuthenticationPanel() {
         // 根据持久化配置设置为被选中的 item
         aliyunOssSuffixBoxField.setSelectedItem(ossPersistenConfig.getState().getAliyunOssState().getSuffix());
         // 处理当 aliyunOssFileDirTextField.getText() 为 空字符时, 不拼接 "/
         setExampleText();
 
+        // 监听 aliyunOssBucketNameTextField
         aliyunOssBucketNameTextField.getDocument().addDocumentListener(new DocumentAdapter() {
             @Override
             protected void textChanged(@NotNull DocumentEvent e) {
@@ -157,7 +226,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             }
         });
 
-
+        // 监听 aliyunOssEndpointTextField
         aliyunOssEndpointTextField.getDocument().addDocumentListener(new DocumentAdapter() {
             @Override
             protected void textChanged(@NotNull DocumentEvent e) {
@@ -177,7 +246,26 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         aliyunOssSuffixBoxField.addItemListener(e -> {
             setExampleText();
         });
+    }
 
+    /**
+     * 初始化 weibo oss 认证相关设置
+     */
+    private void initWeiboOssAuthenticationPanel() {
+
+    }
+
+    /**
+     * 初始化 qiniu oss 认证相关设置
+     */
+    private void initQiniuOssAuthenticationPanel() {
+
+    }
+
+    /**
+     * 添加 test 和 help 按钮监听
+     */
+    private void testAndHelpListener(String title) {
         // "Test" 按钮点击事件处理
         testButton.addActionListener(e -> {
             testButton.setEnabled(false);
@@ -216,7 +304,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                 testButton.setEnabled(true);
             }
         });
-
         // help button 监听
         helpButton.addActionListener(e -> {
             // 打开浏览器到帮助页面
@@ -343,19 +430,12 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         // changeToHtmlTagCheckBox 监听, 修改组下组件状态
         changeToHtmlTagCheckBox.addChangeListener(e -> {
             JCheckBox checkBox = (JCheckBox) e.getSource();
-            if (checkBox.isSelected()) {
-                largePictureRadioButton.setEnabled(true);
-                commonRadioButton.setEnabled(true);
-                customRadioButton.setEnabled(true);
-                // 如果原来自定义选项被选中, 则将输入框设置为可用
-                if (customRadioButton.isSelected()) {
-                    customHtmlTypeTextField.setEnabled(true);
-                }
-            } else {
-                largePictureRadioButton.setEnabled(false);
-                commonRadioButton.setEnabled(false);
-                customRadioButton.setEnabled(false);
-                customHtmlTypeTextField.setEnabled(false);
+            largePictureRadioButton.setEnabled(checkBox.isSelected());
+            commonRadioButton.setEnabled(checkBox.isSelected());
+            customRadioButton.setEnabled(checkBox.isSelected());
+            // 如果原来自定义选项被选中, 则将输入框设置为可用
+            if (customRadioButton.isSelected() && checkBox.isSelected()) {
+                customHtmlTypeTextField.setEnabled(true);
             }
         });
         ButtonGroup group = new ButtonGroup();
@@ -471,6 +551,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         // 图片备份
         boolean backup = backupCheckBox.isSelected();
 
+        boolean clipboardControl = clipboardControlCheckBox.isSelected();
+        boolean copyToDir = copyToDirCheckBox.isSelected();
+        boolean uploadAndReplace = uploadAndReplaceCheckBox.isSelected();
+        String whereToCopy = whereToCopyTextField.getText().trim();
+
         return !(newBucketName.equals(ossPersistenConfig.getState().getAliyunOssState().getBucketName())
                  && newAccessKey.equals(ossPersistenConfig.getState().getAliyunOssState().getAccessKey())
                  && newAccessSecretKey.equals(ossPersistenConfig.getState().getAliyunOssState().getAccessSecretKey())
@@ -488,6 +573,12 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                  && styleName.equals(ossPersistenConfig.getState().getStyleName())
                  && transport == ossPersistenConfig.getState().isTransport()
                  && backup == ossPersistenConfig.getState().isBackup()
+
+                 && clipboardControl == ossPersistenConfig.getState().isClipboardControl()
+                 && copyToDir == ossPersistenConfig.getState().isCopyToDir()
+                 && uploadAndReplace == ossPersistenConfig.getState().isUploadAndReplace()
+                 && whereToCopy.equals(ossPersistenConfig.getState().getImageSavePath())
+                 && defaultCloudComboBox.getSelectedIndex() == ossPersistenConfig.getState().getCloudType()
         );
     }
 
@@ -531,9 +622,27 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         ossPersistenConfig.getState().setTransport(this.transportCheckBox.isSelected());
         ossPersistenConfig.getState().setBackup(this.backupCheckBox.isSelected());
 
+        ossPersistenConfig.getState().setClipboardControl(this.clipboardControlCheckBox.isSelected());
+        ossPersistenConfig.getState().setCopyToDir(this.copyToDirCheckBox.isSelected());
+        ossPersistenConfig.getState().setUploadAndReplace(this.uploadAndReplaceCheckBox.isSelected());
+        ossPersistenConfig.getState().setImageSavePath(this.whereToCopyTextField.getText().trim());
+
+        ossPersistenConfig.getState().setCloudType(this.defaultCloudComboBox.getSelectedIndex());
+
         // 重新创建 OSSClient
         AliyunUploadUtils.destory();
         AliyunUploadUtils.reset();
+    }
+
+    @NotNull
+    private CloudEnum getCloudEnum() {
+        CloudEnum defaultCloud = CloudEnum.WEIBO_CLOUD;
+        int defaultCloudIndex = defaultCloudComboBox.getSelectedIndex();
+        Optional<CloudEnum> defaultCloudType = EnumsUtils.getEnumObject(CloudEnum.class, e -> e.getIndex() == defaultCloudIndex);
+        if (defaultCloudType.isPresent()) {
+            defaultCloud = defaultCloudType.get();
+        }
+        return defaultCloud;
     }
 
     /**

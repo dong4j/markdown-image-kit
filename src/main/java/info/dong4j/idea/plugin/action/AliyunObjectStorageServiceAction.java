@@ -10,7 +10,7 @@ import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 
 import info.dong4j.idea.plugin.entity.MarkdownImage;
-import info.dong4j.idea.plugin.enums.MarkdownImageLocation;
+import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.settings.OssPersistenConfig;
 import info.dong4j.idea.plugin.util.AliyunUploadUtils;
 import info.dong4j.idea.plugin.util.PsiDocumentUtils;
@@ -113,7 +113,7 @@ public final class AliyunObjectStorageServiceAction extends AbstractObjectStorag
             for(Map.Entry<Document, List<MarkdownImage>> entry : waitingForUploadImages.entrySet()){
                 Document document = entry.getKey();
                 for (MarkdownImage markdownImage : entry.getValue()) {
-                    if(markdownImage.getLocation().equals(MarkdownImageLocation.LOCAL)){
+                    if(markdownImage.getLocation().equals(ImageLocationEnum.LOCAL)){
                         String imageName = markdownImage.getPath();
                         Collection<VirtualFile> findedFiles = FilenameIndex.getVirtualFilesByName(project, imageName, GlobalSearchScope.allScope(project));
                         if (findedFiles.size() <= 0) {

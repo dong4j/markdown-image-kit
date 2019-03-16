@@ -1,6 +1,6 @@
 package info.dong4j.idea.plugin.entity;
 
-import info.dong4j.idea.plugin.enums.MarkdownImageLocation;
+import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 
 import java.io.*;
 
@@ -32,7 +32,7 @@ public class MarkdownImage implements Serializable {
     /** 图片地址 (如果是本地, 就是 fileName, 如果是网络, 就是 http/https 地址) */
     private String path;
     /** 图片位置 */
-    private MarkdownImageLocation location = MarkdownImageLocation.LOCAL;
+    private ImageLocationEnum location = ImageLocationEnum.LOCAL;
     /** 上传后的 url */
     private String uploadedUrl;
 }
