@@ -80,6 +80,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JCheckBox transportCheckBox;
     private JCheckBox backupCheckBox;
     private JTextField compresstextField;
+    private JButton button1;
+    private JButton button2;
 
     private OssPersistenSettings ossPersistenSettings;
 
