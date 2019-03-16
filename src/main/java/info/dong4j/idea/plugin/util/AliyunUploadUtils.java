@@ -1,12 +1,13 @@
 package info.dong4j.idea.plugin.util;
 
-import com.aliyun.oss.OSSClient;
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.ObjectMetadata;
 import com.aliyun.oss.model.PutObjectResult;
 
 import info.dong4j.idea.plugin.enums.SuffixSelectTypeEnum;
 import info.dong4j.idea.plugin.exception.ImgException;
-import info.dong4j.idea.plugin.settings.OssPersistenSettings;
+import info.dong4j.idea.plugin.settings.OssPersistenConfig;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -19,21 +20,21 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: 文件上传</p>
+ * <p>Description: Aliyun OSS 文件上传</p>
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
  * @since 2019 -03-13 10:33
  */
 @Slf4j
-public final class UploadUtils {
+public final class AliyunUploadUtils {
+    public static final String URL_PROTOCOL_HTTP = "http";
+    public static final String URL_PROTOCOL_HTTPS = "https";
     private static String bucketName;
     /** 文件存储目录 */
     private static String filedir;
-    private static OSSClient ossClient;
-
+    private static OSS ossClient;
     private static String sufix;
-
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-");
 
     static {
@@ -41,29 +42,27 @@ public final class UploadUtils {
     }
 
     public static void init() {
-        OssPersistenSettings ossPersistenSettings = OssPersistenSettings.getInstance();
-        bucketName = ossPersistenSettings.getState().getAliyunOssState().getBucketName();
-        String accessKeyId = ossPersistenSettings.getState().getAliyunOssState().getAccessKey();
-        String accessKeySecret = ossPersistenSettings.getState().getAliyunOssState().getAccessSecretKey();
-        String endpoint = ossPersistenSettings.getState().getAliyunOssState().getEndpoint().replace(bucketName + ".", "");
-        String tempFileDir = ossPersistenSettings.getState().getAliyunOssState().getFiledir();
+        OssPersistenConfig ossPersistenConfig = OssPersistenConfig.getInstance();
+        bucketName = ossPersistenConfig.getState().getAliyunOssState().getBucketName();
+        String accessKeyId = ossPersistenConfig.getState().getAliyunOssState().getAccessKey();
+        String accessKeySecret = ossPersistenConfig.getState().getAliyunOssState().getAccessSecretKey();
+        String endpoint = ossPersistenConfig.getState().getAliyunOssState().getEndpoint();
+        String tempFileDir = ossPersistenConfig.getState().getAliyunOssState().getFiledir();
         filedir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";
-        sufix = ossPersistenSettings.getState().getAliyunOssState().getSuffix();
-        try{
-            ossClient = new OSSClient(endpoint, accessKeyId, accessKeySecret);
-        }catch (Exception ignored){
+        sufix = ossPersistenConfig.getState().getAliyunOssState().getSuffix();
+        try {
+            OSSClientBuilder ossClientBuilder = new OSSClientBuilder();
+            ossClient = ossClientBuilder.build(endpoint, accessKeyId, accessKeySecret);
+        } catch (Exception ignored) {
         }
     }
 
-    public static void reset(){
+    public static void reset() {
         init();
     }
 
-    /**
-     * 销毁
-     */
     public static void destory() {
-        if(ossClient != null){
+        if (ossClient != null) {
             ossClient.shutdown();
         }
     }
@@ -86,7 +85,7 @@ public final class UploadUtils {
     }
 
     /**
-     * Upload img 2 oss string.
+     * Upload img 2 ossClient string.
      *
      * @param file the file
      * @return the string
@@ -108,7 +107,7 @@ public final class UploadUtils {
             // todo-dong4j : (2019年03月13日 18:01) [修改为线程安全的]
             return dateFormat.format(new Date()) + fileName;
         } else if (SuffixSelectTypeEnum.RANDOM.name.equals(sufix)) {
-            return CharacterUtils.getRandomString(6) + fileName.substring(fileName.lastIndexOf("."));
+            return CharacterUtils.getRandomString(12) + fileName.substring(fileName.lastIndexOf("."));
         } else {
             return "";
         }
@@ -127,27 +126,27 @@ public final class UploadUtils {
 
 
     /**
-     * Upload file 2 oss string.
+     * Upload file 2 ossClient string.
      *
      * @param instream the instream
      * @param filedir  the filedir
      * @param fileName the file name
      * @return the string
      */
-    public static String uploadFile2OSS(InputStream instream, String filedir,String fileName) {
+    public static String uploadFile2OSS(InputStream instream, String filedir, String fileName) {
         return uploadFile2OSS(ossClient, instream, filedir, fileName);
     }
 
     /**
-     * Upload file 2 oss string.
+     * Upload file 2 ossClient string.
      *
-     * @param ossClient the oss client
+     * @param ossClient the ossClient client
      * @param instream  the instream
      * @param filedir   the filedir
      * @param fileName  the file name
      * @return the string
      */
-    public static String uploadFile2OSS(OSSClient ossClient,
+    public static String uploadFile2OSS(OSS ossClient,
                                         InputStream instream,
                                         String filedir,
                                         String fileName) {
@@ -228,6 +227,13 @@ public final class UploadUtils {
         return getUrl(filedir, name);
     }
 
+    /**
+     * Gets url.
+     *
+     * @param filedir the filedir
+     * @param name    the name
+     * @return the url
+     */
     public static String getUrl(String filedir, String name) {
         // 设置URL过期时间为10年  3600l* 1000*24*365*10
         Date expiration = new Date(System.currentTimeMillis() + 3600L * 1000 * 24 * 365 * 10);
@@ -235,7 +241,11 @@ public final class UploadUtils {
         URL url = ossClient.generatePresignedUrl(bucketName, filedir + name, expiration);
         if (url != null) {
             String[] split = url.toString().split("\\?");
-            return split[0];
+            String uri = split[0];
+            if (url.getProtocol().equals(URL_PROTOCOL_HTTP)) {
+                uri = uri.replace(URL_PROTOCOL_HTTP, URL_PROTOCOL_HTTPS);
+            }
+            return uri;
         }
         return null;
     }

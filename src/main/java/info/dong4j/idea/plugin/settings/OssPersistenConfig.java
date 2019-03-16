@@ -18,17 +18,17 @@ import lombok.extern.slf4j.Slf4j;
  * @email sjdong3 @iflytek.com
  */
 @Slf4j
-@State(name = "OssUploadSettings", storages = @Storage(file = "oss-upload.xml"))
-public class OssPersistenSettings implements PersistentStateComponent<OssState> {
+@State(name = "OssPersistenConfig", storages = @Storage(file = "oss-upload-configs.xml"))
+public class OssPersistenConfig implements PersistentStateComponent<OssState> {
 
     /**
      * Get the instance of this service.
      *
-     * @return the unique {@link OssPersistenSettings} instance.
+     * @return the unique {@link OssPersistenConfig} instance.
      */
-    public static OssPersistenSettings getInstance() {
+    public static OssPersistenConfig getInstance() {
         log.trace("get AliyunOssSettings getInstance");
-        return ServiceManager.getService(OssPersistenSettings.class);
+        return ServiceManager.getService(OssPersistenConfig.class);
     }
 
     private OssState myState = new OssState();

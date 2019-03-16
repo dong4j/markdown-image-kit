@@ -13,11 +13,15 @@
          on how to target different products -->
 
     <extensions defaultExtensionNs="com.intellij">
+        <editorActionHandler action="EditorPaste"
+                             implementationClass="info.dong4j.idea.plugin.handler.PasteImageHandler"
+                             order="first"/>
         <!-- 设置面板 -->
-        <applicationConfigurable instance="info.dong4j.idea.plugin.settings.ProjectSettingsPage"/>
+        <applicationConfigurable groupId="tools" instance="info.dong4j.idea.plugin.settings.ProjectSettingsPage"/>
         <!-- 持久化 -->
-        <applicationService serviceInterface="info.dong4j.idea.plugin.settings.OssPersistenSettings"
-                            serviceImplementation="info.dong4j.idea.plugin.settings.OssPersistenSettings"/>
+        <applicationService serviceInterface="info.dong4j.idea.plugin.settings.OssPersistenConfig"
+                            serviceImplementation="info.dong4j.idea.plugin.settings.OssPersistenConfig"/>
+
     </extensions>
 
     <actions>
@@ -49,6 +53,5 @@
             <add-to-group group-id="ChangesViewPopupMenu" anchor="last"/>
             <add-to-group group-id="EditorPopupMenu" anchor="last"/>
         </group>
-
     </actions>
 </idea-plugin>

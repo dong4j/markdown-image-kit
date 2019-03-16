@@ -1,6 +1,7 @@
 package info.dong4j.idea.plugin.settings;
 
-import com.aliyun.oss.OSSClient;
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClientBuilder;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.SearchableConfigurable;
@@ -9,8 +10,8 @@ import com.intellij.ui.JBColor;
 
 import info.dong4j.idea.plugin.enums.HtmlTagTypeEnum;
 import info.dong4j.idea.plugin.enums.SuffixSelectTypeEnum;
+import info.dong4j.idea.plugin.util.AliyunUploadUtils;
 import info.dong4j.idea.plugin.util.EnumsUtils;
-import info.dong4j.idea.plugin.util.UploadUtils;
 
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Nls;
@@ -28,6 +29,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
@@ -46,52 +48,73 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ProjectSettingsPage implements SearchableConfigurable, Configurable.NoScroll {
+    private OssPersistenConfig ossPersistenConfig;
+    private static final String TEST_FILE_NAME = "test.png";
 
     private JPanel myMainPanel;
 
     private JTabbedPane authorizationTabbedPanel;
+    /** weiboOssAuthorizationPanel group */
     private JPanel weiboOssAuthorizationPanel;
-    private JPanel qiniuOssAuthorizationPanel;
+    private JTextField userNameextField;
+    private JPasswordField passwordField;
+    private JLabel userNameLabel;
+    private JLabel passwordLabel;
+    /** aliyunOssAuthorizationPanel group */
     private JPanel aliyunOssAuthorizationPanel;
-    private JPanel globalUploadPanel;
-
-    private JTextField bucketNameTextField;
-    private JTextField accessKeyTextField;
-    private JTextField accessSecretKeyTextField;
-    private JTextField endpointTextField;
-    private JTextField fileDirTextField;
-    private JComboBox suffixBoxField;
-    private JButton testButton;
-    private JButton helpButton;
+    private JTextField aliyunOssBucketNameTextField;
+    private JTextField aliyunOssAccessKeyTextField;
+    private JTextField aliyunOssAccessSecretKeyTextField;
+    private JTextField aliyunOssEndpointTextField;
+    private JTextField aliyunOssFileDirTextField;
+    private JComboBox aliyunOssSuffixBoxField;
     private JTextField exampleTextField;
-    private JLabel message;
+    /** qiniuOssAuthorizationPanel group */
+    private JPanel qiniuOssAuthorizationPanel;
+    private JTextField qiniuOssBucketNameTextField;
+    private JTextField qiniuOssAccessKeyTextField;
+    private JTextField qiniuOssAccessSecretKeyTextField;
+    private JTextField qiniuOssUpHostTextField;
+    private JRadioButton qiniuOssEastChinaRadioButton;
+    private JRadioButton qiniuOssNortChinaRadioButton;
+    private JRadioButton qiniuOssSouthChinaRadioButton;
+    private JRadioButton qiniuOssNorthAmeriaRadioButton;
+    /** globalUploadPanel group */
+    private JPanel globalUploadPanel;
     private JCheckBox changeToHtmlTagCheckBox;
     private JRadioButton largePictureRadioButton;
     private JRadioButton commonRadioButton;
+    private JLabel commonLabel;
     private JRadioButton customRadioButton;
+    private JLabel customLabel;
     private JTextField customHtmlTypeTextField;
-    private JTextField commontextField;
-    private JTextField largePicturetextField;
     private JCheckBox compressCheckBox;
     private JCheckBox compressBeforeUploadCheckBox;
     private JCheckBox compressAtLookupCheckBox;
     private JSlider compressSlider;
+    private JLabel compressLabel;
     private JTextField styleNameTextField;
     private JCheckBox transportCheckBox;
     private JCheckBox backupCheckBox;
-    private JTextField compresstextField;
-    private JButton button1;
-    private JButton button2;
 
-    private OssPersistenSettings ossPersistenSettings;
+    /** 按钮 group */
+    private JButton testButton;
+    private JLabel testMessage;
+    private JButton helpButton;
+    private JPanel clipboardPanel;
+    private JCheckBox clipboardControl;
+    private JCheckBox copyToDirCheckBox;
+    private JCheckBox uploadAndReplaceCheckBox;
+    private JTextField whereToCopyTextField;
+
 
     /**
      * Instantiates a new Project settings page.
      */
     public ProjectSettingsPage() {
         log.trace("ProjectSettingsPage Constructor invoke");
-        ossPersistenSettings = OssPersistenSettings.getInstance();
-        if (ossPersistenSettings != null) {
+        ossPersistenConfig = OssPersistenConfig.getInstance();
+        if (ossPersistenConfig != null) {
             reset();
         }
     }
@@ -123,19 +146,27 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      */
     private void initAuthenticationPanel() {
         // 根据持久化配置设置为被选中的 item
-        suffixBoxField.setSelectedItem(ossPersistenSettings.getState().getAliyunOssState().getSuffix());
-        // 处理当 fileDirTextField.getText() 为 空字符时, 不拼接 "/
+        aliyunOssSuffixBoxField.setSelectedItem(ossPersistenConfig.getState().getAliyunOssState().getSuffix());
+        // 处理当 aliyunOssFileDirTextField.getText() 为 空字符时, 不拼接 "/
         setExampleText();
 
-        endpointTextField.getDocument().addDocumentListener(new DocumentAdapter() {
+        aliyunOssBucketNameTextField.getDocument().addDocumentListener(new DocumentAdapter() {
             @Override
             protected void textChanged(@NotNull DocumentEvent e) {
                 setExampleText();
             }
         });
 
-        // 设置 fileDirTextField 输入的监听
-        fileDirTextField.getDocument().addDocumentListener(new DocumentAdapter() {
+
+        aliyunOssEndpointTextField.getDocument().addDocumentListener(new DocumentAdapter() {
+            @Override
+            protected void textChanged(@NotNull DocumentEvent e) {
+                setExampleText();
+            }
+        });
+
+        // 设置 aliyunOssFileDirTextField 输入的监听
+        aliyunOssFileDirTextField.getDocument().addDocumentListener(new DocumentAdapter() {
             @Override
             protected void textChanged(@NotNull DocumentEvent e) {
                 setExampleText();
@@ -143,37 +174,46 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         });
 
         // 添加监听器, 当选项被修改后, 修改 exampleTextField 中的 text
-        suffixBoxField.addItemListener(e -> {
+        aliyunOssSuffixBoxField.addItemListener(e -> {
             setExampleText();
         });
 
         // "Test" 按钮点击事件处理
         testButton.addActionListener(e -> {
+            testButton.setEnabled(false);
             // 获取输入框文本, 进行请求处理
-            String tempBucketName = bucketNameTextField.getText().trim();
-            String tempAccessKey = accessKeyTextField.getText().trim();
-            String tempAccessSecretKey = accessSecretKeyTextField.getText().trim();
-            String tempEndpoint = endpointTextField.getText().trim().replace(tempBucketName + ".", "");
-            String tempFileDir = fileDirTextField.getText().trim();
+            String tempBucketName = aliyunOssBucketNameTextField.getText().trim();
+            String tempAccessKey = aliyunOssAccessKeyTextField.getText().trim();
+            String tempAccessSecretKey = aliyunOssAccessSecretKeyTextField.getText().trim();
+            String tempEndpoint = aliyunOssEndpointTextField.getText().trim();
+            String tempFileDir = aliyunOssFileDirTextField.getText().trim();
             tempFileDir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";
-            OSSClient ossClient = null;
+            OSS oss = null;
             try {
-                ossClient = new OSSClient(tempEndpoint, tempAccessKey, tempAccessSecretKey);
+                OSSClientBuilder ossClientBuilder = new OSSClientBuilder();
                 // 返回读取指定资源的输入流
-                InputStream is = this.getClass().getResourceAsStream("/test.png");
-                UploadUtils.uploadFile2OSS(ossClient, is, tempFileDir, "test.png");
-                UploadUtils.getUrl(tempFileDir, "test.png");
-                message.setText("test succeed");
-                message.setForeground(JBColor.GREEN);
-                ossPersistenSettings.getState().getAliyunOssState().setPassedTest(true);
+                InputStream is = this.getClass().getResourceAsStream("/" + TEST_FILE_NAME);
+                oss = ossClientBuilder.build(tempEndpoint, tempAccessKey, tempAccessSecretKey);
+                oss.putObject(tempBucketName,
+                              tempFileDir + TEST_FILE_NAME,
+                              is);
+                String url = AliyunUploadUtils.getUrl(tempFileDir, TEST_FILE_NAME);
+                testMessage.setForeground(JBColor.GREEN);
+                testMessage.setText("Upload Succeed");
+                ossPersistenConfig.getState().getAliyunOssState().setPassedTest(true);
+                // if (StringUtils.isNotBlank(url)) {
+                //     Runnable r = () -> BrowserUtil.browse(url);
+                //     new Thread(r).start();
+                // }
             } catch (Exception e1) {
-                message.setText(e1.getMessage());
-                message.setForeground(JBColor.RED);
-                ossPersistenSettings.getState().getAliyunOssState().setPassedTest(false);
+                testMessage.setForeground(JBColor.RED);
+                testMessage.setText("Upload Failed, Please check the configuration");
+                ossPersistenConfig.getState().getAliyunOssState().setPassedTest(false);
             } finally {
-                if (ossClient != null) {
-                    ossClient.shutdown();
+                if (oss != null) {
+                    oss.shutdown();
                 }
+                testButton.setEnabled(true);
             }
         });
 
@@ -189,8 +229,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      * 实时更新此字段
      */
     private void setExampleText() {
-        String fileDir = StringUtils.isBlank(fileDirTextField.getText()) ? "" : "/" + fileDirTextField.getText();
-        exampleTextField.setText(endpointTextField.getText() + fileDir + getSufixString(Objects.requireNonNull(suffixBoxField.getSelectedItem()).toString()));
+        String fileDir = StringUtils.isBlank(aliyunOssFileDirTextField.getText().trim()) ? "" : "/" + aliyunOssFileDirTextField.getText().trim();
+        String endpoint = aliyunOssEndpointTextField.getText().trim();
+        String backetName = aliyunOssBucketNameTextField.getText().trim();
+        String url = AliyunUploadUtils.URL_PROTOCOL_HTTPS + "://" + backetName + "." + endpoint;
+        exampleTextField.setText(url + fileDir + getSufixString(Objects.requireNonNull(aliyunOssSuffixBoxField.getSelectedItem()).toString()));
     }
 
     /**
@@ -207,8 +250,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      */
     private void initExpandGroup() {
         // todo-dong4j : (2019年03月15日 20:52) [删除此设置, 使用 MoveToOtherStorageAction 替代]
-        this.transportCheckBox.setSelected(ossPersistenSettings.getState().isTransport());
-        this.backupCheckBox.setSelected(ossPersistenSettings.getState().isBackup());
+        this.transportCheckBox.setSelected(ossPersistenConfig.getState().isTransport());
+        this.backupCheckBox.setSelected(ossPersistenConfig.getState().isBackup());
     }
 
     /**
@@ -217,9 +260,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private void initCompressGroup() {
         styleNameTextField.addFocusListener(new JTextFieldHintListener(styleNameTextField, "请提前在 Aliyun OSS 控制台设置"));
 
-        boolean compressStatus = ossPersistenSettings.getState().isCompress();
-        boolean beforeCompressStatus = ossPersistenSettings.getState().isCompressBeforeUpload();
-        boolean lookUpCompressStatus = ossPersistenSettings.getState().isCompressAtLookup();
+        boolean compressStatus = ossPersistenConfig.getState().isCompress();
+        boolean beforeCompressStatus = ossPersistenConfig.getState().isCompressBeforeUpload();
+        boolean lookUpCompressStatus = ossPersistenConfig.getState().isCompressAtLookup();
         // 设置被选中
         this.compressCheckBox.setSelected(compressStatus);
         // 设置组下多选框状态
@@ -229,7 +272,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.compressAtLookupCheckBox.setSelected(lookUpCompressStatus);
 
         this.compressSlider.setEnabled(compressStatus && beforeCompressStatus);
-        this.compressSlider.setValue(ossPersistenSettings.getState().getCompressBeforeUploadOfPercent());
+        this.compressSlider.setValue(ossPersistenConfig.getState().getCompressBeforeUploadOfPercent());
 
         // 设置主刻度间隔
         compressSlider.setMajorTickSpacing(10);
@@ -238,11 +281,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         // 绘制 刻度 和 标签
         compressSlider.setPaintTicks(true);
         compressSlider.setPaintLabels(true);
-        compressSlider.addChangeListener(e -> compresstextField.setText(String.valueOf(compressSlider.getValue())));
+        compressSlider.addChangeListener(e -> compressLabel.setText(String.valueOf(compressSlider.getValue())));
 
-        this.compresstextField.setText(String.valueOf(compressSlider.getValue()));
+        this.compressLabel.setText(String.valueOf(compressSlider.getValue()));
         this.styleNameTextField.setEnabled(compressStatus && lookUpCompressStatus);
-        this.styleNameTextField.setText(ossPersistenSettings.getState().getStyleName());
+        this.styleNameTextField.setText(ossPersistenConfig.getState().getStyleName());
 
         // compressCheckBox 监听, 修改组下组件状态
         compressCheckBox.addChangeListener(e -> {
@@ -276,7 +319,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
 
         // 初始化 changeToHtmlTagCheckBox 选中状态
         // 设置被选中
-        boolean changeToHtmlTagCheckBoxStatus = ossPersistenSettings.getState().isChangeToHtmlTag();
+        boolean changeToHtmlTagCheckBoxStatus = ossPersistenConfig.getState().isChangeToHtmlTag();
 
         this.changeToHtmlTagCheckBox.setSelected(changeToHtmlTagCheckBoxStatus);
         // 设置组下单选框可用
@@ -285,14 +328,14 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.customRadioButton.setEnabled(changeToHtmlTagCheckBoxStatus);
 
         // 初始化 changeToHtmlTagCheckBox 组下单选框状态
-        if (HtmlTagTypeEnum.COMMON_PICTURE.text.equals(ossPersistenSettings.getState().getTagType())) {
+        if (HtmlTagTypeEnum.COMMON_PICTURE.text.equals(ossPersistenConfig.getState().getTagType())) {
             commonRadioButton.setSelected(true);
-        } else if (HtmlTagTypeEnum.LARGE_PICTURE.text.equals(ossPersistenSettings.getState().getTagType())) {
+        } else if (HtmlTagTypeEnum.LARGE_PICTURE.text.equals(ossPersistenConfig.getState().getTagType())) {
             largePictureRadioButton.setSelected(true);
-        } else if (HtmlTagTypeEnum.CUSTOM.text.equals(ossPersistenSettings.getState().getTagType())) {
+        } else if (HtmlTagTypeEnum.CUSTOM.text.equals(ossPersistenConfig.getState().getTagType())) {
             customRadioButton.setSelected(true);
             customHtmlTypeTextField.setEnabled(changeToHtmlTagCheckBoxStatus);
-            customHtmlTypeTextField.setText(ossPersistenSettings.getState().getTagTypeCode());
+            customHtmlTypeTextField.setText(ossPersistenConfig.getState().getTagTypeCode());
         } else {
             commonRadioButton.setSelected(true);
         }
@@ -372,14 +415,14 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     @Override
     public boolean isModified() {
         log.trace("isModified invoke");
-        String newBucketName = bucketNameTextField.getText().trim();
-        String newAccessKey = accessKeyTextField.getText().trim();
-        String newAccessSecretKey = accessSecretKeyTextField.getText().trim();
-        String newEndpoint = endpointTextField.getText().trim();
-        String newFileDir = fileDirTextField.getText().trim();
+        String newBucketName = aliyunOssBucketNameTextField.getText().trim();
+        String newAccessKey = aliyunOssAccessKeyTextField.getText().trim();
+        String newAccessSecretKey = aliyunOssAccessSecretKeyTextField.getText().trim();
+        String newEndpoint = aliyunOssEndpointTextField.getText().trim();
+        String newFileDir = aliyunOssFileDirTextField.getText().trim();
         String newSuffix = "";
 
-        int index = suffixBoxField.getSelectedIndex();
+        int index = aliyunOssSuffixBoxField.getSelectedIndex();
         Optional<SuffixSelectTypeEnum> type = EnumsUtils.getEnumObject(SuffixSelectTypeEnum.class, e -> e.getIndex() == index);
         if (type.isPresent()) {
             newSuffix = type.get().getName();
@@ -428,23 +471,23 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         // 图片备份
         boolean backup = backupCheckBox.isSelected();
 
-        return !(newBucketName.equals(ossPersistenSettings.getState().getAliyunOssState().getBucketName())
-                 && newAccessKey.equals(ossPersistenSettings.getState().getAliyunOssState().getAccessKey())
-                 && newAccessSecretKey.equals(ossPersistenSettings.getState().getAliyunOssState().getAccessSecretKey())
-                 && newEndpoint.equals(ossPersistenSettings.getState().getAliyunOssState().getEndpoint())
-                 && newFileDir.equals(ossPersistenSettings.getState().getAliyunOssState().getFiledir())
-                 && newSuffix.equals(ossPersistenSettings.getState().getAliyunOssState().getSuffix())
+        return !(newBucketName.equals(ossPersistenConfig.getState().getAliyunOssState().getBucketName())
+                 && newAccessKey.equals(ossPersistenConfig.getState().getAliyunOssState().getAccessKey())
+                 && newAccessSecretKey.equals(ossPersistenConfig.getState().getAliyunOssState().getAccessSecretKey())
+                 && newEndpoint.equals(ossPersistenConfig.getState().getAliyunOssState().getEndpoint())
+                 && newFileDir.equals(ossPersistenConfig.getState().getAliyunOssState().getFiledir())
+                 && newSuffix.equals(ossPersistenConfig.getState().getAliyunOssState().getSuffix())
 
-                 && changeToHtmlTag == ossPersistenSettings.getState().isChangeToHtmlTag()
-                 && tagType.equals(ossPersistenSettings.getState().getTagType())
-                 && tagTypeCode.equals(ossPersistenSettings.getState().getTagTypeCode())
-                 && compress == ossPersistenSettings.getState().isCompress()
-                 && compressBeforeUpload == ossPersistenSettings.getState().isCompressBeforeUpload()
-                 && compressBeforeUploadOfPercent == ossPersistenSettings.getState().getCompressBeforeUploadOfPercent()
-                 && compressAtLookup == ossPersistenSettings.getState().isCompressAtLookup()
-                 && styleName.equals(ossPersistenSettings.getState().getStyleName())
-                 && transport == ossPersistenSettings.getState().isTransport()
-                 && backup == ossPersistenSettings.getState().isBackup()
+                 && changeToHtmlTag == ossPersistenConfig.getState().isChangeToHtmlTag()
+                 && tagType.equals(ossPersistenConfig.getState().getTagType())
+                 && tagTypeCode.equals(ossPersistenConfig.getState().getTagTypeCode())
+                 && compress == ossPersistenConfig.getState().isCompress()
+                 && compressBeforeUpload == ossPersistenConfig.getState().isCompressBeforeUpload()
+                 && compressBeforeUploadOfPercent == ossPersistenConfig.getState().getCompressBeforeUploadOfPercent()
+                 && compressAtLookup == ossPersistenConfig.getState().isCompressAtLookup()
+                 && styleName.equals(ossPersistenConfig.getState().getStyleName())
+                 && transport == ossPersistenConfig.getState().isTransport()
+                 && backup == ossPersistenConfig.getState().isBackup()
         );
     }
 
@@ -454,43 +497,43 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     @Override
     public void apply() {
         log.trace("apply invoke");
-        ossPersistenSettings.getState().getAliyunOssState().setBucketName(this.bucketNameTextField.getText().trim());
-        ossPersistenSettings.getState().getAliyunOssState().setAccessKey(this.accessKeyTextField.getText().trim());
-        ossPersistenSettings.getState().getAliyunOssState().setAccessSecretKey(this.accessSecretKeyTextField.getText().trim());
-        ossPersistenSettings.getState().getAliyunOssState().setEndpoint(this.endpointTextField.getText().trim());
-        ossPersistenSettings.getState().getAliyunOssState().setFiledir(this.fileDirTextField.getText().trim());
-        ossPersistenSettings.getState().getAliyunOssState().setSuffix(Objects.requireNonNull(this.suffixBoxField.getSelectedItem()).toString());
+        ossPersistenConfig.getState().getAliyunOssState().setBucketName(this.aliyunOssBucketNameTextField.getText().trim());
+        ossPersistenConfig.getState().getAliyunOssState().setAccessKey(this.aliyunOssAccessKeyTextField.getText().trim());
+        ossPersistenConfig.getState().getAliyunOssState().setAccessSecretKey(this.aliyunOssAccessSecretKeyTextField.getText().trim());
+        ossPersistenConfig.getState().getAliyunOssState().setEndpoint(this.aliyunOssEndpointTextField.getText().trim());
+        ossPersistenConfig.getState().getAliyunOssState().setFiledir(this.aliyunOssFileDirTextField.getText().trim());
+        ossPersistenConfig.getState().getAliyunOssState().setSuffix(Objects.requireNonNull(this.aliyunOssSuffixBoxField.getSelectedItem()).toString());
 
-        ossPersistenSettings.getState().setChangeToHtmlTag(this.changeToHtmlTagCheckBox.isSelected());
+        ossPersistenConfig.getState().setChangeToHtmlTag(this.changeToHtmlTagCheckBox.isSelected());
         if (this.changeToHtmlTagCheckBox.isSelected()) {
             // 正常的
             if (commonRadioButton.isSelected()) {
-                ossPersistenSettings.getState().setTagType(HtmlTagTypeEnum.COMMON_PICTURE.text);
-                ossPersistenSettings.getState().setTagTypeCode(HtmlTagTypeEnum.COMMON_PICTURE.code);
+                ossPersistenConfig.getState().setTagType(HtmlTagTypeEnum.COMMON_PICTURE.text);
+                ossPersistenConfig.getState().setTagTypeCode(HtmlTagTypeEnum.COMMON_PICTURE.code);
             }
             // 点击看大图
             else if (largePictureRadioButton.isSelected()) {
-                ossPersistenSettings.getState().setTagType(HtmlTagTypeEnum.LARGE_PICTURE.text);
-                ossPersistenSettings.getState().setTagTypeCode(HtmlTagTypeEnum.LARGE_PICTURE.code);
+                ossPersistenConfig.getState().setTagType(HtmlTagTypeEnum.LARGE_PICTURE.text);
+                ossPersistenConfig.getState().setTagTypeCode(HtmlTagTypeEnum.LARGE_PICTURE.code);
             }
             // 自定义
             else if (customRadioButton.isSelected()) {
-                ossPersistenSettings.getState().setTagType(HtmlTagTypeEnum.CUSTOM.text);
+                ossPersistenConfig.getState().setTagType(HtmlTagTypeEnum.CUSTOM.text);
                 // todo-dong4j : (2019年03月14日 14:30) [格式验证]
-                ossPersistenSettings.getState().setTagTypeCode(customHtmlTypeTextField.getText().trim());
+                ossPersistenConfig.getState().setTagTypeCode(customHtmlTypeTextField.getText().trim());
             }
         }
-        ossPersistenSettings.getState().setCompress(this.compressCheckBox.isSelected());
-        ossPersistenSettings.getState().setCompressBeforeUpload(this.compressBeforeUploadCheckBox.isSelected());
-        ossPersistenSettings.getState().setCompressBeforeUploadOfPercent(this.compressSlider.getValue());
-        ossPersistenSettings.getState().setCompressAtLookup(this.compressAtLookupCheckBox.isSelected());
-        ossPersistenSettings.getState().setStyleName(this.styleNameTextField.getText().trim());
-        ossPersistenSettings.getState().setTransport(this.transportCheckBox.isSelected());
-        ossPersistenSettings.getState().setBackup(this.backupCheckBox.isSelected());
+        ossPersistenConfig.getState().setCompress(this.compressCheckBox.isSelected());
+        ossPersistenConfig.getState().setCompressBeforeUpload(this.compressBeforeUploadCheckBox.isSelected());
+        ossPersistenConfig.getState().setCompressBeforeUploadOfPercent(this.compressSlider.getValue());
+        ossPersistenConfig.getState().setCompressAtLookup(this.compressAtLookupCheckBox.isSelected());
+        ossPersistenConfig.getState().setStyleName(this.styleNameTextField.getText().trim());
+        ossPersistenConfig.getState().setTransport(this.transportCheckBox.isSelected());
+        ossPersistenConfig.getState().setBackup(this.backupCheckBox.isSelected());
 
         // 重新创建 OSSClient
-        UploadUtils.destory();
-        UploadUtils.reset();
+        AliyunUploadUtils.destory();
+        AliyunUploadUtils.reset();
     }
 
     /**
@@ -499,12 +542,12 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     @Override
     public void reset() {
         log.trace("reset invoke");
-        this.bucketNameTextField.setText(ossPersistenSettings.getState().getAliyunOssState().getBucketName());
-        this.accessKeyTextField.setText(ossPersistenSettings.getState().getAliyunOssState().getAccessKey());
-        this.accessSecretKeyTextField.setText(ossPersistenSettings.getState().getAliyunOssState().getAccessSecretKey());
-        this.endpointTextField.setText(ossPersistenSettings.getState().getAliyunOssState().getEndpoint());
-        this.fileDirTextField.setText(ossPersistenSettings.getState().getAliyunOssState().getFiledir());
-        this.suffixBoxField.setSelectedItem(ossPersistenSettings.getState().getAliyunOssState().getFiledir());
+        this.aliyunOssBucketNameTextField.setText(ossPersistenConfig.getState().getAliyunOssState().getBucketName());
+        this.aliyunOssAccessKeyTextField.setText(ossPersistenConfig.getState().getAliyunOssState().getAccessKey());
+        this.aliyunOssAccessSecretKeyTextField.setText(ossPersistenConfig.getState().getAliyunOssState().getAccessSecretKey());
+        this.aliyunOssEndpointTextField.setText(ossPersistenConfig.getState().getAliyunOssState().getEndpoint());
+        this.aliyunOssFileDirTextField.setText(ossPersistenConfig.getState().getAliyunOssState().getFiledir());
+        this.aliyunOssSuffixBoxField.setSelectedItem(ossPersistenConfig.getState().getAliyunOssState().getFiledir());
     }
 
     @NotNull

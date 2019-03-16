@@ -26,6 +26,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiUtilBase;
 
 import info.dong4j.idea.plugin.content.ImageContents;
+import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.MarkdownImageLocation;
 
@@ -52,7 +53,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public abstract class AbstractObjectStorageServiceAction extends AnAction {
-    private static final String MARKDOWN_FILE_TYPE = ".md";
+
     private static final String NODE_MODULES_FILE = "node_modules";
 
     /**
@@ -128,7 +129,7 @@ public abstract class AbstractObjectStorageServiceAction extends AnAction {
      */
     @Contract(pure = true)
     private boolean isMardownFile(String name) {
-        return name.endsWith(MARKDOWN_FILE_TYPE);
+        return name.endsWith(MarkdownContents.MARKDOWN_FILE_SUFIX);
     }
 
     /**
@@ -370,7 +371,7 @@ public abstract class AbstractObjectStorageServiceAction extends AnAction {
                                                file -> {
                                                    // todo-dong4j : (2019年03月15日 13:02) [从 .gitignore 中获取忽略的文件]
                                                    boolean allowAccept = file.isDirectory() && !file.getName().equals(NODE_MODULES_FILE);
-                                                   if (allowAccept || file.getName().endsWith(MARKDOWN_FILE_TYPE)) {
+                                                   if (allowAccept || file.getName().endsWith(MarkdownContents.MARKDOWN_FILE_SUFIX)) {
                                                        log.trace("accept = {}", file.getPath());
                                                        return true;
                                                    }

@@ -39,14 +39,23 @@ public class OssState {
         private boolean compressAtLookup = false;
         /** Aliyun OSS 图片压缩配置*/
         private String styleName = "";
+        private String url = "";
         private boolean passedTest = false;
+    }
+
+    @Data
+    public static class WeiboOssState{
+        private String userName = "";
+        private String password = "";
     }
 
     OssState(){
         this.aliyunOssState = new OssState.AliyunOssState();
         this.qiniuOssState = new OssState.QiniuOssState();
+        this.weiboOssState = new OssState.WeiboOssState();
     }
 
+    private WeiboOssState weiboOssState;
     private AliyunOssState aliyunOssState;
     private QiniuOssState qiniuOssState;
     /** 是否替换标签*/

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="info.dong4j.idea.plugin.settings.ProjectSettingsPage">
-  <grid id="27dc6" binding="myMainPanel" layout-manager="GridLayoutManager" row-count="4" column-count="6" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="myMainPanel" layout-manager="GridLayoutManager" row-count="5" column-count="26" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="1092" height="666"/>
+      <xy x="20" y="20" width="1092" height="695"/>
     </constraints>
     <properties/>
     <border type="none" title="Authorization Settings" noi18n="true"/>
     <children>
       <tabbedpane id="22fc1" binding="authorizationTabbedPanel">
         <constraints>
-          <grid row="0" column="0" row-span="1" col-span="6" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+          <grid row="0" column="0" row-span="1" col-span="26" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
             <preferred-size width="200" height="200"/>
           </grid>
         </constraints>
@@ -19,25 +19,71 @@
         </properties>
         <border type="none"/>
         <children>
-          <grid id="b8ea7" binding="aliyunOssAuthorizationPanel" layout-manager="GridLayoutManager" row-count="8" column-count="25" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="e0dfb" binding="weiboOssAuthorizationPanel" layout-manager="GridLayoutManager" row-count="2" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
-              <tabbedpane title="Aliyun OSS"/>
+              <tabbedpane title="Weibo OSS"/>
             </constraints>
             <properties/>
             <border type="none"/>
             <children>
+              <component id="8d0e9" class="javax.swing.JLabel" binding="userNameLabel">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <labelFor value="b240d"/>
+                  <text resource-bundle="setting" key="weibo.username"/>
+                </properties>
+              </component>
+              <component id="b240d" class="javax.swing.JTextField" binding="userNameextField">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="d336c" class="javax.swing.JLabel" binding="passwordLabel">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <labelFor value="af7c6"/>
+                  <text resource-bundle="setting" key="weibo.password"/>
+                </properties>
+              </component>
+              <component id="af7c6" class="javax.swing.JPasswordField" binding="passwordField">
+                <constraints>
+                  <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties/>
+              </component>
+            </children>
+          </grid>
+          <grid id="b8ea7" binding="aliyunOssAuthorizationPanel" layout-manager="GridLayoutManager" row-count="6" column-count="27" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <tabbedpane title="Aliyun OSS"/>
+            </constraints>
+            <properties>
+              <toolTipText value=""/>
+            </properties>
+            <border type="none" title=""/>
+            <children>
               <component id="29400" class="javax.swing.JLabel">
                 <constraints>
-                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="Bucket:"/>
                 </properties>
               </component>
-              <component id="fabde" class="javax.swing.JTextField" binding="bucketNameTextField">
+              <component id="fabde" class="javax.swing.JTextField" binding="aliyunOssBucketNameTextField">
                 <constraints>
-                  <grid row="2" column="1" row-span="1" col-span="18" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                  <grid row="0" column="1" row-span="1" col-span="26" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
@@ -45,15 +91,15 @@
               </component>
               <component id="825dc" class="javax.swing.JLabel">
                 <constraints>
-                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="Access Key:"/>
                 </properties>
               </component>
-              <component id="1160" class="javax.swing.JTextField" binding="accessKeyTextField">
+              <component id="1160" class="javax.swing.JTextField" binding="aliyunOssAccessKeyTextField">
                 <constraints>
-                  <grid row="3" column="1" row-span="1" col-span="18" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                  <grid row="1" column="1" row-span="1" col-span="26" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
@@ -61,15 +107,15 @@
               </component>
               <component id="8a01a" class="javax.swing.JLabel">
                 <constraints>
-                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="Secret Key:"/>
                 </properties>
               </component>
-              <component id="28a1" class="javax.swing.JTextField" binding="accessSecretKeyTextField">
+              <component id="28a1" class="javax.swing.JTextField" binding="aliyunOssAccessSecretKeyTextField">
                 <constraints>
-                  <grid row="4" column="1" row-span="1" col-span="18" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                  <grid row="2" column="1" row-span="1" col-span="26" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
@@ -77,15 +123,15 @@
               </component>
               <component id="28def" class="javax.swing.JLabel">
                 <constraints>
-                  <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="URL:"/>
+                  <text value="Endpoint:"/>
                 </properties>
               </component>
-              <component id="2b95f" class="javax.swing.JTextField" binding="endpointTextField">
+              <component id="2b95f" class="javax.swing.JTextField" binding="aliyunOssEndpointTextField">
                 <constraints>
-                  <grid row="5" column="1" row-span="1" col-span="18" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                  <grid row="3" column="1" row-span="1" col-span="20" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
@@ -93,27 +139,22 @@
                   <text value=""/>
                 </properties>
               </component>
-              <hspacer id="d76d">
-                <constraints>
-                  <grid row="5" column="24" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-                </constraints>
-              </hspacer>
               <hspacer id="42521">
                 <constraints>
-                  <grid row="7" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="5" column="1" row-span="1" col-span="10" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
               </hspacer>
               <component id="a9d3c" class="javax.swing.JLabel">
                 <constraints>
-                  <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Example:"/>
+                  <text value="Final URL:"/>
                 </properties>
               </component>
               <component id="b883c" class="javax.swing.JTextField" binding="exampleTextField">
                 <constraints>
-                  <grid row="6" column="1" row-span="1" col-span="23" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                  <grid row="4" column="1" row-span="1" col-span="26" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
@@ -122,33 +163,17 @@
                   <enabled value="false"/>
                 </properties>
               </component>
-              <component id="a71d9" class="javax.swing.JLabel" binding="message">
-                <constraints>
-                  <grid row="7" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value=""/>
-                </properties>
-              </component>
-              <component id="b9940" class="javax.swing.JButton" binding="testButton" default-binding="true">
-                <constraints>
-                  <grid row="7" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value="Test"/>
-                </properties>
-              </component>
               <component id="8aa34" class="javax.swing.JLabel">
                 <constraints>
-                  <grid row="5" column="21" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="3" column="23" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="/"/>
                 </properties>
               </component>
-              <component id="1a20c" class="javax.swing.JComboBox" binding="suffixBoxField">
+              <component id="1a20c" class="javax.swing.JComboBox" binding="aliyunOssSuffixBoxField">
                 <constraints>
-                  <grid row="5" column="22" row-span="1" col-span="2" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="3" column="24" row-span="1" col-span="3" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <model>
@@ -160,17 +185,17 @@
               </component>
               <hspacer id="2175d">
                 <constraints>
-                  <grid row="7" column="10" row-span="1" col-span="2" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="5" column="11" row-span="1" col-span="10" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
               </hspacer>
               <hspacer id="500a6">
                 <constraints>
-                  <grid row="7" column="20" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="5" column="21" row-span="1" col-span="2" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
               </hspacer>
-              <component id="aef63" class="javax.swing.JTextField" binding="fileDirTextField">
+              <component id="aef63" class="javax.swing.JTextField" binding="aliyunOssFileDirTextField">
                 <constraints>
-                  <grid row="5" column="20" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                  <grid row="3" column="22" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
@@ -178,20 +203,12 @@
               </component>
               <hspacer id="8bcde">
                 <constraints>
-                  <grid row="7" column="23" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="5" column="23" row-span="1" col-span="4" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
               </hspacer>
-              <component id="6ea47" class="javax.swing.JButton" binding="helpButton" default-binding="true">
-                <constraints>
-                  <grid row="7" column="22" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value="Help"/>
-                </properties>
-              </component>
               <component id="c09bb" class="javax.swing.JLabel">
                 <constraints>
-                  <grid row="5" column="19" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                  <grid row="3" column="21" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
                     <preferred-size width="15" height="14"/>
                   </grid>
                 </constraints>
@@ -199,48 +216,146 @@
                   <text value="/"/>
                 </properties>
               </component>
-              <grid id="dbe18" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                <margin top="0" left="0" bottom="0" right="0"/>
-                <constraints>
-                  <grid row="1" column="4" row-span="1" col-span="18" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties/>
-                <border type="none" title="图片"/>
-                <children/>
-              </grid>
-              <vspacer id="a605c">
-                <constraints>
-                  <grid row="0" column="5" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
-                </constraints>
-              </vspacer>
             </children>
           </grid>
-          <grid id="e0dfb" binding="weiboOssAuthorizationPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-            <margin top="0" left="0" bottom="0" right="0"/>
-            <constraints>
-              <tabbedpane title="Weibo OSS"/>
-            </constraints>
-            <properties/>
-            <border type="none"/>
-            <children/>
-          </grid>
-          <grid id="cfd26" binding="qiniuOssAuthorizationPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="a4e46" binding="qiniuOssAuthorizationPanel" layout-manager="GridLayoutManager" row-count="5" column-count="7" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <tabbedpane title="Qiniu OSS"/>
             </constraints>
-            <properties>
-              <enabled value="false"/>
-            </properties>
-            <border type="none"/>
-            <children/>
+            <properties/>
+            <border type="none" title=""/>
+            <children>
+              <component id="227d1" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Uphost:"/>
+                </properties>
+              </component>
+              <component id="b8102" class="javax.swing.JTextField" binding="qiniuOssUpHostTextField">
+                <constraints>
+                  <grid row="3" column="1" row-span="1" col-span="6" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <text value=""/>
+                </properties>
+              </component>
+              <component id="37751" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Zone:"/>
+                </properties>
+              </component>
+              <component id="193de" class="javax.swing.JRadioButton" binding="qiniuOssEastChinaRadioButton" default-binding="true">
+                <constraints>
+                  <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="EastChina"/>
+                </properties>
+              </component>
+              <component id="808a5" class="javax.swing.JRadioButton" binding="qiniuOssNortChinaRadioButton" default-binding="true">
+                <constraints>
+                  <grid row="4" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="NortChina"/>
+                </properties>
+              </component>
+              <component id="f5684" class="javax.swing.JRadioButton" binding="qiniuOssSouthChinaRadioButton" default-binding="true">
+                <constraints>
+                  <grid row="4" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="SouthChina"/>
+                </properties>
+              </component>
+              <component id="26a23" class="javax.swing.JRadioButton" binding="qiniuOssNorthAmeriaRadioButton" default-binding="true">
+                <constraints>
+                  <grid row="4" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="NorthAmeria"/>
+                </properties>
+              </component>
+              <component id="c4fd0" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Bucket:"/>
+                </properties>
+              </component>
+              <component id="c99de" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Secret Key:"/>
+                </properties>
+              </component>
+              <component id="1a216" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Access Key:"/>
+                </properties>
+              </component>
+              <component id="23e9" class="javax.swing.JTextField" binding="qiniuOssAccessSecretKeyTextField">
+                <constraints>
+                  <grid row="2" column="1" row-span="1" col-span="6" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <text value=""/>
+                </properties>
+              </component>
+              <component id="7e104" class="javax.swing.JTextField" binding="qiniuOssAccessKeyTextField">
+                <constraints>
+                  <grid row="1" column="1" row-span="1" col-span="6" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <text value=""/>
+                </properties>
+              </component>
+              <component id="99306" class="javax.swing.JTextField" binding="qiniuOssBucketNameTextField">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="6" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <text value=""/>
+                </properties>
+              </component>
+              <hspacer id="d74c8">
+                <constraints>
+                  <grid row="4" column="6" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </hspacer>
+              <hspacer id="eff15">
+                <constraints>
+                  <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </hspacer>
+            </children>
           </grid>
         </children>
       </tabbedpane>
-      <grid id="9b7d6" binding="globalUploadPanel" layout-manager="GridLayoutManager" row-count="10" column-count="10" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="9b7d6" binding="globalUploadPanel" layout-manager="GridLayoutManager" row-count="10" column-count="9" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
-          <grid row="2" column="0" row-span="1" col-span="6" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="0" row-span="1" col-span="26" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <enabled value="true"/>
@@ -249,12 +364,12 @@
         <children>
           <component id="71e65" class="javax.swing.JCheckBox" binding="changeToHtmlTagCheckBox">
             <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
             </constraints>
             <properties>
               <enabled value="true"/>
               <selected value="false"/>
-              <text value="替换为 '&lt;a&gt;'"/>
+              <text resource-bundle="setting" key="change.to.html.mark"/>
             </properties>
           </component>
           <vspacer id="a0f8d">
@@ -264,7 +379,7 @@
           </vspacer>
           <component id="bffbd" class="javax.swing.JRadioButton" binding="customRadioButton">
             <constraints>
-              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="3" use-parent-layout="false"/>
+              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="4" use-parent-layout="false"/>
             </constraints>
             <properties>
               <enabled value="false"/>
@@ -273,23 +388,24 @@
           </component>
           <component id="19181" class="javax.swing.JTextField" binding="customHtmlTypeTextField">
             <constraints>
-              <grid row="3" column="2" row-span="1" col-span="5" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+              <grid row="3" column="2" row-span="1" col-span="3" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="1" use-parent-layout="false">
                 <preferred-size width="200" height="-1"/>
               </grid>
             </constraints>
             <properties>
               <editable value="true"/>
               <enabled value="false"/>
+              <text value=""/>
             </properties>
           </component>
           <hspacer id="ace39">
             <constraints>
-              <grid row="0" column="2" row-span="1" col-span="2" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="0" column="2" row-span="1" col-span="7" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
           </hspacer>
           <component id="5a547" class="javax.swing.JRadioButton" binding="commonRadioButton">
             <constraints>
-              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="3" use-parent-layout="false"/>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="4" use-parent-layout="false"/>
             </constraints>
             <properties>
               <enabled value="false"/>
@@ -299,57 +415,35 @@
           </component>
           <component id="5fdde" class="javax.swing.JRadioButton" binding="largePictureRadioButton">
             <constraints>
-              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="3" use-parent-layout="false"/>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="4" use-parent-layout="false"/>
             </constraints>
             <properties>
               <enabled value="false"/>
               <text value="点击看大图"/>
             </properties>
           </component>
-          <component id="18a34" class="javax.swing.JTextField" binding="commontextField">
-            <constraints>
-              <grid row="1" column="2" row-span="1" col-span="5" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
-              </grid>
-            </constraints>
-            <properties>
-              <editable value="false"/>
-              <enabled value="false"/>
-              <text value="&lt;a title='${}' href='${}' &gt;![${}](${})&lt;/a&gt;"/>
-            </properties>
-          </component>
-          <component id="aa204" class="javax.swing.JTextField" binding="largePicturetextField">
-            <constraints>
-              <grid row="2" column="2" row-span="1" col-span="5" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
-              </grid>
-            </constraints>
-            <properties>
-              <editable value="false"/>
-              <enabled value="false"/>
-              <text value="&lt;a data-fancybox title='${}' href='${}' &gt;![${}](${})&lt;/a&gt;"/>
-            </properties>
-          </component>
           <component id="b9d64" class="javax.swing.JCheckBox" binding="backupCheckBox">
             <constraints>
-              <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
             </constraints>
             <properties>
+              <enabled value="false"/>
               <text value="图片备份"/>
             </properties>
           </component>
           <component id="3014d" class="javax.swing.JCheckBox" binding="transportCheckBox">
             <constraints>
-              <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
             </constraints>
             <properties>
+              <enabled value="false"/>
               <selected value="false"/>
               <text value="图床迁移"/>
             </properties>
           </component>
           <component id="74836" class="javax.swing.JCheckBox" binding="compressCheckBox">
             <constraints>
-              <grid row="4" column="0" row-span="1" col-span="7" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="4" column="0" row-span="1" col-span="7" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value="图片压缩"/>
@@ -357,7 +451,7 @@
           </component>
           <component id="c9c62" class="javax.swing.JCheckBox" binding="compressBeforeUploadCheckBox">
             <constraints>
-              <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="3" use-parent-layout="false"/>
+              <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="4" use-parent-layout="false"/>
             </constraints>
             <properties>
               <enabled value="false"/>
@@ -366,7 +460,7 @@
           </component>
           <component id="52d6d" class="javax.swing.JCheckBox" binding="compressAtLookupCheckBox">
             <constraints>
-              <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="3" use-parent-layout="false"/>
+              <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="4" use-parent-layout="false"/>
             </constraints>
             <properties>
               <enabled value="false"/>
@@ -375,7 +469,7 @@
           </component>
           <component id="3805b" class="javax.swing.JSlider" binding="compressSlider">
             <constraints>
-              <grid row="5" column="2" row-span="1" col-span="4" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="5" column="2" row-span="1" col-span="3" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <enabled value="false"/>
@@ -389,7 +483,7 @@
           </component>
           <component id="6b70b" class="javax.swing.JTextField" binding="styleNameTextField">
             <constraints>
-              <grid row="6" column="2" row-span="1" col-span="4" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+              <grid row="6" column="2" row-span="1" col-span="3" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="-1"/>
               </grid>
             </constraints>
@@ -397,70 +491,132 @@
               <enabled value="false"/>
             </properties>
           </component>
-          <component id="78193" class="javax.swing.JTextField" binding="compresstextField">
+          <component id="660f9" class="javax.swing.JLabel" binding="compressLabel">
             <constraints>
-              <grid row="5" column="6" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
-              </grid>
+              <grid row="5" column="7" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <enabled value="false"/>
-              <text value=""/>
+              <text value="        "/>
             </properties>
           </component>
-          <hspacer id="5981">
-            <constraints>
-              <grid row="5" column="9" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-            </constraints>
-          </hspacer>
-          <hspacer id="24f79">
+          <hspacer id="e6279">
             <constraints>
               <grid row="5" column="8" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
           </hspacer>
-          <hspacer id="71f4f">
+          <component id="50514" class="javax.swing.JLabel" binding="commonLabel">
             <constraints>
-              <grid row="5" column="7" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
             </constraints>
-          </hspacer>
+            <properties>
+              <enabled value="false"/>
+              <text value="Pattern: &quot;&lt;a title='${}' href='${}' &gt;![${}](${})&lt;/a&gt;&quot;"/>
+            </properties>
+          </component>
+          <component id="89cf6" class="javax.swing.JLabel" binding="customLabel">
+            <constraints>
+              <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <enabled value="false"/>
+              <text value="Pattern: &quot;&lt;a data-fancybox title='${}' href='${}' &gt;![${}](${})&lt;/a&gt;&quot;. If use vuepress, you may also need to modify 'config.js'"/>
+            </properties>
+          </component>
         </children>
       </grid>
       <vspacer id="92fce">
         <constraints>
-          <grid row="3" column="0" row-span="1" col-span="6" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+          <grid row="4" column="0" row-span="1" col-span="26" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
         </constraints>
       </vspacer>
-      <component id="b5af8" class="javax.swing.JButton" binding="button2" default-binding="true">
+      <component id="b5af8" class="javax.swing.JButton" binding="helpButton">
         <constraints>
-          <grid row="1" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="23" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Button"/>
+          <text value="&amp;Help"/>
         </properties>
       </component>
       <hspacer id="e29fe">
         <constraints>
-          <grid row="1" column="5" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="25" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
       </hspacer>
-      <component id="41aaf" class="javax.swing.JButton" binding="button1" default-binding="true">
+      <component id="41aaf" class="javax.swing.JButton" binding="testButton">
         <constraints>
           <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Button"/>
+          <text value="&amp;Test Upload"/>
+        </properties>
+      </component>
+      <hspacer id="d7dd9">
+        <constraints>
+          <grid row="1" column="22" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </hspacer>
+      <component id="a71d9" class="javax.swing.JLabel" binding="testMessage">
+        <constraints>
+          <grid row="1" column="3" row-span="1" col-span="18" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <enabled value="false"/>
+          <text value="                                             "/>
         </properties>
       </component>
       <hspacer id="b8a64">
         <constraints>
-          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
       </hspacer>
-      <hspacer id="d7dd9">
+      <grid id="ea81e" binding="clipboardPanel" layout-manager="GridLayoutManager" row-count="3" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
-          <grid row="1" column="3" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="3" column="0" row-span="1" col-span="26" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
-      </hspacer>
+        <properties/>
+        <border type="none" title="Clipboard Settings"/>
+        <children>
+          <component id="47e51" class="javax.swing.JCheckBox" binding="clipboardControl">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text resource-bundle="setting" key="clipboard.control"/>
+            </properties>
+          </component>
+          <hspacer id="68a3a">
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+          </hspacer>
+          <component id="7f6fe" class="javax.swing.JCheckBox" binding="copyToDirCheckBox">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="4" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text resource-bundle="setting" key="copy.to.dir"/>
+            </properties>
+          </component>
+          <component id="77d29" class="javax.swing.JCheckBox" binding="uploadAndReplaceCheckBox">
+            <constraints>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="4" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="上传图片并替换"/>
+            </properties>
+          </component>
+          <component id="4ae28" class="javax.swing.JTextField" binding="whereToCopyTextField">
+            <constraints>
+              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                <preferred-size width="150" height="-1"/>
+              </grid>
+            </constraints>
+            <properties/>
+          </component>
+        </children>
+      </grid>
     </children>
   </grid>
 </form>

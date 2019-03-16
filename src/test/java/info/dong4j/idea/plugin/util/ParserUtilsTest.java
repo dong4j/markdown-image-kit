@@ -27,7 +27,7 @@ public class ParserUtilsTest {
         }
 
         String filePath = "./imgs/1eefcf26.png";
-        String fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
+        String fileName = filePath.substring(filePath.lastIndexOf(File.pathSeparator) + 1);
         log.info(fileName);
     }
 

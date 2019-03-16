@@ -11,9 +11,9 @@ import com.intellij.psi.search.GlobalSearchScope;
 
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.MarkdownImageLocation;
-import info.dong4j.idea.plugin.settings.OssPersistenSettings;
+import info.dong4j.idea.plugin.settings.OssPersistenConfig;
+import info.dong4j.idea.plugin.util.AliyunUploadUtils;
 import info.dong4j.idea.plugin.util.PsiDocumentUtils;
-import info.dong4j.idea.plugin.util.UploadUtils;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -41,7 +41,7 @@ public final class AliyunObjectStorageServiceAction extends AbstractObjectStorag
     @Contract(pure = true)
     @Override
     boolean isPassedTest() {
-        return OssPersistenSettings.getInstance().getState().getAliyunOssState().isPassedTest();
+        return OssPersistenConfig.getInstance().getState().getAliyunOssState().isPassedTest();
     }
 
     /**
@@ -95,8 +95,8 @@ public final class AliyunObjectStorageServiceAction extends AbstractObjectStorag
         PsiFile psiFile = findImageResource(project, filePath);
         if (psiFile != null) {
             filePath = psiFile.getVirtualFile().getPath();
-            String name = UploadUtils.uploadImg2Oss(new File(filePath));
-            return UploadUtils.getUrl(name);
+            String name = AliyunUploadUtils.uploadImg2Oss(new File(filePath));
+            return AliyunUploadUtils.getUrl(name);
         }
         return filePath;
     }
@@ -122,8 +122,8 @@ public final class AliyunObjectStorageServiceAction extends AbstractObjectStorag
                         }
                         // todo-dong4j : (2019年03月15日 20:14) [此操作耗时, 放入异步处理]
                         for(VirtualFile file : findedFiles){
-                            String name = UploadUtils.uploadImg2Oss(new File(file.getPath()));
-                            String uploadedUrl = UploadUtils.getUrl(name);
+                            String name = AliyunUploadUtils.uploadImg2Oss(new File(file.getPath()));
+                            String uploadedUrl = AliyunUploadUtils.getUrl(name);
                             markdownImage.setUploadedUrl(uploadedUrl);
                             // 只取第一个图片,
                             break;
@@ -146,7 +146,7 @@ public final class AliyunObjectStorageServiceAction extends AbstractObjectStorag
      */
     @Nullable
     private static PsiFile findImageResource(Project project, String filePath) {
-        String fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
+        String fileName = filePath.substring(filePath.lastIndexOf(File.pathSeparator) + 1);
         // 在整个 project 范围内查找
         PsiFile[] foundFiles = FilenameIndex.getFilesByName(project, fileName, GlobalSearchScope.allScope(project));
         if (foundFiles.length <= 0) {
