@@ -194,7 +194,7 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                 try {
                     ImageIO.write(bufferedImage, "png", imageFile);
                     // 保存到文件后异步刷新缓存, 让图片显示到文件树中
-                    VirtualFileManager.getInstance().asyncRefresh(null);
+                    VirtualFileManager.getInstance().syncRefresh();
                     File imageFileRelativizePath = curDocument.getParentFile().toPath().relativize(imageFile.toPath()).toFile();
                     String relImagePath = imageFileRelativizePath.toString().replace('\\', '/');
                     EditorModificationUtil.insertStringAtCaret(editor, "![](" + relImagePath + ")\n");
