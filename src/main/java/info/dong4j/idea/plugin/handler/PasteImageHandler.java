@@ -10,6 +10,7 @@ import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.editor.actionSystem.EditorTextInsertHandler;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.Producer;
 
 import info.dong4j.idea.plugin.content.MarkdownContents;
@@ -172,6 +173,8 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
             Runnable r = () -> {
                 try {
                     ImageIO.write(bufferedImage, "png", imageFile);
+                    // 保存到文件后异步刷新缓存, 让图片显示到文件树中
+                    VirtualFileManager.getInstance().asyncRefresh(null);
                     File imageFileRelativizePath = curDocument.getParentFile().toPath().relativize(imageFile.toPath()).toFile();
                     String relImagePath = imageFileRelativizePath.toString().replace('\\', '/');
                     EditorModificationUtil.insertStringAtCaret(editor, "![](" + relImagePath + ")");
