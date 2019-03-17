@@ -82,11 +82,8 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                 OssState state = OssPersistenConfig.getInstance().getState();
 
                 boolean isClipboardControl = state.isClipboardControl();
-                boolean isCopyToDir = state.isCopyToDir();
-                boolean isUploadAndReplace = state.isUploadAndReplace();
 
                 if (isClipboardControl) {
-
                     Map<DataFlavor, Object> clipboardData = ImageUtils.getDataFromClipboard();
                     for (Map.Entry entry : clipboardData.entrySet()) {
                         if (entry.getKey().equals(DataFlavor.javaFileListFlavor)) {
@@ -102,43 +99,50 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                                 }
                                 String fileName = file.getName();
                                 if (image != null) {
-                                    // 获取 BufferedImage
-                                    BufferedImage bufferedImage = ImageUtils.toBufferedImage(image);
-                                    // 上传并替换
-                                    if (isUploadAndReplace) {
-                                        uploadAndReplace(editor, bufferedImage, fileName);
-                                    }
-                                    // 拷贝图片到目录
-                                    if (isCopyToDir) {
-                                        copyToDir(editor, document, state, bufferedImage, fileName);
-                                    }
+                                    invoke(editor, document, image, fileName);
+                                    // 提前退出, 防止执行默认 paste 操作
+                                    return;
                                 }
                             }
                         } else {
                             // 统一重命名
-                            String imageName = CharacterUtils.getRandomString(12) + ".png";
-                            BufferedImage bufferedImage = ImageUtils.toBufferedImage((Image) entry.getValue());
-                            if (bufferedImage != null) {
-                                // 上传并替换
-                                if (isUploadAndReplace) {
-                                    uploadAndReplace(editor, bufferedImage, imageName);
-                                }
-                                // 拷贝图片到目录
-                                if (isCopyToDir) {
-                                    copyToDir(editor, document, state, bufferedImage, imageName);
-                                }
-                                // 提前退出, 使执行默认的粘贴操作(如果是非文本, 只会粘贴文件名)
-                                return;
-                            }
+                            String fileName = CharacterUtils.getRandomString(12) + ".png";
+                            invoke(editor, document, (Image) entry.getValue(), fileName);
+                            // 提前退出, 防止执行默认 paste 操作
+                            return;
                         }
                     }
                 }
             }
         }
 
-        // 执行默认的粘贴操作
+        // 执行默认的 paste 操作
         if (editorActionHandler != null) {
             editorActionHandler.execute(editor, caret, dataContext);
+        }
+    }
+
+    /**
+     * 执行上传或拷贝处理
+     *
+     * @param editor             the editor
+     * @param document           the document
+     * @param image              the image
+     * @param fileName           the file name
+     */
+    private void invoke(@NotNull Editor editor, Document document, Image image, String fileName) {
+        OssState state = OssPersistenConfig.getInstance().getState();
+        boolean isCopyToDir = state.isCopyToDir();
+        boolean isUploadAndReplace = state.isUploadAndReplace();
+
+        BufferedImage bufferedImage = ImageUtils.toBufferedImage(image);
+        if (bufferedImage != null) {
+            if (isUploadAndReplace) {
+                uploadAndReplace(editor, bufferedImage, fileName);
+            }
+            if (isCopyToDir) {
+                copyToDir(editor, document, state, bufferedImage, fileName);
+            }
         }
     }
 
