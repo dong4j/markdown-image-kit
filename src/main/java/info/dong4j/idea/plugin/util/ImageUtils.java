@@ -1,5 +1,10 @@
 package info.dong4j.idea.plugin.util;
 
+import com.intellij.util.containers.hash.HashMap;
+
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
+
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -20,6 +25,7 @@ import java.awt.image.ImageProducer;
 import java.awt.image.RGBImageFilter;
 import java.io.*;
 import java.net.*;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -42,22 +48,48 @@ public class ImageUtils {
      *
      * @return the image from clipboard
      */
+    @Nullable
     public static Image getImageFromClipboard() {
         Transferable transferable = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
-        try {
-            if (transferable != null && transferable.isDataFlavorSupported(DataFlavor.imageFlavor)) {
+        if (transferable != null && transferable.isDataFlavorSupported(DataFlavor.imageFlavor)) {
+            try {
                 return (Image) transferable.getTransferData(DataFlavor.imageFlavor);
-            } else {
-                return null;
+            } catch (IOException | UnsupportedFlavorException ignored) {
+                // 如果 clipboard 没有图片, 不处理
             }
-
-        } catch (UnsupportedFlavorException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            throw new RuntimeException();
         }
-
         return null;
+    }
+
+    /**
+     * Gets data from clipboard.
+     *
+     * @return the data from clipboard
+     */
+    public static Map<DataFlavor, Object> getDataFromClipboard() {
+        Map<DataFlavor, Object> data = new HashMap<>(1);
+        Transferable transferable = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+        if (transferable != null) {
+            // 如果剪切板的内容是文件
+            try {
+                DataFlavor dataFlavor;
+                if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+                    // List<File>
+                    dataFlavor = DataFlavor.javaFileListFlavor;
+                }
+                else if (transferable.isDataFlavorSupported(DataFlavor.imageFlavor)) {
+                    // Image
+                    dataFlavor = DataFlavor.imageFlavor;
+                } else {
+                    return data;
+                }
+                Object object = transferable.getTransferData(dataFlavor);
+                data.put(dataFlavor, object);
+            } catch (IOException | UnsupportedFlavorException ignored) {
+                // 如果 clipboard 没有文件, 不处理
+            }
+        }
+        return data;
     }
 
 
@@ -69,6 +101,7 @@ public class ImageUtils {
      * @param newHeight   the new height
      * @return the buffered image
      */
+    @Contract("null, _, _ -> null")
     public static BufferedImage scaleImage(BufferedImage sourceImage, int newWidth, int newHeight) {
         if (sourceImage == null) {
             return null;
@@ -93,6 +126,7 @@ public class ImageUtils {
      * @param src the src
      * @return the buffered image
      */
+    @Nullable
     public static BufferedImage toBufferedImage(Image src) {
         if (src instanceof BufferedImage) {
             return (BufferedImage) src;
@@ -158,6 +192,7 @@ public class ImageUtils {
      * @param cachedImageFile the cached image file
      * @return Could be <code>null</code> if the image could not be read from the file (because of whatever strange     reason).
      */
+    @Contract("null -> null")
     public static BufferedImage loadImageFromFile(File cachedImageFile) {
         if (cachedImageFile == null || !cachedImageFile.isFile()) {
             return null;
