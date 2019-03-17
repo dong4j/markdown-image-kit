@@ -57,7 +57,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JTabbedPane authorizationTabbedPanel;
     /** weiboOssAuthorizationPanel group */
     private JPanel weiboOssAuthorizationPanel;
-    private JTextField userNameextField;
+    private JTextField userNameTextField;
     private JPasswordField passwordField;
     private JLabel userNameLabel;
     private JLabel passwordLabel;
@@ -253,7 +253,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      * 初始化 weibo oss 认证相关设置
      */
     private void initWeiboOssAuthenticationPanel() {
-
+        userNameTextField.setText(ossPersistenConfig.getState().getWeiboOssState().getUserName());
+        passwordField.setText(ossPersistenConfig.getState().getWeiboOssState().getPassword());
     }
 
     /**
@@ -275,14 +276,12 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             if(StringUtils.isNotBlank(url)){
                 testMessage.setForeground(JBColor.GREEN);
                 testMessage.setText("Upload Succeed");
-                ossPersistenConfig.getState().getAliyunOssState().setPassedTest(true);
                 if(log.isTraceEnabled()){
                     BrowserUtil.browse(url);
                 }
             }else {
                 testMessage.setForeground(JBColor.RED);
                 testMessage.setText("Upload Failed, Please check the configuration");
-                ossPersistenConfig.getState().getAliyunOssState().setPassedTest(false);
             }
         });
 
@@ -575,6 +574,10 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         boolean uploadAndReplace = uploadAndReplaceCheckBox.isSelected();
         String whereToCopy = whereToCopyTextField.getText().trim();
 
+        // weibo
+        String username = userNameTextField.getText().trim();
+        String password = new String(passwordField.getPassword());
+
         return !(newBucketName.equals(ossPersistenConfig.getState().getAliyunOssState().getBucketName())
                  && newAccessKey.equals(ossPersistenConfig.getState().getAliyunOssState().getAccessKey())
                  && newAccessSecretKey.equals(ossPersistenConfig.getState().getAliyunOssState().getAccessSecretKey())
@@ -598,6 +601,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                  && uploadAndReplace == ossPersistenConfig.getState().isUploadAndReplace()
                  && whereToCopy.equals(ossPersistenConfig.getState().getImageSavePath())
                  && defaultCloudComboBox.getSelectedIndex() == ossPersistenConfig.getState().getCloudType()
+                 && username.equals(ossPersistenConfig.getState().getWeiboOssState().getUserName())
+                 && password.equals(ossPersistenConfig.getState().getWeiboOssState().getPassword())
         );
     }
 
@@ -647,6 +652,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         ossPersistenConfig.getState().setImageSavePath(this.whereToCopyTextField.getText().trim());
 
         ossPersistenConfig.getState().setCloudType(this.defaultCloudComboBox.getSelectedIndex());
+
+        ossPersistenConfig.getState().getWeiboOssState().setUserName(this.userNameTextField.getText().trim());
+        ossPersistenConfig.getState().getWeiboOssState().setPassword(new String(passwordField.getPassword()));
 
         // 重新创建 OSSClient
         AliyunUploadUtils.destory();

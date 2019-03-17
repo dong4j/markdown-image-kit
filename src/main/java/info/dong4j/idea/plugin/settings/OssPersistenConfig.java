@@ -27,7 +27,7 @@ public class OssPersistenConfig implements PersistentStateComponent<OssState> {
      * @return the unique {@link OssPersistenConfig} instance.
      */
     public static OssPersistenConfig getInstance() {
-        log.trace("get AliyunOssSettings getInstance");
+        log.trace("get OssPersistenConfig getInstance");
         return ServiceManager.getService(OssPersistenConfig.class);
     }
 

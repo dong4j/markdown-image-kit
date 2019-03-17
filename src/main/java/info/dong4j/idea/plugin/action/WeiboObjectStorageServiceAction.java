@@ -29,5 +29,6 @@ public final class WeiboObjectStorageServiceAction extends AbstractObjectStorage
     @Contract(pure = true)
     @Override
     protected void upload(AnActionEvent event, Map<Document, List<MarkdownImage>> waitingForUploadImages) {
+
     }
 }

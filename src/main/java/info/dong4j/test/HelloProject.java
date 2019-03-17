@@ -18,18 +18,18 @@ import lombok.extern.slf4j.Slf4j;
 public class HelloProject implements BaseComponent {
     @Override
     public void initComponent() {
-        log.debug("HelloProject --> initComponent");
+        log.trace("HelloProject --> initComponent");
     }
 
     @Override
     public void disposeComponent() {
-        log.debug("HelloProject --> disposeComponent");
+        log.trace("HelloProject --> disposeComponent");
     }
 
     @NotNull
     @Override
     public String getComponentName() {
-        log.debug("HelloProject --> disposeComponent");
+        log.trace("HelloProject --> disposeComponent");
         return "HelloProject";
     }
 }

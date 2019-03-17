@@ -19,23 +19,23 @@ import lombok.extern.slf4j.Slf4j;
 public class HelloApplication implements BaseComponent, Disposable {
     @Override
     public void dispose() {
-        log.debug("dispose");
+        log.trace("dispose");
     }
 
     @Override
     public void initComponent() {
-        log.debug("HelloApplication --> initComponent");
+        log.trace("HelloApplication --> initComponent");
     }
 
     @Override
     public void disposeComponent() {
-        log.debug("HelloApplication --> disposeComponent");
+        log.trace("HelloApplication --> disposeComponent");
     }
 
     @NotNull
     @Override
     public String getComponentName() {
-        log.debug("HelloApplication --> disposeComponent");
+        log.trace("HelloApplication --> disposeComponent");
         return "HelloApplication";
     }
 }

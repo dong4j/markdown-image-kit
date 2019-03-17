@@ -2,9 +2,16 @@ package info.dong4j.idea.plugin.strategy;
 
 import info.dong4j.idea.plugin.settings.OssPersistenConfig;
 import info.dong4j.idea.plugin.settings.OssState;
+import info.dong4j.idea.plugin.weibo.UploadRequestBuilder;
+import info.dong4j.idea.plugin.weibo.UploadResponse;
+import info.dong4j.idea.plugin.weibo.WbpUploadRequest;
+import info.dong4j.idea.plugin.weibo.exception.Wbp4jException;
 
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+
+import sun.awt.OSInfo;
 
 import java.io.*;
 import java.util.List;
@@ -49,7 +56,6 @@ public class WeiboUploadStrategy implements UploadStrategy {
      */
     @NotNull
     private String uploadFromState(InputStream inputStream, String fileName) {
-        OssState.WeiboOssState weiboOssState = OssPersistenConfig.getInstance().getState().getWeiboOssState();
         String username = weiboOssState.getUserName();
         String password = weiboOssState.getPassword();
 
@@ -83,11 +89,43 @@ public class WeiboUploadStrategy implements UploadStrategy {
      */
     @NotNull
     @Contract(pure = true)
-    private String upload(InputStream inputStream,
+    public String upload(InputStream inputStream,
                           String fileName,
                           String username,
                           String password) {
 
-        return "";
+        WbpUploadRequest request = new UploadRequestBuilder()
+            .setAcount(username, password)
+            .setTryLoginTime(5 * 60 * 1000)
+            .build();
+        UploadResponse response;
+        File file = new File(osTempPath() + File.separator + "test.png");
+        String url = "";
+        try (BufferedInputStream bi = new BufferedInputStream(inputStream);
+             FileOutputStream fos = new FileOutputStream(file)) {
+            byte[] by = new byte[1024];
+            int len;
+            while ((len = bi.read(by)) != -1) {
+                fos.write(by, 0, len);
+            }
+            response = request.upload(file);
+            if(response.getResult().equals(UploadResponse.ResultStatus.SUCCESS)){
+                url = response.getImageInfo().getLarge();
+            }
+        } catch (IOException | Wbp4jException e) {
+            log.trace("", e);
+        }
+        weiboOssState.setPassedTest(StringUtils.isNotBlank(url));
+        return url;
+    }
+
+    @NotNull
+    private String osTempPath() {
+        final String osSeparator = System.getProperty("file.separator");
+        if (OSInfo.getOSType().equals(OSInfo.OSType.WINDOWS)) {
+            return "c:" + osSeparator + "windows" + osSeparator + "temp";
+        } else {
+            return "/tmp";
+        }
     }
 }

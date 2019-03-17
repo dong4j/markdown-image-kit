@@ -48,6 +48,7 @@ public class OssState {
     public static class WeiboOssState {
         private String userName = "";
         private String password = "";
+        private String cookies = "";
         private boolean passedTest = false;
     }
 

@@ -54,7 +54,6 @@ public class AliyunUploadStrategy implements UploadStrategy {
      * @return the string
      */
     private String uploadFromState(InputStream inputStream, String fileName) {
-        OssState.AliyunOssState aliyunOssState = OssPersistenConfig.getInstance().getState().getAliyunOssState();
         String tempBucketName = aliyunOssState.getBucketName();
         String tempAccessKey = aliyunOssState.getAccessKey();
         String tempAccessSecretKey = aliyunOssState.getAccessSecretKey();
@@ -107,6 +106,7 @@ public class AliyunUploadStrategy implements UploadStrategy {
                           String tempEndpoint,
                           String tempFileDir) {
         OSS oss = null;
+        String url = "";
         try {
             OSSClientBuilder ossClientBuilder = new OSSClientBuilder();
             // 返回读取指定资源的输入流
@@ -114,7 +114,7 @@ public class AliyunUploadStrategy implements UploadStrategy {
             oss.putObject(tempBucketName,
                           tempFileDir + fileName,
                           inputStream);
-            return AliyunUploadUtils.getUrl(tempFileDir, fileName);
+            url = AliyunUploadUtils.getUrl(tempFileDir, fileName);
         } catch (Exception e) {
             log.trace("", e);
         } finally {
@@ -122,6 +122,8 @@ public class AliyunUploadStrategy implements UploadStrategy {
                 oss.shutdown();
             }
         }
-        return "";
+
+        aliyunOssState.setPassedTest(StringUtils.isNotBlank(url));
+        return url;
     }
 }

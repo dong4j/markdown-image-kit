@@ -163,7 +163,7 @@ public final class AliyunUploadUtils {
             PutObjectResult putResult = ossClient.putObject(bucketName, filedir + fileName, instream, objectMetadata);
             ret = putResult.getETag();
         } catch (IOException e) {
-            log.error(e.getMessage(), e);
+            log.trace(e.getMessage(), e);
         } finally {
             try {
                 if (instream != null) {
