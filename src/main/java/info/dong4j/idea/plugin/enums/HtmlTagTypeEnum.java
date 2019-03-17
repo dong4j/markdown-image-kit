@@ -1,5 +1,7 @@
 package info.dong4j.idea.plugin.enums;
 
+import info.dong4j.idea.plugin.content.MarkdownContents;
+
 import org.jetbrains.annotations.Contract;
 
 /**
@@ -11,9 +13,9 @@ import org.jetbrains.annotations.Contract;
  * @email sjdong3@iflytek.com
  */
 public enum HtmlTagTypeEnum {
-    LARGE_PICTURE(1, "点击看大图", "<a data-fancybox title='${}' href='${}' >![${}](${})</a>"),
-    COMMON_PICTURE(2, "正常的","<a title='${}' href='${}' >![${}](${})</a>"),
-    CUSTOM(3, "自定义","");
+    LARGE_PICTURE(1, "点击看大图", MarkdownContents.LARG_IMAGE_MARK),
+    COMMON_PICTURE(2, "正常的", MarkdownContents.COMMON_IMAGE_MARK),
+    CUSTOM(3, "自定义", "");
 
     public int index;
     public String text;
@@ -31,7 +33,7 @@ public enum HtmlTagTypeEnum {
     }
 
     @Contract(pure = true)
-    public String getText(){
+    public String getText() {
         return text;
     }
 

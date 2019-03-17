@@ -15,6 +15,7 @@ import info.dong4j.idea.plugin.settings.OssPersistenConfig;
 import info.dong4j.idea.plugin.util.AliyunUploadUtils;
 import info.dong4j.idea.plugin.util.PsiDocumentUtils;
 
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -115,18 +116,20 @@ public final class AliyunObjectStorageServiceAction extends AbstractObjectStorag
                 for (MarkdownImage markdownImage : entry.getValue()) {
                     if(markdownImage.getLocation().equals(ImageLocationEnum.LOCAL)){
                         String imageName = markdownImage.getPath();
-                        Collection<VirtualFile> findedFiles = FilenameIndex.getVirtualFilesByName(project, imageName, GlobalSearchScope.allScope(project));
-                        if (findedFiles.size() <= 0) {
-                            notifucation("upload error", "", "Could not find 「" + imageName +  "」 in project", NotificationType.ERROR);
-                            continue;
-                        }
-                        // todo-dong4j : (2019年03月15日 20:14) [此操作耗时, 放入异步处理]
-                        for(VirtualFile file : findedFiles){
-                            String name = AliyunUploadUtils.uploadImg2Oss(new File(file.getPath()));
-                            String uploadedUrl = AliyunUploadUtils.getUrl(name);
-                            markdownImage.setUploadedUrl(uploadedUrl);
-                            // 只取第一个图片,
-                            break;
+                        if(StringUtils.isNotBlank(imageName)){
+                            Collection<VirtualFile> findedFiles = FilenameIndex.getVirtualFilesByName(project, imageName, GlobalSearchScope.allScope(project));
+                            if (findedFiles.size() <= 0) {
+                                notifucation("upload error", "", "Could not find 「" + imageName +  "」 in project", NotificationType.ERROR);
+                                continue;
+                            }
+                            // todo-dong4j : (2019年03月15日 20:14) [此操作耗时, 放入异步处理]
+                            for(VirtualFile file : findedFiles){
+                                String name = AliyunUploadUtils.uploadImg2Oss(new File(file.getPath()));
+                                String uploadedUrl = AliyunUploadUtils.getUrl(name);
+                                markdownImage.setUploadedUrl(uploadedUrl);
+                                // 只取第一个图片,
+                                break;
+                            }
                         }
                     }
                     // todo-dong4j : (2019年03月15日 20:02) [此处会多次修改, 考虑直接使用 setText() 一次性修改全部文本数据]

@@ -19,6 +19,7 @@ import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.util.CharacterUtils;
 import info.dong4j.idea.plugin.util.EnumsUtils;
 import info.dong4j.idea.plugin.util.ImageUtils;
+import info.dong4j.idea.plugin.util.UploadUtils;
 
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -89,7 +90,6 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                         if (entry.getKey().equals(DataFlavor.javaFileListFlavor)) {
                             // 肯定是 List<File> 类型
                             @SuppressWarnings("unchecked") List<File> fileList = (List<File>) entry.getValue();
-                            // 多张图片循环处理
                             for (File file : fileList) {
                                 // 先检查是否为图片类型
                                 Image image = null;
@@ -105,7 +105,7 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                                 }
                             }
                         } else {
-                            // 统一重命名
+                            // image 类型统一重命名, 因为获取不到文件名
                             String fileName = CharacterUtils.getRandomString(12) + ".png";
                             invoke(editor, document, (Image) entry.getValue(), fileName);
                             // 提前退出, 防止执行默认 paste 操作
@@ -141,7 +141,7 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                 uploadAndReplace(editor, bufferedImage, fileName);
             }
             if (isCopyToDir) {
-                copyToDir(editor, document, state, bufferedImage, fileName);
+                copyToDirAndReplace(editor, document, state, bufferedImage, fileName);
             }
         }
     }
@@ -155,11 +155,11 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
      * @param bufferedImage the buffered image
      * @param imageName     the image name
      */
-    private void copyToDir(@NotNull Editor editor,
-                           Document document,
-                           OssState state,
-                           BufferedImage bufferedImage,
-                           String imageName) {
+    private void copyToDirAndReplace(@NotNull Editor editor,
+                                     Document document,
+                                     OssState state,
+                                     BufferedImage bufferedImage,
+                                     String imageName) {
         // 保存图片
         VirtualFile currentFile = FileDocumentManager.getInstance().getFile(document);
         assert currentFile != null;
@@ -186,6 +186,7 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
 
     /**
      * Upload and replace.
+     * todo-dong4j : (2019年03月17日 19:53) [处理是否替换标签]
      *
      * @param editor        the editor
      * @param bufferedImage the buffered image
@@ -203,7 +204,8 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                 String imageUrl = upload(cloudEnum, is, imageName);
                 if (StringUtils.isNotBlank(imageUrl)) {
                     // 在光标位置插入指定字符串
-                    EditorModificationUtil.insertStringAtCaret(editor, "![](" + imageUrl + ")");
+                    String newLineText = UploadUtils.getFinalImageMark("", imageUrl);
+                    EditorModificationUtil.insertStringAtCaret(editor, newLineText);
                 }
             };
             WriteCommandAction.runWriteCommandAction(editor.getProject(), r);

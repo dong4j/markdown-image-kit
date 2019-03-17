@@ -6,7 +6,6 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDocumentManager;
 
-import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 
 /**
@@ -47,16 +46,10 @@ public class PsiDocumentUtils {
     public static void commitAndSaveDocument(Project project,
                                              Document document,
                                              MarkdownImage markdownImage) {
-        // todo-dong4j : (2019年03月15日 19:49) [根据配置替换字符串]
-        String newLineText = ParserUtils.parse0(ImageContents.EXTEND_HTML_MARK,
-                                                markdownImage.getTitle(),
-                                                markdownImage.getUploadedUrl(),
-                                                markdownImage.getTitle(),
-                                                markdownImage.getUploadedUrl());
-        WriteCommandAction.runWriteCommandAction(project, () -> {
-            document.replaceString(document.getLineStartOffset(markdownImage.getLineNumber()),
-                                   document.getLineEndOffset(markdownImage.getLineNumber()),
-                                   newLineText);
-        });
+        String newLineText = UploadUtils.getFinalImageMark(markdownImage.getTitle(), markdownImage.getUploadedUrl());
+        WriteCommandAction.runWriteCommandAction(project, () -> document
+            .replaceString(document.getLineStartOffset(markdownImage.getLineNumber()),
+                           document.getLineEndOffset(markdownImage.getLineNumber()),
+                           newLineText));
     }
 }
