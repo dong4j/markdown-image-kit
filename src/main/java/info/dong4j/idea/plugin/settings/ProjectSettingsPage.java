@@ -254,6 +254,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      */
     private void initWeiboOssAuthenticationPanel() {
         userNameTextField.setText(ossPersistenConfig.getState().getWeiboOssState().getUserName());
+        // todo-dong4j : (2019年03月18日 01:28) [解密]
         passwordField.setText(ossPersistenConfig.getState().getWeiboOssState().getPassword());
     }
 
@@ -576,6 +577,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
 
         // weibo
         String username = userNameTextField.getText().trim();
+        // todo-dong4j : (2019年03月18日 01:28) [加密]
         String password = new String(passwordField.getPassword());
 
         return !(newBucketName.equals(ossPersistenConfig.getState().getAliyunOssState().getBucketName())
@@ -654,6 +656,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         ossPersistenConfig.getState().setCloudType(this.defaultCloudComboBox.getSelectedIndex());
 
         ossPersistenConfig.getState().getWeiboOssState().setUserName(this.userNameTextField.getText().trim());
+        // todo-dong4j : (2019年03月18日 01:28) [加密]
         ossPersistenConfig.getState().getWeiboOssState().setPassword(new String(passwordField.getPassword()));
 
         // 重新创建 OSSClient

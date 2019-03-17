@@ -11,8 +11,6 @@ import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import sun.awt.OSInfo;
-
 import java.io.*;
 import java.util.List;
 
@@ -90,16 +88,15 @@ public class WeiboUploadStrategy implements UploadStrategy {
     @NotNull
     @Contract(pure = true)
     public String upload(InputStream inputStream,
-                          String fileName,
-                          String username,
-                          String password) {
+                         String fileName,
+                         String username,
+                         String password) {
 
         WbpUploadRequest request = new UploadRequestBuilder()
             .setAcount(username, password)
-            .setTryLoginTime(5 * 60 * 1000)
             .build();
         UploadResponse response;
-        File file = new File(osTempPath() + File.separator + "test.png");
+        File file = new File(System.getProperty("java.io.tmpdir") + "test.png");
         String url = "";
         try (BufferedInputStream bi = new BufferedInputStream(inputStream);
              FileOutputStream fos = new FileOutputStream(file)) {
@@ -109,7 +106,7 @@ public class WeiboUploadStrategy implements UploadStrategy {
                 fos.write(by, 0, len);
             }
             response = request.upload(file);
-            if(response.getResult().equals(UploadResponse.ResultStatus.SUCCESS)){
+            if (response.getResult().equals(UploadResponse.ResultStatus.SUCCESS)) {
                 url = response.getImageInfo().getLarge();
             }
         } catch (IOException | Wbp4jException e) {
@@ -117,15 +114,5 @@ public class WeiboUploadStrategy implements UploadStrategy {
         }
         weiboOssState.setPassedTest(StringUtils.isNotBlank(url));
         return url;
-    }
-
-    @NotNull
-    private String osTempPath() {
-        final String osSeparator = System.getProperty("file.separator");
-        if (OSInfo.getOSType().equals(OSInfo.OSType.WINDOWS)) {
-            return "c:" + osSeparator + "windows" + osSeparator + "temp";
-        } else {
-            return "/tmp";
-        }
     }
 }

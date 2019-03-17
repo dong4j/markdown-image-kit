@@ -247,6 +247,6 @@ public final class AliyunUploadUtils {
             }
             return uri;
         }
-        return null;
+        return "";
     }
 }

@@ -47,4 +47,9 @@ public class ParserUtilsTest {
         String imageName = path.substring(path.lastIndexOf(File.separator) + 1);
         log.info("imagename = {}", imageName);
     }
+
+    @Test
+    public void test3(){
+        log.info(System.getProperty("java.io.tmpdir"));
+    }
 }

@@ -40,6 +40,14 @@ public class AliyunUploadStrategy implements UploadStrategy {
 
     private OssState.AliyunOssState aliyunOssState = OssPersistenConfig.getInstance().getState().getAliyunOssState();
 
+    /**
+     * Uploads by reflection
+     * {@link info.dong4j.idea.plugin.handler.PasteImageHandler #upload}
+     *
+     * @param inputStream the input stream
+     * @param fileName    the file name
+     * @return the string
+     */
     @Override
     public String upload(InputStream inputStream, String fileName) {
         // todo-dong4j : (2019年03月17日 03:34) [调用工具类实现上传(工具类做成单例的)]

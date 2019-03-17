@@ -204,7 +204,7 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                 String imageUrl = upload(cloudEnum, is, imageName);
                 if (StringUtils.isNotBlank(imageUrl)) {
                     // 在光标位置插入指定字符串
-                    String newLineText = UploadUtils.getFinalImageMark("", imageUrl);
+                    String newLineText = UploadUtils.getFinalImageMark("", imageUrl, imageUrl);
                     EditorModificationUtil.insertStringAtCaret(editor, newLineText);
                 }
             };
@@ -218,12 +218,13 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
     /**
      * 通过反射调用, 避免条件判断, 便于扩展
      * todo-dong4j : (2019年03月17日 14:13) [考虑将上传到具体的 OSS 使用 properties]
+     * 通过反射调用 upload 单个文件上传{@link info.dong4j.idea.plugin.strategy.UploadStrategy#upload}
      *
      * @param cloudEnum   the cloud enum
      * @param inputStream the input stream
      * @return the string
      */
-    private String upload(CloudEnum cloudEnum, InputStream inputStream, String fileName) {
+    private String upload(@NotNull CloudEnum cloudEnum, InputStream inputStream, String fileName) {
         try {
             Class<?> cls = Class.forName(cloudEnum.getClassName());
             Object obj = cls.newInstance();

@@ -29,6 +29,7 @@ import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
+import info.dong4j.idea.plugin.util.PsiDocumentUtils;
 
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Contract;
@@ -36,6 +37,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -153,9 +155,10 @@ public abstract class AbstractObjectStorageServiceAction extends AnAction {
     /**
      * 显示提示对话框
      *
-     * @param title    the title
-     * @param subTitle the sub title
-     * @param text     the text
+     * @param title            the title
+     * @param subTitle         the sub title
+     * @param text             the text
+     * @param notificationType the notification type
      */
     void notifucation(String title, String subTitle, String text, NotificationType notificationType) {
         Notification notification = new Notification("Upload to OSS", null, notificationType);
@@ -174,7 +177,66 @@ public abstract class AbstractObjectStorageServiceAction extends AnAction {
      * @param waitingForUploadImages the waiting for upload images
      * @return the string   url
      */
-    protected abstract void upload(AnActionEvent event, Map<Document, List<MarkdownImage>> waitingForUploadImages);
+    @Contract(pure = true)
+    protected void upload(AnActionEvent event, Map<Document, List<MarkdownImage>> waitingForUploadImages) {
+        // todo-dong4j : (2019年03月15日 19:06) []
+        //  1. 是否设置图片压缩
+        //  2. 是否开启图床迁移
+        //  3. 是否开启备份
+        final Project project = event.getProject();
+        if (project != null) {
+            if (waitingForUploadImages.size() > 0) {
+                int totalProcessed = 0;
+                int totalFailured = 0;
+                StringBuilder notFoundImages = new StringBuilder();
+                for (Map.Entry<Document, List<MarkdownImage>> entry : waitingForUploadImages.entrySet()) {
+                    Document document = entry.getKey();
+                    for (MarkdownImage markdownImage : entry.getValue()) {
+                        if (markdownImage.getLocation().equals(ImageLocationEnum.LOCAL)) {
+                            String imageName = markdownImage.getPath();
+                            if (StringUtils.isNotBlank(imageName)) {
+                                Collection<VirtualFile> findedFiles = FilenameIndex.getVirtualFilesByName(project, imageName, GlobalSearchScope.allScope(project));
+                                if (findedFiles.size() <= 0) {
+                                    notFoundImages.append("\t").append(imageName).append("\n");
+                                    continue;
+                                }
+                                // todo-dong4j : (2019年03月15日 20:14) [此操作耗时, 放入异步处理]
+                                for (VirtualFile file : findedFiles) {
+                                    // todo-dong4j : (2019年03月18日 01:31) [判断是否替换标签]
+                                    String uploadedUrl = upload(new File(file.getPath()));
+                                    if (StringUtils.isBlank(uploadedUrl)) {
+                                        totalFailured++;
+                                        // todo-dong4j : (2019年03月18日 01:15) [提供失败的文件链接]
+                                    }
+                                    markdownImage.setUploadedUrl(uploadedUrl);
+                                    // 如果存在名称相同的图片, 只取第一个.
+                                    break;
+                                }
+                            }
+                        }
+                        // todo-dong4j : (2019年03月15日 20:02) [此处会多次修改, 考虑直接使用 setText() 一次性修改全部文本数据]
+                        PsiDocumentUtils.commitAndSaveDocument(project, document, markdownImage);
+                        totalProcessed++;
+                    }
+                }
+                notifucation("Upload Completed",
+                             "",
+                             "Processed File = " + waitingForUploadImages.size() +
+                             "\n Processed Image Mark = 「" + totalProcessed + "\n" +
+                             "Failured = " + totalFailured + "\n" +
+                             "Some Images Not Found: \n" + notFoundImages.toString(),
+                             NotificationType.INFORMATION);
+            }
+        }
+    }
+
+    /**
+     * Upload string.
+     *
+     * @param file the file
+     * @return the string
+     */
+    abstract String upload(File file);
 
     /**
      * 处理事件
@@ -213,7 +275,7 @@ public abstract class AbstractObjectStorageServiceAction extends AnAction {
                         // 如果是目录, 则递归获取所有 markdown 文件
                         if (file.isDirectory()) {
                             List<VirtualFile> markdownFiles = recursivelyMarkdownFile(file);
-                            for(VirtualFile virtualFile : markdownFiles){
+                            for (VirtualFile virtualFile : markdownFiles) {
                                 Document documentFromVirtualFile = FileDocumentManager.getInstance().getDocument(virtualFile);
                                 waitingForUploadImages.put(documentFromVirtualFile, getImageInfoFromFiles(virtualFile));
                             }

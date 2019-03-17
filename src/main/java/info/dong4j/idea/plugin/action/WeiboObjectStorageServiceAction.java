@@ -1,15 +1,15 @@
 package info.dong4j.idea.plugin.action;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.editor.Document;
-
-import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.settings.OssPersistenConfig;
+import info.dong4j.idea.plugin.settings.OssState;
+import info.dong4j.idea.plugin.weibo.UploadRequestBuilder;
+import info.dong4j.idea.plugin.weibo.UploadResponse;
+import info.dong4j.idea.plugin.weibo.WbpUploadRequest;
+import info.dong4j.idea.plugin.weibo.exception.Wbp4jException;
 
 import org.jetbrains.annotations.Contract;
 
-import java.util.List;
-import java.util.Map;
+import java.io.*;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
@@ -20,15 +20,30 @@ import java.util.Map;
  * @since 2019-03-14 16:39
  */
 public final class WeiboObjectStorageServiceAction extends AbstractObjectStorageServiceAction {
+
+    private OssState.WeiboOssState weiboOssState = OssPersistenConfig.getInstance().getState().getWeiboOssState();
+
     @Contract(pure = true)
     @Override
     boolean isPassedTest() {
         return OssPersistenConfig.getInstance().getState().getWeiboOssState().isPassedTest();
     }
 
-    @Contract(pure = true)
     @Override
-    protected void upload(AnActionEvent event, Map<Document, List<MarkdownImage>> waitingForUploadImages) {
-
+    public String upload(File file) {
+        WbpUploadRequest request = new UploadRequestBuilder()
+            .setAcount(weiboOssState.getUserName(), weiboOssState.getPassword())
+            .build();
+        UploadResponse response = null;
+        String url = "";
+        try {
+            response = request.upload(file);
+        } catch (IOException | Wbp4jException e) {
+            e.printStackTrace();
+        }
+        if (response != null && response.getResult().equals(UploadResponse.ResultStatus.SUCCESS)) {
+            url = response.getImageInfo().getLarge();
+        }
+        return url;
     }
 }

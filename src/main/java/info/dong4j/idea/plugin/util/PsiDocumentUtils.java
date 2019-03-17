@@ -46,7 +46,9 @@ public class PsiDocumentUtils {
     public static void commitAndSaveDocument(Project project,
                                              Document document,
                                              MarkdownImage markdownImage) {
-        String newLineText = UploadUtils.getFinalImageMark(markdownImage.getTitle(), markdownImage.getUploadedUrl());
+        String newLineText = UploadUtils.getFinalImageMark(markdownImage.getTitle(),
+                                                           markdownImage.getUploadedUrl(),
+                                                           markdownImage.getPath());
         WriteCommandAction.runWriteCommandAction(project, () -> document
             .replaceString(document.getLineStartOffset(markdownImage.getLineNumber()),
                            document.getLineEndOffset(markdownImage.getLineNumber()),

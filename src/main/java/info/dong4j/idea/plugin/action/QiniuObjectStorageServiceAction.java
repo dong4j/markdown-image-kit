@@ -1,15 +1,11 @@
 package info.dong4j.idea.plugin.action;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.editor.Document;
-
-import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.settings.OssPersistenConfig;
 
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Map;
+import java.io.*;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
@@ -27,10 +23,10 @@ public final class QiniuObjectStorageServiceAction extends AbstractObjectStorage
         return OssPersistenConfig.getInstance().getState().getQiniuOssState().isPassedTest();
     }
 
+    @Nullable
     @Contract(pure = true)
     @Override
-    protected void upload(AnActionEvent event, Map<Document, List<MarkdownImage>> waitingForUploadImages) {
-
-
+    String upload(File file) {
+        return null;
     }
 }
