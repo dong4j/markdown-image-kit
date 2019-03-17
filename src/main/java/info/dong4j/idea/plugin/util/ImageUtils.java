@@ -2,6 +2,8 @@ package info.dong4j.idea.plugin.util;
 
 import com.intellij.util.containers.hash.HashMap;
 
+import net.coobird.thumbnailator.Thumbnails;
+
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -333,5 +335,23 @@ public class ImageUtils {
      */
     public static boolean isImageFile(String filePath) {
         return isImageFile(new File(filePath));
+    }
+
+    /**
+     * Compress.
+     *
+     * @param in      the in
+     * @param out     the out
+     * @param percent the percent
+     */
+    public static void compress(File in, File out, int percent) {
+        try {
+            Thumbnails.of(in)
+                .scale(1f)
+                .outputQuality(percent * 1.0 / 100)
+                .toFile(out);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

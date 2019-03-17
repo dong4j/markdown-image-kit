@@ -1,6 +1,11 @@
 package info.dong4j.idea.plugin.handler;
 
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionPlaces;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Document;
@@ -23,6 +28,8 @@ import info.dong4j.idea.plugin.util.CharacterUtils;
 import info.dong4j.idea.plugin.util.EnumsUtils;
 import info.dong4j.idea.plugin.util.ImageUtils;
 import info.dong4j.idea.plugin.util.UploadUtils;
+
+import net.coobird.thumbnailator.Thumbnails;
 
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -81,6 +88,15 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
         if (virtualFile != null) {
             if (virtualFile.getFileType().getName().equals(MarkdownContents.MARKDOWN_FILE_TYPE)
                 || virtualFile.getName().endsWith(MarkdownContents.MARKDOWN_FILE_SUFIX)) {
+
+
+                // if (true) {
+                //     PasteImageFromClipboard action = new PasteImageFromClipboard();
+                //     AnActionEvent event = createAnEvent(action, dataContext);
+                //     action.actionPerformed(event);
+                //     return;
+                // }
+
                 // 根据配置操作. 是否开启 clioboard 监听; 是否将文件拷贝到目录; 是否开启上传到图床
                 OssState state = OssPersistenConfig.getInstance().getState();
 
@@ -98,7 +114,12 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                                 // 先检查是否为图片类型
                                 Image image = null;
                                 try {
-                                    image = ImageIO.read(file);
+                                    File compressedFile = new File(System.getProperty("java.io.tmpdir") + file.getName());
+                                    // 图片压缩
+                                    if(file.isFile() && file.getName().endsWith("jpg")){
+                                        ImageUtils.compress(file, compressedFile, state.getCompressBeforeUploadOfPercent() - 20);
+                                    }
+                                    image = ImageIO.read(compressedFile);
                                 } catch (IOException ignored) {
                                 }
                                 String fileName = file.getName();
@@ -109,7 +130,7 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                             }
 
                             // 如果 image 的数量等于总文件数, 才执行,否则执行默认操作
-                            if(imageMap.size() == fileList.size()){
+                            if (imageMap.size() == fileList.size()) {
                                 for (Map.Entry<String, Image> imageEntry : imageMap.entrySet()) {
                                     invoke(editor, document, imageEntry.getValue(), imageEntry.getKey());
                                 }
@@ -127,6 +148,11 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
             }
         }
         defaultAction(editor, caret, dataContext);
+    }
+
+    private AnActionEvent createAnEvent(AnAction action, @NotNull DataContext context) {
+        Presentation presentation = action.getTemplatePresentation().clone();
+        return new AnActionEvent(null, context, ActionPlaces.UNKNOWN, presentation, ActionManager.getInstance(), 0);
     }
 
     /**
@@ -155,9 +181,10 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
         OssState state = OssPersistenConfig.getInstance().getState();
         boolean isCopyToDir = state.isCopyToDir();
         boolean isUploadAndReplace = state.isUploadAndReplace();
-
         BufferedImage bufferedImage = ImageUtils.toBufferedImage(image);
         if (bufferedImage != null) {
+            // 圆角处理
+            bufferedImage = ImageUtils.toBufferedImage(ImageUtils.makeRoundedCorner(bufferedImage, 20));
             if (isUploadAndReplace) {
                 uploadAndReplace(editor, bufferedImage, fileName);
             }
@@ -192,15 +219,18 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
             File imageFile = new File(imageDir, imageName);
             Runnable r = () -> {
                 try {
-                    ImageIO.write(bufferedImage, "png", imageFile);
-                    // 保存到文件后异步刷新缓存, 让图片显示到文件树中
-                    VirtualFileManager.getInstance().syncRefresh();
                     // 如果勾选了上传且替换, 就不再插入本地的图片标签
-                    if(!state.isUploadAndReplace()){
+                    if (!state.isUploadAndReplace()) {
                         File imageFileRelativizePath = curDocument.getParentFile().toPath().relativize(imageFile.toPath()).toFile();
                         String relImagePath = imageFileRelativizePath.toString().replace('\\', '/');
                         EditorModificationUtil.insertStringAtCaret(editor, "![](" + relImagePath + ")" + ImageContents.LINE_BREAK);
                     }
+                    BufferedImage compressedImage = Thumbnails.of(bufferedImage)
+                        .size(bufferedImage.getWidth(), bufferedImage.getHeight())
+                        .outputQuality(state.getCompressBeforeUploadOfPercent() * 1.0 / 100).asBufferedImage();
+                    ImageIO.write(compressedImage, "png", imageFile);
+                    // 保存到文件后异步刷新缓存, 让图片显示到文件树中
+                    VirtualFileManager.getInstance().syncRefresh();
                 } catch (IOException e) {
                     // todo-dong4j : (2019年03月17日 15:11) [消息通知]
                     log.trace("", e);

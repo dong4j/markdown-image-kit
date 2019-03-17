@@ -34,7 +34,7 @@ sourceCompatibility = 1.8
 intellij {
     version '2018.3.5'
     // 插件生成的临时文件的地址，可以省略
-    sandboxDirectory = project.rootDir.canonicalPath + "/.sandbox" 
+    sandboxDirectory = project.rootDir.canonicalPath + "/.sandbox"
 }
 
 // 声明依赖使用下面的闭包
@@ -45,17 +45,19 @@ dependencies {
     // 3. testCompile: 测试代码（src/main/test）编译时的依赖
     // 4. testRuntime: 测试代码（src/main/java）执行时的依赖
     // 5. archives: 项目打包（e.g.jar）时的依赖
-    
+
     // 解决 gradle 使用 lombok 的问题
     annotationProcessor 'org.projectlombok:lombok:1.18.2'
     compileOnly 'org.projectlombok:lombok:1.18.2'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.2'
     testCompileOnly 'org.projectlombok:lombok:1.18.2'
     // 单元测试
-    testCompile group: 'junit', name: 'junit' , version: '4.12'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
     // https://mvnrepository.com/artifact/com.aliyun.oss/aliyun-sdk-oss
     compile group: 'com.aliyun.oss', name: 'aliyun-sdk-oss', version: '3.4.2'
     compile 'com.qiniu:qiniu-java-sdk:7.2.+'
+    // https://mvnrepository.com/artifact/net.coobird/thumbnailator
+    compile group: 'net.coobird', name: 'thumbnailator', version: '0.4.8'
 
 //    // 单个依赖
 //    compile group: 'log4j', name: 'log4j', version: '1.2.17'

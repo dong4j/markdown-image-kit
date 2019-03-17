@@ -303,5 +303,12 @@ public class ImageUtilsTest {
             }
         }
     }
+
+    @Test
+    public void test10() throws IOException {
+        ImageUtils.compress(new File("/Users/dong4j/Downloads/wade-meng-LgCj9qcrfhI.jpg"),
+                            new File("/Users/dong4j/Develop/test.jpg"), 80);
+
+    }
 }
 
