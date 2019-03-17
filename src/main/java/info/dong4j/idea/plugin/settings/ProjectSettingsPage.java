@@ -198,6 +198,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         // 打开设置页时默认选中默认上传图床
         authorizationTabbedPanel.setSelectedIndex(ossPersistenConfig.getState().getCloudType());
         authorizationTabbedPanel.addChangeListener(e -> {
+            // 清理 test 信息
+            testMessage.setText("");
             // 获得指定索引的选项卡标签
             log.trace("change {}", authorizationTabbedPanel.getTitleAt(authorizationTabbedPanel.getSelectedIndex()));
         });
