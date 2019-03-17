@@ -1,13 +1,12 @@
 package info.dong4j.idea.plugin.settings;
 
-import com.aliyun.oss.OSS;
-import com.aliyun.oss.OSSClientBuilder;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.JBColor;
 
+import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.HtmlTagTypeEnum;
 import info.dong4j.idea.plugin.enums.SuffixSelectTypeEnum;
 import info.dong4j.idea.plugin.util.AliyunUploadUtils;
@@ -19,6 +18,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.event.ActionListener;
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -194,18 +195,17 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      * 初始化 authorizationTabbedPanel group
      */
     private void initAuthorizationTabbedPanel() {
+        // 打开设置页时默认选中默认上传图床
+        authorizationTabbedPanel.setSelectedIndex(ossPersistenConfig.getState().getCloudType());
         authorizationTabbedPanel.addChangeListener(e -> {
-            // 获得被选中选项卡的索引
-            int selectedIndex = authorizationTabbedPanel.getSelectedIndex();
             // 获得指定索引的选项卡标签
-            String title = authorizationTabbedPanel.getTitleAt(selectedIndex);
-            log.trace("change {}", title);
+            log.trace("change {}", authorizationTabbedPanel.getTitleAt(authorizationTabbedPanel.getSelectedIndex()));
         });
 
         initAliyunOssAuthenticationPanel();
         initWeiboOssAuthenticationPanel();
         initQiniuOssAuthenticationPanel();
-        testAndHelpListener(authorizationTabbedPanel.getSelectedIndex());
+        testAndHelpListener();
     }
 
     /**
@@ -264,61 +264,69 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     /**
      * 添加 test 和 help 按钮监听, 根据选中的图床进行测试
      */
-    private void testAndHelpListener(int index) {
+    private void testAndHelpListener() {
         // "Test" 按钮点击事件处理
         testButton.addActionListener(e -> {
-            testButton.setEnabled(false);
-
-            // todo-dong4j : (2019年03月17日 01:57) [使用策略模式]
-            // if(index == CloudEnum.WEIBO_CLOUD.index){
-            //     uploadWeiboTest();
-            // } else if(int = CloudEnum.ALIYUN_CLOUD.index){
-            //     uploadWeiboTest();
-            // }...
-
-
-
-            // 获取输入框文本, 进行请求处理
-            String tempBucketName = aliyunOssBucketNameTextField.getText().trim();
-            String tempAccessKey = aliyunOssAccessKeyTextField.getText().trim();
-            String tempAccessSecretKey = aliyunOssAccessSecretKeyTextField.getText().trim();
-            String tempEndpoint = aliyunOssEndpointTextField.getText().trim();
-            String tempFileDir = aliyunOssFileDirTextField.getText().trim();
-            tempFileDir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";
-            OSS oss = null;
-            try {
-                OSSClientBuilder ossClientBuilder = new OSSClientBuilder();
-                // 返回读取指定资源的输入流
-                InputStream is = this.getClass().getResourceAsStream("/" + TEST_FILE_NAME);
-                oss = ossClientBuilder.build(tempEndpoint, tempAccessKey, tempAccessSecretKey);
-                oss.putObject(tempBucketName,
-                              tempFileDir + TEST_FILE_NAME,
-                              is);
-                String url = AliyunUploadUtils.getUrl(tempFileDir, TEST_FILE_NAME);
+            int index = authorizationTabbedPanel.getSelectedIndex();
+            InputStream is = this.getClass().getResourceAsStream("/" + TEST_FILE_NAME);
+            String url = upload(getCloudEnum(index), is, TEST_FILE_NAME, (JPanel)authorizationTabbedPanel.getComponentAt(index));
+            if(StringUtils.isNotBlank(url)){
                 testMessage.setForeground(JBColor.GREEN);
                 testMessage.setText("Upload Succeed");
                 ossPersistenConfig.getState().getAliyunOssState().setPassedTest(true);
-                // if (StringUtils.isNotBlank(url)) {
-                //     Runnable r = () -> BrowserUtil.browse(url);
-                //     new Thread(r).start();
-                // }
-            } catch (Exception e1) {
+                if(log.isTraceEnabled()){
+                    BrowserUtil.browse(url);
+                }
+            }else {
                 testMessage.setForeground(JBColor.RED);
                 testMessage.setText("Upload Failed, Please check the configuration");
                 ossPersistenConfig.getState().getAliyunOssState().setPassedTest(false);
-            } finally {
-                if (oss != null) {
-                    oss.shutdown();
-                }
-                testButton.setEnabled(true);
             }
         });
+
         // help button 监听
         helpButton.addActionListener(e -> {
             // 打开浏览器到帮助页面
             String url = "http://dong4j.info";
             BrowserUtil.browse(url);
         });
+    }
+
+    /**
+     * 通过反射调用, 避免条件判断, 便于扩展
+     * todo-dong4j : (2019年03月17日 14:13) [考虑将上传到具体的 OSS 使用 properties]
+     *
+     * @param cloudEnum   the cloud enum
+     * @param inputStream the input stream
+     * @return the string
+     */
+    private String upload(CloudEnum cloudEnum, InputStream inputStream, String fileName, JPanel jPanel) {
+        try {
+            Class<?> cls = Class.forName(cloudEnum.getClassName());
+            Object obj = cls.newInstance();
+            Method setFunc = cls.getMethod("upload", InputStream.class, String.class, JPanel.class);
+            return (String) setFunc.invoke(obj, inputStream, fileName, jPanel);
+        } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException | InstantiationException | NoSuchMethodException e) {
+            // todo-dong4j : (2019年03月17日 03:20) [添加通知]
+            log.trace("", e);
+        }
+        return "";
+    }
+
+    /**
+     * Gets cloud enum.
+     *
+     * @param index the index
+     * @return the cloud enum
+     */
+    @NotNull
+    private CloudEnum getCloudEnum(int index) {
+        CloudEnum defaultCloud = CloudEnum.WEIBO_CLOUD;
+        Optional<CloudEnum> defaultCloudType = EnumsUtils.getEnumObject(CloudEnum.class, e -> e.getIndex() == index);
+        if (defaultCloudType.isPresent()) {
+            defaultCloud = defaultCloudType.get();
+        }
+        return defaultCloud;
     }
 
     /**
