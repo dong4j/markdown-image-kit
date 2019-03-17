@@ -195,9 +195,12 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                     ImageIO.write(bufferedImage, "png", imageFile);
                     // 保存到文件后异步刷新缓存, 让图片显示到文件树中
                     VirtualFileManager.getInstance().syncRefresh();
-                    File imageFileRelativizePath = curDocument.getParentFile().toPath().relativize(imageFile.toPath()).toFile();
-                    String relImagePath = imageFileRelativizePath.toString().replace('\\', '/');
-                    EditorModificationUtil.insertStringAtCaret(editor, "![](" + relImagePath + ")\n");
+                    // 如果勾选了上传且替换, 就不再插入本地的图片标签
+                    if(!state.isUploadAndReplace()){
+                        File imageFileRelativizePath = curDocument.getParentFile().toPath().relativize(imageFile.toPath()).toFile();
+                        String relImagePath = imageFileRelativizePath.toString().replace('\\', '/');
+                        EditorModificationUtil.insertStringAtCaret(editor, "![](" + relImagePath + ")\n");
+                    }
                 } catch (IOException e) {
                     // todo-dong4j : (2019年03月17日 15:11) [消息通知]
                     log.trace("", e);
