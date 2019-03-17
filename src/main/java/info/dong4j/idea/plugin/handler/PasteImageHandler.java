@@ -12,6 +12,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.Producer;
+import com.intellij.util.containers.hash.HashMap;
 
 import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.enums.CloudEnum;
@@ -87,10 +88,12 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
 
                 if (isClipboardControl) {
                     Map<DataFlavor, Object> clipboardData = ImageUtils.getDataFromClipboard();
-                    for (Map.Entry entry : clipboardData.entrySet()) {
+                    // 只会循环一次
+                    for (Map.Entry<DataFlavor, Object> entry : clipboardData.entrySet()) {
                         if (entry.getKey().equals(DataFlavor.javaFileListFlavor)) {
                             // 肯定是 List<File> 类型
                             @SuppressWarnings("unchecked") List<File> fileList = (List<File>) entry.getValue();
+                            Map<String, Image> imageMap = new HashMap<>(fileList.size());
                             for (File file : fileList) {
                                 // 先检查是否为图片类型
                                 Image image = null;
@@ -99,24 +102,41 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                                 } catch (IOException ignored) {
                                 }
                                 String fileName = file.getName();
+                                // 只要有一个文件不是 image, 就执行默认操作然后退出
                                 if (image != null) {
-                                    invoke(editor, document, image, fileName);
-                                    // 提前退出, 防止执行默认 paste 操作
-                                    return;
+                                    imageMap.put(fileName, image);
                                 }
+                            }
+
+                            // 如果 image 的数量等于总文件数, 才执行,否则执行默认操作
+                            if(imageMap.size() == fileList.size()){
+                                for (Map.Entry<String, Image> imageEntry : imageMap.entrySet()) {
+                                    invoke(editor, document, imageEntry.getValue(), imageEntry.getKey());
+                                }
+                                // 处理后退出, 避免执行默认的 paste 操作
+                                return;
                             }
                         } else {
                             // image 类型统一重命名, 因为获取不到文件名
                             String fileName = CharacterUtils.getRandomString(12) + ".png";
                             invoke(editor, document, (Image) entry.getValue(), fileName);
-                            // 提前退出, 防止执行默认 paste 操作
                             return;
                         }
                     }
                 }
             }
         }
+        defaultAction(editor, caret, dataContext);
+    }
 
+    /**
+     * 默认 paste 操作, 如果是文件的话应该粘贴文件名
+     *
+     * @param editor      the editor
+     * @param caret       the caret
+     * @param dataContext the data context
+     */
+    private void defaultAction(@NotNull Editor editor, @Nullable Caret caret, DataContext dataContext) {
         // 执行默认的 paste 操作
         if (editorActionHandler != null) {
             editorActionHandler.execute(editor, caret, dataContext);
@@ -177,7 +197,7 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                     VirtualFileManager.getInstance().asyncRefresh(null);
                     File imageFileRelativizePath = curDocument.getParentFile().toPath().relativize(imageFile.toPath()).toFile();
                     String relImagePath = imageFileRelativizePath.toString().replace('\\', '/');
-                    EditorModificationUtil.insertStringAtCaret(editor, "![](" + relImagePath + ")");
+                    EditorModificationUtil.insertStringAtCaret(editor, "![](" + relImagePath + ")\n");
                 } catch (IOException e) {
                     // todo-dong4j : (2019年03月17日 15:11) [消息通知]
                     log.trace("", e);

@@ -64,7 +64,7 @@ public class ImageUtils {
     /**
      * Gets data from clipboard.
      *
-     * @return the data from clipboard
+     * @return the data from clipboard  map 中只有一对 kev-value
      */
     public static Map<DataFlavor, Object> getDataFromClipboard() {
         Map<DataFlavor, Object> data = new HashMap<>(1);

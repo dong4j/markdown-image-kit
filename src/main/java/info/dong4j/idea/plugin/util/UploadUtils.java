@@ -38,6 +38,6 @@ public class UploadUtils {
                                              title,
                                              imageUrl);
         }
-        return newLineText;
+        return newLineText + "\n";
     }
 }
