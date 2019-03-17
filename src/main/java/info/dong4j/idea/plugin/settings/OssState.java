@@ -84,7 +84,7 @@ public class OssState {
     private boolean clipboardControl = false;
     /** 拷贝图片到目录 */
     private boolean copyToDir = false;
-    /** 上传图片并备份 */
+    /** 上传图片并替换 */
     private boolean uploadAndReplace = false;
     /** 图片保存路径 */
     private String imageSavePath = "";

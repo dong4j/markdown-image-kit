@@ -33,7 +33,8 @@ sourceCompatibility = 1.8
 
 intellij {
     version '2018.3.5'
-    sandboxDirectory = project.rootDir.canonicalPath + "/.sandbox" //插件生成的临时文件的地址，可以省略
+    // 插件生成的临时文件的地址，可以省略
+    sandboxDirectory = project.rootDir.canonicalPath + "/.sandbox" 
 }
 
 // 声明依赖使用下面的闭包
