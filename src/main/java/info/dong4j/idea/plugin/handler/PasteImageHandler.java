@@ -42,6 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
  * <p>Description: 读取 Clipboard 图片, 上传到 OSS, 最后插入到光标位置</p>
+ * todo-dong4j : (2019年03月17日 19:37) [图片压缩处理]
  *
  * @author dong4j
  * @date 2019 -03-16 12:15
@@ -71,7 +72,6 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
      * @param dataContext the data context
      */
     @Override
-
     protected void doExecute(@NotNull Editor editor, @Nullable Caret caret, DataContext dataContext) {
         Document document = editor.getDocument();
         VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
@@ -125,10 +125,10 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
     /**
      * 执行上传或拷贝处理
      *
-     * @param editor             the editor
-     * @param document           the document
-     * @param image              the image
-     * @param fileName           the file name
+     * @param editor   the editor
+     * @param document the document
+     * @param image    the image
+     * @param fileName the file name
      */
     private void invoke(@NotNull Editor editor, Document document, Image image, String fileName) {
         OssState state = OssPersistenConfig.getInstance().getState();

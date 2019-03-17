@@ -76,8 +76,7 @@ public class ImageUtils {
                 if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
                     // List<File>
                     dataFlavor = DataFlavor.javaFileListFlavor;
-                }
-                else if (transferable.isDataFlavorSupported(DataFlavor.imageFlavor)) {
+                } else if (transferable.isDataFlavorSupported(DataFlavor.imageFlavor)) {
                     // Image
                     dataFlavor = DataFlavor.imageFlavor;
                 } else {
