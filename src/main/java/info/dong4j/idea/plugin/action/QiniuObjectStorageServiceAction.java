@@ -31,5 +31,6 @@ public final class QiniuObjectStorageServiceAction extends AbstractObjectStorage
     @Override
     protected void upload(AnActionEvent event, Map<Document, List<MarkdownImage>> waitingForUploadImages) {
 
+
     }
 }

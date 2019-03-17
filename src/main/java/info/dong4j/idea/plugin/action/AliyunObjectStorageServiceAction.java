@@ -111,30 +111,38 @@ public final class AliyunObjectStorageServiceAction extends AbstractObjectStorag
         //  3. 是否开启备份
         final Project project = event.getProject();
         if(project != null){
-            for(Map.Entry<Document, List<MarkdownImage>> entry : waitingForUploadImages.entrySet()){
-                Document document = entry.getKey();
-                for (MarkdownImage markdownImage : entry.getValue()) {
-                    if(markdownImage.getLocation().equals(ImageLocationEnum.LOCAL)){
-                        String imageName = markdownImage.getPath();
-                        if(StringUtils.isNotBlank(imageName)){
-                            Collection<VirtualFile> findedFiles = FilenameIndex.getVirtualFilesByName(project, imageName, GlobalSearchScope.allScope(project));
-                            if (findedFiles.size() <= 0) {
-                                notifucation("upload error", "", "Could not find 「" + imageName +  "」 in project", NotificationType.ERROR);
-                                continue;
-                            }
-                            // todo-dong4j : (2019年03月15日 20:14) [此操作耗时, 放入异步处理]
-                            for(VirtualFile file : findedFiles){
-                                String name = AliyunUploadUtils.uploadImg2Oss(new File(file.getPath()));
-                                String uploadedUrl = AliyunUploadUtils.getUrl(name);
-                                markdownImage.setUploadedUrl(uploadedUrl);
-                                // 只取第一个图片,
-                                break;
+            if(waitingForUploadImages.size() > 0){
+                int processed = 0;
+                for(Map.Entry<Document, List<MarkdownImage>> entry : waitingForUploadImages.entrySet()){
+                    Document document = entry.getKey();
+                    for (MarkdownImage markdownImage : entry.getValue()) {
+                        if(markdownImage.getLocation().equals(ImageLocationEnum.LOCAL)){
+                            String imageName = markdownImage.getPath();
+                            if(StringUtils.isNotBlank(imageName)){
+                                Collection<VirtualFile> findedFiles = FilenameIndex.getVirtualFilesByName(project, imageName, GlobalSearchScope.allScope(project));
+                                if (findedFiles.size() <= 0) {
+                                    notifucation("Upload Error", "", "Could not find 「" + imageName +  "」 in project", NotificationType.ERROR);
+                                    continue;
+                                }
+                                // todo-dong4j : (2019年03月15日 20:14) [此操作耗时, 放入异步处理]
+                                for(VirtualFile file : findedFiles){
+                                    String name = AliyunUploadUtils.uploadImg2Oss(new File(file.getPath()));
+                                    String uploadedUrl = AliyunUploadUtils.getUrl(name);
+                                    markdownImage.setUploadedUrl(uploadedUrl);
+                                    // 只取第一个图片,
+                                    break;
+                                }
                             }
                         }
+                        // todo-dong4j : (2019年03月15日 20:02) [此处会多次修改, 考虑直接使用 setText() 一次性修改全部文本数据]
+                        PsiDocumentUtils.commitAndSaveDocument(project, document, markdownImage);
+                        processed++;
                     }
-                    // todo-dong4j : (2019年03月15日 20:02) [此处会多次修改, 考虑直接使用 setText() 一次性修改全部文本数据]
-                    PsiDocumentUtils.commitAndSaveDocument(project, document, markdownImage);
                 }
+                notifucation("Upload Completed",
+                             "",
+                             "Processed File = 「" + waitingForUploadImages.size() + "」\n Processed Image Mark = 「" + processed +"」",
+                             NotificationType.INFORMATION);
             }
         }
     }
