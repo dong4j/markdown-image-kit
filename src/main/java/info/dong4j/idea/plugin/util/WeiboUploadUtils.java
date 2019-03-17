@@ -33,7 +33,6 @@ public final class WeiboUploadUtils extends UploadUtils {
         Matcher m = p.matcher(pid);
 
         if (m.matches()) {
-            System.out.println("匹配了");
             CRC32 crc32 = new CRC32();
             crc32.update(pid.getBytes());
             return (https ? "https" : "http") + "://" + (https ? "ws" : "ww")

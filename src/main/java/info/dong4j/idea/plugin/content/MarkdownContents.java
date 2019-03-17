@@ -13,10 +13,4 @@ public interface MarkdownContents {
     String MARKDOWN_FILE_SUFIX = ".md";
     /** markdown file type, 必须安装了 markdown 插件才能识别为此类型 */
     String MARKDOWN_FILE_TYPE = "Markdown";
-    /** 默认的 image 标签替换类型 */
-    String DEFAULT_IMAGE_MARK = "![${}](${})";
-    /** 点击查看大图, 需要添加 js 支持 */
-    String LARG_IMAGE_MARK = "<a data-fancybox title='${}' href='${}' >![${}](${})</a>";
-    /** 就一个 a 标签, 点击能在新页面查看图片 */
-    String COMMON_IMAGE_MARK = "<a title='${}' href='${}' >![${}](${})</a>";
 }

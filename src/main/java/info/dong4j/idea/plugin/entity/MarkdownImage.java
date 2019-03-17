@@ -1,6 +1,7 @@
 package info.dong4j.idea.plugin.entity;
 
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
+import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 
 import java.io.*;
 
@@ -35,4 +36,6 @@ public class MarkdownImage implements Serializable {
     private ImageLocationEnum location = ImageLocationEnum.LOCAL;
     /** 上传后的 url */
     private String uploadedUrl;
+    /** 原始文本标签类型*/
+    private ImageMarkEnum imageMarkType = ImageMarkEnum.ORIGINAL;
 }

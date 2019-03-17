@@ -7,8 +7,8 @@ import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.JBColor;
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
-import info.dong4j.idea.plugin.enums.HtmlTagTypeEnum;
-import info.dong4j.idea.plugin.enums.SuffixSelectTypeEnum;
+import info.dong4j.idea.plugin.enums.ImageMarkEnum;
+import info.dong4j.idea.plugin.enums.SuffixEnum;
 import info.dong4j.idea.plugin.util.AliyunUploadUtils;
 import info.dong4j.idea.plugin.util.EnumsUtils;
 
@@ -273,7 +273,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         testButton.addActionListener(e -> {
             int index = authorizationTabbedPanel.getSelectedIndex();
             InputStream is = this.getClass().getResourceAsStream("/" + TEST_FILE_NAME);
-            String url = upload(getCloudEnum(index), is, TEST_FILE_NAME, (JPanel)authorizationTabbedPanel.getComponentAt(index));
+            String url = upload(EnumsUtils.getCloudEnum(index), is, TEST_FILE_NAME, (JPanel)authorizationTabbedPanel.getComponentAt(index));
             if(StringUtils.isNotBlank(url)){
                 testMessage.setForeground(JBColor.GREEN);
                 testMessage.setText("Upload Succeed");
@@ -313,22 +313,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             log.trace("", e);
         }
         return "";
-    }
-
-    /**
-     * Gets cloud enum.
-     *
-     * @param index the index
-     * @return the cloud enum
-     */
-    @NotNull
-    private CloudEnum getCloudEnum(int index) {
-        CloudEnum defaultCloud = CloudEnum.WEIBO_CLOUD;
-        Optional<CloudEnum> defaultCloudType = EnumsUtils.getEnumObject(CloudEnum.class, e -> e.getIndex() == index);
-        if (defaultCloudType.isPresent()) {
-            defaultCloud = defaultCloudType.get();
-        }
-        return defaultCloud;
     }
 
     /**
@@ -434,11 +418,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.customRadioButton.setEnabled(changeToHtmlTagCheckBoxStatus);
 
         // 初始化 changeToHtmlTagCheckBox 组下单选框状态
-        if (HtmlTagTypeEnum.COMMON_PICTURE.text.equals(ossPersistenConfig.getState().getTagType())) {
+        if (ImageMarkEnum.COMMON_PICTURE.text.equals(ossPersistenConfig.getState().getTagType())) {
             commonRadioButton.setSelected(true);
-        } else if (HtmlTagTypeEnum.LARGE_PICTURE.text.equals(ossPersistenConfig.getState().getTagType())) {
+        } else if (ImageMarkEnum.LARGE_PICTURE.text.equals(ossPersistenConfig.getState().getTagType())) {
             largePictureRadioButton.setSelected(true);
-        } else if (HtmlTagTypeEnum.CUSTOM.text.equals(ossPersistenConfig.getState().getTagType())) {
+        } else if (ImageMarkEnum.CUSTOM.text.equals(ossPersistenConfig.getState().getTagType())) {
             customRadioButton.setSelected(true);
             customHtmlTypeTextField.setEnabled(changeToHtmlTagCheckBoxStatus);
             customHtmlTypeTextField.setText(ossPersistenConfig.getState().getTagTypeCode());
@@ -477,7 +461,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             Object sourceObject = e.getSource();
             if (sourceObject instanceof JRadioButton) {
                 JRadioButton sourceButton = (JRadioButton) sourceObject;
-                if (HtmlTagTypeEnum.CUSTOM.text.equals(sourceButton.getText())) {
+                if (ImageMarkEnum.CUSTOM.text.equals(sourceButton.getText())) {
                     customHtmlTypeTextField.setEnabled(true);
                 } else {
                     customHtmlTypeTextField.setEnabled(false);
@@ -495,11 +479,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      */
     @NotNull
     private String getSufixString(String name) {
-        if (SuffixSelectTypeEnum.FILE_NAME.name.equals(name)) {
+        if (SuffixEnum.FILE_NAME.name.equals(name)) {
             return "/image.png";
-        } else if (SuffixSelectTypeEnum.DATE_FILE_NAME.name.equals(name)) {
+        } else if (SuffixEnum.DATE_FILE_NAME.name.equals(name)) {
             return "/2019-2-30-image.png";
-        } else if (SuffixSelectTypeEnum.RANDOM.name.equals(name)) {
+        } else if (SuffixEnum.RANDOM.name.equals(name)) {
             return "/98knb.png";
         } else {
             return "";
@@ -522,7 +506,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         String newSuffix = "";
 
         int index = aliyunOssSuffixBoxField.getSelectedIndex();
-        Optional<SuffixSelectTypeEnum> type = EnumsUtils.getEnumObject(SuffixSelectTypeEnum.class, e -> e.getIndex() == index);
+        Optional<SuffixEnum> type = EnumsUtils.getEnumObject(SuffixEnum.class, e -> e.getIndex() == index);
         if (type.isPresent()) {
             newSuffix = type.get().getName();
         }
@@ -536,17 +520,17 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         if (changeToHtmlTag) {
             // 正常的
             if (commonRadioButton.isSelected()) {
-                tagType = HtmlTagTypeEnum.COMMON_PICTURE.text;
-                tagTypeCode = HtmlTagTypeEnum.COMMON_PICTURE.code;
+                tagType = ImageMarkEnum.COMMON_PICTURE.text;
+                tagTypeCode = ImageMarkEnum.COMMON_PICTURE.code;
             }
             // 点击看大图
             else if (largePictureRadioButton.isSelected()) {
-                tagType = HtmlTagTypeEnum.LARGE_PICTURE.text;
-                tagTypeCode = HtmlTagTypeEnum.LARGE_PICTURE.code;
+                tagType = ImageMarkEnum.LARGE_PICTURE.text;
+                tagTypeCode = ImageMarkEnum.LARGE_PICTURE.code;
             }
             // 自定义
             else if (customRadioButton.isSelected()) {
-                tagType = HtmlTagTypeEnum.CUSTOM.text;
+                tagType = ImageMarkEnum.CUSTOM.text;
                 // todo-dong4j : (2019年03月14日 14:30) [格式验证]
                 tagTypeCode = customHtmlTypeTextField.getText().trim();
             }
@@ -625,17 +609,17 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         if (this.changeToHtmlTagCheckBox.isSelected()) {
             // 正常的
             if (commonRadioButton.isSelected()) {
-                ossPersistenConfig.getState().setTagType(HtmlTagTypeEnum.COMMON_PICTURE.text);
-                ossPersistenConfig.getState().setTagTypeCode(HtmlTagTypeEnum.COMMON_PICTURE.code);
+                ossPersistenConfig.getState().setTagType(ImageMarkEnum.COMMON_PICTURE.text);
+                ossPersistenConfig.getState().setTagTypeCode(ImageMarkEnum.COMMON_PICTURE.code);
             }
             // 点击看大图
             else if (largePictureRadioButton.isSelected()) {
-                ossPersistenConfig.getState().setTagType(HtmlTagTypeEnum.LARGE_PICTURE.text);
-                ossPersistenConfig.getState().setTagTypeCode(HtmlTagTypeEnum.LARGE_PICTURE.code);
+                ossPersistenConfig.getState().setTagType(ImageMarkEnum.LARGE_PICTURE.text);
+                ossPersistenConfig.getState().setTagTypeCode(ImageMarkEnum.LARGE_PICTURE.code);
             }
             // 自定义
             else if (customRadioButton.isSelected()) {
-                ossPersistenConfig.getState().setTagType(HtmlTagTypeEnum.CUSTOM.text);
+                ossPersistenConfig.getState().setTagType(ImageMarkEnum.CUSTOM.text);
                 // todo-dong4j : (2019年03月14日 14:30) [格式验证]
                 ossPersistenConfig.getState().setTagTypeCode(customHtmlTypeTextField.getText().trim());
             }

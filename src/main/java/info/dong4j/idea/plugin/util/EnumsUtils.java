@@ -1,5 +1,7 @@
 package info.dong4j.idea.plugin.util;
 
+import info.dong4j.idea.plugin.enums.CloudEnum;
+
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -43,5 +45,20 @@ public class EnumsUtils {
             ts = (T[]) obj;
         }
         return Arrays.stream(ts).filter(predicate).findAny();
+    }
+
+    /**
+     * Gets cloud enum.
+     *
+     * @param index the index
+     * @return the cloud enum
+     */
+    public static CloudEnum getCloudEnum(int index) {
+        CloudEnum defaultCloud = CloudEnum.WEIBO_CLOUD;
+        Optional<CloudEnum> defaultCloudType = getEnumObject(CloudEnum.class, e -> e.getIndex() == index);
+        if (defaultCloudType.isPresent()) {
+            defaultCloud = defaultCloudType.get();
+        }
+        return defaultCloud;
     }
 }

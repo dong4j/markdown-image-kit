@@ -14,6 +14,7 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.Producer;
 import com.intellij.util.containers.hash.HashMap;
 
+import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.OssPersistenConfig;
@@ -36,7 +37,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.imageio.ImageIO;
 
@@ -199,7 +199,7 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                     if(!state.isUploadAndReplace()){
                         File imageFileRelativizePath = curDocument.getParentFile().toPath().relativize(imageFile.toPath()).toFile();
                         String relImagePath = imageFileRelativizePath.toString().replace('\\', '/');
-                        EditorModificationUtil.insertStringAtCaret(editor, "![](" + relImagePath + ")\n");
+                        EditorModificationUtil.insertStringAtCaret(editor, "![](" + relImagePath + ")" + ImageContents.LINE_BREAK);
                     }
                 } catch (IOException e) {
                     // todo-dong4j : (2019年03月17日 15:11) [消息通知]
@@ -224,13 +224,12 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
             InputStream is = new ByteArrayInputStream(os.toByteArray());
             // 上传到默认图床
             int defaultCloudType = OssPersistenConfig.getInstance().getState().getCloudType();
-            CloudEnum cloudEnum = getCloudEnum(defaultCloudType);
+            CloudEnum cloudEnum = EnumsUtils.getCloudEnum(defaultCloudType);
             // 此处进行异步处理, 不然上传大图时会卡死
             Runnable r = () -> {
                 String imageUrl = upload(cloudEnum, is, imageName);
                 if (StringUtils.isNotBlank(imageUrl)) {
-                    // 在光标位置插入指定字符串
-                    String newLineText = UploadUtils.getFinalImageMark("", imageUrl, imageUrl);
+                    String newLineText = UploadUtils.getFinalImageMark("", imageUrl, imageUrl, ImageContents.LINE_BREAK);
                     EditorModificationUtil.insertStringAtCaret(editor, newLineText);
                 }
             };
@@ -266,21 +265,5 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
     @Override
     public void execute(Editor editor, DataContext dataContext, Producer<Transferable> producer) {
 
-    }
-
-    /**
-     * Gets cloud enum.
-     *
-     * @param index the index
-     * @return the cloud enum
-     */
-    @NotNull
-    private CloudEnum getCloudEnum(int index) {
-        CloudEnum defaultCloud = CloudEnum.WEIBO_CLOUD;
-        Optional<CloudEnum> defaultCloudType = EnumsUtils.getEnumObject(CloudEnum.class, e -> e.getIndex() == index);
-        if (defaultCloudType.isPresent()) {
-            defaultCloud = defaultCloudType.get();
-        }
-        return defaultCloud;
     }
 }

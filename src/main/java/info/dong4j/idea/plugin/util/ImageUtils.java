@@ -308,4 +308,30 @@ public class ImageUtils {
         ImageProducer ip = new FilteredImageSource(image.getSource(), filter);
         return Toolkit.getDefaultToolkit().createImage(ip);
     }
+
+    /**
+     * 通过 ImageReader 来解码这个 file 并返回一个 BufferedImage 对象
+     * 如果找不到合适的 javax.imageio.ImageReader 则会返回 null, 则认为这不是图片文件
+     *
+     * @param file the file
+     * @return the boolean
+     */
+    public static boolean isImageFile(File file) {
+        try {
+            Image image = ImageIO.read(file);
+            return image != null;
+        } catch (IOException ex) {
+            return false;
+        }
+    }
+
+    /**
+     * Is image file boolean.
+     *
+     * @param filePath the file path
+     * @return the boolean
+     */
+    public static boolean isImageFile(String filePath) {
+        return isImageFile(new File(filePath));
+    }
 }

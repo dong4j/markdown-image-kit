@@ -1,5 +1,7 @@
 package info.dong4j.idea.plugin.action;
 
+import com.google.common.collect.Iterables;
+
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
@@ -29,6 +31,7 @@ import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
+import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.util.PsiDocumentUtils;
 
 import org.apache.commons.lang.StringUtils;
@@ -196,21 +199,26 @@ public abstract class AbstractObjectStorageServiceAction extends AnAction {
                             String imageName = markdownImage.getPath();
                             if (StringUtils.isNotBlank(imageName)) {
                                 Collection<VirtualFile> findedFiles = FilenameIndex.getVirtualFilesByName(project, imageName, GlobalSearchScope.allScope(project));
+
+                                // 没有对应的图片, 则忽略
                                 if (findedFiles.size() <= 0) {
                                     notFoundImages.append("\t").append(imageName).append("\n");
                                     continue;
                                 }
-                                // todo-dong4j : (2019年03月15日 20:14) [此操作耗时, 放入异步处理]
-                                for (VirtualFile file : findedFiles) {
-                                    // todo-dong4j : (2019年03月18日 01:31) [判断是否替换标签]
-                                    String uploadedUrl = upload(new File(file.getPath()));
+
+                                // 只取第一个图片
+                                VirtualFile virtualFile = Iterables.getFirst(findedFiles, null);
+                                assert virtualFile != null;
+                                String fileType = virtualFile.getFileType().getName();
+                                if(ImageContents.IMAGE_TYPE_NAME.equals(fileType)){
+                                    File file = new File(virtualFile.getPath());
+                                    // 子类执行上传
+                                    String uploadedUrl = upload(file);
                                     if (StringUtils.isBlank(uploadedUrl)) {
-                                        totalFailured++;
                                         // todo-dong4j : (2019年03月18日 01:15) [提供失败的文件链接]
+                                        totalFailured++;
                                     }
                                     markdownImage.setUploadedUrl(uploadedUrl);
-                                    // 如果存在名称相同的图片, 只取第一个.
-                                    break;
                                 }
                             }
                         }
@@ -222,7 +230,7 @@ public abstract class AbstractObjectStorageServiceAction extends AnAction {
                 notifucation("Upload Completed",
                              "",
                              "Processed File = " + waitingForUploadImages.size() +
-                             "\n Processed Image Mark = 「" + totalProcessed + "\n" +
+                             "\nImage Mark = " + totalProcessed + "\n" +
                              "Failured = " + totalFailured + "\n" +
                              "Some Images Not Found: \n" + notFoundImages.toString(),
                              NotificationType.INFORMATION);
@@ -359,7 +367,7 @@ public abstract class AbstractObjectStorageServiceAction extends AnAction {
     }
 
     /**
-     * 解析图片标签, 拿到 title 和 文件路径
+     * 解析图片标签, 拿到 title, 文件路径 或标签类型
      *
      * @param markdownImage the markdown image
      * @return the markdown image
@@ -370,7 +378,15 @@ public abstract class AbstractObjectStorageServiceAction extends AnAction {
         if (lineText.startsWith(ImageContents.HTML_TAG_A_START) && lineText.endsWith(ImageContents.HTML_TAG_A_END)) {
             markdownImage.setLineStartOffset(0);
             markdownImage.setLineEndOffset(lineText.length());
+            if(lineText.contains(ImageContents.LARG_IMAGE_MARK_ID)){
+                markdownImage.setImageMarkType(ImageMarkEnum.LARGE_PICTURE);
+            } else if(lineText.contains(ImageContents.COMMON_IMAGE_MARK_ID)){
+                markdownImage.setImageMarkType(ImageMarkEnum.COMMON_PICTURE);
+            } else {
+                markdownImage.setImageMarkType(ImageMarkEnum.CUSTOM);
+            }
         }
+
         String title = lineText.substring(lineText.indexOf(ImageContents.IMAGE_MARK_PREFIX) + ImageContents.IMAGE_MARK_PREFIX.length(),
                                           lineText.indexOf(ImageContents.IMAGE_MARK_MIDDLE));
         String path = lineText.substring(lineText.indexOf(ImageContents.IMAGE_MARK_MIDDLE) + ImageContents.IMAGE_MARK_MIDDLE.length(),

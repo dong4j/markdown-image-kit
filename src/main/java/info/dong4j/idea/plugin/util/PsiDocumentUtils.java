@@ -7,6 +7,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDocumentManager;
 
 import info.dong4j.idea.plugin.entity.MarkdownImage;
+import info.dong4j.idea.plugin.enums.ImageLocationEnum;
+import info.dong4j.idea.plugin.settings.OssPersistenConfig;
+import info.dong4j.idea.plugin.settings.OssState;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
@@ -17,6 +20,8 @@ import info.dong4j.idea.plugin.entity.MarkdownImage;
  * @email sjdong3 @iflytek.com
  */
 public class PsiDocumentUtils {
+    private static OssState state = OssPersistenConfig.getInstance().getState();
+
     /**
      * Commit and save document.
      *
@@ -46,12 +51,20 @@ public class PsiDocumentUtils {
     public static void commitAndSaveDocument(Project project,
                                              Document document,
                                              MarkdownImage markdownImage) {
-        String newLineText = UploadUtils.getFinalImageMark(markdownImage.getTitle(),
-                                                           markdownImage.getUploadedUrl(),
-                                                           markdownImage.getPath());
-        WriteCommandAction.runWriteCommandAction(project, () -> document
-            .replaceString(document.getLineStartOffset(markdownImage.getLineNumber()),
-                           document.getLineEndOffset(markdownImage.getLineNumber()),
-                           newLineText));
+        // 只处理开启了替换开关且现有的标签格式与配置不一样, 或者未上传(未上传的必须处理)
+        boolean isLocal = markdownImage.getLocation().equals(ImageLocationEnum.LOCAL);
+        boolean changeHtmlTag = !state.getTagTypeCode().equals(markdownImage.getImageMarkType().code)
+                                && state.isChangeToHtmlTag();
+        if (isLocal || changeHtmlTag) {
+            String newLineText = UploadUtils.getFinalImageMark(markdownImage.getTitle(),
+                                                               markdownImage.getUploadedUrl(),
+                                                               markdownImage.getPath(),
+                                                               "");
+
+            WriteCommandAction.runWriteCommandAction(project, () -> document
+                .replaceString(document.getLineStartOffset(markdownImage.getLineNumber()),
+                               document.getLineEndOffset(markdownImage.getLineNumber()),
+                               newLineText));
+        }
     }
 }

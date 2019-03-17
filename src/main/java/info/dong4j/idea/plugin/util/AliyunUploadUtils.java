@@ -5,7 +5,7 @@ import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.ObjectMetadata;
 import com.aliyun.oss.model.PutObjectResult;
 
-import info.dong4j.idea.plugin.enums.SuffixSelectTypeEnum;
+import info.dong4j.idea.plugin.enums.SuffixEnum;
 import info.dong4j.idea.plugin.exception.ImgException;
 import info.dong4j.idea.plugin.settings.OssPersistenConfig;
 
@@ -101,12 +101,12 @@ public final class AliyunUploadUtils {
     }
 
     private static String getSufixName(String fileName) {
-        if (SuffixSelectTypeEnum.FILE_NAME.name.equals(sufix)) {
+        if (SuffixEnum.FILE_NAME.name.equals(sufix)) {
             return fileName;
-        } else if (SuffixSelectTypeEnum.DATE_FILE_NAME.name.equals(sufix)) {
+        } else if (SuffixEnum.DATE_FILE_NAME.name.equals(sufix)) {
             // todo-dong4j : (2019年03月13日 18:01) [修改为线程安全的]
             return dateFormat.format(new Date()) + fileName;
-        } else if (SuffixSelectTypeEnum.RANDOM.name.equals(sufix)) {
+        } else if (SuffixEnum.RANDOM.name.equals(sufix)) {
             return CharacterUtils.getRandomString(12) + fileName.substring(fileName.lastIndexOf("."));
         } else {
             return "";

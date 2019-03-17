@@ -1,6 +1,6 @@
 package info.dong4j.idea.plugin.enums;
 
-import info.dong4j.idea.plugin.content.MarkdownContents;
+import info.dong4j.idea.plugin.content.ImageContents;
 
 import org.jetbrains.annotations.Contract;
 
@@ -12,16 +12,17 @@ import org.jetbrains.annotations.Contract;
  * @date 2019-03-14 10:23
  * @email sjdong3@iflytek.com
  */
-public enum HtmlTagTypeEnum {
-    LARGE_PICTURE(1, "点击看大图", MarkdownContents.LARG_IMAGE_MARK),
-    COMMON_PICTURE(2, "正常的", MarkdownContents.COMMON_IMAGE_MARK),
-    CUSTOM(3, "自定义", "");
+public enum ImageMarkEnum {
+    LARGE_PICTURE(1, "点击看大图", ImageContents.LARG_IMAGE_MARK),
+    COMMON_PICTURE(2, "正常的", ImageContents.COMMON_IMAGE_MARK),
+    CUSTOM(3, "自定义", ""),
+    ORIGINAL(4, "原始", ImageContents.DEFAULT_IMAGE_MARK);
 
     public int index;
     public String text;
     public String code;
 
-    HtmlTagTypeEnum(int index, String text, String code) {
+    ImageMarkEnum(int index, String text, String code) {
         this.index = index;
         this.text = text;
         this.code = code;

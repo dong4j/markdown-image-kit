@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Contract;
  * @date 2019-03-17 01:21
  * @email sjdong3@iflytek.com
  */
-public enum SuffixSelectTypeEnum {
+public enum SuffixEnum {
     FILE_NAME(1, "文件名"),
     DATE_FILE_NAME(2, "日期-文件名"),
     RANDOM(3, "随机");
@@ -18,7 +18,7 @@ public enum SuffixSelectTypeEnum {
     public int index;
     public String name;
 
-    SuffixSelectTypeEnum(int index, String name) {
+    SuffixEnum(int index, String name) {
         this.index = index;
         this.name = name;
     }

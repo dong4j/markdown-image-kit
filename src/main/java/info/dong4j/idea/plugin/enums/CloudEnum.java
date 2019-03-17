@@ -4,7 +4,7 @@ import org.jetbrains.annotations.Contract;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: ${description}</p>
+ * <p>Description: 枚举顺序不能改变</p>
  *
  * @author dong4j
  * @date 2019-03-17 00:15
@@ -45,7 +45,7 @@ public enum CloudEnum {
     }
 
     @Contract(pure = true)
-    public String getClassName(){
+    public String getClassName() {
         return className;
     }
 }
