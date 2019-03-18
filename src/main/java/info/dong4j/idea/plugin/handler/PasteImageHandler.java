@@ -1,11 +1,6 @@
 package info.dong4j.idea.plugin.handler;
 
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.ActionPlaces;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Document;
@@ -88,15 +83,6 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
         if (virtualFile != null) {
             if (virtualFile.getFileType().getName().equals(MarkdownContents.MARKDOWN_FILE_TYPE)
                 || virtualFile.getName().endsWith(MarkdownContents.MARKDOWN_FILE_SUFIX)) {
-
-
-                // if (true) {
-                //     PasteImageFromClipboard action = new PasteImageFromClipboard();
-                //     AnActionEvent event = createAnEvent(action, dataContext);
-                //     action.actionPerformed(event);
-                //     return;
-                // }
-
                 // 根据配置操作. 是否开启 clioboard 监听; 是否将文件拷贝到目录; 是否开启上传到图床
                 OssState state = OssPersistenConfig.getInstance().getState();
 
@@ -116,7 +102,7 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                                 try {
                                     File compressedFile = new File(System.getProperty("java.io.tmpdir") + file.getName());
                                     // 图片压缩
-                                    if(file.isFile() && file.getName().endsWith("jpg")){
+                                    if (file.isFile() && file.getName().endsWith("jpg")) {
                                         ImageUtils.compress(file, compressedFile, state.getCompressBeforeUploadOfPercent() - 20);
                                     }
                                     image = ImageIO.read(compressedFile);
@@ -148,11 +134,6 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
             }
         }
         defaultAction(editor, caret, dataContext);
-    }
-
-    private AnActionEvent createAnEvent(AnAction action, @NotNull DataContext context) {
-        Presentation presentation = action.getTemplatePresentation().clone();
-        return new AnActionEvent(null, context, ActionPlaces.UNKNOWN, presentation, ActionManager.getInstance(), 0);
     }
 
     /**

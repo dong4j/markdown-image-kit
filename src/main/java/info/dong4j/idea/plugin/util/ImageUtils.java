@@ -237,7 +237,6 @@ public class ImageUtils {
             return toBufferedImage(new ImageIcon(new URL(imageURL)).getImage());
         } catch (MalformedURLException ignored) {
         }
-
         return null;
     }
 

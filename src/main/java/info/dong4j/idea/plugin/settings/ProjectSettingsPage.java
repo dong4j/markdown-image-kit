@@ -9,7 +9,8 @@ import com.intellij.ui.JBColor;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.enums.SuffixEnum;
-import info.dong4j.idea.plugin.util.AliyunUploadUtils;
+import info.dong4j.idea.plugin.singleton.AliyunOssClient;
+import info.dong4j.idea.plugin.util.DES;
 import info.dong4j.idea.plugin.util.EnumsUtils;
 
 import org.apache.commons.lang.StringUtils;
@@ -57,15 +58,15 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JTabbedPane authorizationTabbedPanel;
     /** weiboOssAuthorizationPanel group */
     private JPanel weiboOssAuthorizationPanel;
-    private JTextField userNameTextField;
-    private JPasswordField passwordField;
+    private JTextField weiboUserNameTextField;
+    private JPasswordField weiboPasswordField;
     private JLabel userNameLabel;
     private JLabel passwordLabel;
     /** aliyunOssAuthorizationPanel group */
     private JPanel aliyunOssAuthorizationPanel;
     private JTextField aliyunOssBucketNameTextField;
     private JTextField aliyunOssAccessKeyTextField;
-    private JTextField aliyunOssAccessSecretKeyTextField;
+    private JPasswordField aliyunOssAccessSecretKeyTextField;
     private JTextField aliyunOssEndpointTextField;
     private JTextField aliyunOssFileDirTextField;
     private JComboBox aliyunOssSuffixBoxField;
@@ -213,7 +214,12 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     /**
      * 初始化 aliyun oss 认证相关设置
      */
-    private void initAliyunOssAuthenticationPanel() {
+    private void initAliyunOssAuthenticationPanel(){
+        String aliyunOssAccessSecretKey = ossPersistenConfig.getState().getWeiboOssState().getPassword();
+        if(StringUtils.isNotBlank(aliyunOssAccessSecretKey)){
+            aliyunOssAccessSecretKeyTextField.setText(DES.decrypt(aliyunOssAccessSecretKey, OssState.ALIYUN));
+        }
+
         // 根据持久化配置设置为被选中的 item
         aliyunOssSuffixBoxField.setSelectedItem(ossPersistenConfig.getState().getAliyunOssState().getSuffix());
         // 处理当 aliyunOssFileDirTextField.getText() 为 空字符时, 不拼接 "/
@@ -253,9 +259,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      * 初始化 weibo oss 认证相关设置
      */
     private void initWeiboOssAuthenticationPanel() {
-        userNameTextField.setText(ossPersistenConfig.getState().getWeiboOssState().getUserName());
-        // todo-dong4j : (2019年03月18日 01:28) [解密]
-        passwordField.setText(ossPersistenConfig.getState().getWeiboOssState().getPassword());
+        weiboUserNameTextField.setText(ossPersistenConfig.getState().getWeiboOssState().getUserName());
+        weiboPasswordField.setText(DES.decrypt(ossPersistenConfig.getState().getWeiboOssState().getPassword(), OssState.WEIBOKEY));
     }
 
     /**
@@ -273,14 +278,14 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         testButton.addActionListener(e -> {
             int index = authorizationTabbedPanel.getSelectedIndex();
             InputStream is = this.getClass().getResourceAsStream("/" + TEST_FILE_NAME);
-            String url = upload(EnumsUtils.getCloudEnum(index), is, TEST_FILE_NAME, (JPanel)authorizationTabbedPanel.getComponentAt(index));
-            if(StringUtils.isNotBlank(url)){
+            String url = upload(EnumsUtils.getCloudEnum(index), is, TEST_FILE_NAME, (JPanel) authorizationTabbedPanel.getComponentAt(index));
+            if (StringUtils.isNotBlank(url)) {
                 testMessage.setForeground(JBColor.GREEN);
                 testMessage.setText("Upload Succeed");
-                if(log.isTraceEnabled()){
+                if (log.isTraceEnabled()) {
                     BrowserUtil.browse(url);
                 }
-            }else {
+            } else {
                 testMessage.setForeground(JBColor.RED);
                 testMessage.setText("Upload Failed, Please check the configuration");
             }
@@ -322,7 +327,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         String fileDir = StringUtils.isBlank(aliyunOssFileDirTextField.getText().trim()) ? "" : "/" + aliyunOssFileDirTextField.getText().trim();
         String endpoint = aliyunOssEndpointTextField.getText().trim();
         String backetName = aliyunOssBucketNameTextField.getText().trim();
-        String url = AliyunUploadUtils.URL_PROTOCOL_HTTPS + "://" + backetName + "." + endpoint;
+        String url = AliyunOssClient.URL_PROTOCOL_HTTPS + "://" + backetName + "." + endpoint;
         exampleTextField.setText(url + fileDir + getSufixString(Objects.requireNonNull(aliyunOssSuffixBoxField.getSelectedItem()).toString()));
     }
 
@@ -500,7 +505,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         log.trace("isModified invoke");
         String newBucketName = aliyunOssBucketNameTextField.getText().trim();
         String newAccessKey = aliyunOssAccessKeyTextField.getText().trim();
-        String newAccessSecretKey = aliyunOssAccessSecretKeyTextField.getText().trim();
+        String newAccessSecretKey = new String(aliyunOssAccessSecretKeyTextField.getPassword());
+        newAccessSecretKey = DES.encrypt(newAccessSecretKey, OssState.ALIYUN);
         String newEndpoint = aliyunOssEndpointTextField.getText().trim();
         String newFileDir = aliyunOssFileDirTextField.getText().trim();
         String newSuffix = "";
@@ -560,9 +566,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         String whereToCopy = whereToCopyTextField.getText().trim();
 
         // weibo
-        String username = userNameTextField.getText().trim();
-        // todo-dong4j : (2019年03月18日 01:28) [加密]
-        String password = new String(passwordField.getPassword());
+        String username = weiboUserNameTextField.getText().trim();
+        String password = new String(weiboPasswordField.getPassword());
+        password = DES.encrypt(password, OssState.WEIBOKEY);
 
         return !(newBucketName.equals(ossPersistenConfig.getState().getAliyunOssState().getBucketName())
                  && newAccessKey.equals(ossPersistenConfig.getState().getAliyunOssState().getAccessKey())
@@ -598,9 +604,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     @Override
     public void apply() {
         log.trace("apply invoke");
+        String newAccessSecretKey = new String(aliyunOssAccessSecretKeyTextField.getPassword());
+        newAccessSecretKey = DES.encrypt(newAccessSecretKey, OssState.ALIYUN);
         ossPersistenConfig.getState().getAliyunOssState().setBucketName(this.aliyunOssBucketNameTextField.getText().trim());
         ossPersistenConfig.getState().getAliyunOssState().setAccessKey(this.aliyunOssAccessKeyTextField.getText().trim());
-        ossPersistenConfig.getState().getAliyunOssState().setAccessSecretKey(this.aliyunOssAccessSecretKeyTextField.getText().trim());
+        ossPersistenConfig.getState().getAliyunOssState().setAccessSecretKey(newAccessSecretKey);
         ossPersistenConfig.getState().getAliyunOssState().setEndpoint(this.aliyunOssEndpointTextField.getText().trim());
         ossPersistenConfig.getState().getAliyunOssState().setFiledir(this.aliyunOssFileDirTextField.getText().trim());
         ossPersistenConfig.getState().getAliyunOssState().setSuffix(Objects.requireNonNull(this.aliyunOssSuffixBoxField.getSelectedItem()).toString());
@@ -639,13 +647,10 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
 
         ossPersistenConfig.getState().setCloudType(this.defaultCloudComboBox.getSelectedIndex());
 
-        ossPersistenConfig.getState().getWeiboOssState().setUserName(this.userNameTextField.getText().trim());
-        // todo-dong4j : (2019年03月18日 01:28) [加密]
-        ossPersistenConfig.getState().getWeiboOssState().setPassword(new String(passwordField.getPassword()));
+        ossPersistenConfig.getState().getWeiboOssState().setUserName(this.weiboUserNameTextField.getText().trim());
+        String password = DES.encrypt(new String(weiboPasswordField.getPassword()), OssState.WEIBOKEY);
+        ossPersistenConfig.getState().getWeiboOssState().setPassword(password);
 
-        // 重新创建 OSSClient
-        AliyunUploadUtils.destory();
-        AliyunUploadUtils.reset();
     }
 
     /**

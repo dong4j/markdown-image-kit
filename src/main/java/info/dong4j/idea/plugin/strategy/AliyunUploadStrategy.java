@@ -5,7 +5,8 @@ import com.aliyun.oss.OSSClientBuilder;
 
 import info.dong4j.idea.plugin.settings.OssPersistenConfig;
 import info.dong4j.idea.plugin.settings.OssState;
-import info.dong4j.idea.plugin.util.AliyunUploadUtils;
+import info.dong4j.idea.plugin.singleton.AliyunOssClient;
+import info.dong4j.idea.plugin.util.DES;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -21,7 +22,9 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: </p>
+ * <p>Description: used by {@link info.dong4j.idea.plugin.handler.PasteImageHandler #upload}
+ * and {@link info.dong4j.idea.plugin.settings.ProjectSettingsPage #testAndHelpListener}
+ * </p>
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
@@ -51,7 +54,7 @@ public class AliyunUploadStrategy implements UploadStrategy {
     @Override
     public String upload(InputStream inputStream, String fileName) {
         // todo-dong4j : (2019年03月17日 03:34) [调用工具类实现上传(工具类做成单例的)]
-        return uploadFromState(inputStream, fileName);
+        return uploadFromPaste(inputStream, fileName);
     }
 
     /**
@@ -61,19 +64,32 @@ public class AliyunUploadStrategy implements UploadStrategy {
      * @param fileName    the file name
      * @return the string
      */
-    private String uploadFromState(InputStream inputStream, String fileName) {
-        String tempBucketName = aliyunOssState.getBucketName();
-        String tempAccessKey = aliyunOssState.getAccessKey();
-        String tempAccessSecretKey = aliyunOssState.getAccessSecretKey();
-        String tempEndpoint = aliyunOssState.getEndpoint();
-        String tempFileDir = aliyunOssState.getFiledir();
-        tempFileDir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";
+    private String uploadFromPaste(InputStream inputStream, String fileName) {
+        // 测试通过才执行上传操作
+        if(aliyunOssState.isPassedTest()){
+            String tempBucketName = aliyunOssState.getBucketName();
+            String tempAccessKey = aliyunOssState.getAccessKey();
+            String tempAccessSecretKey = aliyunOssState.getAccessSecretKey();
+            tempAccessSecretKey = DES.decrypt(tempAccessSecretKey, OssState.ALIYUN);
+            String tempEndpoint = aliyunOssState.getEndpoint();
+            String tempFileDir = aliyunOssState.getFiledir();
 
-        return upload(inputStream, fileName, tempBucketName, tempAccessKey, tempAccessSecretKey, tempEndpoint, tempFileDir);
+            return upload(inputStream,
+                          fileName,
+                          tempBucketName,
+                          tempAccessKey,
+                          tempAccessSecretKey,
+                          tempEndpoint,
+                          tempFileDir,
+                          UploadWayEnum.FROM_PASTE);
+        }
+        return "";
+
     }
 
     /**
-     * Upload from test string.
+     * 直接从面板组件上获取最新配置, 不使用 state
+     * {@link info.dong4j.idea.plugin.settings.ProjectSettingsPage #upload}
      *
      * @param inputStream the input stream
      * @param fileName    the file name
@@ -86,12 +102,19 @@ public class AliyunUploadStrategy implements UploadStrategy {
 
         String tempBucketName = textList.get(0);
         String tempAccessKey = textList.get(1);
-        String tempAccessSecretKey = textList.get(2);
-        String tempEndpoint = textList.get(3);
-        String tempFileDir = textList.get(5);
-        tempFileDir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";
+        String tempAccessSecretKey = textList.get(5);
+        tempAccessSecretKey = DES.decrypt(tempAccessSecretKey, OssState.ALIYUN);
+        String tempEndpoint = textList.get(2);
+        String tempFileDir = textList.get(4);
 
-        return upload(inputStream, fileName, tempBucketName, tempAccessKey, tempAccessSecretKey, tempEndpoint, tempFileDir);
+        return upload(inputStream,
+                      fileName,
+                      tempBucketName,
+                      tempAccessKey,
+                      tempAccessSecretKey,
+                      tempEndpoint,
+                      tempFileDir,
+                      UploadWayEnum.FROM_TEST);
     }
 
     /**
@@ -112,26 +135,26 @@ public class AliyunUploadStrategy implements UploadStrategy {
                           String tempAccessKey,
                           String tempAccessSecretKey,
                           String tempEndpoint,
-                          String tempFileDir) {
-        OSS oss = null;
-        String url = "";
-        try {
-            OSSClientBuilder ossClientBuilder = new OSSClientBuilder();
-            // 返回读取指定资源的输入流
-            oss = ossClientBuilder.build(tempEndpoint, tempAccessKey, tempAccessSecretKey);
+                          String tempFileDir,
+                          UploadWayEnum uploadWayEnum) {
+
+        tempFileDir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";
+        String url;
+        if (uploadWayEnum.equals(UploadWayEnum.FROM_TEST)) {
+            OSS oss  = new OSSClientBuilder().build(tempEndpoint, tempAccessKey, tempAccessSecretKey);
             oss.putObject(tempBucketName,
                           tempFileDir + fileName,
                           inputStream);
-            url = AliyunUploadUtils.getUrl(tempFileDir, fileName);
-        } catch (Exception e) {
-            log.trace("", e);
-        } finally {
-            if (oss != null) {
-                oss.shutdown();
-            }
-        }
 
-        aliyunOssState.setPassedTest(StringUtils.isNotBlank(url));
+            url = AliyunOssClient.getInstance().getUrl(oss, tempFileDir, fileName);
+            if (StringUtils.isNotBlank(url)) {
+                aliyunOssState.setPassedTest(true);
+                // 参数验证成功后直接设置 ossClient, 不要浪费
+                AliyunOssClient.getInstance().setOssClient(oss);
+            }
+        } else {
+            url = AliyunOssClient.getInstance().getUrl(tempFileDir, fileName);
+        }
         return url;
     }
 }

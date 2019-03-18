@@ -1,7 +1,7 @@
 package info.dong4j.idea.plugin.action;
 
 import info.dong4j.idea.plugin.settings.OssPersistenConfig;
-import info.dong4j.idea.plugin.util.AliyunUploadUtils;
+import info.dong4j.idea.plugin.singleton.AliyunOssClient;
 
 import org.jetbrains.annotations.Contract;
 
@@ -27,8 +27,9 @@ public final class AliyunObjectStorageServiceAction extends AbstractObjectStorag
     }
 
     @Override
-    public String upload(File file){
-        String name = AliyunUploadUtils.uploadImg2Oss(new File(file.getPath()));
-        return AliyunUploadUtils.getUrl(name);
+    public String upload(File file) {
+        AliyunOssClient client = AliyunOssClient.getInstance();
+        String name = client.uploadImg2Oss(new File(file.getPath()));
+        return client.getUrl(name);
     }
 }

@@ -2,6 +2,7 @@ package info.dong4j.idea.plugin.strategy;
 
 import info.dong4j.idea.plugin.settings.OssPersistenConfig;
 import info.dong4j.idea.plugin.settings.OssState;
+import info.dong4j.idea.plugin.util.DES;
 import info.dong4j.idea.plugin.weibo.UploadRequestBuilder;
 import info.dong4j.idea.plugin.weibo.UploadResponse;
 import info.dong4j.idea.plugin.weibo.WbpUploadRequest;
@@ -55,13 +56,14 @@ public class WeiboUploadStrategy implements UploadStrategy {
     @NotNull
     private String uploadFromState(InputStream inputStream, String fileName) {
         String username = weiboOssState.getUserName();
-        String password = weiboOssState.getPassword();
+        String password = DES.decrypt(weiboOssState.getPassword(), OssState.WEIBOKEY);
 
         return upload(inputStream, fileName, username, password);
     }
 
     /**
      * Upload from test string.
+     * {@link info.dong4j.idea.plugin.settings.ProjectSettingsPage #upload}
      *
      * @param inputStream the input stream
      * @param fileName    the file name

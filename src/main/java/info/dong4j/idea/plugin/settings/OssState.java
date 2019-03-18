@@ -12,6 +12,9 @@ import lombok.Data;
  */
 @Data
 public class OssState {
+    public static final String WEIBOKEY = "ekjgbpiq!g34o@erberb.erbmkv.c;,ergw_.";
+    public static final String ALIYUN = "awj7@piq!g3jo@er_erb.erbsrxhc!,wr.w_1";
+
     @Data
     public static class AliyunOssState {
         private String endpoint = "";
