@@ -18,7 +18,7 @@ import com.qiniu.util.Auth;
  * @date 2019 -03-16 12:12
  * @email sjdong3 @iflytek.com
  */
-public class QiniuUploadUtils {
+public final class QiniuUploadUtils {
 
     /**
      * Upload image string.

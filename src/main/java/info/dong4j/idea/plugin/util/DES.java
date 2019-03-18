@@ -15,7 +15,7 @@ import javax.crypto.spec.DESKeySpec;
  * @date 2018 -08-26 00:30
  * @email sjdong3 @iflytek.com
  */
-public class DES {
+public final class DES {
 
     private final static String DES = "DES";
 
@@ -75,7 +75,7 @@ public class DES {
      * @return 返回解密后的原始数据 byte [ ]
      * @throws RuntimeException the runtime exception
      */
-    public static byte[] decrypt(byte[] src, byte[] key) throws RuntimeException {
+    private static byte[] decrypt(byte[] src, byte[] key) throws RuntimeException {
         try {
             Cipher cipher = getCipher(key, Cipher.DECRYPT_MODE);
             return cipher.doFinal(src);

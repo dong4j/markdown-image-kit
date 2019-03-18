@@ -7,7 +7,7 @@ package info.dong4j.idea.plugin.weibo.exception;
  * @update dong4j
  * @date 2018 -06-14 22:31
  */
-public class LoginFailedException extends Wbp4jException {
+public class LoginFailedException extends RuntimeException {
 
     /**
      * Instantiates a new Login failed exception.

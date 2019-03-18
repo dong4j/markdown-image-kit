@@ -12,6 +12,7 @@ import info.dong4j.idea.plugin.util.CharacterUtils;
 import info.dong4j.idea.plugin.util.DES;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Contract;
 
 import java.io.*;
 import java.net.*;
@@ -31,6 +32,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AliyunOssClient {
     private static final String URL_PROTOCOL_HTTP = "http";
+    /**
+     * The constant URL_PROTOCOL_HTTPS.
+     */
     public static final String URL_PROTOCOL_HTTPS = "https";
     private final Object lock = new Object();
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-");
@@ -39,6 +43,9 @@ public class AliyunOssClient {
     private static String fileDir;
     private static String sufix;
     private static OSS ossClient = null;
+
+    private AliyunOssClient() {
+    }
 
     private static class SingletonHandler {
         static {
@@ -83,6 +90,7 @@ public class AliyunOssClient {
      *
      * @return the instance
      */
+    @Contract(pure = true)
     public static AliyunOssClient getInstance() {
         return SingletonHandler.singleton;
     }
@@ -119,7 +127,7 @@ public class AliyunOssClient {
             // todo-dong4j : (2019年03月13日 18:01) [修改为线程安全的]
             return dateFormat.format(new Date()) + fileName;
         } else if (SuffixEnum.RANDOM.name.equals(sufix)) {
-            return CharacterUtils.getRandomString(12) + fileName.substring(fileName.lastIndexOf("."));
+            return CharacterUtils.getRandomString(8) + fileName.substring(fileName.lastIndexOf("."));
         } else {
             return "";
         }
@@ -128,25 +136,25 @@ public class AliyunOssClient {
     /**
      * 上传到OSS服务器  如果同名文件会覆盖服务器上的
      *
-     * @param instream 文件流
-     * @param fileName 文件名称 包括后缀名
+     * @param inputStream 文件流
+     * @param fileName    文件名称 包括后缀名
      * @return 出错返回 "" ,唯一MD5数字签名
      */
-    private void uploadFile2OSS(InputStream instream, String fileName) {
-        uploadFile2OSS(instream, fileDir, fileName);
+    private void uploadFile2OSS(InputStream inputStream, String fileName) {
+        uploadFile2OSS(inputStream, fileDir, fileName);
     }
 
 
     /**
      * Upload file 2 ossClient string.
      *
-     * @param instream the instream
-     * @param filedir  the filedir
-     * @param fileName the file name
+     * @param inputStream the inputStream
+     * @param filedir     the filedir
+     * @param fileName    the file name
      * @return the string
      */
-    private void uploadFile2OSS(InputStream instream, String filedir, String fileName) {
-        uploadFile2OSS(ossClient, instream, filedir, fileName);
+    private void uploadFile2OSS(InputStream inputStream, String filedir, String fileName) {
+        uploadFile2OSS(ossClient, inputStream, filedir, fileName);
     }
 
     /**
@@ -234,7 +242,7 @@ public class AliyunOssClient {
      * @return url url
      */
     public String getUrl(String name) {
-        if(checkClient()){
+        if (checkClient()) {
             return getUrl(fileDir, name);
         }
         return "";
@@ -251,6 +259,14 @@ public class AliyunOssClient {
         return getUrl(ossClient, filedir, name);
     }
 
+    /**
+     * Gets url.
+     *
+     * @param ossClient the oss client
+     * @param filedir   the filedir
+     * @param name      the name
+     * @return the url
+     */
     public String getUrl(OSS ossClient, String filedir, String name) {
         Date expiration = new Date(System.currentTimeMillis() + 3600L * 1000 * 24 * 365 * 10);
         URL url = ossClient.generatePresignedUrl(bucketName, filedir + name, expiration);

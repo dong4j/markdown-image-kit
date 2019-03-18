@@ -6,12 +6,12 @@ import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.JBColor;
 
-import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.enums.SuffixEnum;
 import info.dong4j.idea.plugin.singleton.AliyunOssClient;
 import info.dong4j.idea.plugin.util.DES;
 import info.dong4j.idea.plugin.util.EnumsUtils;
+import info.dong4j.idea.plugin.util.UploadUtils;
 
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Nls;
@@ -19,8 +19,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -112,10 +110,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JCheckBox uploadAndReplaceCheckBox;
     private JComboBox defaultCloudComboBox;
 
-
-    /**
-     * Instantiates a new Project settings page.
-     */
     public ProjectSettingsPage() {
         log.trace("ProjectSettingsPage Constructor invoke");
         ossPersistenConfig = OssPersistenConfig.getInstance();
@@ -276,7 +270,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         testButton.addActionListener(e -> {
             int index = authorizationTabbedPanel.getSelectedIndex();
             InputStream is = this.getClass().getResourceAsStream("/" + TEST_FILE_NAME);
-            String url = upload(EnumsUtils.getCloudEnum(index), is, TEST_FILE_NAME, (JPanel) authorizationTabbedPanel.getComponentAt(index));
+            String url = UploadUtils.upload(EnumsUtils.getCloudEnum(index), is, TEST_FILE_NAME, (JPanel) authorizationTabbedPanel.getComponentAt(index));
             if (StringUtils.isNotBlank(url)) {
                 testMessage.setForeground(JBColor.GREEN);
                 testMessage.setText("Upload Succeed");
@@ -295,27 +289,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             String url = "http://dong4j.info";
             BrowserUtil.browse(url);
         });
-    }
-
-    /**
-     * 通过反射调用, 避免条件判断, 便于扩展
-     * todo-dong4j : (2019年03月17日 14:13) [考虑将上传到具体的 OSS 使用 properties]
-     *
-     * @param cloudEnum   the cloud enum
-     * @param inputStream the input stream
-     * @return the string
-     */
-    private String upload(CloudEnum cloudEnum, InputStream inputStream, String fileName, JPanel jPanel) {
-        try {
-            Class<?> cls = Class.forName(cloudEnum.getClassName());
-            Object obj = cls.newInstance();
-            Method setFunc = cls.getMethod("uploadFromTest", InputStream.class, String.class, JPanel.class);
-            return (String) setFunc.invoke(obj, inputStream, fileName, jPanel);
-        } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException | InstantiationException | NoSuchMethodException e) {
-            // todo-dong4j : (2019年03月17日 03:20) [添加通知]
-            log.trace("", e);
-        }
-        return "";
     }
 
     /**
@@ -501,6 +474,16 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     @Override
     public boolean isModified() {
         log.trace("isModified invoke");
+        OssState state = ossPersistenConfig.getState();
+        return !(isAliyunAuthModified(state)
+                 && isWeiboAuthModified(state)
+                 && isGeneralModified(state)
+                 && isClipboardModified(state)
+        );
+    }
+
+    private boolean isAliyunAuthModified(@NotNull OssState state) {
+        OssState.AliyunOssState aliyunOssState = state.getAliyunOssState();
         String newBucketName = aliyunOssBucketNameTextField.getText().trim();
         String newAccessKey = aliyunOssAccessKeyTextField.getText().trim();
         String newAccessSecretKey = new String(aliyunOssAccessSecretKeyTextField.getPassword());
@@ -517,6 +500,26 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             newSuffix = type.get().getName();
         }
 
+        return newBucketName.equals(aliyunOssState.getBucketName())
+               && newAccessKey.equals(aliyunOssState.getAccessKey())
+               && newAccessSecretKey.equals(aliyunOssState.getAccessSecretKey())
+               && newEndpoint.equals(aliyunOssState.getEndpoint())
+               && newFileDir.equals(aliyunOssState.getFiledir())
+               && newSuffix.equals(aliyunOssState.getSuffix());
+    }
+
+    private boolean isWeiboAuthModified(@NotNull OssState state) {
+        OssState.WeiboOssState weiboOssState = state.getWeiboOssState();
+        String weiboUsername = weiboUserNameTextField.getText().trim();
+        String weiboPassword = new String(weiboPasswordField.getPassword());
+        if (StringUtils.isNotBlank(weiboPassword)) {
+            weiboPassword = DES.encrypt(weiboPassword, OssState.WEIBOKEY);
+        }
+        return weiboUsername.equals(weiboOssState.getUserName())
+               && weiboPassword.equals(weiboOssState.getPassword());
+    }
+
+    private boolean isGeneralModified(OssState state) {
         // 是否替换标签
         boolean changeToHtmlTag = changeToHtmlTagCheckBox.isSelected();
         // 替换的标签类型
@@ -560,44 +563,29 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         // 图片备份
         boolean backup = backupCheckBox.isSelected();
 
+        return changeToHtmlTag == state.isChangeToHtmlTag()
+               && tagType.equals(state.getTagType())
+               && tagTypeCode.equals(state.getTagTypeCode())
+               && compress == state.isCompress()
+               && compressBeforeUpload == state.isCompressBeforeUpload()
+               && compressBeforeUploadOfPercent == state.getCompressBeforeUploadOfPercent()
+               && compressAtLookup == state.isCompressAtLookup()
+               && styleName.equals(state.getStyleName())
+               && transport == state.isTransport()
+               && backup == state.isBackup();
+    }
+
+    private boolean isClipboardModified(@NotNull OssState state) {
         boolean clipboardControl = clipboardControlCheckBox.isSelected();
         boolean copyToDir = copyToDirCheckBox.isSelected();
         boolean uploadAndReplace = uploadAndReplaceCheckBox.isSelected();
         String whereToCopy = whereToCopyTextField.getText().trim();
 
-        // weibo
-        String weiboUsername = weiboUserNameTextField.getText().trim();
-        String weiboPassword = new String(weiboPasswordField.getPassword());
-        if (StringUtils.isNotBlank(weiboPassword)) {
-            weiboPassword = DES.encrypt(weiboPassword, OssState.WEIBOKEY);
-        }
-
-        return !(newBucketName.equals(ossPersistenConfig.getState().getAliyunOssState().getBucketName())
-                 && newAccessKey.equals(ossPersistenConfig.getState().getAliyunOssState().getAccessKey())
-                 && newAccessSecretKey.equals(ossPersistenConfig.getState().getAliyunOssState().getAccessSecretKey())
-                 && newEndpoint.equals(ossPersistenConfig.getState().getAliyunOssState().getEndpoint())
-                 && newFileDir.equals(ossPersistenConfig.getState().getAliyunOssState().getFiledir())
-                 && newSuffix.equals(ossPersistenConfig.getState().getAliyunOssState().getSuffix())
-
-                 && changeToHtmlTag == ossPersistenConfig.getState().isChangeToHtmlTag()
-                 && tagType.equals(ossPersistenConfig.getState().getTagType())
-                 && tagTypeCode.equals(ossPersistenConfig.getState().getTagTypeCode())
-                 && compress == ossPersistenConfig.getState().isCompress()
-                 && compressBeforeUpload == ossPersistenConfig.getState().isCompressBeforeUpload()
-                 && compressBeforeUploadOfPercent == ossPersistenConfig.getState().getCompressBeforeUploadOfPercent()
-                 && compressAtLookup == ossPersistenConfig.getState().isCompressAtLookup()
-                 && styleName.equals(ossPersistenConfig.getState().getStyleName())
-                 && transport == ossPersistenConfig.getState().isTransport()
-                 && backup == ossPersistenConfig.getState().isBackup()
-
-                 && clipboardControl == ossPersistenConfig.getState().isClipboardControl()
-                 && copyToDir == ossPersistenConfig.getState().isCopyToDir()
-                 && uploadAndReplace == ossPersistenConfig.getState().isUploadAndReplace()
-                 && whereToCopy.equals(ossPersistenConfig.getState().getImageSavePath())
-                 && defaultCloudComboBox.getSelectedIndex() == ossPersistenConfig.getState().getCloudType()
-                 && weiboUsername.equals(ossPersistenConfig.getState().getWeiboOssState().getUserName())
-                 && weiboPassword.equals(ossPersistenConfig.getState().getWeiboOssState().getPassword())
-        );
+        return clipboardControl == state.isClipboardControl()
+               && copyToDir == state.isCopyToDir()
+               && uploadAndReplace == state.isUploadAndReplace()
+               && whereToCopy.equals(state.getImageSavePath())
+               && defaultCloudComboBox.getSelectedIndex() == state.getCloudType();
     }
 
     /**
@@ -606,29 +594,28 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     @Override
     public void apply() {
         log.trace("apply invoke");
-        applyAliyunAuthConfigs();
-        applyGeneralConfigs();
-        applyClipboardConfigs();
-        applyWeiboAuthConfigs();
+        OssState state = ossPersistenConfig.getState();
+        applyAliyunAuthConfigs(state);
+        applyGeneralConfigs(state);
+        applyClipboardConfigs(state);
+        applyWeiboAuthConfigs(state);
     }
 
-    private void applyAliyunAuthConfigs() {
-        OssState.AliyunOssState aliyunOssState = ossPersistenConfig.getState().getAliyunOssState();
+    private void applyAliyunAuthConfigs(OssState state) {
+        OssState.AliyunOssState aliyunOssState = state.getAliyunOssState();
         String bucketName = this.aliyunOssBucketNameTextField.getText().trim();
         String accessKey = this.aliyunOssAccessKeyTextField.getText().trim();
         String accessSecretKey = new String(aliyunOssAccessSecretKeyTextField.getPassword());
         String endpoint = this.aliyunOssEndpointTextField.getText().trim();
-
+        // 需要在加密之前计算 hashcode
         int hashcode = bucketName.hashCode() +
                        accessKey.hashCode() +
                        accessSecretKey.hashCode() +
                        endpoint.hashCode();
-
+        aliyunOssState.getOldAndNewAuthInfo().put(OssState.NEW_HASH_KEY, String.valueOf(hashcode));
         if (StringUtils.isNotBlank(accessSecretKey)) {
             accessSecretKey = DES.encrypt(accessSecretKey, OssState.ALIYUN);
         }
-
-        aliyunOssState.getOldAndNewAuthInfo().put(OssState.NEW_HASH_KEY, String.valueOf(hashcode));
 
         aliyunOssState.setBucketName(bucketName);
         aliyunOssState.setAccessKey(accessKey);
@@ -638,56 +625,57 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         aliyunOssState.setSuffix(Objects.requireNonNull(this.aliyunOssSuffixBoxField.getSelectedItem()).toString());
     }
 
-    private void applyWeiboAuthConfigs() {
-        OssState.WeiboOssState weiboOssState = ossPersistenConfig.getState().getWeiboOssState();
+    private void applyWeiboAuthConfigs(OssState state) {
+        OssState.WeiboOssState weiboOssState = state.getWeiboOssState();
         // 处理 weibo 保存时的逻辑 (保存之前必须通过测试, 右键菜单才可用)
         String username = this.weiboUserNameTextField.getText().trim();
         String password = new String(weiboPasswordField.getPassword());
+        // 需要在加密之前计算 hashcode
+        int hashcode = username.hashCode() + password.hashCode();
+        weiboOssState.getOldAndNewAuthInfo().put(OssState.NEW_HASH_KEY, String.valueOf(hashcode));
         if (StringUtils.isNotBlank(password)) {
             password = DES.encrypt(password, OssState.WEIBOKEY);
         }
-        int hashcode = username.hashCode() + password.hashCode();
-        weiboOssState.getOldAndNewAuthInfo().put(OssState.NEW_HASH_KEY, String.valueOf(hashcode));
 
         weiboOssState.setUserName(username);
         weiboOssState.setPassword(password);
     }
 
-    private void applyGeneralConfigs() {
-        ossPersistenConfig.getState().setChangeToHtmlTag(this.changeToHtmlTagCheckBox.isSelected());
+    private void applyGeneralConfigs(OssState state) {
+        state.setChangeToHtmlTag(this.changeToHtmlTagCheckBox.isSelected());
         if (this.changeToHtmlTagCheckBox.isSelected()) {
             // 正常的
             if (commonRadioButton.isSelected()) {
-                ossPersistenConfig.getState().setTagType(ImageMarkEnum.COMMON_PICTURE.text);
-                ossPersistenConfig.getState().setTagTypeCode(ImageMarkEnum.COMMON_PICTURE.code);
+                state.setTagType(ImageMarkEnum.COMMON_PICTURE.text);
+                state.setTagTypeCode(ImageMarkEnum.COMMON_PICTURE.code);
             }
             // 点击看大图
             else if (largePictureRadioButton.isSelected()) {
-                ossPersistenConfig.getState().setTagType(ImageMarkEnum.LARGE_PICTURE.text);
-                ossPersistenConfig.getState().setTagTypeCode(ImageMarkEnum.LARGE_PICTURE.code);
+                state.setTagType(ImageMarkEnum.LARGE_PICTURE.text);
+                state.setTagTypeCode(ImageMarkEnum.LARGE_PICTURE.code);
             }
             // 自定义
             else if (customRadioButton.isSelected()) {
-                ossPersistenConfig.getState().setTagType(ImageMarkEnum.CUSTOM.text);
+                state.setTagType(ImageMarkEnum.CUSTOM.text);
                 // todo-dong4j : (2019年03月14日 14:30) [格式验证]
-                ossPersistenConfig.getState().setTagTypeCode(customHtmlTypeTextField.getText().trim());
+                state.setTagTypeCode(customHtmlTypeTextField.getText().trim());
             }
         }
-        ossPersistenConfig.getState().setCompress(this.compressCheckBox.isSelected());
-        ossPersistenConfig.getState().setCompressBeforeUpload(this.compressBeforeUploadCheckBox.isSelected());
-        ossPersistenConfig.getState().setCompressBeforeUploadOfPercent(this.compressSlider.getValue());
-        ossPersistenConfig.getState().setCompressAtLookup(this.compressAtLookupCheckBox.isSelected());
-        ossPersistenConfig.getState().setStyleName(this.styleNameTextField.getText().trim());
-        ossPersistenConfig.getState().setTransport(this.transportCheckBox.isSelected());
-        ossPersistenConfig.getState().setBackup(this.backupCheckBox.isSelected());
+        state.setCompress(this.compressCheckBox.isSelected());
+        state.setCompressBeforeUpload(this.compressBeforeUploadCheckBox.isSelected());
+        state.setCompressBeforeUploadOfPercent(this.compressSlider.getValue());
+        state.setCompressAtLookup(this.compressAtLookupCheckBox.isSelected());
+        state.setStyleName(this.styleNameTextField.getText().trim());
+        state.setTransport(this.transportCheckBox.isSelected());
+        state.setBackup(this.backupCheckBox.isSelected());
     }
 
-    private void applyClipboardConfigs() {
-        ossPersistenConfig.getState().setClipboardControl(this.clipboardControlCheckBox.isSelected());
-        ossPersistenConfig.getState().setCopyToDir(this.copyToDirCheckBox.isSelected());
-        ossPersistenConfig.getState().setUploadAndReplace(this.uploadAndReplaceCheckBox.isSelected());
-        ossPersistenConfig.getState().setImageSavePath(this.whereToCopyTextField.getText().trim());
-        ossPersistenConfig.getState().setCloudType(this.defaultCloudComboBox.getSelectedIndex());
+    private void applyClipboardConfigs(OssState state) {
+        state.setClipboardControl(this.clipboardControlCheckBox.isSelected());
+        state.setCopyToDir(this.copyToDirCheckBox.isSelected());
+        state.setUploadAndReplace(this.uploadAndReplaceCheckBox.isSelected());
+        state.setImageSavePath(this.whereToCopyTextField.getText().trim());
+        state.setCloudType(this.defaultCloudComboBox.getSelectedIndex());
     }
 
     /**
@@ -696,40 +684,52 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     @Override
     public void reset() {
         log.trace("reset invoke");
-        this.aliyunOssBucketNameTextField.setText(ossPersistenConfig.getState().getAliyunOssState().getBucketName());
-        this.aliyunOssAccessKeyTextField.setText(ossPersistenConfig.getState().getAliyunOssState().getAccessKey());
-        String aliyunOssAccessSecreKey = ossPersistenConfig.getState().getAliyunOssState().getAccessSecretKey();
+        OssState state = ossPersistenConfig.getState();
+        resetAliyunConfigs(state);
+        resetWeiboConfigs(state);
+        resetGeneralCOnfigs(state);
+        resetClipboardConfigs(state);
+    }
+
+    private void resetAliyunConfigs(@NotNull OssState state) {
+        OssState.AliyunOssState aliyunOssState = state.getAliyunOssState();
+        this.aliyunOssBucketNameTextField.setText(aliyunOssState.getBucketName());
+        this.aliyunOssAccessKeyTextField.setText(aliyunOssState.getAccessKey());
+        String aliyunOssAccessSecreKey = aliyunOssState.getAccessSecretKey();
         this.aliyunOssAccessSecretKeyTextField.setText(DES.decrypt(aliyunOssAccessSecreKey, OssState.ALIYUN));
-        this.aliyunOssEndpointTextField.setText(ossPersistenConfig.getState().getAliyunOssState().getEndpoint());
-        this.aliyunOssFileDirTextField.setText(ossPersistenConfig.getState().getAliyunOssState().getFiledir());
-        this.aliyunOssSuffixBoxField.setSelectedItem(ossPersistenConfig.getState().getAliyunOssState().getFiledir());
-        // weiboUserNameTextField
-        // weiboPasswordField
-        // aliyunOssBucketNameTextField
-        // aliyunOssAccessKeyTextField
-        // aliyunOssAccessSecretKeyTextField
-        // aliyunOssEndpointTextField
-        // aliyunOssFileDirTextField
-        // aliyunOssSuffixBoxField
-        // exampleTextField
-        // changeToHtmlTagCheckBox
-        // largePictureRadioButton
-        // commonRadioButton
-        // customRadioButton
-        // customHtmlTypeTextField
-        // compressCheckBox
-        // compressBeforeUploadCheckBox
-        // compressAtLookupCheckBox
-        // compressSlider
-        // compressLabel
-        // styleNameTextField
-        // transportCheckBox
-        // backupCheckBox
-        // clipboardControlCheckBox
-        // copyToDirCheckBox
-        // whereToCopyTextField
-        // uploadAndReplaceCheckBox
-        // defaultCloudComboBox
+        this.aliyunOssEndpointTextField.setText(aliyunOssState.getEndpoint());
+        this.aliyunOssFileDirTextField.setText(aliyunOssState.getFiledir());
+        this.aliyunOssSuffixBoxField.setSelectedItem(aliyunOssState.getFiledir());
+    }
+
+    private void resetWeiboConfigs(@NotNull OssState state) {
+        OssState.WeiboOssState weiboOssState = state.getWeiboOssState();
+        this.weiboUserNameTextField.setText(weiboOssState.getUserName());
+        this.weiboPasswordField.setText(DES.decrypt(weiboOssState.getPassword(), OssState.WEIBOKEY));
+    }
+
+    private void resetGeneralCOnfigs(OssState state) {
+        this.changeToHtmlTagCheckBox.setSelected(state.isChangeToHtmlTag());
+        this.largePictureRadioButton.setSelected(state.getTagType().equals(ImageMarkEnum.LARGE_PICTURE.text));
+        this.commonRadioButton.setSelected(state.getTagType().equals(ImageMarkEnum.CUSTOM.text));
+        this.customRadioButton.setSelected(state.getTagType().equals(ImageMarkEnum.CUSTOM.text));
+        this.customHtmlTypeTextField.setText(state.getTagTypeCode());
+        this.compressCheckBox.setSelected(state.isCompress());
+        this.compressBeforeUploadCheckBox.setSelected(state.isCompressBeforeUpload());
+        this.compressAtLookupCheckBox.setSelected(state.isCompressAtLookup());
+        this.compressSlider.setValue(state.getCompressBeforeUploadOfPercent());
+        this.compressLabel.setText(String.valueOf(compressSlider.getValue()));
+        this.styleNameTextField.setText(state.getStyleName());
+        this.transportCheckBox.setSelected(state.isTransport());
+        this.backupCheckBox.setSelected(state.isBackup());
+    }
+
+    private void resetClipboardConfigs(OssState state){
+        this.clipboardControlCheckBox.setSelected(state.isClipboardControl());
+        this.copyToDirCheckBox.setSelected(state.isCopyToDir());
+        this.whereToCopyTextField.setText(state.getImageSavePath());
+        this.uploadAndReplaceCheckBox.setSelected(state.isUploadAndReplace());
+        this.defaultCloudComboBox.setSelectedIndex(state.getCloudType());
     }
 
     @NotNull

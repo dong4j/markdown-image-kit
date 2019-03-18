@@ -19,7 +19,7 @@ import info.dong4j.idea.plugin.settings.OssState;
  * @date 2019 -03-12 22:20
  * @email sjdong3 @iflytek.com
  */
-public class PsiDocumentUtils {
+public final class PsiDocumentUtils {
     private static OssState state = OssPersistenConfig.getInstance().getState();
 
     /**

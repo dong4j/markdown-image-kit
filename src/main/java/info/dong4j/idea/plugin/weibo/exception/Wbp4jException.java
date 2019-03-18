@@ -7,7 +7,7 @@ package info.dong4j.idea.plugin.weibo.exception;
  * @update dong4j
  * @date 2018 -06-14 22:31
  */
-public class Wbp4jException extends Exception {
+public class Wbp4jException extends RuntimeException {
 
     /**
      * Instantiates a new Wbp 4 j exception.

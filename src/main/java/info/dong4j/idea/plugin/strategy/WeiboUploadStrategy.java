@@ -2,11 +2,10 @@ package info.dong4j.idea.plugin.strategy;
 
 import info.dong4j.idea.plugin.settings.OssPersistenConfig;
 import info.dong4j.idea.plugin.settings.OssState;
+import info.dong4j.idea.plugin.singleton.WeiboOssClient;
 import info.dong4j.idea.plugin.util.DES;
 import info.dong4j.idea.plugin.weibo.UploadRequestBuilder;
-import info.dong4j.idea.plugin.weibo.UploadResponse;
 import info.dong4j.idea.plugin.weibo.WbpUploadRequest;
-import info.dong4j.idea.plugin.weibo.exception.Wbp4jException;
 
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Contract;
@@ -58,7 +57,7 @@ public class WeiboUploadStrategy implements UploadStrategy {
         String username = weiboOssState.getUserName();
         String password = DES.decrypt(weiboOssState.getPassword(), OssState.WEIBOKEY);
 
-        return upload(inputStream, fileName, username, password);
+        return upload(inputStream, fileName, username, password, UploadWayEnum.FROM_PASTE);
     }
 
     /**
@@ -75,7 +74,7 @@ public class WeiboUploadStrategy implements UploadStrategy {
         String username = textList.get(0);
         String password = textList.get(1);
 
-        return upload(inputStream, fileName, username, password);
+        return upload(inputStream, fileName, username, password, UploadWayEnum.FROM_TEST);
     }
 
     /**
@@ -92,29 +91,25 @@ public class WeiboUploadStrategy implements UploadStrategy {
     public String upload(InputStream inputStream,
                          String fileName,
                          String username,
-                         String password) {
+                         String password,
+                         UploadWayEnum uploadWayEnum) {
 
-        WbpUploadRequest request = new UploadRequestBuilder()
-            .setAcount(username, password)
-            .build();
-        UploadResponse response;
-        File file = new File(System.getProperty("java.io.tmpdir") + "test.png");
-        String url = "";
-        try (BufferedInputStream bi = new BufferedInputStream(inputStream);
-             FileOutputStream fos = new FileOutputStream(file)) {
-            byte[] by = new byte[1024];
-            int len;
-            while ((len = bi.read(by)) != -1) {
-                fos.write(by, 0, len);
+        String url;
+        if (uploadWayEnum.equals(UploadWayEnum.FROM_TEST)) {
+            WbpUploadRequest ossClient = new UploadRequestBuilder()
+                .setAcount(username, password)
+                .build();
+            url = WeiboOssClient.getInstance().upload(ossClient, inputStream, fileName);
+
+            if (StringUtils.isNotBlank(url)) {
+                weiboOssState.setPassedTest(true);
+                int hashcode = username.hashCode() + password.hashCode();
+                weiboOssState.getOldAndNewAuthInfo().put(OssState.OLD_HASH_KEY, String.valueOf(hashcode));
+                WeiboOssClient.getInstance().setOssClient(ossClient);
             }
-            response = request.upload(file);
-            if (response.getResult().equals(UploadResponse.ResultStatus.SUCCESS)) {
-                url = response.getImageInfo().getLarge();
-            }
-        } catch (IOException | Wbp4jException e) {
-            log.trace("", e);
+        } else {
+            url = WeiboOssClient.getInstance().upload(inputStream, fileName);
         }
-        weiboOssState.setPassedTest(StringUtils.isNotBlank(url));
         return url;
     }
 }

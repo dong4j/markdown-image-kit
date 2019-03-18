@@ -1,5 +1,7 @@
 package info.dong4j.idea.plugin.util;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Random;
 
 /**
@@ -17,6 +19,7 @@ public final class CharacterUtils {
      * @param length the length
      * @return the random string
      */
+    @NotNull
     public static String getRandomString(int length) {
         //定义一个字符串（A-Z，a-z，0-9）即62位；
         String str = "zxcvbnmlkjhgfdsaqwertyuiopQWERTYUIOPASDFGHJKLZXCVBNM1234567890";
@@ -40,6 +43,7 @@ public final class CharacterUtils {
      * @param length the length
      * @return the random string 2
      */
+    @NotNull
     public static String getRandomString2(int length) {
         //产生随机数
         Random random = new Random();

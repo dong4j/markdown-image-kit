@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @SuppressWarnings("unchecked")
-public class EnumsUtils {
+public final class EnumsUtils {
     private static Map<Class, Object> map = new ConcurrentHashMap<>();
 
     /**

@@ -1,6 +1,7 @@
 package info.dong4j.idea.plugin.util;
 
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +14,7 @@ import java.util.Map;
  * @date 2018 -08-15 10:27
  * @email sjdong3 @iflytek.com
  */
-public abstract class ParserUtils {
+public final class ParserUtils {
     @Contract(" -> fail")
     private ParserUtils() {
         throw new RuntimeException("Tool class does not support instantiation");
@@ -28,6 +29,7 @@ public abstract class ParserUtils {
      * @param args       the args           被替换的参数
      * @return string string
      */
+    @Contract("_, _, _, null -> param3")
     public static String parse(String openToken, String closeToken, String text, Object... args) {
         if (args == null || args.length <= 0) {
             return text;
@@ -121,6 +123,8 @@ public abstract class ParserUtils {
      * @param text the text
      * @return the map describe = xxx; file = yyy
      */
+    @NotNull
+    @Contract("_ -> new")
     public static Map<String, String> parseImageTag(String text){
         int start = text.indexOf("![");
         int end = text.indexOf("]");

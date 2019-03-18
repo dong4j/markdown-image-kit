@@ -1,10 +1,19 @@
 package info.dong4j.idea.plugin.util;
 
 import info.dong4j.idea.plugin.content.ImageContents;
+import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.OssPersistenConfig;
 import info.dong4j.idea.plugin.settings.OssState;
 
 import org.apache.commons.lang.StringUtils;
+
+import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import javax.swing.JPanel;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
@@ -14,8 +23,10 @@ import org.apache.commons.lang.StringUtils;
  * @email sjdong3 @iflytek.com
  * @since 2019 -03-17 20:17
  */
+@Slf4j
 public class UploadUtils {
     private static OssState state = OssPersistenConfig.getInstance().getState();
+
     /**
      * 根据是否替换标签替换为最终的标签
      * 所有标签保持统一格式
@@ -52,5 +63,26 @@ public class UploadUtils {
                                              imageUrl);
         }
         return newLineText + endString;
+    }
+
+    /**
+     * 通过反射调用, 避免条件判断, 便于扩展
+     * todo-dong4j : (2019年03月17日 14:13) [考虑将上传到具体的 OSS 使用 properties]
+     *
+     * @param cloudEnum   the cloud enum
+     * @param inputStream the input stream
+     * @return the string
+     */
+    public static String upload(CloudEnum cloudEnum, InputStream inputStream, String fileName, JPanel jPanel) {
+        try {
+            Class<?> cls = Class.forName(cloudEnum.getClassName());
+            Object obj = cls.newInstance();
+            Method setFunc = cls.getMethod("uploadFromTest", InputStream.class, String.class, JPanel.class);
+            return (String) setFunc.invoke(obj, inputStream, fileName, jPanel);
+        } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException | InstantiationException | NoSuchMethodException e) {
+            // todo-dong4j : (2019年03月17日 03:20) [添加通知]
+            log.trace("", e);
+        }
+        return "";
     }
 }

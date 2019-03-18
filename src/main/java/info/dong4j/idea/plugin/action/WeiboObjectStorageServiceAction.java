@@ -2,14 +2,14 @@ package info.dong4j.idea.plugin.action;
 
 import info.dong4j.idea.plugin.settings.OssPersistenConfig;
 import info.dong4j.idea.plugin.settings.OssState;
-import info.dong4j.idea.plugin.weibo.UploadRequestBuilder;
-import info.dong4j.idea.plugin.weibo.UploadResponse;
-import info.dong4j.idea.plugin.weibo.WbpUploadRequest;
-import info.dong4j.idea.plugin.weibo.exception.Wbp4jException;
+import info.dong4j.idea.plugin.singleton.WeiboOssClient;
 
 import org.jetbrains.annotations.Contract;
 
 import java.io.*;
+import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
@@ -19,6 +19,7 @@ import java.io.*;
  * @email sjdong3@iflytek.com
  * @since 2019-03-14 16:39
  */
+@Slf4j
 public final class WeiboObjectStorageServiceAction extends AbstractObjectStorageServiceAction {
 
     private OssState.WeiboOssState weiboOssState = OssPersistenConfig.getInstance().getState().getWeiboOssState();
@@ -26,27 +27,20 @@ public final class WeiboObjectStorageServiceAction extends AbstractObjectStorage
     @Contract(pure = true)
     @Override
     boolean isPassedTest() {
-        // boolean isPassedTest = weiboOssState.isPassedTest();
-        // Map<String, String> oldAndNewAuth = weiboOssState.getOldAndNewAuthInfo();
-        // return isPassedTest && oldAndNewAuth.get(OssState.OLD_HASH_KEY).equals(oldAndNewAuth.get(OssState.NEW_HASH_KEY));
-        return false;
+        boolean isPassedTest = weiboOssState.isPassedTest();
+        Map<String, String> oldAndNewAuth = weiboOssState.getOldAndNewAuthInfo();
+        return isPassedTest && oldAndNewAuth.get(OssState.OLD_HASH_KEY).equals(oldAndNewAuth.get(OssState.NEW_HASH_KEY));
     }
 
     @Override
     public String upload(File file) {
-        WbpUploadRequest request = new UploadRequestBuilder()
-            .setAcount(weiboOssState.getUserName(), weiboOssState.getPassword())
-            .build();
-        UploadResponse response = null;
-        String url = "";
+        WeiboOssClient weiboOssClient = WeiboOssClient.getInstance();
         try {
-            response = request.upload(file);
-        } catch (IOException | Wbp4jException e) {
-            e.printStackTrace();
+            return weiboOssClient.upload(file);
+        } catch (IOException e) {
+            // todo-dong4j : (2019年03月18日 21:35) [通知]
+            log.trace("", e);
         }
-        if (response != null && response.getResult().equals(UploadResponse.ResultStatus.SUCCESS)) {
-            url = response.getImageInfo().getLarge();
-        }
-        return url;
+        return "";
     }
 }

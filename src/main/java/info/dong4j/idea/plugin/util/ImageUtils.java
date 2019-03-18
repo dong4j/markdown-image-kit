@@ -1,5 +1,6 @@
 package info.dong4j.idea.plugin.util;
 
+import com.intellij.ui.JBColor;
 import com.intellij.util.containers.hash.HashMap;
 
 import net.coobird.thumbnailator.Thumbnails;
@@ -43,7 +44,7 @@ import lombok.extern.slf4j.Slf4j;
  * @email sjdong3 @iflytek.com
  */
 @Slf4j
-public class ImageUtils {
+public final class ImageUtils {
 
     /**
      * Gets image from clipboard.
@@ -194,14 +195,14 @@ public class ImageUtils {
      * @return Could be <code>null</code> if the image could not be read from the file (because of whatever strange     reason).
      */
     @Contract("null -> null")
-    public static BufferedImage loadImageFromFile(File cachedImageFile) {
+    static BufferedImage loadImageFromFile(File cachedImageFile) {
         if (cachedImageFile == null || !cachedImageFile.isFile()) {
             return null;
         }
 
         try {
             for (int i = 0; i < 3; i++) {
-                BufferedImage read = null;
+                BufferedImage read;
                 try {
                     read = ImageIO.read(cachedImageFile);
                 } catch (IndexOutOfBoundsException e) {
@@ -255,7 +256,7 @@ public class ImageUtils {
         Graphics2D g2 = output.createGraphics();
         g2.setComposite(AlphaComposite.Src);
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setColor(Color.WHITE);
+        g2.setColor(JBColor.WHITE);
         g2.fill(new RoundRectangle2D.Float(0, 0, w, h, cornerRadius, cornerRadius));
         g2.setComposite(AlphaComposite.SrcAtop);
         g2.drawImage(image, 0, 0, null);
@@ -292,7 +293,7 @@ public class ImageUtils {
      */
     public static Image whiteToTransparent(BufferedImage image) {
         ImageFilter filter = new RGBImageFilter() {
-            public int markerRGB = Color.WHITE.getRGB() | 0xFF000000;
+            int markerRGB = JBColor.WHITE.getRGB() | 0xFF000000;
 
             @Override
             public final int filterRGB(int x, int y, int rgb) {
@@ -317,7 +318,7 @@ public class ImageUtils {
      * @param file the file
      * @return the boolean
      */
-    public static boolean isImageFile(File file) {
+    private static boolean isImageFile(File file) {
         try {
             Image image = ImageIO.read(file);
             return image != null;

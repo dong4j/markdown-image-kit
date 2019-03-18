@@ -1,8 +1,5 @@
 package info.dong4j.idea.plugin.weibo;
 
-import info.dong4j.idea.plugin.util.WeiboUploadUtils;
-import info.dong4j.idea.plugin.weibo.exception.Wbp4jException;
-
 import org.junit.Test;
 
 import java.io.*;
@@ -18,7 +15,7 @@ import java.io.*;
 public class WbpUploadRequestTest {
 
     @Test
-    public void build() throws IOException, Wbp4jException {
+    public void build() throws IOException {
         WbpUploadRequest request = new UploadRequestBuilder()
             .setAcount(System.getProperty("username"), System.getProperty("password"))
             .build();
@@ -26,7 +23,6 @@ public class WbpUploadRequestTest {
         System.out.println(response.getResult());
         System.out.println(response.getMessage());
         System.out.println(response.getImageInfo());
-
-        System.out.println(WeiboUploadUtils.getImageUrl(response.getImageInfo().getPid(), "large", true));
+        System.out.println(response.getImageInfo().getLarge());
     }
 }

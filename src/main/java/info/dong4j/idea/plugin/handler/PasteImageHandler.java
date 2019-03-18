@@ -125,7 +125,7 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                             }
                         } else {
                             // image 类型统一重命名, 因为获取不到文件名
-                            String fileName = CharacterUtils.getRandomString(12) + ".png";
+                            String fileName = CharacterUtils.getRandomString(8) + ".png";
                             invoke(editor, document, (Image) entry.getValue(), fileName);
                             return;
                         }

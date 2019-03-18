@@ -8,7 +8,6 @@ import info.dong4j.idea.plugin.weibo.entity.PreLogin;
 import info.dong4j.idea.plugin.weibo.entity.UploadResp;
 import info.dong4j.idea.plugin.weibo.entity.upload.Pic_1;
 import info.dong4j.idea.plugin.weibo.exception.LoginFailedException;
-import info.dong4j.idea.plugin.weibo.exception.Wbp4jException;
 import info.dong4j.idea.plugin.weibo.http.WbpHttpRequest;
 import info.dong4j.idea.plugin.weibo.http.WbpHttpResponse;
 
@@ -80,7 +79,7 @@ public class WbpUploadRequest implements UploadRequest {
     }
 
     @Override
-    public UploadResponse upload(File image) throws IOException, Wbp4jException {
+    public UploadResponse upload(File image) throws IOException {
 
         // 判断是否已经登陆
         checkLogin();

@@ -1,7 +1,5 @@
 package info.dong4j.idea.plugin.weibo;
 
-import info.dong4j.idea.plugin.weibo.exception.Wbp4jException;
-
 import java.io.*;
 
 /**
@@ -19,7 +17,6 @@ public interface UploadRequest {
      * @param image the image
      * @return the upload response
      * @throws IOException    the io exception
-     * @throws Wbp4jException the wbp 4 j exception
      */
-    UploadResponse upload(File image) throws IOException, Wbp4jException;
+    UploadResponse upload(File image) throws IOException;
 }

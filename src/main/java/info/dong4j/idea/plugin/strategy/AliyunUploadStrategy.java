@@ -9,6 +9,7 @@ import info.dong4j.idea.plugin.singleton.AliyunOssClient;
 import info.dong4j.idea.plugin.util.DES;
 
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.List;
@@ -132,7 +133,7 @@ public class AliyunUploadStrategy implements UploadStrategy {
                           String accessSecretKey,
                           String endpoint,
                           String tempFileDir,
-                          UploadWayEnum uploadWayEnum) {
+                          @NotNull UploadWayEnum uploadWayEnum) {
 
         tempFileDir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";
         String url;
