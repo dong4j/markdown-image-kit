@@ -32,14 +32,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AliyunOssClient {
     private static final String URL_PROTOCOL_HTTP = "http";
-    /**
-     * The constant URL_PROTOCOL_HTTPS.
-     */
     public static final String URL_PROTOCOL_HTTPS = "https";
     private final Object lock = new Object();
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-");
 
-    private static String bucketName;
+    public static String bucketName;
     private static String fileDir;
     private static String sufix;
     private static OSS ossClient = null;
@@ -110,10 +107,10 @@ public class AliyunOssClient {
      * @param file the file
      * @return the string
      */
-    public String uploadImg2Oss(File file) {
+    public String upload(File file) {
         String name = getSufixName(file.getName());
         try {
-            uploadFile2OSS(new FileInputStream(file), name);
+            upload(new FileInputStream(file), name);
             return name;
         } catch (Exception e) {
             throw new ImgException("upload error");
@@ -140,8 +137,8 @@ public class AliyunOssClient {
      * @param fileName    文件名称 包括后缀名
      * @return 出错返回 "" ,唯一MD5数字签名
      */
-    private void uploadFile2OSS(InputStream inputStream, String fileName) {
-        uploadFile2OSS(inputStream, fileDir, fileName);
+    private void upload(InputStream inputStream, String fileName) {
+        upload(inputStream, fileDir, fileName);
     }
 
 
@@ -153,8 +150,8 @@ public class AliyunOssClient {
      * @param fileName    the file name
      * @return the string
      */
-    private void uploadFile2OSS(InputStream inputStream, String filedir, String fileName) {
-        uploadFile2OSS(ossClient, inputStream, filedir, fileName);
+    private void upload(InputStream inputStream, String filedir, String fileName) {
+        upload(ossClient, inputStream, filedir, fileName);
     }
 
     /**
@@ -166,10 +163,10 @@ public class AliyunOssClient {
      * @param fileName  the file name
      * @return the string
      */
-    private void uploadFile2OSS(OSS ossClient,
-                                InputStream instream,
-                                String filedir,
-                                String fileName) {
+    private void upload(OSS ossClient,
+                        InputStream instream,
+                        String filedir,
+                        String fileName) {
         try {
             // 创建上传 Object 的 Metadata
             ObjectMetadata objectMetadata = new ObjectMetadata();
@@ -197,39 +194,39 @@ public class AliyunOssClient {
     /**
      * Description: 判断OSS服务文件上传时文件的contentType
      *
-     * @param FilenameExtension 文件后缀
+     * @param filenameExtension 文件后缀
      * @return String
      */
-    private String getcontentType(String FilenameExtension) {
-        if (".bmp".equalsIgnoreCase(FilenameExtension)) {
+    private String getcontentType(String filenameExtension) {
+        if (".bmp".equalsIgnoreCase(filenameExtension)) {
             return "image/bmp";
         }
-        if (".gif".equalsIgnoreCase(FilenameExtension)) {
+        if (".gif".equalsIgnoreCase(filenameExtension)) {
             return "image/gif";
         }
-        if (".jpeg".equalsIgnoreCase(FilenameExtension) ||
-            ".jpg".equalsIgnoreCase(FilenameExtension) ||
-            ".png".equalsIgnoreCase(FilenameExtension)) {
+        if (".jpeg".equalsIgnoreCase(filenameExtension) ||
+            ".jpg".equalsIgnoreCase(filenameExtension) ||
+            ".png".equalsIgnoreCase(filenameExtension)) {
             return "image/jpeg";
         }
-        if (".html".equalsIgnoreCase(FilenameExtension)) {
+        if (".html".equalsIgnoreCase(filenameExtension)) {
             return "text/html";
         }
-        if (".txt".equalsIgnoreCase(FilenameExtension)) {
+        if (".txt".equalsIgnoreCase(filenameExtension)) {
             return "text/plain";
         }
-        if (".vsd".equalsIgnoreCase(FilenameExtension)) {
+        if (".vsd".equalsIgnoreCase(filenameExtension)) {
             return "application/vnd.visio";
         }
-        if (".pptx".equalsIgnoreCase(FilenameExtension) ||
-            ".ppt".equalsIgnoreCase(FilenameExtension)) {
+        if (".pptx".equalsIgnoreCase(filenameExtension) ||
+            ".ppt".equalsIgnoreCase(filenameExtension)) {
             return "application/vnd.ms-powerpoint";
         }
-        if (".docx".equalsIgnoreCase(FilenameExtension) ||
-            ".doc".equalsIgnoreCase(FilenameExtension)) {
+        if (".docx".equalsIgnoreCase(filenameExtension) ||
+            ".doc".equalsIgnoreCase(filenameExtension)) {
             return "application/msword";
         }
-        if (".xml".equalsIgnoreCase(FilenameExtension)) {
+        if (".xml".equalsIgnoreCase(filenameExtension)) {
             return "text/xml";
         }
         return "image/jpeg";

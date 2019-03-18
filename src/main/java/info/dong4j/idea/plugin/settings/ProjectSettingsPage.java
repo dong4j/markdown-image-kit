@@ -118,16 +118,20 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         }
     }
 
+    @NotNull
+    @Override
+    public String getId() {
+        return getDisplayName();
+    }
+
     @Nls
     @Override
     public String getDisplayName() {
-        log.trace("get plugin setting DisplayName");
-        return "Aliyun OSS Settings";
+        return "Markdown Image Manager Settings";
     }
 
     @Override
     public JComponent createComponent() {
-        log.trace("createComponent");
         initFromSettings();
         return myMainPanel;
     }
@@ -730,12 +734,5 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.whereToCopyTextField.setText(state.getImageSavePath());
         this.uploadAndReplaceCheckBox.setSelected(state.isUploadAndReplace());
         this.defaultCloudComboBox.setSelectedIndex(state.getCloudType());
-    }
-
-    @NotNull
-    @Override
-    public String getId() {
-        log.trace("getId invoke");
-        return getDisplayName();
     }
 }

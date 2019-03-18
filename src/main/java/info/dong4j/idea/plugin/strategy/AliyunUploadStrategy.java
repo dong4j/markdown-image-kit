@@ -142,7 +142,7 @@ public class AliyunUploadStrategy implements UploadStrategy {
             oss.putObject(bucketName,
                           tempFileDir + fileName,
                           inputStream);
-
+            AliyunOssClient.bucketName = bucketName;
             url = AliyunOssClient.getInstance().getUrl(oss, tempFileDir, fileName);
             if (StringUtils.isNotBlank(url)) {
                 aliyunOssState.setPassedTest(true);

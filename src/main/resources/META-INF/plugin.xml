@@ -1,6 +1,6 @@
 <idea-plugin>
     <id>info.dong4j.upload_oss</id>
-    <name>Markdown Image Upload</name>
+    <name>Markdown Image Manger</name>
     <version>0.0.1</version>
     <vendor email="dong4j@gmail.com" url="http://www.dong4j.info">dong4j</vendor>
 
@@ -26,19 +26,19 @@
 
     <actions>
         <action id="AliyunObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.AliyunObjectStorageServiceAction"
-                popup="true" text="Upload to Aliyun OSS">
+                popup="true" text="上传到阿里云">
         </action>
         <action id="WeiboObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.WeiboObjectStorageServiceAction"
-                popup="true" text="Upload to Weibo OSS">
+                popup="true" text="上传为微博">
         </action>
         <action id="QiniuObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.QiniuObjectStorageServiceAction"
-                popup="true" text="Upload to Qiniu OSS">
+                popup="true" text="上传到七牛">
         </action>
         <action id="ImageCompressAction" class="info.dong4j.idea.plugin.action.ImageCompressAction"
-                popup="true" text="Compress image">
+                popup="true" text="压缩图片">
         </action>
         <action id="MoveToOtherStorageAction" class="info.dong4j.idea.plugin.action.MoveToOtherStorageAction"
-                popup="true" text="Move to other storage">
+                popup="true" text="图床迁移计划">
         </action>
 
         <group popup="true" id="info.dong4j.idea.plugin.graph_bed_plan" text="Markdown Image Manager">

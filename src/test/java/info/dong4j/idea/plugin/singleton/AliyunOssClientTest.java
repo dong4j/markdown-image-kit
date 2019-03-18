@@ -16,7 +16,7 @@ public class AliyunOssClientTest {
     @Test
     public void test(){
         AliyunOssClient aliyunOssClient = AliyunOssClient.getInstance();
-        aliyunOssClient.uploadImg2Oss(new File("/Users/dong4j/Downloads/我可要开始皮了.png"));
+        aliyunOssClient.upload(new File("/Users/dong4j/Downloads/我可要开始皮了.png"));
     }
 
 }

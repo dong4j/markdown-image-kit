@@ -154,11 +154,10 @@ public class WbpUploadRequest implements UploadRequest {
         params.put("service", "miniblog");
         try {
             params.put("sp", RSAEncodeUtils.encode(pwd, preLogin.getPubkey(), "10001"));
-            log.info("正在登陆...密码加密成功!");
+            log.trace("正在登陆...密码加密成功!");
         } catch (NoSuchAlgorithmException | NoSuchPaddingException |
             InvalidKeySpecException | InvalidKeyException |
             IllegalBlockSizeException | BadPaddingException e) {
-            e.printStackTrace();
             log.trace("登陆失败，原因：密码加密失败", new LoginFailedException());
         }
         params.put("sr", "1920*1080");
