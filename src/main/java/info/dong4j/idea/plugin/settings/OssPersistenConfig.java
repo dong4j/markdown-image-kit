@@ -35,14 +35,12 @@ public class OssPersistenConfig implements PersistentStateComponent<OssState> {
 
     @Override
     public void loadState(@NotNull OssState state) {
-        log.trace("loadState = {}", state);
         this.myState = state;
     }
 
     @NotNull
     @Override
     public OssState getState() {
-        log.trace("get state = {}", myState);
         return this.myState;
     }
 }

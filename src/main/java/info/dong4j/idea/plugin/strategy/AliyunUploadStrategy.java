@@ -65,25 +65,21 @@ public class AliyunUploadStrategy implements UploadStrategy {
      * @return the string
      */
     private String uploadFromPaste(InputStream inputStream, String fileName) {
-        // 测试通过才执行上传操作
-        if(aliyunOssState.isPassedTest()){
-            String tempBucketName = aliyunOssState.getBucketName();
-            String tempAccessKey = aliyunOssState.getAccessKey();
-            String tempAccessSecretKey = aliyunOssState.getAccessSecretKey();
-            tempAccessSecretKey = DES.decrypt(tempAccessSecretKey, OssState.ALIYUN);
-            String tempEndpoint = aliyunOssState.getEndpoint();
-            String tempFileDir = aliyunOssState.getFiledir();
+        String tempBucketName = aliyunOssState.getBucketName();
+        String tempAccessKey = aliyunOssState.getAccessKey();
+        String tempAccessSecretKey = aliyunOssState.getAccessSecretKey();
+        tempAccessSecretKey = DES.decrypt(tempAccessSecretKey, OssState.ALIYUN);
+        String tempEndpoint = aliyunOssState.getEndpoint();
+        String tempFileDir = aliyunOssState.getFiledir();
 
-            return upload(inputStream,
-                          fileName,
-                          tempBucketName,
-                          tempAccessKey,
-                          tempAccessSecretKey,
-                          tempEndpoint,
-                          tempFileDir,
-                          UploadWayEnum.FROM_PASTE);
-        }
-        return "";
+        return upload(inputStream,
+                      fileName,
+                      tempBucketName,
+                      tempAccessKey,
+                      tempAccessSecretKey,
+                      tempEndpoint,
+                      tempFileDir,
+                      UploadWayEnum.FROM_PASTE);
 
     }
 
@@ -103,7 +99,6 @@ public class AliyunUploadStrategy implements UploadStrategy {
         String tempBucketName = textList.get(0);
         String tempAccessKey = textList.get(1);
         String tempAccessSecretKey = textList.get(5);
-        tempAccessSecretKey = DES.decrypt(tempAccessSecretKey, OssState.ALIYUN);
         String tempEndpoint = textList.get(2);
         String tempFileDir = textList.get(4);
 
@@ -120,35 +115,41 @@ public class AliyunUploadStrategy implements UploadStrategy {
     /**
      * Upload string.
      *
-     * @param inputStream         the input stream
-     * @param fileName            the file name
-     * @param tempBucketName      the temp bucket name
-     * @param tempAccessKey       the temp access key
-     * @param tempAccessSecretKey the temp access secret key
-     * @param tempEndpoint        the temp endpoint
-     * @param tempFileDir         the temp file dir
+     * @param inputStream     the input stream
+     * @param fileName        the file name
+     * @param bucketName      the bucket name
+     * @param accessKey       the access key
+     * @param accessSecretKey the access secret key
+     * @param endpoint        the endpoint
+     * @param tempFileDir     the temp file dir
+     * @param uploadWayEnum   the upload way enum
      * @return the string
      */
     private String upload(InputStream inputStream,
                           String fileName,
-                          String tempBucketName,
-                          String tempAccessKey,
-                          String tempAccessSecretKey,
-                          String tempEndpoint,
+                          String bucketName,
+                          String accessKey,
+                          String accessSecretKey,
+                          String endpoint,
                           String tempFileDir,
                           UploadWayEnum uploadWayEnum) {
 
         tempFileDir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";
         String url;
         if (uploadWayEnum.equals(UploadWayEnum.FROM_TEST)) {
-            OSS oss  = new OSSClientBuilder().build(tempEndpoint, tempAccessKey, tempAccessSecretKey);
-            oss.putObject(tempBucketName,
+            OSS oss = new OSSClientBuilder().build(endpoint, accessKey, accessSecretKey);
+            oss.putObject(bucketName,
                           tempFileDir + fileName,
                           inputStream);
 
             url = AliyunOssClient.getInstance().getUrl(oss, tempFileDir, fileName);
             if (StringUtils.isNotBlank(url)) {
                 aliyunOssState.setPassedTest(true);
+                int hashcode = bucketName.hashCode() +
+                               accessKey.hashCode() +
+                               accessSecretKey.hashCode() +
+                               endpoint.hashCode();
+                aliyunOssState.getOldAndNewAuthInfo().put(OssState.OLD_HASH_KEY, String.valueOf(hashcode));
                 // 参数验证成功后直接设置 ossClient, 不要浪费
                 AliyunOssClient.getInstance().setOssClient(oss);
             }

@@ -13,7 +13,8 @@ import org.junit.Test;
 public class DESTest {
     @Test
     public void test() {
-        String mi = DES.encrypt("123123", "zxcvbnm");
-        System.out.println(DES.decrypt(mi, "zxcvbnm"));
+        String mi = DES.encrypt("", "zxcvbnm");
+        System.out.println(mi);
+        System.out.println("aaa  "+DES.decrypt("", "zxcvbnm"));
     }
 }

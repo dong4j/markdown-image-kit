@@ -8,5 +8,5 @@ package info.dong4j.idea.plugin.singleton;
  * @email sjdong3@iflytek.com
  * @since 2019-03-18 09:57
  */
-public class WeiboClient {
+public class WeiboOssClient {
 }

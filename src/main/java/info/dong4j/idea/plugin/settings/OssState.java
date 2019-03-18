@@ -1,5 +1,8 @@
 package info.dong4j.idea.plugin.settings;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import lombok.Data;
 
 /**
@@ -14,6 +17,8 @@ import lombok.Data;
 public class OssState {
     public static final String WEIBOKEY = "ekjgbpiq!g34o@erberb.erbmkv.c;,ergw_.";
     public static final String ALIYUN = "awj7@piq!g3jo@er_erb.erbsrxhc!,wr.w_1";
+    public static final String OLD_HASH_KEY = "old";
+    public static final String NEW_HASH_KEY = "new";
 
     @Data
     public static class AliyunOssState {
@@ -29,6 +34,7 @@ public class OssState {
         /** Aliyun OSS 图片压缩配置 */
         private String styleName = "";
         private boolean passedTest = false;
+        private Map<String, String> oldAndNewAuthInfo = new HashMap<>(4);
     }
 
     @Data
@@ -45,6 +51,7 @@ public class OssState {
         private String styleName = "";
         private String url = "";
         private boolean passedTest = false;
+        private Map<String, String> oldAndNewAuthInfo = new HashMap<>(4);
     }
 
     @Data
@@ -53,6 +60,7 @@ public class OssState {
         private String password = "";
         private String cookies = "";
         private boolean passedTest = false;
+        private Map<String, String> oldAndNewAuthInfo = new HashMap<>(2);
     }
 
     OssState() {

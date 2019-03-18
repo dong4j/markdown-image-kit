@@ -26,7 +26,10 @@ public final class WeiboObjectStorageServiceAction extends AbstractObjectStorage
     @Contract(pure = true)
     @Override
     boolean isPassedTest() {
-        return OssPersistenConfig.getInstance().getState().getWeiboOssState().isPassedTest();
+        // boolean isPassedTest = weiboOssState.isPassedTest();
+        // Map<String, String> oldAndNewAuth = weiboOssState.getOldAndNewAuthInfo();
+        // return isPassedTest && oldAndNewAuth.get(OssState.OLD_HASH_KEY).equals(oldAndNewAuth.get(OssState.NEW_HASH_KEY));
+        return false;
     }
 
     @Override

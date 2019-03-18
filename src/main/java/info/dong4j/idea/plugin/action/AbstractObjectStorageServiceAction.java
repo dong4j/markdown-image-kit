@@ -113,6 +113,58 @@ public abstract class AbstractObjectStorageServiceAction extends AnAction {
     }
 
     /**
+     * 处理事件
+     *
+     * @param event the an action event
+     */
+    @Override
+    public void actionPerformed(@NotNull AnActionEvent event) {
+        Map<Document, List<MarkdownImage>> waitingForUploadImages = new HashMap<>(20);
+
+        final Project project = event.getProject();
+        if (project != null) {
+
+            log.trace("project's base path = {}", project.getBasePath());
+            // 如果选中编辑器
+            final DataContext dataContext = event.getDataContext();
+
+            final Editor editor = PlatformDataKeys.EDITOR.getData(dataContext);
+            // todo-dong4j : (2019年03月15日 09:41) [如果光标选中了编辑器, upload()已经判断过是否为 markdown 文件, 此处不需再判断]
+            if (null != editor) {
+                // 解析此文件中所有的图片标签
+                Document documentFromEditor = editor.getDocument();
+                VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(documentFromEditor);
+                waitingForUploadImages.put(documentFromEditor, getImageInfoFromFiles(virtualFile));
+            }
+            // todo-dong4j : (2019年03月15日 09:41) [没有选中编辑器]
+            else {
+                // 获取被选中的所有文件和目录
+                final VirtualFile[] files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(dataContext);
+                if (null != files) {
+                    for (VirtualFile file : files) {
+                        if (isMardownFile(file.getName())) {
+                            // 解析此文件中所有的图片标签
+                            Document documentFromVirtualFile = FileDocumentManager.getInstance().getDocument(file);
+                            waitingForUploadImages.put(documentFromVirtualFile, getImageInfoFromFiles(file));
+                        }
+                        // 如果是目录, 则递归获取所有 markdown 文件
+                        if (file.isDirectory()) {
+                            List<VirtualFile> markdownFiles = recursivelyMarkdownFile(file);
+                            for (VirtualFile virtualFile : markdownFiles) {
+                                Document documentFromVirtualFile = FileDocumentManager.getInstance().getDocument(virtualFile);
+                                waitingForUploadImages.put(documentFromVirtualFile, getImageInfoFromFiles(virtualFile));
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 调用子类的 upload()
+            upload(event, waitingForUploadImages);
+        }
+    }
+
+    /**
      * 通过文件验证是否为 markdown 且是否可写
      *
      * @param file the file
@@ -234,6 +286,13 @@ public abstract class AbstractObjectStorageServiceAction extends AnAction {
                              "Failured = " + totalFailured + "\n" +
                              "Some Images Not Found: \n" + notFoundImages.toString(),
                              NotificationType.INFORMATION);
+
+                // ConsoleView consoleView = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
+                //
+                // consoleView.print("Processed File = " + waitingForUploadImages.size() +
+                //                   "\nImage Mark = " + totalProcessed + "\n" +
+                //                   "Failured = " + totalFailured + "\n" +
+                //                   "Some Images Not Found: \n" + notFoundImages.toString(), ConsoleViewContentType.SYSTEM_OUTPUT);
             }
         }
     }
@@ -245,57 +304,6 @@ public abstract class AbstractObjectStorageServiceAction extends AnAction {
      * @return the string
      */
     abstract String upload(File file);
-
-    /**
-     * 处理事件
-     *
-     * @param event the an action event
-     */
-    @Override
-    public void actionPerformed(@NotNull AnActionEvent event) {
-        Map<Document, List<MarkdownImage>> waitingForUploadImages = new HashMap<>(20);
-
-        final Project project = event.getProject();
-        if (project != null) {
-            log.trace("project's base path = {}", project.getBasePath());
-            // 如果选中编辑器
-            final DataContext dataContext = event.getDataContext();
-
-            final Editor editor = PlatformDataKeys.EDITOR.getData(dataContext);
-            // todo-dong4j : (2019年03月15日 09:41) [如果光标选中了编辑器, upload()已经判断过是否为 markdown 文件, 此处不需再判断]
-            if (null != editor) {
-                // 解析此文件中所有的图片标签
-                Document documentFromEditor = editor.getDocument();
-                VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(documentFromEditor);
-                waitingForUploadImages.put(documentFromEditor, getImageInfoFromFiles(virtualFile));
-            }
-            // todo-dong4j : (2019年03月15日 09:41) [没有选中编辑器]
-            else {
-                // 获取被选中的有文件和目录
-                final VirtualFile[] files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(dataContext);
-                if (null != files) {
-                    for (VirtualFile file : files) {
-                        if (isMardownFile(file.getName())) {
-                            // 解析此文件中所有的图片标签
-                            Document documentFromVirtualFile = FileDocumentManager.getInstance().getDocument(file);
-                            waitingForUploadImages.put(documentFromVirtualFile, getImageInfoFromFiles(file));
-                        }
-                        // 如果是目录, 则递归获取所有 markdown 文件
-                        if (file.isDirectory()) {
-                            List<VirtualFile> markdownFiles = recursivelyMarkdownFile(file);
-                            for (VirtualFile virtualFile : markdownFiles) {
-                                Document documentFromVirtualFile = FileDocumentManager.getInstance().getDocument(virtualFile);
-                                waitingForUploadImages.put(documentFromVirtualFile, getImageInfoFromFiles(virtualFile));
-                            }
-                        }
-                    }
-                }
-            }
-
-            // 调用子类的 upload()
-            upload(event, waitingForUploadImages);
-        }
-    }
 
     /**
      * 从 markdown 文件中获取图片信息
