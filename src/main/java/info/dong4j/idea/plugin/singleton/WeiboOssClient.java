@@ -112,7 +112,7 @@ public class WeiboOssClient {
             FileUtils.copyInputStreamToFile(inputStream, file);
             return upload(ossClient, file);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.trace("", e);
         }
         return "";
     }
@@ -124,7 +124,7 @@ public class WeiboOssClient {
      * @return the string
      * @throws IOException the io exception
      */
-    public String upload(File file) throws IOException {
+    public String upload(File file) {
         return upload(ossClient, file);
     }
 
@@ -136,11 +136,16 @@ public class WeiboOssClient {
      * @return the string
      * @throws IOException the io exception
      */
-    public String upload(WbpUploadRequest ossClient, File file) throws IOException {
+    public String upload(WbpUploadRequest ossClient, File file)  {
         String url = "";
-        UploadResponse response = ossClient.upload(file);
-        if (response.getResult().equals(UploadResponse.ResultStatus.SUCCESS)) {
-            url = response.getImageInfo().getLarge();
+        UploadResponse response;
+        try {
+            response = ossClient.upload(file);
+            if (response.getResult().equals(UploadResponse.ResultStatus.SUCCESS)) {
+                url = response.getImageInfo().getLarge();
+            }
+        } catch (IOException e) {
+            log.trace("", e);
         }
         return url;
     }

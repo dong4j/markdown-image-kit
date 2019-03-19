@@ -127,7 +127,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     @Nls
     @Override
     public String getDisplayName() {
-        return "Markdown Image Manager Settings";
+        return "Image Manager";
     }
 
     @Override

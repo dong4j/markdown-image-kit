@@ -5,7 +5,6 @@ import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.ObjectMetadata;
 
 import info.dong4j.idea.plugin.enums.SuffixEnum;
-import info.dong4j.idea.plugin.exception.ImgException;
 import info.dong4j.idea.plugin.settings.OssPersistenConfig;
 import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.util.CharacterUtils;
@@ -32,10 +31,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AliyunOssClient {
     private static final String URL_PROTOCOL_HTTP = "http";
+    /**
+     * The constant URL_PROTOCOL_HTTPS.
+     */
     public static final String URL_PROTOCOL_HTTPS = "https";
     private final Object lock = new Object();
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-");
 
+    /**
+     * The constant bucketName.
+     */
     public static String bucketName;
     private static String fileDir;
     private static String sufix;
@@ -110,11 +115,11 @@ public class AliyunOssClient {
     public String upload(File file) {
         String name = getSufixName(file.getName());
         try {
-            upload(new FileInputStream(file), name);
-            return name;
+            return upload(new FileInputStream(file), name);
         } catch (Exception e) {
-            throw new ImgException("upload error");
+            log.trace("", e);
         }
+        return "";
     }
 
     private static String getSufixName(String fileName) {
@@ -126,7 +131,7 @@ public class AliyunOssClient {
         } else if (SuffixEnum.RANDOM.name.equals(sufix)) {
             return CharacterUtils.getRandomString(8) + fileName.substring(fileName.lastIndexOf("."));
         } else {
-            return "";
+            return fileName;
         }
     }
 
@@ -137,8 +142,8 @@ public class AliyunOssClient {
      * @param fileName    文件名称 包括后缀名
      * @return 出错返回 "" ,唯一MD5数字签名
      */
-    private void upload(InputStream inputStream, String fileName) {
-        upload(inputStream, fileDir, fileName);
+    private String upload(InputStream inputStream, String fileName) {
+        return upload(inputStream, fileDir, fileName);
     }
 
 
@@ -150,8 +155,8 @@ public class AliyunOssClient {
      * @param fileName    the file name
      * @return the string
      */
-    private void upload(InputStream inputStream, String filedir, String fileName) {
-        upload(ossClient, inputStream, filedir, fileName);
+    private String upload(InputStream inputStream, String filedir, String fileName) {
+        return upload(ossClient, inputStream, filedir, fileName);
     }
 
     /**
@@ -163,10 +168,10 @@ public class AliyunOssClient {
      * @param fileName  the file name
      * @return the string
      */
-    private void upload(OSS ossClient,
-                        InputStream instream,
-                        String filedir,
-                        String fileName) {
+    private String upload(OSS ossClient,
+                          InputStream instream,
+                          String filedir,
+                          String fileName) {
         try {
             // 创建上传 Object 的 Metadata
             ObjectMetadata objectMetadata = new ObjectMetadata();
@@ -177,18 +182,20 @@ public class AliyunOssClient {
             objectMetadata.setContentDisposition("inline;filename=" + fileName);
             if (checkClient()) {
                 ossClient.putObject(bucketName, filedir + fileName, instream, objectMetadata);
+                return getUrl(filedir, fileName);
             }
         } catch (IOException e) {
-            log.trace(e.getMessage(), e);
+            log.trace("", e);
         } finally {
             try {
                 if (instream != null) {
                     instream.close();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.trace("", e);
             }
         }
+        return "";
     }
 
     /**
