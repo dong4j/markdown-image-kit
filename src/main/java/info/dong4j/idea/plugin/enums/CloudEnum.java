@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Contract;
 public enum CloudEnum {
     WEIBO_CLOUD(0, "微博", "info.dong4j.idea.plugin.strategy.WeiboUploadStrategy"),
     ALIYUN_CLOUD(1, "阿里云", "info.dong4j.idea.plugin.strategy.AliyunUploadStrategy"),
-    QINIU_CLOUD(2, "七牛云", ""),
+    QINIU_CLOUD(2, "七牛云", "info.dong4j.idea.plugin.strategy.QiniuUploadStrategy"),
     WANGYI_CLOUD(3, "网易云", ""),
     BAIDU_CLOUD(4, "百度云", ""),
     JINGDONG_CLOUD(5, "京东云", ""),

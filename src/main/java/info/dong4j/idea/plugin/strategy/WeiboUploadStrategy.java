@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
-import java.util.List;
+import java.util.Map;
 
 import javax.swing.JPanel;
 
@@ -72,9 +72,9 @@ public class WeiboUploadStrategy implements UploadStrategy {
      * @return the string
      */
     public String uploadFromTest(InputStream inputStream, String fileName, JPanel jPanel) {
-        List<String> textList = getTestFieldText(jPanel);
-        String username = textList.get(0);
-        String password = textList.get(1);
+        Map<String, String> map = getTestFieldText(jPanel);
+        String username = map.get("username");
+        String password = map.get("password");
 
         return upload(inputStream, fileName, username, password, UploadWayEnum.FROM_TEST);
     }
@@ -97,20 +97,21 @@ public class WeiboUploadStrategy implements UploadStrategy {
                          UploadWayEnum uploadWayEnum) {
 
         String url;
+        WeiboOssClient weiboOssClient = WeiboOssClient.getInstance();
         if (uploadWayEnum.equals(UploadWayEnum.FROM_TEST)) {
             CookieContext.getInstance().deleteCookie();
             WbpUploadRequest ossClient = new UploadRequestBuilder()
                 .setAcount(username, password)
                 .build();
-            url = WeiboOssClient.getInstance().upload(ossClient, inputStream, fileName);
+            url = weiboOssClient.upload(ossClient, inputStream, fileName);
 
             if (StringUtils.isNotBlank(url)) {
                 int hashcode = username.hashCode() + password.hashCode();
                 OssState.saveStatus(weiboOssState, hashcode, ImageManagerState.OLD_HASH_KEY);
-                WeiboOssClient.getInstance().setOssClient(ossClient);
+                weiboOssClient.setOssClient(ossClient);
             }
         } else {
-            url = WeiboOssClient.getInstance().upload(inputStream, fileName);
+            url = weiboOssClient.upload(inputStream, fileName);
         }
         return url;
     }

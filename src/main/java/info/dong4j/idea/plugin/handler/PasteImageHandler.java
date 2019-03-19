@@ -39,6 +39,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.imageio.ImageIO;
 
@@ -234,11 +235,11 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
             ImageIO.write(bufferedImage, "png", os);
             InputStream is = new ByteArrayInputStream(os.toByteArray());
             // 上传到默认图床
-            int defaultCloudType = ImageManagerPersistenComponent.getInstance().getState().getCloudType();
-            CloudEnum cloudEnum = EnumsUtils.getCloudEnum(defaultCloudType);
+            int index = ImageManagerPersistenComponent.getInstance().getState().getCloudType();
+            Optional<CloudEnum> cloudType = EnumsUtils.getEnumObject(CloudEnum.class, e -> e.getIndex() == index);
             // 此处进行异步处理, 不然上传大图时会卡死
             Runnable r = () -> {
-                String imageUrl = upload(cloudEnum, is, imageName);
+                String imageUrl = upload(cloudType.orElse(CloudEnum.WEIBO_CLOUD), is, imageName);
                 if (StringUtils.isNotBlank(imageUrl)) {
                     String newLineText = UploadUtils.getFinalImageMark("", imageUrl, imageUrl, ImageContents.LINE_BREAK);
                     EditorModificationUtil.insertStringAtCaret(editor, newLineText);

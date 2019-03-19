@@ -14,7 +14,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
-import java.util.List;
+import java.util.Map;
 
 import javax.swing.JPanel;
 
@@ -42,7 +42,7 @@ public class AliyunUploadStrategy implements UploadStrategy {
     private String accessKey;
     private String accessSecretKey;
     private String endpoint;
-    private String fileDir;
+    private String filedir;
 
     private AliyunOssState aliyunOssState = ImageManagerPersistenComponent.getInstance().getState().getAliyunOssState();
 
@@ -67,12 +67,11 @@ public class AliyunUploadStrategy implements UploadStrategy {
      * @return the string
      */
     private String uploadFromPaste(InputStream inputStream, String fileName) {
-        String bucketName = aliyunOssState.getBucketName();
-        String accessKey = aliyunOssState.getAccessKey();
-        String accessSecretKey = aliyunOssState.getAccessSecretKey();
-        accessSecretKey = DES.decrypt(accessSecretKey, ImageManagerState.ALIYUN);
-        String endpoint = aliyunOssState.getEndpoint();
-        String filedir = aliyunOssState.getFiledir();
+        bucketName = aliyunOssState.getBucketName();
+        accessKey = aliyunOssState.getAccessKey();
+        accessSecretKey = DES.decrypt(aliyunOssState.getAccessSecretKey(), ImageManagerState.ALIYUN);
+        endpoint = aliyunOssState.getEndpoint();
+        filedir = aliyunOssState.getFiledir();
 
         return upload(inputStream,
                       fileName,
@@ -95,14 +94,13 @@ public class AliyunUploadStrategy implements UploadStrategy {
      * @return the string
      */
     public String uploadFromTest(InputStream inputStream, String fileName, JPanel jPanel) {
-        // 保存认证信息, 这个顺序是确定的
-        List<String> textList = getTestFieldText(jPanel);
+        Map<String, String> map = getTestFieldText(jPanel);
 
-        String bucketName = textList.get(0);
-        String accessKey = textList.get(1);
-        String accessSecretKey = textList.get(5);
-        String endpoint = textList.get(2);
-        String filedir = textList.get(4);
+        bucketName = map.get("bucketName");
+        accessKey = map.get("accessKey");
+        accessSecretKey = map.get("secretKey");
+        endpoint = map.get("endpoint");
+        filedir = map.get("filedir");
 
         return upload(inputStream,
                       fileName,
@@ -138,22 +136,23 @@ public class AliyunUploadStrategy implements UploadStrategy {
 
         filedir = StringUtils.isBlank(filedir) ? "" : filedir + "/";
         String url;
+        AliyunOssClient aliyunOssClient = AliyunOssClient.getInstance();
         if (uploadWayEnum.equals(UploadWayEnum.FROM_TEST)) {
             OSS ossClient = new OSSClientBuilder().build(endpoint, accessKey, accessSecretKey);
 
-            AliyunOssClient.bucketName = bucketName;
-            url = AliyunOssClient.getInstance().upload(ossClient, inputStream, filedir, fileName);
+            aliyunOssClient.setBucketName(bucketName);
+            url = aliyunOssClient.upload(ossClient, inputStream, filedir, fileName);
+
             if (StringUtils.isNotBlank(url)) {
                 int hashcode = bucketName.hashCode() +
                                accessKey.hashCode() +
                                accessSecretKey.hashCode() +
                                endpoint.hashCode();
                 OssState.saveStatus(aliyunOssState, hashcode, ImageManagerState.OLD_HASH_KEY);
-                // 参数验证成功后直接设置 ossClient, 不要浪费
-                AliyunOssClient.getInstance().setOssClient(ossClient);
+                aliyunOssClient.setOssClient(ossClient);
             }
         } else {
-            url = AliyunOssClient.getInstance().upload(inputStream, filedir, fileName);
+            url = aliyunOssClient.upload(inputStream, filedir, fileName);
         }
         return url;
     }

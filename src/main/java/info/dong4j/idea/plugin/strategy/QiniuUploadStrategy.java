@@ -1,23 +1,25 @@
 package info.dong4j.idea.plugin.strategy;
 
-import com.qiniu.common.Zone;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Auth;
 
+import info.dong4j.idea.plugin.enums.ZoneEnum;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
 import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.settings.QiniuOssState;
 import info.dong4j.idea.plugin.singleton.QiniuOssClient;
 import info.dong4j.idea.plugin.util.DES;
+import info.dong4j.idea.plugin.util.EnumsUtils;
 
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
-import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import javax.swing.JPanel;
 
@@ -37,6 +39,7 @@ public class QiniuUploadStrategy implements UploadStrategy {
     private String accessKey;
     private String secretKey;
     private String bucketName;
+    private int zoneIndex;
 
     private QiniuOssState qiniuOssState = ImageManagerPersistenComponent.getInstance().getState().getQiniuOssState();
 
@@ -58,13 +61,16 @@ public class QiniuUploadStrategy implements UploadStrategy {
         accessKey = qiniuOssState.getAccessKey();
         secretKey = DES.decrypt(qiniuOssState.getAccessSecretKey(), ImageManagerState.QINIU);
         bucketName = qiniuOssState.getBucketName();
+        zoneIndex = qiniuOssState.getZoneIndex();
 
         return upload(inputStream,
                       fileName,
                       bucketName,
                       accessKey,
                       secretKey,
-                      endpoint, UploadWayEnum.FROM_PASTE);
+                      endpoint,
+                      zoneIndex,
+                      UploadWayEnum.FROM_PASTE);
     }
 
     /**
@@ -77,18 +83,21 @@ public class QiniuUploadStrategy implements UploadStrategy {
      * @return the string
      */
     public String uploadFromTest(InputStream inputStream, String fileName, JPanel jPanel) {
-        List<String> textList = getTestFieldText(jPanel);
-        endpoint = textList.get(0);
-        accessKey = textList.get(1);
-        secretKey = textList.get(2);
-        bucketName = textList.get(3);
+        Map<String, String> map = getTestFieldText(jPanel);
+        zoneIndex = Integer.parseInt(map.get("zoneIndex"));
+        bucketName = map.get("bucketName");
+        accessKey = map.get("accessKey");
+        secretKey = map.get("secretKey");
+        endpoint = map.get("domain");
 
         return upload(inputStream,
                       fileName,
                       bucketName,
                       accessKey,
                       secretKey,
-                      endpoint, UploadWayEnum.FROM_TEST);
+                      endpoint,
+                      zoneIndex,
+                      UploadWayEnum.FROM_TEST);
     }
 
     /**
@@ -100,6 +109,7 @@ public class QiniuUploadStrategy implements UploadStrategy {
      * @param accessKey     the access key
      * @param secretKey     the secret key
      * @param endpoint      the endpoint
+     * @param zoneIndex     the zone index
      * @param uploadWayEnum the upload way enum
      * @return the string
      */
@@ -111,32 +121,33 @@ public class QiniuUploadStrategy implements UploadStrategy {
                          String accessKey,
                          String secretKey,
                          String endpoint,
+                         int zoneIndex,
                          UploadWayEnum uploadWayEnum) {
 
         String url;
+        QiniuOssClient qiniuOssClient = QiniuOssClient.getInstance();
         if (uploadWayEnum.equals(UploadWayEnum.FROM_TEST)) {
-            Configuration cfg = new Configuration(Zone.zone0());
+            Optional<ZoneEnum> zone = EnumsUtils.getEnumObject(ZoneEnum.class, e -> e.getIndex() == zoneIndex);
+            Configuration cfg = new Configuration(zone.orElse(ZoneEnum.EAST_CHINA).zone);
             UploadManager ossClient = new UploadManager(cfg);
             Auth auth = Auth.create(accessKey, secretKey);
-            String upToken = auth.uploadToken(bucketName);
+            String token = auth.uploadToken(bucketName);
 
-            QiniuOssClient.bucketName = bucketName;
-            QiniuOssClient.upToken = upToken;
-
-            url = QiniuOssClient.getInstance().upload(ossClient, inputStream, fileName);
+            qiniuOssClient.setToken(token);
+            qiniuOssClient.setDomain(endpoint);
+            url = qiniuOssClient.upload(ossClient, inputStream, fileName);
 
             if (StringUtils.isNotBlank(url)) {
                 int hashcode = bucketName.hashCode() +
                                accessKey.hashCode() +
                                secretKey.hashCode() +
-                               endpoint.hashCode();
+                               endpoint.hashCode() +
+                               zoneIndex;
                 OssState.saveStatus(qiniuOssState, hashcode, ImageManagerState.OLD_HASH_KEY);
-
-                // 参数验证成功后直接设置 ossClient, 不要浪费
-                QiniuOssClient.getInstance().setOssClient(ossClient);
+                qiniuOssClient.setOssClient(ossClient);
             }
         } else {
-            url = QiniuOssClient.getInstance().upload(inputStream, fileName);
+            url = qiniuOssClient.upload(inputStream, fileName);
         }
         return url;
     }

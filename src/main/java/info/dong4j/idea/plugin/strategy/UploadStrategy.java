@@ -4,8 +4,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.Component;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -29,23 +29,23 @@ public interface UploadStrategy {
     String upload(InputStream inputStream, String fileName);
 
     /**
-     * Gets test field text.
+     * 需要设置 JTextField 的 name 属性
      *
      * @param jPanel the j panel
      * @return the test field text
      */
     @NotNull
-    default List<String> getTestFieldText(JPanel jPanel) {
+    default Map<String, String> getTestFieldText(JPanel jPanel) {
+        Map<String, String> fieldMap = new HashMap<>(10);
         // 保存认证信息, 这个顺序是确定的
-        List<String> textList = new ArrayList<>();
         Component[] components = jPanel.getComponents();
         for (Component c : components) {
             if (c instanceof JTextField) {
                 JTextField textField = (JTextField) c;
-                textList.add(textField.getText());
+                fieldMap.put(textField.getName(), textField.getText());
             }
         }
-        return textList;
+        return fieldMap;
     }
 
     /**

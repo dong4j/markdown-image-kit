@@ -12,10 +12,12 @@ import info.dong4j.idea.plugin.settings.ImageManagerState;
 import info.dong4j.idea.plugin.settings.QiniuOssState;
 import info.dong4j.idea.plugin.util.DES;
 
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.net.*;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,17 +32,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class QiniuOssClient {
     /**
-     * The constant bucketName.
+     * The constant token.
      */
-    public static String bucketName;
-    /**
-     * The constant upToken.
-     */
-    public static String upToken;
+    public static String token;
 
     private final Object lock = new Object();
     private static UploadManager ossClient = null;
-    private static String endpoint;
+    private static String domain;
 
     private QiniuOssClient() {
     }
@@ -58,17 +56,34 @@ public class QiniuOssClient {
      */
     private static void init() {
         QiniuOssState qiniuOssState = ImageManagerPersistenComponent.getInstance().getState().getQiniuOssState();
-        endpoint = qiniuOssState.getEndpoint();
+        domain = qiniuOssState.getEndpoint();
         String accessKey = qiniuOssState.getAccessKey();
         String secretKey = DES.decrypt(qiniuOssState.getAccessSecretKey(), ImageManagerState.QINIU);
-        bucketName = qiniuOssState.getBucketName();
+        String bucketName = qiniuOssState.getBucketName();
         // 设置区域
         Configuration cfg = new Configuration(Zone.zone2());
         ossClient = new UploadManager(cfg);
         Auth auth = Auth.create(accessKey, secretKey);
-        upToken = auth.uploadToken(bucketName);
+        token = auth.uploadToken(bucketName);
     }
 
+    /**
+     * Set token.
+     *
+     * @param newToken the new token
+     */
+    public void setToken(String newToken){
+        token = newToken;
+    }
+
+    /**
+     * Set domain.
+     *
+     * @param newDomain the new domain
+     */
+    public void setDomain(String newDomain){
+        domain = newDomain;
+    }
     /**
      * 在调用 ossClient 之前先检查, 如果为 null 就 init()
      */
@@ -137,16 +152,25 @@ public class QiniuOssClient {
      */
     public String upload(UploadManager ossClient, InputStream inputStream, String fileName) {
         try {
-            ossClient.put(inputStream, fileName, upToken, null, null);
+            ossClient.put(inputStream, fileName, token, null, null);
             // 拼接 url, 需要正确配置域名 (https://developer.qiniu.com/fusion/kb/1322/how-to-configure-cname-domain-name)
-            return endpoint + "/" + fileName;
+            URL url = new URL(domain);
+            log.trace("{}", url.getUserInfo());
+            if(StringUtils.isBlank(url.getPath())){
+                domain = domain + "/";
+            }else {
+                domain = domain.endsWith("/") ? domain : domain + "/";
+            }
+            return  domain + fileName;
         } catch (QiniuException ex) {
             Response r = ex.response;
             log.trace(r.toString());
             try {
-                log.info(r.bodyString());
+                log.trace(r.bodyString());
             } catch (QiniuException ignored) {
             }
+        } catch (MalformedURLException e) {
+            log.trace("", e);
         }
         return "";
     }

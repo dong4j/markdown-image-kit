@@ -43,7 +43,7 @@ public class AliyunOssClient {
     /**
      * The constant bucketName.
      */
-    public static String bucketName;
+    private static String bucketName;
     private static String fileDir;
     private static String sufix;
     private static OSS ossClient = null;
@@ -78,15 +78,12 @@ public class AliyunOssClient {
     }
 
     /**
-     * 在调用 ossClient 之前先检查, 如果为 null 就 init()
+     * Set bucket name.
+     *
+     * @param newBucketName the new bucket name
      */
-    private boolean checkClient() {
-        synchronized (lock) {
-            if (ossClient == null) {
-                init();
-            }
-            return ossClient != null;
-        }
+    public void setBucketName(String newBucketName){
+        bucketName = newBucketName;
     }
 
     /**
@@ -171,9 +168,9 @@ public class AliyunOssClient {
      * @return the string
      */
     public String upload(OSS ossClient,
-                          @NotNull InputStream instream,
-                          String filedir,
-                          @NotNull String fileName) {
+                         @NotNull InputStream instream,
+                         String filedir,
+                         @NotNull String fileName) {
         try {
             // 创建上传 Object 的 Metadata
             ObjectMetadata objectMetadata = new ObjectMetadata();
@@ -182,10 +179,8 @@ public class AliyunOssClient {
             objectMetadata.setHeader("Pragma", "no-cache");
             objectMetadata.setContentType(getcontentType(fileName.substring(fileName.lastIndexOf("."))));
             objectMetadata.setContentDisposition("inline;filename=" + fileName);
-            if (checkClient()) {
-                ossClient.putObject(bucketName, filedir + fileName, instream, objectMetadata);
-                return getUrl(filedir, fileName);
-            }
+            ossClient.putObject(bucketName, filedir + fileName, instream, objectMetadata);
+            return getUrl(ossClient, filedir, fileName);
         } catch (IOException e) {
             log.trace("", e);
         } finally {
@@ -204,6 +199,7 @@ public class AliyunOssClient {
      * @param filenameExtension 文件后缀
      * @return String
      */
+    @NotNull
     private String getcontentType(String filenameExtension) {
         if (".bmp".equalsIgnoreCase(filenameExtension)) {
             return "image/bmp";
@@ -240,30 +236,6 @@ public class AliyunOssClient {
     }
 
     /**
-     * 获得url链接
-     *
-     * @param name the name
-     * @return url url
-     */
-    public String getUrl(String name) {
-        if (checkClient()) {
-            return getUrl(fileDir, name);
-        }
-        return "";
-    }
-
-    /**
-     * Gets url.
-     *
-     * @param filedir the filedir
-     * @param name    the name
-     * @return the url
-     */
-    public String getUrl(String filedir, String name) {
-        return getUrl(ossClient, filedir, name);
-    }
-
-    /**
      * Gets url.
      *
      * @param ossClient the oss client
@@ -271,7 +243,7 @@ public class AliyunOssClient {
      * @param name      the name
      * @return the url
      */
-    public String getUrl(OSS ossClient, String filedir, String name) {
+    private String getUrl(OSS ossClient, String filedir, String name) {
         Date expiration = new Date(System.currentTimeMillis() + 3600L * 1000 * 24 * 365 * 10);
         URL url = ossClient.generatePresignedUrl(bucketName, filedir + name, expiration);
         if (url != null) {

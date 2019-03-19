@@ -1,5 +1,7 @@
 package info.dong4j.idea.plugin.settings;
 
+import info.dong4j.idea.plugin.enums.CloudEnum;
+
 import lombok.Data;
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
@@ -55,5 +57,5 @@ public class ImageManagerState {
     /** 图片保存路径 */
     private String imageSavePath = "";
     /** 默认图床 */
-    private int cloudType = 0;
+    private int cloudType = CloudEnum.WEIBO_CLOUD.index;
 }

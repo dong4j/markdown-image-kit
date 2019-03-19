@@ -29,5 +29,5 @@ public class QiniuOssState extends OssState{
     /** Aliyun OSS 图片压缩配置 */
     private String styleName = "";
     private String url = "";
-    private ZoneEnum zoneEnum = ZoneEnum.EAST_CHINA;
+    private int zoneIndex = ZoneEnum.EAST_CHINA.index;
 }

@@ -33,6 +33,7 @@
                 </constraints>
                 <properties>
                   <labelFor value="b240d"/>
+                  <name value=""/>
                   <text resource-bundle="setting" key="oss.auth.weibo.username"/>
                 </properties>
               </component>
@@ -42,7 +43,9 @@
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
-                <properties/>
+                <properties>
+                  <name value="username"/>
+                </properties>
               </component>
               <component id="d336c" class="javax.swing.JLabel" binding="passwordLabel">
                 <constraints>
@@ -59,7 +62,9 @@
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
-                <properties/>
+                <properties>
+                  <name value="password"/>
+                </properties>
               </component>
               <vspacer id="798fc">
                 <constraints>
@@ -98,6 +103,7 @@
                   </grid>
                 </constraints>
                 <properties>
+                  <name value="bucketName"/>
                   <text value=""/>
                   <toolTipText value=""/>
                 </properties>
@@ -116,7 +122,9 @@
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
-                <properties/>
+                <properties>
+                  <name value="accessKey"/>
+                </properties>
               </component>
               <component id="8a01a" class="javax.swing.JLabel">
                 <constraints>
@@ -141,6 +149,7 @@
                   </grid>
                 </constraints>
                 <properties>
+                  <name value="endpoint"/>
                   <text value=""/>
                 </properties>
               </component>
@@ -166,6 +175,7 @@
                 <properties>
                   <editable value="false"/>
                   <enabled value="false"/>
+                  <name value="exampleText"/>
                 </properties>
               </component>
               <component id="8aa34" class="javax.swing.JLabel">
@@ -204,7 +214,9 @@
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
-                <properties/>
+                <properties>
+                  <name value="filedir"/>
+                </properties>
               </component>
               <hspacer id="8bcde">
                 <constraints>
@@ -237,11 +249,13 @@
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
-                <properties/>
+                <properties>
+                  <name value="secretKey"/>
+                </properties>
               </component>
             </children>
           </grid>
-          <grid id="a4e46" binding="qiniuOssAuthorizationPanel" layout-manager="GridLayoutManager" row-count="7" column-count="7" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="a4e46" binding="qiniuOssAuthorizationPanel" layout-manager="GridLayoutManager" row-count="7" column-count="8" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <tabbedpane title-resource-bundle="setting" title-key="oss.title.qiniu"/>
@@ -259,11 +273,12 @@
               </component>
               <component id="b8102" class="javax.swing.JTextField" binding="qiniuOssUpHostTextField">
                 <constraints>
-                  <grid row="4" column="1" row-span="1" col-span="6" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                  <grid row="4" column="1" row-span="1" col-span="7" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
                 <properties>
+                  <name value="domain"/>
                   <text value=""/>
                 </properties>
               </component>
@@ -333,27 +348,29 @@
               </component>
               <component id="7e104" class="javax.swing.JTextField" binding="qiniuOssAccessKeyTextField">
                 <constraints>
-                  <grid row="2" column="1" row-span="1" col-span="6" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                  <grid row="2" column="1" row-span="1" col-span="7" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
                 <properties>
+                  <name value="accessKey"/>
                   <text value=""/>
                 </properties>
               </component>
               <component id="99306" class="javax.swing.JTextField" binding="qiniuOssBucketNameTextField">
                 <constraints>
-                  <grid row="1" column="1" row-span="1" col-span="6" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                  <grid row="1" column="1" row-span="1" col-span="7" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
                 <properties>
+                  <name value="bucketName"/>
                   <text value=""/>
                 </properties>
               </component>
               <hspacer id="d74c8">
                 <constraints>
-                  <grid row="5" column="6" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="5" column="7" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
               </hspacer>
               <vspacer id="2f959">
@@ -368,11 +385,24 @@
               </vspacer>
               <component id="c456a" class="javax.swing.JPasswordField" binding="qiniuOssAccessSecretKeyTextField">
                 <constraints>
-                  <grid row="3" column="1" row-span="1" col-span="6" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                  <grid row="3" column="1" row-span="1" col-span="7" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
-                <properties/>
+                <properties>
+                  <name value="secretKey"/>
+                </properties>
+              </component>
+              <component id="25018" class="javax.swing.JTextField" binding="zoneIndexTextFiled">
+                <constraints>
+                  <grid row="5" column="6" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <name value="zoneIndex"/>
+                  <visible value="false"/>
+                </properties>
               </component>
             </children>
           </grid>
