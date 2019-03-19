@@ -29,11 +29,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class QiniuOssClientTest extends LightPlatformTestCase {
     public void test() {
-        String bucket = "markdown-images";
-        String accessKey = "9VECTxfLzW5gF1rtvNw-Iht_JzztUyviBl9bI3dh";
-        String secretKey = "7d0PD-goR08lRip5qAlD9GDyrs2CB3TvNHi4eUW7";
-        String preFix = "markdown-image-paste";
-        String endpoint = "http://qiniu.dong4j.info/";
+        String bucket = "";
+        String accessKey = "";
+        String secretKey = "";
+        String preFix = "";
+        String endpoint = "";
 
         String url = upload(new File("/Users/dong4j/Downloads/我可要开始皮了.png"),
                bucket,
