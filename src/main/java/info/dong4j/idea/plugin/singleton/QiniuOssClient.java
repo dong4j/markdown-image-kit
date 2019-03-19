@@ -32,10 +32,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class QiniuOssClient {
     /**
+     * The constant DEAD_LINE.
+     */
+    private static final long DEAD_LINE = 3600L * 1000 * 24 * 365 * 10;
+    /**
      * The constant token.
      */
-    public static String token;
-
+    private static String token;
     private final Object lock = new Object();
     private static UploadManager ossClient = null;
     private static String domain;
@@ -64,16 +67,18 @@ public class QiniuOssClient {
         Configuration cfg = new Configuration(Zone.zone2());
         ossClient = new UploadManager(cfg);
         Auth auth = Auth.create(accessKey, secretKey);
-        token = auth.uploadToken(bucketName);
+        token = buildToken(auth, bucketName);
     }
 
     /**
-     * Set token.
+     * Build token string.
      *
-     * @param newToken the new token
+     * @param auth       the auth
+     * @param bucketName the bucket name
+     * @return the string
      */
-    public void setToken(String newToken){
-        token = newToken;
+    public static String buildToken(Auth auth, String bucketName){
+        return auth.uploadToken(bucketName, null, DEAD_LINE, null, true);
     }
 
     /**

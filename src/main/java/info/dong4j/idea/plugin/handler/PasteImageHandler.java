@@ -102,9 +102,11 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                                 Image image = null;
                                 try {
                                     File compressedFile = new File(System.getProperty("java.io.tmpdir") + file.getName());
-                                    // 图片压缩
+                                    // todo-dong4j : (2019年03月20日 04:29) [判断是否启动图片压缩]
                                     if (file.isFile() && file.getName().endsWith("jpg")) {
                                         ImageUtils.compress(file, compressedFile, state.getCompressBeforeUploadOfPercent() - 20);
+                                    } else {
+                                        compressedFile = file;
                                     }
                                     image = ImageIO.read(compressedFile);
                                 } catch (IOException ignored) {

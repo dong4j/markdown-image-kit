@@ -2,7 +2,6 @@ package info.dong4j.idea.plugin.settings;
 
 import com.intellij.ui.JBColor;
 
-import java.awt.Color;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
@@ -25,7 +24,7 @@ public class JTextFieldHintListener implements FocusListener {
         this.hintText = hintText;
         // 默认直接显示
         jTextField.setText(hintText);
-        jTextField.setForeground(Color.GRAY);
+        jTextField.setForeground(JBColor.GRAY);
     }
 
     @Override

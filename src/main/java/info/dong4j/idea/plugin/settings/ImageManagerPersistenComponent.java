@@ -27,7 +27,6 @@ public class ImageManagerPersistenComponent implements PersistentStateComponent<
      * @return the unique {@link ImageManagerPersistenComponent} instance.
      */
     public static ImageManagerPersistenComponent getInstance() {
-        log.trace("get OssPersistenConfig getInstance");
         return ServiceManager.getService(ImageManagerPersistenComponent.class);
     }
 

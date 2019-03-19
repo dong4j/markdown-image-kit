@@ -131,9 +131,8 @@ public class QiniuUploadStrategy implements UploadStrategy {
             Configuration cfg = new Configuration(zone.orElse(ZoneEnum.EAST_CHINA).zone);
             UploadManager ossClient = new UploadManager(cfg);
             Auth auth = Auth.create(accessKey, secretKey);
-            String token = auth.uploadToken(bucketName);
+            QiniuOssClient.buildToken(auth, bucketName);
 
-            qiniuOssClient.setToken(token);
             qiniuOssClient.setDomain(endpoint);
             url = qiniuOssClient.upload(ossClient, inputStream, fileName);
 

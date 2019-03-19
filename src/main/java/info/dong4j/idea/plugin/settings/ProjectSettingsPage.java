@@ -271,8 +271,10 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      */
     private void initQiniuOssAuthenticationPanel(ImageManagerState state) {
         QiniuOssState qiniuOssState = state.getQiniuOssState();
-
         qiniuOssAccessSecretKeyTextField.setText(DES.decrypt(qiniuOssState.getAccessSecretKey(), ImageManagerState.QINIU));
+
+        qiniuOssUpHostTextField.addFocusListener(new JTextFieldHintListener(qiniuOssUpHostTextField, "http(s)://domain/"));
+
         ButtonGroup group = new ButtonGroup();
         qiniuOssEastChinaRadioButton.setMnemonic(ZoneEnum.EAST_CHINA.index);
         qiniuOssNortChinaRadioButton.setMnemonic(ZoneEnum.NORT_CHINA.index);
