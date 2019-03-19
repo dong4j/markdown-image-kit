@@ -26,6 +26,7 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiUtilBase;
+import com.intellij.ui.content.MessageView;
 
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.content.MarkdownContents;
@@ -212,7 +213,9 @@ public abstract class AbstractObjectStorageServiceAction extends AnAction {
     boolean validFromState(OssState state){
         boolean isPassedTest = state.isPassedTest();
         Map<String, String> oldAndNewAuth = state.getOldAndNewAuthInfo();
-        return isPassedTest && oldAndNewAuth.get(ImageManagerState.OLD_HASH_KEY).equals(oldAndNewAuth.get(ImageManagerState.NEW_HASH_KEY));
+        return isPassedTest
+               && StringUtils.isNotEmpty(oldAndNewAuth.get(ImageManagerState.OLD_HASH_KEY))
+               && oldAndNewAuth.get(ImageManagerState.OLD_HASH_KEY).equals(oldAndNewAuth.get(ImageManagerState.NEW_HASH_KEY));
     }
 
     /**
@@ -301,6 +304,14 @@ public abstract class AbstractObjectStorageServiceAction extends AnAction {
                 //                   "\nImage Mark = " + totalProcessed + "\n" +
                 //                   "Failured = " + totalFailured + "\n" +
                 //                   "Some Images Not Found: \n" + notFoundImages.toString(), ConsoleViewContentType.SYSTEM_OUTPUT);
+
+                MessageView messageView = MessageView.SERVICE.getInstance(project);
+                messageView.runWhenInitialized(new Runnable() {
+                    @Override
+                    public void run() {
+                        System.out.println("MessageView inited");
+                    }
+                });
             }
         }
     }

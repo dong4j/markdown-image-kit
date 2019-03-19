@@ -73,7 +73,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JPanel qiniuOssAuthorizationPanel;
     private JTextField qiniuOssBucketNameTextField;
     private JTextField qiniuOssAccessKeyTextField;
-    private JTextField qiniuOssAccessSecretKeyTextField;
+    private JPasswordField qiniuOssAccessSecretKeyTextField;
     private JTextField qiniuOssUpHostTextField;
     private JRadioButton qiniuOssEastChinaRadioButton;
     private JRadioButton qiniuOssNortChinaRadioButton;
@@ -109,6 +109,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JTextField whereToCopyTextField;
     private JCheckBox uploadAndReplaceCheckBox;
     private JComboBox defaultCloudComboBox;
+    private JCheckBox 图片上传时重命名CheckBox;
 
     public ProjectSettingsPage() {
         log.trace("ProjectSettingsPage Constructor invoke");
@@ -434,7 +435,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      * @param button the button
      */
     private void addRadioButton(ButtonGroup group, JRadioButton button) {
-        // 设置name即为 actionCommand
         group.add(button);
         // 构造一个监听器，响应checkBox事件
         ActionListener actionListener = e -> {
@@ -481,35 +481,53 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         ImageManagerState state = imageManagerPersistenComponent.getState();
         return !(isAliyunAuthModified(state)
                  && isWeiboAuthModified(state)
+                 && isQiniuAuthModified(state)
                  && isGeneralModified(state)
                  && isClipboardModified(state)
         );
     }
 
+    private boolean isQiniuAuthModified(ImageManagerState state) {
+        QiniuOssState qiniuOssState = state.getQiniuOssState();
+        String bucketName = qiniuOssBucketNameTextField.getText().trim();
+        String accessKey = qiniuOssAccessKeyTextField.getText().trim();
+        String secretKey = new String(qiniuOssAccessSecretKeyTextField.getPassword());
+        if (StringUtils.isNotBlank(secretKey)) {
+            secretKey = DES.encrypt(secretKey, ImageManagerState.QINIU);
+        }
+        // todo-dong4j : (2019年03月19日 21:01) [重构为 domain]
+        String endpoint = qiniuOssUpHostTextField.getText().trim();
+        // todo-dong4j : (2019年03月19日 21:13) [zone]
+        return bucketName.equals(qiniuOssState.getBucketName())
+               && accessKey.equals(qiniuOssState.getAccessKey())
+               && secretKey.equals(qiniuOssState.getAccessSecretKey())
+               && endpoint.equals(qiniuOssState.getEndpoint());
+    }
+
     private boolean isAliyunAuthModified(@NotNull ImageManagerState state) {
         AliyunOssState aliyunOssState = state.getAliyunOssState();
-        String newBucketName = aliyunOssBucketNameTextField.getText().trim();
-        String newAccessKey = aliyunOssAccessKeyTextField.getText().trim();
-        String newAccessSecretKey = new String(aliyunOssAccessSecretKeyTextField.getPassword());
-        if (StringUtils.isNotBlank(newAccessSecretKey)) {
-            newAccessSecretKey = DES.encrypt(newAccessSecretKey, ImageManagerState.ALIYUN);
+        String bucketName = aliyunOssBucketNameTextField.getText().trim();
+        String accessKey = aliyunOssAccessKeyTextField.getText().trim();
+        String secretKey = new String(aliyunOssAccessSecretKeyTextField.getPassword());
+        if (StringUtils.isNotBlank(secretKey)) {
+            secretKey = DES.encrypt(secretKey, ImageManagerState.ALIYUN);
         }
-        String newEndpoint = aliyunOssEndpointTextField.getText().trim();
-        String newFileDir = aliyunOssFileDirTextField.getText().trim();
-        String newSuffix = "";
+        String endpoint = aliyunOssEndpointTextField.getText().trim();
+        String filedir = aliyunOssFileDirTextField.getText().trim();
+        String suffix = "";
 
         int index = aliyunOssSuffixBoxField.getSelectedIndex();
         Optional<SuffixEnum> type = EnumsUtils.getEnumObject(SuffixEnum.class, e -> e.getIndex() == index);
         if (type.isPresent()) {
-            newSuffix = type.get().getName();
+            suffix = type.get().getName();
         }
 
-        return newBucketName.equals(aliyunOssState.getBucketName())
-               && newAccessKey.equals(aliyunOssState.getAccessKey())
-               && newAccessSecretKey.equals(aliyunOssState.getAccessSecretKey())
-               && newEndpoint.equals(aliyunOssState.getEndpoint())
-               && newFileDir.equals(aliyunOssState.getFiledir())
-               && newSuffix.equals(aliyunOssState.getSuffix());
+        return bucketName.equals(aliyunOssState.getBucketName())
+               && accessKey.equals(aliyunOssState.getAccessKey())
+               && secretKey.equals(aliyunOssState.getAccessSecretKey())
+               && endpoint.equals(aliyunOssState.getEndpoint())
+               && filedir.equals(aliyunOssState.getFiledir())
+               && suffix.equals(aliyunOssState.getSuffix());
     }
 
     private boolean isWeiboAuthModified(@NotNull ImageManagerState state) {
@@ -600,9 +618,34 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         log.trace("apply invoke");
         ImageManagerState state = imageManagerPersistenComponent.getState();
         applyAliyunAuthConfigs(state);
+        applyQiniuAuthConfigs(state);
         applyGeneralConfigs(state);
         applyClipboardConfigs(state);
         applyWeiboAuthConfigs(state);
+    }
+
+    private void applyQiniuAuthConfigs(ImageManagerState state) {
+        QiniuOssState qiniuOssState = state.getQiniuOssState();
+        // todo-dong4j : (2019年03月19日 21:01) [重构为 domain]
+        String endpoint = qiniuOssUpHostTextField.getText().trim();
+        // todo-dong4j : (2019年03月19日 21:13) [zone]
+        String bucketName = qiniuOssBucketNameTextField.getText().trim();
+        String accessKey = qiniuOssAccessKeyTextField.getText().trim();
+        String secretKey = new String(qiniuOssAccessSecretKeyTextField.getPassword());
+        // 需要在加密之前计算 hashcode
+        int hashcode = bucketName.hashCode() +
+                       accessKey.hashCode() +
+                       secretKey.hashCode() +
+                       endpoint.hashCode();
+        OssState.saveStatus(qiniuOssState, hashcode, ImageManagerState.NEW_HASH_KEY);
+
+        if (StringUtils.isNotBlank(secretKey)) {
+            secretKey = DES.encrypt(secretKey, ImageManagerState.QINIU);
+        }
+        qiniuOssState.setBucketName(bucketName);
+        qiniuOssState.setAccessKey(accessKey);
+        qiniuOssState.setAccessSecretKey(secretKey);
+        qiniuOssState.setEndpoint(endpoint);
     }
 
     private void applyAliyunAuthConfigs(ImageManagerState state) {
@@ -616,7 +659,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                        accessKey.hashCode() +
                        accessSecretKey.hashCode() +
                        endpoint.hashCode();
-        aliyunOssState.getOldAndNewAuthInfo().put(ImageManagerState.NEW_HASH_KEY, String.valueOf(hashcode));
+        OssState.saveStatus(aliyunOssState, hashcode, ImageManagerState.NEW_HASH_KEY);
+
         if (StringUtils.isNotBlank(accessSecretKey)) {
             accessSecretKey = DES.encrypt(accessSecretKey, ImageManagerState.ALIYUN);
         }
@@ -636,7 +680,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         String password = new String(weiboPasswordField.getPassword());
         // 需要在加密之前计算 hashcode
         int hashcode = username.hashCode() + password.hashCode();
-        weiboOssState.getOldAndNewAuthInfo().put(ImageManagerState.NEW_HASH_KEY, String.valueOf(hashcode));
+        OssState.saveStatus(weiboOssState, hashcode, ImageManagerState.NEW_HASH_KEY);
+
         if (StringUtils.isNotBlank(password)) {
             password = DES.encrypt(password, ImageManagerState.WEIBOKEY);
         }
@@ -690,9 +735,19 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         log.trace("reset invoke");
         ImageManagerState state = imageManagerPersistenComponent.getState();
         resetAliyunConfigs(state);
+        resetQiniuunConfigs(state);
         resetWeiboConfigs(state);
         resetGeneralCOnfigs(state);
         resetClipboardConfigs(state);
+    }
+
+    private void resetQiniuunConfigs(ImageManagerState state) {
+        QiniuOssState qiniuOssState = state.getQiniuOssState();
+        this.qiniuOssBucketNameTextField.setText(qiniuOssState.getBucketName());
+        this.qiniuOssAccessKeyTextField.setText(qiniuOssState.getAccessKey());
+        String accessSecretKey = qiniuOssState.getAccessSecretKey();
+        this.qiniuOssAccessSecretKeyTextField.setText(DES.decrypt(accessSecretKey, ImageManagerState.QINIU));
+        this.qiniuOssUpHostTextField.setText(qiniuOssState.getEndpoint());
     }
 
     private void resetAliyunConfigs(@NotNull ImageManagerState state) {

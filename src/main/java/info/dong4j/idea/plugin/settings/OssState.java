@@ -10,11 +10,23 @@ import lombok.Data;
  * <p>Description: </p>
  *
  * @author dong4j
- * @email sjdong3@iflytek.com
- * @since 2019-03-19 18:59
+ * @email sjdong3 @iflytek.com
+ * @since 2019 -03-19 18:59
  */
 @Data
 public abstract class OssState {
     private boolean passedTest = false;
-    private Map<String, String> oldAndNewAuthInfo = new HashMap<>(4);
+    private Map<String, String> oldAndNewAuthInfo = new HashMap<>(2);
+
+    /**
+     * Save status.
+     *
+     * @param state    the state
+     * @param hashcode the hashcode
+     * @param key      the key
+     */
+    public static void saveStatus(OssState state, int hashcode, String key){
+        state.setPassedTest(true);
+        state.getOldAndNewAuthInfo().put(key, String.valueOf(hashcode));
+    }
 }

@@ -29,10 +29,10 @@
                 popup="true" text="上传到阿里云">
         </action>
         <action id="WeiboObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.WeiboObjectStorageServiceAction"
-                popup="true" text="上传为微博">
+                popup="true" text="上传到微博">
         </action>
         <action id="QiniuObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.QiniuObjectStorageServiceAction"
-                popup="true" text="上传到七牛">
+                popup="true" text="上传到七牛云">
         </action>
         <action id="ImageCompressAction" class="info.dong4j.idea.plugin.action.ImageCompressAction"
                 popup="true" text="压缩图片">
@@ -45,13 +45,24 @@
             <reference ref="WeiboObjectStorageServiceAction"/>
             <reference ref="AliyunObjectStorageServiceAction"/>
             <reference ref="QiniuObjectStorageServiceAction"/>
+            <separator/>
             <reference ref="ImageCompressAction"/>
             <reference ref="MoveToOtherStorageAction"/>
             <add-to-group group-id="ToolsMenu" anchor="last"/>
             <add-to-group group-id="MainToolBar" anchor="last"/>
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
             <add-to-group group-id="ChangesViewPopupMenu" anchor="last"/>
+        </group>
+
+        <!-- 编辑器右键菜单 -->
+        <group popup="true" id="info.dong4j.idea.plugin.editor.popup.menu.group" text="Upload Image">
+            <reference ref="WeiboObjectStorageServiceAction"/>
+            <reference ref="AliyunObjectStorageServiceAction"/>
+            <reference ref="QiniuObjectStorageServiceAction"/>
+            <separator/>
+            <reference ref="MoveToOtherStorageAction"/>
             <add-to-group group-id="EditorPopupMenu" anchor="last"/>
         </group>
+
     </actions>
 </idea-plugin>

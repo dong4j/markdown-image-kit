@@ -6,6 +6,7 @@ import com.aliyun.oss.OSSClientBuilder;
 import info.dong4j.idea.plugin.settings.AliyunOssState;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
+import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.singleton.AliyunOssClient;
 import info.dong4j.idea.plugin.util.DES;
 
@@ -55,7 +56,6 @@ public class AliyunUploadStrategy implements UploadStrategy {
      */
     @Override
     public String upload(InputStream inputStream, String fileName) {
-        // todo-dong4j : (2019年03月17日 03:34) [调用工具类实现上传(工具类做成单例的)]
         return uploadFromPaste(inputStream, fileName);
     }
 
@@ -148,12 +148,12 @@ public class AliyunUploadStrategy implements UploadStrategy {
                                accessKey.hashCode() +
                                accessSecretKey.hashCode() +
                                endpoint.hashCode();
-                saveStatus(aliyunOssState, hashcode);
+                OssState.saveStatus(aliyunOssState, hashcode, ImageManagerState.OLD_HASH_KEY);
                 // 参数验证成功后直接设置 ossClient, 不要浪费
                 AliyunOssClient.getInstance().setOssClient(ossClient);
             }
         } else {
-            url = AliyunOssClient.getInstance().getUrl(filedir, fileName);
+            url = AliyunOssClient.getInstance().upload(inputStream, filedir, fileName);
         }
         return url;
     }

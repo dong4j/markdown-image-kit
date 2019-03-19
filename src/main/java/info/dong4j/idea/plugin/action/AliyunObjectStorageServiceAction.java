@@ -28,7 +28,6 @@ public final class AliyunObjectStorageServiceAction extends AbstractObjectStorag
 
     @Override
     public String upload(File file) {
-        AliyunOssClient client = AliyunOssClient.getInstance();
-        return client.upload(new File(file.getPath()));
+        return AliyunOssClient.getInstance().upload(file);
     }
 }

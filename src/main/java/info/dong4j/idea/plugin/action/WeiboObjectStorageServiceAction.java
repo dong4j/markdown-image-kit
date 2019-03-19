@@ -27,7 +27,6 @@ public final class WeiboObjectStorageServiceAction extends AbstractObjectStorage
 
     @Override
     public String upload(File file) {
-        WeiboOssClient weiboOssClient = WeiboOssClient.getInstance();
-        return weiboOssClient.upload(file);
+        return WeiboOssClient.getInstance().upload(file);
     }
 }

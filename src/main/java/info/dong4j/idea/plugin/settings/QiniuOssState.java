@@ -1,5 +1,7 @@
 package info.dong4j.idea.plugin.settings;
 
+import info.dong4j.idea.plugin.enums.ZoneEnum;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -27,4 +29,5 @@ public class QiniuOssState extends OssState{
     /** Aliyun OSS 图片压缩配置 */
     private String styleName = "";
     private String url = "";
+    private ZoneEnum zoneEnum = ZoneEnum.EAST_CHINA;
 }

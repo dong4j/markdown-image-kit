@@ -157,7 +157,7 @@ public class AliyunOssClient {
      * @param fileName    the file name
      * @return the string
      */
-    private String upload(InputStream inputStream, String filedir, String fileName) {
+    public String upload(InputStream inputStream, String filedir, String fileName) {
         return upload(ossClient, inputStream, filedir, fileName);
     }
 

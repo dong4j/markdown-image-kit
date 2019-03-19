@@ -7,6 +7,7 @@ import com.qiniu.util.Auth;
 
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
+import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.settings.QiniuOssState;
 import info.dong4j.idea.plugin.singleton.QiniuOssClient;
 import info.dong4j.idea.plugin.util.DES;
@@ -41,7 +42,6 @@ public class QiniuUploadStrategy implements UploadStrategy {
 
     @Override
     public String upload(InputStream inputStream, String fileName) {
-        // todo-dong4j : (2019年03月17日 03:34) [调用工具类实现上传(工具类做成单例的)]
         return uploadFromState(inputStream, fileName);
     }
 
@@ -130,7 +130,7 @@ public class QiniuUploadStrategy implements UploadStrategy {
                                accessKey.hashCode() +
                                secretKey.hashCode() +
                                endpoint.hashCode();
-                saveStatus(qiniuOssState, hashcode);
+                OssState.saveStatus(qiniuOssState, hashcode, ImageManagerState.OLD_HASH_KEY);
 
                 // 参数验证成功后直接设置 ossClient, 不要浪费
                 QiniuOssClient.getInstance().setOssClient(ossClient);

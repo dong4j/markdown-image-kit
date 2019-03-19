@@ -2,6 +2,7 @@ package info.dong4j.idea.plugin.strategy;
 
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
+import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.settings.WeiboOssState;
 import info.dong4j.idea.plugin.singleton.WeiboOssClient;
 import info.dong4j.idea.plugin.util.DES;
@@ -42,7 +43,6 @@ public class WeiboUploadStrategy implements UploadStrategy {
 
     @Override
     public String upload(InputStream inputStream, String fileName) {
-        // todo-dong4j : (2019年03月17日 03:34) [调用工具类实现上传(工具类做成单例的)]
         return uploadFromState(inputStream, fileName);
     }
 
@@ -104,8 +104,7 @@ public class WeiboUploadStrategy implements UploadStrategy {
 
             if (StringUtils.isNotBlank(url)) {
                 int hashcode = username.hashCode() + password.hashCode();
-                saveStatus(weiboOssState, hashcode);
-
+                OssState.saveStatus(weiboOssState, hashcode, ImageManagerState.OLD_HASH_KEY);
                 WeiboOssClient.getInstance().setOssClient(ossClient);
             }
         } else {

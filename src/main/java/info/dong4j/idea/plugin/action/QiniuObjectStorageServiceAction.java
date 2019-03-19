@@ -1,9 +1,10 @@
 package info.dong4j.idea.plugin.action;
 
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
+import info.dong4j.idea.plugin.singleton.QiniuOssClient;
 
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 
@@ -23,10 +24,10 @@ public final class QiniuObjectStorageServiceAction extends AbstractObjectStorage
         return validFromState(ImageManagerPersistenComponent.getInstance().getState().getQiniuOssState());
     }
 
-    @Nullable
+    @NotNull
     @Contract(pure = true)
     @Override
     String upload(File file) {
-        return null;
+        return QiniuOssClient.getInstance().upload(file);
     }
 }
