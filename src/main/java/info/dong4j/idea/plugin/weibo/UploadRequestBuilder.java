@@ -54,10 +54,6 @@ public class UploadRequestBuilder {
         if (StringUtils.isBlank(password)) {
             throw new IllegalArgumentException("密码不能为空!");
         }
-        WbpUploadRequest uploadRequest = new WbpUploadRequest(request, this.username, this.password);
-        if (tryLoginTime != 0) {
-            WbpUploadRequest.tryLoginTime = this.tryLoginTime;
-        }
-        return uploadRequest;
+        return new WbpUploadRequest(request, this.username, this.password);
     }
 }

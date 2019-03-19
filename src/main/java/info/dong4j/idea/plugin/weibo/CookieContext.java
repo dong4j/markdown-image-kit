@@ -64,6 +64,7 @@ public class CookieContext implements CookieCacheable {
      */
     synchronized void setCOOKIE(String cookie) {
         context.cookie = cookie;
+        saveCookie(cookie);
     }
 
     @Override

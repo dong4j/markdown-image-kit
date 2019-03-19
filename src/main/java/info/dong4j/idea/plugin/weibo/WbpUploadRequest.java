@@ -47,11 +47,8 @@ public class WbpUploadRequest implements UploadRequest {
     private String username;
     private String password;
     private static final Set<String> IMAGE_EXTENSION = new HashSet<>();
-    /** 重连次数 */
-    private static AtomicInteger tryLoginCount = new AtomicInteger(0);
-    /** 重连等待时间，每次重连失败后，重连等待时间为 = 重连次数 * 重连等待时间 */
-    private static final long DEFAULT_TRY_LOGIN_TIME = 2 * 60 * 1000;
-    static volatile long tryLoginTime = DEFAULT_TRY_LOGIN_TIME;
+    /** 重连1次, cookies 过期后自动获取 cookie */
+    private static AtomicInteger tryLoginCount = new AtomicInteger(1);
     /** 结束时间 */
     private static volatile long endTime = 0;
 
@@ -105,7 +102,6 @@ public class WbpUploadRequest implements UploadRequest {
 
         int retCode = uploadResp.getData().getPics().getPic_1().getRet();
         if (retCode == -1) {
-            // 可能是cookie过期,如果不在冷却时间内的话，再登陆一次，再上传
             if (tryReLogin()) {
                 return upload(image);
             } else {
@@ -188,8 +184,6 @@ public class WbpUploadRequest implements UploadRequest {
             }
             log.trace("登陆成功,cookie:--->\n\n" + cookie + "\n");
             log.info("登陆成功！获取cookie成功!");
-            // 将重登状态重设为0
-            tryLoginCount.set(0);
             // 存入cookie
             CookieContext.getInstance().setCOOKIE(cookie);
         } else {
@@ -250,20 +244,19 @@ public class WbpUploadRequest implements UploadRequest {
 
     private void checkLogin() throws IOException, LoginFailedException {
         CookieContext instance = CookieContext.getInstance();
-        if (StringUtils.isNotBlank(instance.getCOOKIE())) {
+        if (StringUtils.isBlank(instance.getCOOKIE())) {
             login();
         }
     }
 
-    private synchronized boolean tryReLogin() throws IOException, LoginFailedException {
-        final long currentTime = System.currentTimeMillis();
+    private synchronized boolean tryReLogin() throws LoginFailedException {
         // 先判断是否已经到了冷却时间
-        if (endTime != 0 && endTime < currentTime) {
-            int i = tryLoginCount.addAndGet(1);
-            endTime = System.currentTimeMillis() + tryLoginTime * i;
-            login();
+        if (tryLoginCount.getAndAdd(1) < 2) {
+            CookieContext.getInstance().deleteCookie();
             return true;
         }
+        // 将重登状态重设为0
+        tryLoginCount.set(1);
         return false;
     }
 
