@@ -2,8 +2,8 @@ package info.dong4j.idea.plugin.util;
 
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.enums.CloudEnum;
-import info.dong4j.idea.plugin.settings.OssPersistenConfig;
-import info.dong4j.idea.plugin.settings.OssState;
+import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
+import info.dong4j.idea.plugin.settings.ImageManagerState;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class UploadUtils {
-    private static OssState state = OssPersistenConfig.getInstance().getState();
+    private static ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
 
     /**
      * 根据是否替换标签替换为最终的标签
@@ -48,7 +48,7 @@ public class UploadUtils {
      * @return the final image mark
      */
     public static String getFinalImageMark(String title, String imageUrl, String original, String endString) {
-        boolean isChangeToHtmlTag = OssPersistenConfig.getInstance().getState().isChangeToHtmlTag();
+        boolean isChangeToHtmlTag = ImageManagerPersistenComponent.getInstance().getState().isChangeToHtmlTag();
         // 处理 imageUrl 为空的情况
         imageUrl = StringUtils.isBlank(imageUrl) ? original : imageUrl;
         // 默认标签格式

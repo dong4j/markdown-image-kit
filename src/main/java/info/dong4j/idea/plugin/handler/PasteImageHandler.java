@@ -17,8 +17,8 @@ import com.intellij.util.containers.hash.HashMap;
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.enums.CloudEnum;
-import info.dong4j.idea.plugin.settings.OssPersistenConfig;
-import info.dong4j.idea.plugin.settings.OssState;
+import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
+import info.dong4j.idea.plugin.settings.ImageManagerState;
 import info.dong4j.idea.plugin.util.CharacterUtils;
 import info.dong4j.idea.plugin.util.EnumsUtils;
 import info.dong4j.idea.plugin.util.ImageUtils;
@@ -84,7 +84,7 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
             if (virtualFile.getFileType().getName().equals(MarkdownContents.MARKDOWN_FILE_TYPE)
                 || virtualFile.getName().endsWith(MarkdownContents.MARKDOWN_FILE_SUFIX)) {
                 // 根据配置操作. 是否开启 clioboard 监听; 是否将文件拷贝到目录; 是否开启上传到图床
-                OssState state = OssPersistenConfig.getInstance().getState();
+                ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
 
                 boolean isClipboardControl = state.isClipboardControl();
 
@@ -159,7 +159,7 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
      * @param fileName the file name
      */
     private void invoke(@NotNull Editor editor, Document document, Image image, String fileName) {
-        OssState state = OssPersistenConfig.getInstance().getState();
+        ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
         boolean isCopyToDir = state.isCopyToDir();
         boolean isUploadAndReplace = state.isUploadAndReplace();
         BufferedImage bufferedImage = ImageUtils.toBufferedImage(image);
@@ -186,7 +186,7 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
      */
     private void copyToDirAndReplace(@NotNull Editor editor,
                                      Document document,
-                                     OssState state,
+                                     ImageManagerState state,
                                      BufferedImage bufferedImage,
                                      String imageName) {
         // 保存图片
@@ -234,7 +234,7 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
             ImageIO.write(bufferedImage, "png", os);
             InputStream is = new ByteArrayInputStream(os.toByteArray());
             // 上传到默认图床
-            int defaultCloudType = OssPersistenConfig.getInstance().getState().getCloudType();
+            int defaultCloudType = ImageManagerPersistenComponent.getInstance().getState().getCloudType();
             CloudEnum cloudEnum = EnumsUtils.getCloudEnum(defaultCloudType);
             // 此处进行异步处理, 不然上传大图时会卡死
             Runnable r = () -> {

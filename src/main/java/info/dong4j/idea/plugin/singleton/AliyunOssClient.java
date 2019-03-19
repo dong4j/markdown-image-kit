@@ -5,13 +5,15 @@ import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.ObjectMetadata;
 
 import info.dong4j.idea.plugin.enums.SuffixEnum;
-import info.dong4j.idea.plugin.settings.OssPersistenConfig;
-import info.dong4j.idea.plugin.settings.OssState;
+import info.dong4j.idea.plugin.settings.AliyunOssState;
+import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
+import info.dong4j.idea.plugin.settings.ImageManagerState;
 import info.dong4j.idea.plugin.util.CharacterUtils;
 import info.dong4j.idea.plugin.util.DES;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.net.*;
@@ -61,10 +63,10 @@ public class AliyunOssClient {
      * 如果是第一次使用, ossClient == null
      */
     private static void init() {
-        OssState.AliyunOssState aliyunOssState = OssPersistenConfig.getInstance().getState().getAliyunOssState();
+        AliyunOssState aliyunOssState = ImageManagerPersistenComponent.getInstance().getState().getAliyunOssState();
         bucketName = aliyunOssState.getBucketName();
         String accessKey = aliyunOssState.getAccessKey();
-        String accessSecretKey = DES.decrypt(aliyunOssState.getAccessSecretKey(), OssState.ALIYUN);
+        String accessSecretKey = DES.decrypt(aliyunOssState.getAccessSecretKey(), ImageManagerState.ALIYUN);
         String endpoint = aliyunOssState.getEndpoint();
         String tempFileDir = aliyunOssState.getFiledir();
         fileDir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";
@@ -168,10 +170,10 @@ public class AliyunOssClient {
      * @param fileName  the file name
      * @return the string
      */
-    private String upload(OSS ossClient,
-                          InputStream instream,
+    public String upload(OSS ossClient,
+                          @NotNull InputStream instream,
                           String filedir,
-                          String fileName) {
+                          @NotNull String fileName) {
         try {
             // 创建上传 Object 的 Metadata
             ObjectMetadata objectMetadata = new ObjectMetadata();
@@ -188,9 +190,7 @@ public class AliyunOssClient {
             log.trace("", e);
         } finally {
             try {
-                if (instream != null) {
-                    instream.close();
-                }
+                instream.close();
             } catch (IOException e) {
                 log.trace("", e);
             }

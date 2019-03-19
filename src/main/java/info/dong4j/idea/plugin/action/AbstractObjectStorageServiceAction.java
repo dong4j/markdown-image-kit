@@ -32,6 +32,8 @@ import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
+import info.dong4j.idea.plugin.settings.ImageManagerState;
+import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.util.PsiDocumentUtils;
 
 import org.apache.commons.lang.StringUtils;
@@ -206,6 +208,12 @@ public abstract class AbstractObjectStorageServiceAction extends AnAction {
      * @return the boolean
      */
     abstract boolean isPassedTest();
+
+    boolean validFromState(OssState state){
+        boolean isPassedTest = state.isPassedTest();
+        Map<String, String> oldAndNewAuth = state.getOldAndNewAuthInfo();
+        return isPassedTest && oldAndNewAuth.get(ImageManagerState.OLD_HASH_KEY).equals(oldAndNewAuth.get(ImageManagerState.NEW_HASH_KEY));
+    }
 
     /**
      * 显示提示对话框

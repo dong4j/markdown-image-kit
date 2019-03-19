@@ -1,5 +1,8 @@
 package info.dong4j.idea.plugin.strategy;
 
+import info.dong4j.idea.plugin.settings.ImageManagerState;
+import info.dong4j.idea.plugin.settings.OssState;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.Component;
@@ -29,6 +32,17 @@ public interface UploadStrategy {
     String upload(InputStream inputStream, String fileName);
 
     /**
+     * Save status.
+     *
+     * @param state    the state
+     * @param hashcode the hashcode
+     */
+    default void saveStatus(OssState state, int hashcode){
+        state.setPassedTest(true);
+        state.getOldAndNewAuthInfo().put(ImageManagerState.OLD_HASH_KEY, String.valueOf(hashcode));
+    }
+
+    /**
      * Gets test field text.
      *
      * @param jPanel the j panel
@@ -48,6 +62,9 @@ public interface UploadStrategy {
         return textList;
     }
 
+    /**
+     * The enum Upload way enum.
+     */
     enum UploadWayEnum {
         /** 测试按钮 */
         FROM_TEST,

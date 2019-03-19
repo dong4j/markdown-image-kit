@@ -27,7 +27,7 @@ public final class QiniuUploadUtils {
      * @param preFix      the pre fix
      * @param accessKey   the access key
      * @param secretKey   the secret key
-     * @param bucket      the bucket
+     * @param bucket      the bucketName
      * @return the string
      */
     static String uploadImage(byte[] uploadBytes, String preFix, String accessKey, String secretKey, String bucket) {
@@ -63,7 +63,7 @@ public final class QiniuUploadUtils {
      *
      * @param accessKey the access key
      * @param secretKey the secret key
-     * @param bucket    the bucket
+     * @param bucket    the bucketName
      * @return the token
      */
     public static String getToken(String accessKey, String secretKey, String bucket) {

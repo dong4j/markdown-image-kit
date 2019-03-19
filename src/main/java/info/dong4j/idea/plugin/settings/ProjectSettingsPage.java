@@ -48,7 +48,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ProjectSettingsPage implements SearchableConfigurable, Configurable.NoScroll {
-    private OssPersistenConfig ossPersistenConfig;
+    private ImageManagerPersistenComponent imageManagerPersistenComponent;
     private static final String TEST_FILE_NAME = "test.png";
 
     private JPanel myMainPanel;
@@ -112,8 +112,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
 
     public ProjectSettingsPage() {
         log.trace("ProjectSettingsPage Constructor invoke");
-        ossPersistenConfig = OssPersistenConfig.getInstance();
-        if (ossPersistenConfig != null) {
+        imageManagerPersistenComponent = ImageManagerPersistenComponent.getInstance();
+        if (imageManagerPersistenComponent != null) {
             reset();
         }
     }
@@ -150,9 +150,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      */
     private void initClipboardControl() {
         // 设置是否勾选
-        boolean isClipboardControl = ossPersistenConfig.getState().isClipboardControl();
-        boolean isCopyToDir = ossPersistenConfig.getState().isCopyToDir();
-        boolean isUploadAndReplace = ossPersistenConfig.getState().isUploadAndReplace();
+        boolean isClipboardControl = imageManagerPersistenComponent.getState().isClipboardControl();
+        boolean isCopyToDir = imageManagerPersistenComponent.getState().isCopyToDir();
+        boolean isUploadAndReplace = imageManagerPersistenComponent.getState().isUploadAndReplace();
         this.clipboardControlCheckBox.setSelected(isClipboardControl);
         this.copyToDirCheckBox.setSelected(isCopyToDir);
         this.uploadAndReplaceCheckBox.setSelected(isUploadAndReplace);
@@ -161,11 +161,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.copyToDirCheckBox.setEnabled(isClipboardControl);
         this.uploadAndReplaceCheckBox.setEnabled(isClipboardControl);
         // 设置 copy 位置
-        this.whereToCopyTextField.setText(ossPersistenConfig.getState().getImageSavePath());
+        this.whereToCopyTextField.setText(imageManagerPersistenComponent.getState().getImageSavePath());
         this.whereToCopyTextField.setEnabled(isClipboardControl && isCopyToDir);
         // 默认上传图床
         this.defaultCloudComboBox.setEnabled(isUploadAndReplace && isClipboardControl);
-        this.defaultCloudComboBox.setSelectedIndex(ossPersistenConfig.getState().getCloudType());
+        this.defaultCloudComboBox.setSelectedIndex(imageManagerPersistenComponent.getState().getCloudType());
 
         // 设置 clipboardControlCheckBox 监听
         clipboardControlCheckBox.addChangeListener(e -> {
@@ -195,7 +195,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      */
     private void initAuthorizationTabbedPanel() {
         // 打开设置页时默认选中默认上传图床
-        authorizationTabbedPanel.setSelectedIndex(ossPersistenConfig.getState().getCloudType());
+        authorizationTabbedPanel.setSelectedIndex(imageManagerPersistenComponent.getState().getCloudType());
         authorizationTabbedPanel.addChangeListener(e -> {
             // 清理 test 信息
             testMessage.setText("");
@@ -213,11 +213,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      * 初始化 aliyun oss 认证相关设置
      */
     private void initAliyunOssAuthenticationPanel() {
-        String aliyunOssAccessSecretKey = ossPersistenConfig.getState().getAliyunOssState().getAccessSecretKey();
-        aliyunOssAccessSecretKeyTextField.setText(DES.decrypt(aliyunOssAccessSecretKey, OssState.ALIYUN));
+        String aliyunOssAccessSecretKey = imageManagerPersistenComponent.getState().getAliyunOssState().getAccessSecretKey();
+        aliyunOssAccessSecretKeyTextField.setText(DES.decrypt(aliyunOssAccessSecretKey, ImageManagerState.ALIYUN));
 
         // 根据持久化配置设置为被选中的 item
-        aliyunOssSuffixBoxField.setSelectedItem(ossPersistenConfig.getState().getAliyunOssState().getSuffix());
+        aliyunOssSuffixBoxField.setSelectedItem(imageManagerPersistenComponent.getState().getAliyunOssState().getSuffix());
         // 处理当 aliyunOssFileDirTextField.getText() 为 空字符时, 不拼接 "/
         setExampleText();
 
@@ -255,8 +255,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      * 初始化 weibo oss 认证相关设置
      */
     private void initWeiboOssAuthenticationPanel() {
-        weiboUserNameTextField.setText(ossPersistenConfig.getState().getWeiboOssState().getUserName());
-        weiboPasswordField.setText(DES.decrypt(ossPersistenConfig.getState().getWeiboOssState().getPassword(), OssState.WEIBOKEY));
+        weiboUserNameTextField.setText(imageManagerPersistenComponent.getState().getWeiboOssState().getUserName());
+        weiboPasswordField.setText(DES.decrypt(imageManagerPersistenComponent.getState().getWeiboOssState().getPassword(), ImageManagerState.WEIBOKEY));
     }
 
     /**
@@ -320,8 +320,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      */
     private void initExpandGroup() {
         // todo-dong4j : (2019年03月15日 20:52) [删除此设置, 使用 MoveToOtherStorageAction 替代]
-        this.transportCheckBox.setSelected(ossPersistenConfig.getState().isTransport());
-        this.backupCheckBox.setSelected(ossPersistenConfig.getState().isBackup());
+        this.transportCheckBox.setSelected(imageManagerPersistenComponent.getState().isTransport());
+        this.backupCheckBox.setSelected(imageManagerPersistenComponent.getState().isBackup());
     }
 
     /**
@@ -330,9 +330,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private void initCompressGroup() {
         styleNameTextField.addFocusListener(new JTextFieldHintListener(styleNameTextField, "请提前在 Aliyun OSS 控制台设置"));
 
-        boolean compressStatus = ossPersistenConfig.getState().isCompress();
-        boolean beforeCompressStatus = ossPersistenConfig.getState().isCompressBeforeUpload();
-        boolean lookUpCompressStatus = ossPersistenConfig.getState().isCompressAtLookup();
+        boolean compressStatus = imageManagerPersistenComponent.getState().isCompress();
+        boolean beforeCompressStatus = imageManagerPersistenComponent.getState().isCompressBeforeUpload();
+        boolean lookUpCompressStatus = imageManagerPersistenComponent.getState().isCompressAtLookup();
         // 设置被选中
         this.compressCheckBox.setSelected(compressStatus);
         // 设置组下多选框状态
@@ -342,7 +342,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.compressAtLookupCheckBox.setSelected(lookUpCompressStatus);
 
         this.compressSlider.setEnabled(compressStatus && beforeCompressStatus);
-        this.compressSlider.setValue(ossPersistenConfig.getState().getCompressBeforeUploadOfPercent());
+        this.compressSlider.setValue(imageManagerPersistenComponent.getState().getCompressBeforeUploadOfPercent());
 
         // 设置主刻度间隔
         compressSlider.setMajorTickSpacing(10);
@@ -355,7 +355,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
 
         this.compressLabel.setText(String.valueOf(compressSlider.getValue()));
         this.styleNameTextField.setEnabled(compressStatus && lookUpCompressStatus);
-        this.styleNameTextField.setText(ossPersistenConfig.getState().getStyleName());
+        this.styleNameTextField.setText(imageManagerPersistenComponent.getState().getStyleName());
 
         // compressCheckBox 监听, 修改组下组件状态
         compressCheckBox.addChangeListener(e -> {
@@ -389,7 +389,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
 
         // 初始化 changeToHtmlTagCheckBox 选中状态
         // 设置被选中
-        boolean changeToHtmlTagCheckBoxStatus = ossPersistenConfig.getState().isChangeToHtmlTag();
+        boolean changeToHtmlTagCheckBoxStatus = imageManagerPersistenComponent.getState().isChangeToHtmlTag();
 
         this.changeToHtmlTagCheckBox.setSelected(changeToHtmlTagCheckBoxStatus);
         // 设置组下单选框可用
@@ -398,14 +398,14 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.customRadioButton.setEnabled(changeToHtmlTagCheckBoxStatus);
 
         // 初始化 changeToHtmlTagCheckBox 组下单选框状态
-        if (ImageMarkEnum.COMMON_PICTURE.text.equals(ossPersistenConfig.getState().getTagType())) {
+        if (ImageMarkEnum.COMMON_PICTURE.text.equals(imageManagerPersistenComponent.getState().getTagType())) {
             commonRadioButton.setSelected(true);
-        } else if (ImageMarkEnum.LARGE_PICTURE.text.equals(ossPersistenConfig.getState().getTagType())) {
+        } else if (ImageMarkEnum.LARGE_PICTURE.text.equals(imageManagerPersistenComponent.getState().getTagType())) {
             largePictureRadioButton.setSelected(true);
-        } else if (ImageMarkEnum.CUSTOM.text.equals(ossPersistenConfig.getState().getTagType())) {
+        } else if (ImageMarkEnum.CUSTOM.text.equals(imageManagerPersistenComponent.getState().getTagType())) {
             customRadioButton.setSelected(true);
             customHtmlTypeTextField.setEnabled(changeToHtmlTagCheckBoxStatus);
-            customHtmlTypeTextField.setText(ossPersistenConfig.getState().getTagTypeCode());
+            customHtmlTypeTextField.setText(imageManagerPersistenComponent.getState().getTagTypeCode());
         } else {
             commonRadioButton.setSelected(true);
         }
@@ -478,7 +478,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     @Override
     public boolean isModified() {
         log.trace("isModified invoke");
-        OssState state = ossPersistenConfig.getState();
+        ImageManagerState state = imageManagerPersistenComponent.getState();
         return !(isAliyunAuthModified(state)
                  && isWeiboAuthModified(state)
                  && isGeneralModified(state)
@@ -486,13 +486,13 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         );
     }
 
-    private boolean isAliyunAuthModified(@NotNull OssState state) {
-        OssState.AliyunOssState aliyunOssState = state.getAliyunOssState();
+    private boolean isAliyunAuthModified(@NotNull ImageManagerState state) {
+        AliyunOssState aliyunOssState = state.getAliyunOssState();
         String newBucketName = aliyunOssBucketNameTextField.getText().trim();
         String newAccessKey = aliyunOssAccessKeyTextField.getText().trim();
         String newAccessSecretKey = new String(aliyunOssAccessSecretKeyTextField.getPassword());
         if (StringUtils.isNotBlank(newAccessSecretKey)) {
-            newAccessSecretKey = DES.encrypt(newAccessSecretKey, OssState.ALIYUN);
+            newAccessSecretKey = DES.encrypt(newAccessSecretKey, ImageManagerState.ALIYUN);
         }
         String newEndpoint = aliyunOssEndpointTextField.getText().trim();
         String newFileDir = aliyunOssFileDirTextField.getText().trim();
@@ -512,18 +512,18 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                && newSuffix.equals(aliyunOssState.getSuffix());
     }
 
-    private boolean isWeiboAuthModified(@NotNull OssState state) {
-        OssState.WeiboOssState weiboOssState = state.getWeiboOssState();
+    private boolean isWeiboAuthModified(@NotNull ImageManagerState state) {
+        WeiboOssState weiboOssState = state.getWeiboOssState();
         String weiboUsername = weiboUserNameTextField.getText().trim();
         String weiboPassword = new String(weiboPasswordField.getPassword());
         if (StringUtils.isNotBlank(weiboPassword)) {
-            weiboPassword = DES.encrypt(weiboPassword, OssState.WEIBOKEY);
+            weiboPassword = DES.encrypt(weiboPassword, ImageManagerState.WEIBOKEY);
         }
         return weiboUsername.equals(weiboOssState.getUserName())
                && weiboPassword.equals(weiboOssState.getPassword());
     }
 
-    private boolean isGeneralModified(OssState state) {
+    private boolean isGeneralModified(ImageManagerState state) {
         // 是否替换标签
         boolean changeToHtmlTag = changeToHtmlTagCheckBox.isSelected();
         // 替换的标签类型
@@ -579,7 +579,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                && backup == state.isBackup();
     }
 
-    private boolean isClipboardModified(@NotNull OssState state) {
+    private boolean isClipboardModified(@NotNull ImageManagerState state) {
         boolean clipboardControl = clipboardControlCheckBox.isSelected();
         boolean copyToDir = copyToDirCheckBox.isSelected();
         boolean uploadAndReplace = uploadAndReplaceCheckBox.isSelected();
@@ -598,15 +598,15 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     @Override
     public void apply() {
         log.trace("apply invoke");
-        OssState state = ossPersistenConfig.getState();
+        ImageManagerState state = imageManagerPersistenComponent.getState();
         applyAliyunAuthConfigs(state);
         applyGeneralConfigs(state);
         applyClipboardConfigs(state);
         applyWeiboAuthConfigs(state);
     }
 
-    private void applyAliyunAuthConfigs(OssState state) {
-        OssState.AliyunOssState aliyunOssState = state.getAliyunOssState();
+    private void applyAliyunAuthConfigs(ImageManagerState state) {
+        AliyunOssState aliyunOssState = state.getAliyunOssState();
         String bucketName = this.aliyunOssBucketNameTextField.getText().trim();
         String accessKey = this.aliyunOssAccessKeyTextField.getText().trim();
         String accessSecretKey = new String(aliyunOssAccessSecretKeyTextField.getPassword());
@@ -616,9 +616,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                        accessKey.hashCode() +
                        accessSecretKey.hashCode() +
                        endpoint.hashCode();
-        aliyunOssState.getOldAndNewAuthInfo().put(OssState.NEW_HASH_KEY, String.valueOf(hashcode));
+        aliyunOssState.getOldAndNewAuthInfo().put(ImageManagerState.NEW_HASH_KEY, String.valueOf(hashcode));
         if (StringUtils.isNotBlank(accessSecretKey)) {
-            accessSecretKey = DES.encrypt(accessSecretKey, OssState.ALIYUN);
+            accessSecretKey = DES.encrypt(accessSecretKey, ImageManagerState.ALIYUN);
         }
 
         aliyunOssState.setBucketName(bucketName);
@@ -629,23 +629,23 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         aliyunOssState.setSuffix(Objects.requireNonNull(this.aliyunOssSuffixBoxField.getSelectedItem()).toString());
     }
 
-    private void applyWeiboAuthConfigs(OssState state) {
-        OssState.WeiboOssState weiboOssState = state.getWeiboOssState();
+    private void applyWeiboAuthConfigs(ImageManagerState state) {
+        WeiboOssState weiboOssState = state.getWeiboOssState();
         // 处理 weibo 保存时的逻辑 (保存之前必须通过测试, 右键菜单才可用)
         String username = this.weiboUserNameTextField.getText().trim();
         String password = new String(weiboPasswordField.getPassword());
         // 需要在加密之前计算 hashcode
         int hashcode = username.hashCode() + password.hashCode();
-        weiboOssState.getOldAndNewAuthInfo().put(OssState.NEW_HASH_KEY, String.valueOf(hashcode));
+        weiboOssState.getOldAndNewAuthInfo().put(ImageManagerState.NEW_HASH_KEY, String.valueOf(hashcode));
         if (StringUtils.isNotBlank(password)) {
-            password = DES.encrypt(password, OssState.WEIBOKEY);
+            password = DES.encrypt(password, ImageManagerState.WEIBOKEY);
         }
 
         weiboOssState.setUserName(username);
         weiboOssState.setPassword(password);
     }
 
-    private void applyGeneralConfigs(OssState state) {
+    private void applyGeneralConfigs(ImageManagerState state) {
         state.setChangeToHtmlTag(this.changeToHtmlTagCheckBox.isSelected());
         if (this.changeToHtmlTagCheckBox.isSelected()) {
             // 正常的
@@ -674,7 +674,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         state.setBackup(this.backupCheckBox.isSelected());
     }
 
-    private void applyClipboardConfigs(OssState state) {
+    private void applyClipboardConfigs(ImageManagerState state) {
         state.setClipboardControl(this.clipboardControlCheckBox.isSelected());
         state.setCopyToDir(this.copyToDirCheckBox.isSelected());
         state.setUploadAndReplace(this.uploadAndReplaceCheckBox.isSelected());
@@ -688,31 +688,31 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     @Override
     public void reset() {
         log.trace("reset invoke");
-        OssState state = ossPersistenConfig.getState();
+        ImageManagerState state = imageManagerPersistenComponent.getState();
         resetAliyunConfigs(state);
         resetWeiboConfigs(state);
         resetGeneralCOnfigs(state);
         resetClipboardConfigs(state);
     }
 
-    private void resetAliyunConfigs(@NotNull OssState state) {
-        OssState.AliyunOssState aliyunOssState = state.getAliyunOssState();
+    private void resetAliyunConfigs(@NotNull ImageManagerState state) {
+        AliyunOssState aliyunOssState = state.getAliyunOssState();
         this.aliyunOssBucketNameTextField.setText(aliyunOssState.getBucketName());
         this.aliyunOssAccessKeyTextField.setText(aliyunOssState.getAccessKey());
         String aliyunOssAccessSecreKey = aliyunOssState.getAccessSecretKey();
-        this.aliyunOssAccessSecretKeyTextField.setText(DES.decrypt(aliyunOssAccessSecreKey, OssState.ALIYUN));
+        this.aliyunOssAccessSecretKeyTextField.setText(DES.decrypt(aliyunOssAccessSecreKey, ImageManagerState.ALIYUN));
         this.aliyunOssEndpointTextField.setText(aliyunOssState.getEndpoint());
         this.aliyunOssFileDirTextField.setText(aliyunOssState.getFiledir());
         this.aliyunOssSuffixBoxField.setSelectedItem(aliyunOssState.getFiledir());
     }
 
-    private void resetWeiboConfigs(@NotNull OssState state) {
-        OssState.WeiboOssState weiboOssState = state.getWeiboOssState();
+    private void resetWeiboConfigs(@NotNull ImageManagerState state) {
+        WeiboOssState weiboOssState = state.getWeiboOssState();
         this.weiboUserNameTextField.setText(weiboOssState.getUserName());
-        this.weiboPasswordField.setText(DES.decrypt(weiboOssState.getPassword(), OssState.WEIBOKEY));
+        this.weiboPasswordField.setText(DES.decrypt(weiboOssState.getPassword(), ImageManagerState.WEIBOKEY));
     }
 
-    private void resetGeneralCOnfigs(OssState state) {
+    private void resetGeneralCOnfigs(ImageManagerState state) {
         this.changeToHtmlTagCheckBox.setSelected(state.isChangeToHtmlTag());
         this.largePictureRadioButton.setSelected(state.getTagType().equals(ImageMarkEnum.LARGE_PICTURE.text));
         this.commonRadioButton.setSelected(state.getTagType().equals(ImageMarkEnum.CUSTOM.text));
@@ -728,7 +728,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.backupCheckBox.setSelected(state.isBackup());
     }
 
-    private void resetClipboardConfigs(OssState state){
+    private void resetClipboardConfigs(ImageManagerState state) {
         this.clipboardControlCheckBox.setSelected(state.isClipboardControl());
         this.copyToDirCheckBox.setSelected(state.isCopyToDir());
         this.whereToCopyTextField.setText(state.getImageSavePath());

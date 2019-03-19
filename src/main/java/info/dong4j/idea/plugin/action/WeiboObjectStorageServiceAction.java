@@ -1,13 +1,11 @@
 package info.dong4j.idea.plugin.action;
 
-import info.dong4j.idea.plugin.settings.OssPersistenConfig;
-import info.dong4j.idea.plugin.settings.OssState;
+import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.singleton.WeiboOssClient;
 
 import org.jetbrains.annotations.Contract;
 
 import java.io.*;
-import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,15 +19,10 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public final class WeiboObjectStorageServiceAction extends AbstractObjectStorageServiceAction {
-
-    private OssState.WeiboOssState weiboOssState = OssPersistenConfig.getInstance().getState().getWeiboOssState();
-
     @Contract(pure = true)
     @Override
     boolean isPassedTest() {
-        boolean isPassedTest = weiboOssState.isPassedTest();
-        Map<String, String> oldAndNewAuth = weiboOssState.getOldAndNewAuthInfo();
-        return isPassedTest && oldAndNewAuth.get(OssState.OLD_HASH_KEY).equals(oldAndNewAuth.get(OssState.NEW_HASH_KEY));
+        return validFromState(ImageManagerPersistenComponent.getInstance().getState().getWeiboOssState());
     }
 
     @Override

@@ -1,7 +1,8 @@
 package info.dong4j.idea.plugin.strategy;
 
-import info.dong4j.idea.plugin.settings.OssPersistenConfig;
-import info.dong4j.idea.plugin.settings.OssState;
+import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
+import info.dong4j.idea.plugin.settings.ImageManagerState;
+import info.dong4j.idea.plugin.settings.WeiboOssState;
 import info.dong4j.idea.plugin.singleton.WeiboOssClient;
 import info.dong4j.idea.plugin.util.DES;
 import info.dong4j.idea.plugin.weibo.UploadRequestBuilder;
@@ -37,7 +38,7 @@ public class WeiboUploadStrategy implements UploadStrategy {
     private String username;
     private String password;
 
-    private OssState.WeiboOssState weiboOssState = OssPersistenConfig.getInstance().getState().getWeiboOssState();
+    private WeiboOssState weiboOssState = ImageManagerPersistenComponent.getInstance().getState().getWeiboOssState();
 
     @Override
     public String upload(InputStream inputStream, String fileName) {
@@ -55,7 +56,7 @@ public class WeiboUploadStrategy implements UploadStrategy {
     @NotNull
     private String uploadFromState(InputStream inputStream, String fileName) {
         String username = weiboOssState.getUserName();
-        String password = DES.decrypt(weiboOssState.getPassword(), OssState.WEIBOKEY);
+        String password = DES.decrypt(weiboOssState.getPassword(), ImageManagerState.WEIBOKEY);
 
         return upload(inputStream, fileName, username, password, UploadWayEnum.FROM_PASTE);
     }
@@ -102,9 +103,9 @@ public class WeiboUploadStrategy implements UploadStrategy {
             url = WeiboOssClient.getInstance().upload(ossClient, inputStream, fileName);
 
             if (StringUtils.isNotBlank(url)) {
-                weiboOssState.setPassedTest(true);
                 int hashcode = username.hashCode() + password.hashCode();
-                weiboOssState.getOldAndNewAuthInfo().put(OssState.OLD_HASH_KEY, String.valueOf(hashcode));
+                saveStatus(weiboOssState, hashcode);
+
                 WeiboOssClient.getInstance().setOssClient(ossClient);
             }
         } else {

@@ -18,29 +18,29 @@ import lombok.extern.slf4j.Slf4j;
  * @email sjdong3 @iflytek.com
  */
 @Slf4j
-@State(name = "OssPersistenConfig", storages = @Storage(file = "oss-upload-configs.xml"))
-public class OssPersistenConfig implements PersistentStateComponent<OssState> {
+@State(name = "ImageManagerSetting", storages = @Storage(file = "image.manager.configs.xml"))
+public class ImageManagerPersistenComponent implements PersistentStateComponent<ImageManagerState> {
 
     /**
      * Get the instance of this service.
      *
-     * @return the unique {@link OssPersistenConfig} instance.
+     * @return the unique {@link ImageManagerPersistenComponent} instance.
      */
-    public static OssPersistenConfig getInstance() {
+    public static ImageManagerPersistenComponent getInstance() {
         log.trace("get OssPersistenConfig getInstance");
-        return ServiceManager.getService(OssPersistenConfig.class);
+        return ServiceManager.getService(ImageManagerPersistenComponent.class);
     }
 
-    private OssState myState = new OssState();
+    private ImageManagerState myState = new ImageManagerState();
 
     @Override
-    public void loadState(@NotNull OssState state) {
+    public void loadState(@NotNull ImageManagerState state) {
         this.myState = state;
     }
 
     @NotNull
     @Override
-    public OssState getState() {
+    public ImageManagerState getState() {
         return this.myState;
     }
 }

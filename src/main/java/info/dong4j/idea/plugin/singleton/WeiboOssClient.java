@@ -1,7 +1,8 @@
 package info.dong4j.idea.plugin.singleton;
 
-import info.dong4j.idea.plugin.settings.OssPersistenConfig;
-import info.dong4j.idea.plugin.settings.OssState;
+import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
+import info.dong4j.idea.plugin.settings.ImageManagerState;
+import info.dong4j.idea.plugin.settings.WeiboOssState;
 import info.dong4j.idea.plugin.util.DES;
 import info.dong4j.idea.plugin.weibo.UploadRequestBuilder;
 import info.dong4j.idea.plugin.weibo.UploadResponse;
@@ -42,9 +43,9 @@ public class WeiboOssClient {
      * 如果是第一次使用, ossClient == null
      */
     private static void init() {
-        OssState.WeiboOssState weiboOssState = OssPersistenConfig.getInstance().getState().getWeiboOssState();
+        WeiboOssState weiboOssState = ImageManagerPersistenComponent.getInstance().getState().getWeiboOssState();
         String username = weiboOssState.getUserName();
-        String password = DES.decrypt(weiboOssState.getPassword(), OssState.ALIYUN);
+        String password = DES.decrypt(weiboOssState.getPassword(), ImageManagerState.ALIYUN);
 
         try {
             ossClient = new UploadRequestBuilder()

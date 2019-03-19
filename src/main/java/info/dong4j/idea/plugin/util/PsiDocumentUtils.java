@@ -8,8 +8,8 @@ import com.intellij.psi.PsiDocumentManager;
 
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
-import info.dong4j.idea.plugin.settings.OssPersistenConfig;
-import info.dong4j.idea.plugin.settings.OssState;
+import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
+import info.dong4j.idea.plugin.settings.ImageManagerState;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
@@ -20,7 +20,7 @@ import info.dong4j.idea.plugin.settings.OssState;
  * @email sjdong3 @iflytek.com
  */
 public final class PsiDocumentUtils {
-    private static OssState state = OssPersistenConfig.getInstance().getState();
+    private static ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
 
     /**
      * Commit and save document.

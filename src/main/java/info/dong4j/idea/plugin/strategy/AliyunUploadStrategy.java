@@ -3,8 +3,9 @@ package info.dong4j.idea.plugin.strategy;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 
-import info.dong4j.idea.plugin.settings.OssPersistenConfig;
-import info.dong4j.idea.plugin.settings.OssState;
+import info.dong4j.idea.plugin.settings.AliyunOssState;
+import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
+import info.dong4j.idea.plugin.settings.ImageManagerState;
 import info.dong4j.idea.plugin.singleton.AliyunOssClient;
 import info.dong4j.idea.plugin.util.DES;
 
@@ -42,7 +43,7 @@ public class AliyunUploadStrategy implements UploadStrategy {
     private String endpoint;
     private String fileDir;
 
-    private OssState.AliyunOssState aliyunOssState = OssPersistenConfig.getInstance().getState().getAliyunOssState();
+    private AliyunOssState aliyunOssState = ImageManagerPersistenComponent.getInstance().getState().getAliyunOssState();
 
     /**
      * Uploads by reflection
@@ -66,20 +67,20 @@ public class AliyunUploadStrategy implements UploadStrategy {
      * @return the string
      */
     private String uploadFromPaste(InputStream inputStream, String fileName) {
-        String tempBucketName = aliyunOssState.getBucketName();
-        String tempAccessKey = aliyunOssState.getAccessKey();
-        String tempAccessSecretKey = aliyunOssState.getAccessSecretKey();
-        tempAccessSecretKey = DES.decrypt(tempAccessSecretKey, OssState.ALIYUN);
-        String tempEndpoint = aliyunOssState.getEndpoint();
-        String tempFileDir = aliyunOssState.getFiledir();
+        String bucketName = aliyunOssState.getBucketName();
+        String accessKey = aliyunOssState.getAccessKey();
+        String accessSecretKey = aliyunOssState.getAccessSecretKey();
+        accessSecretKey = DES.decrypt(accessSecretKey, ImageManagerState.ALIYUN);
+        String endpoint = aliyunOssState.getEndpoint();
+        String filedir = aliyunOssState.getFiledir();
 
         return upload(inputStream,
                       fileName,
-                      tempBucketName,
-                      tempAccessKey,
-                      tempAccessSecretKey,
-                      tempEndpoint,
-                      tempFileDir,
+                      bucketName,
+                      accessKey,
+                      accessSecretKey,
+                      endpoint,
+                      filedir,
                       UploadWayEnum.FROM_PASTE);
 
     }
@@ -97,19 +98,19 @@ public class AliyunUploadStrategy implements UploadStrategy {
         // 保存认证信息, 这个顺序是确定的
         List<String> textList = getTestFieldText(jPanel);
 
-        String tempBucketName = textList.get(0);
-        String tempAccessKey = textList.get(1);
-        String tempAccessSecretKey = textList.get(5);
-        String tempEndpoint = textList.get(2);
-        String tempFileDir = textList.get(4);
+        String bucketName = textList.get(0);
+        String accessKey = textList.get(1);
+        String accessSecretKey = textList.get(5);
+        String endpoint = textList.get(2);
+        String filedir = textList.get(4);
 
         return upload(inputStream,
                       fileName,
-                      tempBucketName,
-                      tempAccessKey,
-                      tempAccessSecretKey,
-                      tempEndpoint,
-                      tempFileDir,
+                      bucketName,
+                      accessKey,
+                      accessSecretKey,
+                      endpoint,
+                      filedir,
                       UploadWayEnum.FROM_TEST);
     }
 
@@ -118,11 +119,11 @@ public class AliyunUploadStrategy implements UploadStrategy {
      *
      * @param inputStream     the input stream
      * @param fileName        the file name
-     * @param bucketName      the bucket name
+     * @param bucketName      the bucketName name
      * @param accessKey       the access key
      * @param accessSecretKey the access secret key
      * @param endpoint        the endpoint
-     * @param tempFileDir     the temp file dir
+     * @param filedir     the temp file dir
      * @param uploadWayEnum   the upload way enum
      * @return the string
      */
@@ -132,30 +133,27 @@ public class AliyunUploadStrategy implements UploadStrategy {
                           String accessKey,
                           String accessSecretKey,
                           String endpoint,
-                          String tempFileDir,
+                          String filedir,
                           @NotNull UploadWayEnum uploadWayEnum) {
 
-        tempFileDir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";
+        filedir = StringUtils.isBlank(filedir) ? "" : filedir + "/";
         String url;
         if (uploadWayEnum.equals(UploadWayEnum.FROM_TEST)) {
-            OSS oss = new OSSClientBuilder().build(endpoint, accessKey, accessSecretKey);
-            oss.putObject(bucketName,
-                          tempFileDir + fileName,
-                          inputStream);
+            OSS ossClient = new OSSClientBuilder().build(endpoint, accessKey, accessSecretKey);
+
             AliyunOssClient.bucketName = bucketName;
-            url = AliyunOssClient.getInstance().getUrl(oss, tempFileDir, fileName);
+            url = AliyunOssClient.getInstance().upload(ossClient, inputStream, filedir, fileName);
             if (StringUtils.isNotBlank(url)) {
-                aliyunOssState.setPassedTest(true);
                 int hashcode = bucketName.hashCode() +
                                accessKey.hashCode() +
                                accessSecretKey.hashCode() +
                                endpoint.hashCode();
-                aliyunOssState.getOldAndNewAuthInfo().put(OssState.OLD_HASH_KEY, String.valueOf(hashcode));
+                saveStatus(aliyunOssState, hashcode);
                 // 参数验证成功后直接设置 ossClient, 不要浪费
-                AliyunOssClient.getInstance().setOssClient(oss);
+                AliyunOssClient.getInstance().setOssClient(ossClient);
             }
         } else {
-            url = AliyunOssClient.getInstance().getUrl(tempFileDir, fileName);
+            url = AliyunOssClient.getInstance().getUrl(filedir, fileName);
         }
         return url;
     }

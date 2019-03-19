@@ -1,6 +1,6 @@
 package info.dong4j.idea.plugin.action;
 
-import info.dong4j.idea.plugin.settings.OssPersistenConfig;
+import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +20,7 @@ public final class QiniuObjectStorageServiceAction extends AbstractObjectStorage
     @Contract(pure = true)
     @Override
     boolean isPassedTest() {
-        return OssPersistenConfig.getInstance().getState().getQiniuOssState().isPassedTest();
+        return validFromState(ImageManagerPersistenComponent.getInstance().getState().getQiniuOssState());
     }
 
     @Nullable

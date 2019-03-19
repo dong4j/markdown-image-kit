@@ -1,6 +1,6 @@
 package info.dong4j.idea.plugin.weibo;
 
-import info.dong4j.idea.plugin.settings.OssPersistenConfig;
+import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.weibo.io.CookieCacheable;
 
 import org.apache.commons.lang.StringUtils;
@@ -68,11 +68,11 @@ public class CookieContext implements CookieCacheable {
 
     @Override
     public void saveCookie(String cookie) {
-        OssPersistenConfig.getInstance().getState().getWeiboOssState().setCookies(cookie);
+        ImageManagerPersistenComponent.getInstance().getState().getWeiboOssState().setCookies(cookie);
     }
 
     @Override
     public String readCookie() {
-        return OssPersistenConfig.getInstance().getState().getWeiboOssState().getCookies();
+        return ImageManagerPersistenComponent.getInstance().getState().getWeiboOssState().getCookies();
     }
 }
