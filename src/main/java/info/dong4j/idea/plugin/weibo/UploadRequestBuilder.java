@@ -3,6 +3,8 @@ package info.dong4j.idea.plugin.weibo;
 import info.dong4j.idea.plugin.weibo.http.DefaultWbpHttpRequest;
 import info.dong4j.idea.plugin.weibo.http.WbpHttpRequest;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * <p>Description: </p>
  *
@@ -46,10 +48,10 @@ public class UploadRequestBuilder {
      */
     public WbpUploadRequest build() {
         WbpHttpRequest request = new DefaultWbpHttpRequest();
-        if (username == null) {
+        if (StringUtils.isBlank(username)) {
             throw new IllegalArgumentException("用户名不能为空!");
         }
-        if (password == null) {
+        if (StringUtils.isBlank(password)) {
             throw new IllegalArgumentException("密码不能为空!");
         }
         WbpUploadRequest uploadRequest = new WbpUploadRequest(request, this.username, this.password);

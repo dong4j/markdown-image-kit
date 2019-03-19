@@ -1,8 +1,6 @@
 package info.dong4j.idea.plugin.singleton;
 
-import com.intellij.testFramework.RunsInActiveStoreMode;
-
-import org.junit.Test;
+import com.intellij.testFramework.LightPlatformTestCase;
 
 import java.io.*;
 
@@ -17,9 +15,9 @@ import lombok.extern.slf4j.Slf4j;
  * @email sjdong3@iflytek.com
  */
 @Slf4j
-@RunsInActiveStoreMode
-public class AliyunOssClientTest {
-    @Test
+// @RunsInActiveStoreMode
+public class AliyunOssClientTest extends LightPlatformTestCase {
+    // @Test
     public void test(){
         AliyunOssClient aliyunOssClient = AliyunOssClient.getInstance();
         String url = aliyunOssClient.upload(new File("/Users/dong4j/Downloads/我可要开始皮了.png"));

@@ -47,7 +47,7 @@ public class CookieContext implements CookieCacheable {
      * @return the cookie
      */
     synchronized String getCOOKIE() {
-        if (context.cookie != null) {
+        if (StringUtils.isNotBlank(context.cookie)) {
             return context.cookie;
         }
         String cookie = context.readCookie();
@@ -74,5 +74,11 @@ public class CookieContext implements CookieCacheable {
     @Override
     public String readCookie() {
         return ImageManagerPersistenComponent.getInstance().getState().getWeiboOssState().getCookies();
+    }
+
+    @Override
+    public void deleteCookie(){
+        context.cookie = null;
+        saveCookie("");
     }
 }

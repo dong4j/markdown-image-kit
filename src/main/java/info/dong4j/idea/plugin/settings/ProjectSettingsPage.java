@@ -17,6 +17,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.Color;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.Objects;
@@ -279,12 +280,14 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             if (StringUtils.isNotBlank(url)) {
                 testMessage.setForeground(JBColor.GREEN);
                 testMessage.setText("Upload Succeed");
+                testButton.setText("Test Upload");
                 if (log.isTraceEnabled()) {
                     BrowserUtil.browse(url);
                 }
             } else {
-                testMessage.setForeground(JBColor.RED);
-                testMessage.setText("Upload Failed, Please check the configuration");
+                testButton.setText("Try Again");
+                testMessage.setForeground(Color.RED);
+                testMessage.setText("Upload Failed, Please Check The Configuration");
             }
         });
 

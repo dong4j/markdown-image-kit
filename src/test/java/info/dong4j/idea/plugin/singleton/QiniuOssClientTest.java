@@ -2,6 +2,7 @@ package info.dong4j.idea.plugin.singleton;
 
 import com.google.gson.Gson;
 
+import com.intellij.testFramework.LightPlatformTestCase;
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
 import com.qiniu.http.Response;
@@ -11,8 +12,6 @@ import com.qiniu.storage.UploadManager;
 import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.storage.model.FileInfo;
 import com.qiniu.util.Auth;
-
-import org.junit.Test;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -28,8 +27,7 @@ import lombok.extern.slf4j.Slf4j;
  * @email sjdong3@iflytek.com
  */
 @Slf4j
-public class QiniuOssClientTest {
-    @Test
+public class QiniuOssClientTest extends LightPlatformTestCase {
     public void test() {
         String bucket = "markdown-images";
         String accessKey = "9VECTxfLzW5gF1rtvNw-Iht_JzztUyviBl9bI3dh";
@@ -139,5 +137,11 @@ public class QiniuOssClientTest {
             }
         }
         return "";
+    }
+
+    public void test1(){
+        QiniuOssClient qiniuOssClient = QiniuOssClient.getInstance();
+        String url = qiniuOssClient.upload(new File("/Users/dong4j/Downloads/我可要开始皮了.png"));
+        log.info(url);
     }
 }

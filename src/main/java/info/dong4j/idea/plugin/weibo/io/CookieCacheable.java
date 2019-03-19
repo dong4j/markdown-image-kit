@@ -27,4 +27,9 @@ public interface CookieCacheable {
      */
     String readCookie() throws IOException;
 
+    /**
+     * Delete cookie.
+     */
+    void deleteCookie();
+
 }

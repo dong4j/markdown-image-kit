@@ -11,6 +11,8 @@ import info.dong4j.idea.plugin.weibo.exception.LoginFailedException;
 import info.dong4j.idea.plugin.weibo.http.WbpHttpRequest;
 import info.dong4j.idea.plugin.weibo.http.WbpHttpResponse;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.io.*;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -42,8 +44,8 @@ import static java.net.HttpURLConnection.HTTP_OK;
 public class WbpUploadRequest implements UploadRequest {
     private WbpHttpRequest wbpHttpRequest;
     private volatile String preLoginResult;
-    private static String USERNAME;
-    private static String PASSWORD;
+    private String username;
+    private String password;
     private static final Set<String> IMAGE_EXTENSION = new HashSet<>();
     /** 重连次数 */
     private static AtomicInteger tryLoginCount = new AtomicInteger(0);
@@ -56,8 +58,8 @@ public class WbpUploadRequest implements UploadRequest {
     WbpUploadRequest(WbpHttpRequest wbpHttpRequest, String username, String password) {
         this.wbpHttpRequest = wbpHttpRequest;
         initImageExtensionSet();
-        USERNAME = username;
-        PASSWORD = password;
+        this.username = username;
+        this.password = password;
     }
 
     private void initImageExtensionSet() {
@@ -135,7 +137,7 @@ public class WbpUploadRequest implements UploadRequest {
         PreLogin preLogin = new Gson().fromJson(preLoginResult, PreLogin.class);
 
         // 根据微博加密js中密码拼接的方法
-        String pwd = preLogin.getServertime() + "\t" + preLogin.getNonce() + "\n" + PASSWORD;
+        String pwd = preLogin.getServertime() + "\t" + preLogin.getNonce() + "\n" + password;
 
         Map<String, String> params = new HashMap<>(20);
         params.put("encoding", "UTF-8");
@@ -161,7 +163,7 @@ public class WbpUploadRequest implements UploadRequest {
             log.trace("登陆失败，原因：密码加密失败", new LoginFailedException());
         }
         params.put("sr", "1920*1080");
-        params.put("su", Base64.getEncoder().encodeToString(USERNAME.getBytes()));
+        params.put("su", Base64.getEncoder().encodeToString(username.getBytes()));
         params.put("url", "https://weibo.com/ajaxlogin.php?framelogin=1&callback=parent.sinaSSOController.feedBackUrlCallBack");
         params.put("useticket", "1");
         params.put("vsnf", "1");
@@ -196,7 +198,7 @@ public class WbpUploadRequest implements UploadRequest {
     }
 
     private void preLogin() throws IOException, LoginFailedException {
-        String username = Base64.getEncoder().encodeToString(USERNAME.getBytes());
+        String username = Base64.getEncoder().encodeToString(this.username.getBytes());
         String preLoginUrl = "https://login.sina.com.cn/sso/prelogin.php";
         Map<String, String> params = new HashMap<>(6);
         params.put("client", "ssologin.js(v1.4.19)");
@@ -248,7 +250,7 @@ public class WbpUploadRequest implements UploadRequest {
 
     private void checkLogin() throws IOException, LoginFailedException {
         CookieContext instance = CookieContext.getInstance();
-        if (instance.getCOOKIE() == null) {
+        if (StringUtils.isNotBlank(instance.getCOOKIE())) {
             login();
         }
     }

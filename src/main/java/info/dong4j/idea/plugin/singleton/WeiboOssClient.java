@@ -45,7 +45,7 @@ public class WeiboOssClient {
     private static void init() {
         WeiboOssState weiboOssState = ImageManagerPersistenComponent.getInstance().getState().getWeiboOssState();
         String username = weiboOssState.getUserName();
-        String password = DES.decrypt(weiboOssState.getPassword(), ImageManagerState.ALIYUN);
+        String password = DES.decrypt(weiboOssState.getPassword(), ImageManagerState.WEIBOKEY);
 
         try {
             ossClient = new UploadRequestBuilder()

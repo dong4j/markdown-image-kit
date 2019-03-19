@@ -6,6 +6,7 @@ import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.settings.WeiboOssState;
 import info.dong4j.idea.plugin.singleton.WeiboOssClient;
 import info.dong4j.idea.plugin.util.DES;
+import info.dong4j.idea.plugin.weibo.CookieContext;
 import info.dong4j.idea.plugin.weibo.UploadRequestBuilder;
 import info.dong4j.idea.plugin.weibo.WbpUploadRequest;
 
@@ -97,6 +98,7 @@ public class WeiboUploadStrategy implements UploadStrategy {
 
         String url;
         if (uploadWayEnum.equals(UploadWayEnum.FROM_TEST)) {
+            CookieContext.getInstance().deleteCookie();
             WbpUploadRequest ossClient = new UploadRequestBuilder()
                 .setAcount(username, password)
                 .build();
