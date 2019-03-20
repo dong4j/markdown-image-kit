@@ -37,6 +37,7 @@ public class WeiboOssClient implements OssClient {
     private WeiboOssState weiboOssState = ImageManagerPersistenComponent.getInstance().getState().getWeiboOssState();
 
     private WeiboOssClient() {
+        // 反射调用时判断是否初始化
         checkClient();
     }
 
@@ -134,6 +135,7 @@ public class WeiboOssClient implements OssClient {
      * @return the string
      * @throws IOException the io exception
      */
+    @Override
     public String upload(File file) {
         return upload(ossClient, file);
     }
@@ -163,13 +165,14 @@ public class WeiboOssClient implements OssClient {
 
     /**
      * "Upload Test" 按钮被点击后调用 (反射)
-     * {@link info.dong4j.idea.plugin.settings.ProjectSettingsPage #upload}
+     * {@link info.dong4j.idea.plugin.settings.ProjectSettingsPage#testAndHelpListener()}
      *
      * @param inputStream the input stream
      * @param fileName    the file name
      * @param jPanel      the j panel
      * @return the string
      */
+    @Override
     public String upload(InputStream inputStream, String fileName, JPanel jPanel) {
         Map<String, String> map = getTestFieldText(jPanel);
         String username = map.get("username");
@@ -194,13 +197,12 @@ public class WeiboOssClient implements OssClient {
                          String username,
                          String password) {
 
-        String url;
         WeiboOssClient weiboOssClient = WeiboOssClient.getInstance();
         CookieContext.getInstance().deleteCookie();
         WbpUploadRequest ossClient = new UploadRequestBuilder()
             .setAcount(username, password)
             .build();
-        url = weiboOssClient.upload(ossClient, inputStream, fileName);
+        String url = weiboOssClient.upload(ossClient, inputStream, fileName);
 
         if (StringUtils.isNotBlank(url)) {
             int hashcode = username.hashCode() + password.hashCode();

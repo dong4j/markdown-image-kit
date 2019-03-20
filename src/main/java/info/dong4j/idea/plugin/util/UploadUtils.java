@@ -1,12 +1,17 @@
 package info.dong4j.idea.plugin.util;
 
+import com.intellij.openapi.editor.Editor;
+
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
+import info.dong4j.idea.plugin.singleton.OssClient;
 
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -43,9 +48,10 @@ public class UploadUtils {
      * 2. ![](https://ws2.sinaimg.cn/large/a.jpg) -> <a title='' href='https://ws2.sinaimg.cn/large/a.jpg' >![](https://ws2.sinaimg.cn/large/a.jpg)</a>
      * 3. 与设置的标签一样则不处理
      *
-     * @param title    the title
-     * @param imageUrl the image url    上传后的 url, 有可能为 ""
-     * @param original the original     如果为 "", 则使用此字段
+     * @param title     the title
+     * @param imageUrl  the image url    上传后的 url, 有可能为 ""
+     * @param original  the original     如果为 "", 则使用此字段
+     * @param endString the end string
      * @return the final image mark
      */
     public static String getFinalImageMark(String title, String imageUrl, String original, String endString) {
@@ -67,11 +73,14 @@ public class UploadUtils {
     }
 
     /**
-     * 通过反射调用, 避免条件判断, 便于扩展
-     * todo-dong4j : (2019年03月17日 14:13) [考虑将上传到具体的 OSS 使用 properties]
+     * "Upload Test" 按钮被点击后调用, 每次获取最新的配置, 不使用 state 配置.
+     * 调用者 {@link info.dong4j.idea.plugin.settings.ProjectSettingsPage#testAndHelpListener()}
+     * 被调用 {@link info.dong4j.idea.plugin.singleton.OssClient#upload(InputStream, String, JPanel)}
      *
      * @param cloudEnum   the cloud enum
      * @param inputStream the input stream
+     * @param fileName    the file name
+     * @param jPanel      the j panel
      * @return the string
      */
     public static String upload(CloudEnum cloudEnum, InputStream inputStream, String fileName, JPanel jPanel) {
@@ -83,6 +92,38 @@ public class UploadUtils {
             Object obj = constructor.newInstance();
             Method setFunc = cls.getMethod("upload", InputStream.class, String.class, JPanel.class);
             return (String) setFunc.invoke(obj, inputStream, fileName, jPanel);
+        } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException | InstantiationException | NoSuchMethodException e) {
+            // todo-dong4j : (2019年03月17日 03:20) [添加通知]
+            log.trace("", e);
+        }
+        return "";
+    }
+
+    /**
+     * Test 通过且保存配置后, 通过此方法进行上传 (使用缓存中的 ossClient).
+     * 调用者 {@link info.dong4j.idea.plugin.handler.PasteImageHandler#uploadAndInsert(Editor, BufferedImage, String)}
+     * 被调用 {@link info.dong4j.idea.plugin.singleton.OssClient#upload(InputStream, String))}
+     *
+     * @param cloudEnum   the cloud enum    图床类型
+     * @param inputStream the input stream
+     * @param fileName    the file name
+     * @return the string
+     */
+    public static String upload(@NotNull CloudEnum cloudEnum, InputStream inputStream, String fileName) {
+        String className = cloudEnum.getClassName();
+        try {
+            Class<?> cls = Class.forName(className);
+            Object uploader = OssClient.UPLOADER.get(className);
+
+            if (uploader == null) {
+                Constructor constructor = cls.getDeclaredConstructor();
+                // 有意破坏单例, 避免条件判断
+                constructor.setAccessible(true);
+                uploader = constructor.newInstance();
+                OssClient.UPLOADER.put(className, uploader);
+            }
+            Method setFunc = cls.getMethod("upload", InputStream.class, String.class);
+            return (String) setFunc.invoke(uploader, inputStream, fileName);
         } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException | InstantiationException | NoSuchMethodException e) {
             // todo-dong4j : (2019年03月17日 03:20) [添加通知]
             log.trace("", e);

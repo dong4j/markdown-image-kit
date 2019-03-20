@@ -340,7 +340,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     /**
      * 添加 test 和 help 按钮监听, 根据选中的图床进行测试
      */
-    private void testAndHelpListener() {
+    public void testAndHelpListener() {
         // "Test" 按钮点击事件处理
         testButton.addActionListener(e -> {
             int index = authorizationTabbedPanel.getSelectedIndex();

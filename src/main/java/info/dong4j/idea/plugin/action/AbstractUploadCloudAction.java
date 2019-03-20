@@ -20,6 +20,7 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
@@ -262,6 +263,10 @@ public abstract class AbstractUploadCloudAction extends AnAction {
                         if (markdownImage.getLocation().equals(ImageLocationEnum.LOCAL)) {
                             String imageName = markdownImage.getPath();
                             if (StringUtils.isNotBlank(imageName)) {
+                                // 先刷新一次, 避免才添加的文件未被添加的 VFS 中, 导致找不到文件的问题
+                                // todo-dong4j : (2019年03月20日 17:46) [或者通过以下 API 精准查找]
+                                //  "VirtualFile fileByPath = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(new File(imageName));"
+                                VirtualFileManager.getInstance().syncRefresh();
                                 Collection<VirtualFile> findedFiles = FilenameIndex.getVirtualFilesByName(project, imageName, GlobalSearchScope.allScope(project));
 
                                 // 没有对应的图片, 则忽略
@@ -274,7 +279,7 @@ public abstract class AbstractUploadCloudAction extends AnAction {
                                 VirtualFile virtualFile = Iterables.getFirst(findedFiles, null);
                                 assert virtualFile != null;
                                 String fileType = virtualFile.getFileType().getName();
-                                if(ImageContents.IMAGE_TYPE_NAME.equals(fileType)){
+                                if (ImageContents.IMAGE_TYPE_NAME.equals(fileType)) {
                                     File file = new File(virtualFile.getPath());
                                     // 子类执行上传
                                     String uploadedUrl = upload(file);
@@ -406,9 +411,9 @@ public abstract class AbstractUploadCloudAction extends AnAction {
         if (lineText.startsWith(ImageContents.HTML_TAG_A_START) && lineText.endsWith(ImageContents.HTML_TAG_A_END)) {
             markdownImage.setLineStartOffset(0);
             markdownImage.setLineEndOffset(lineText.length());
-            if(lineText.contains(ImageContents.LARG_IMAGE_MARK_ID)){
+            if (lineText.contains(ImageContents.LARG_IMAGE_MARK_ID)) {
                 markdownImage.setImageMarkType(ImageMarkEnum.LARGE_PICTURE);
-            } else if(lineText.contains(ImageContents.COMMON_IMAGE_MARK_ID)){
+            } else if (lineText.contains(ImageContents.COMMON_IMAGE_MARK_ID)) {
                 markdownImage.setImageMarkType(ImageMarkEnum.COMMON_PICTURE);
             } else {
                 markdownImage.setImageMarkType(ImageMarkEnum.CUSTOM);

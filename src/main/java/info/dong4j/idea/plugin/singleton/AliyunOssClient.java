@@ -7,6 +7,7 @@ import com.aliyun.oss.model.ObjectMetadata;
 import info.dong4j.idea.plugin.settings.AliyunOssState;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
+import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.util.DES;
 
 import org.apache.commons.lang3.StringUtils;
@@ -16,6 +17,9 @@ import org.jetbrains.annotations.NotNull;
 import java.io.*;
 import java.net.*;
 import java.util.Date;
+import java.util.Map;
+
+import javax.swing.JPanel;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,14 +33,19 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class AliyunOssClient implements OssClient {
-    private static final String URL_PROTOCOL_HTTP = "http";
+    /**
+     * The constant URL_PROTOCOL_HTTPS.
+     */
     public static final String URL_PROTOCOL_HTTPS = "https";
-
+    private static final String URL_PROTOCOL_HTTP = "http";
+    private AliyunOssState aliyunOssState = ImageManagerPersistenComponent.getInstance().getState().getAliyunOssState();
+    private final Object lock = new Object();
     private static String bucketName;
     private static String filedir;
     private static OSS ossClient = null;
 
     private AliyunOssClient() {
+        checkClient();
     }
 
     private static class SingletonHandler {
@@ -65,11 +74,22 @@ public class AliyunOssClient implements OssClient {
     }
 
     /**
+     * 在调用 ossClient 之前先检查, 如果为 null 就 init()
+     */
+    private void checkClient() {
+        synchronized (lock) {
+            if (ossClient == null) {
+                init();
+            }
+        }
+    }
+
+    /**
      * Set bucket name.
      *
      * @param newBucketName the new bucket name
      */
-    public void setBucketName(String newBucketName) {
+    private void setBucketName(String newBucketName) {
         bucketName = newBucketName;
     }
 
@@ -88,7 +108,7 @@ public class AliyunOssClient implements OssClient {
      *
      * @param oss the oss
      */
-    public void setOssClient(OSS oss) {
+    private void setOssClient(OSS oss) {
         ossClient = oss;
     }
 
@@ -162,10 +182,11 @@ public class AliyunOssClient implements OssClient {
      * @param file the file
      * @return the string
      */
+    @Override
     public String upload(File file) {
-        try {
-            return upload(new FileInputStream(file), file.getName());
-        } catch (FileNotFoundException e) {
+        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(file))) {
+            return upload(bufferedInputStream, file.getName());
+        } catch (IOException e) {
             log.trace("", e);
         }
         return "";
@@ -182,7 +203,6 @@ public class AliyunOssClient implements OssClient {
     public String upload(InputStream inputStream, String fileName) {
         return upload(inputStream, filedir, fileName);
     }
-
 
     /**
      * Upload string.
@@ -230,5 +250,72 @@ public class AliyunOssClient implements OssClient {
             }
         }
         return "";
+    }
+
+    /**
+     * 直接从面板组件上获取最新配置, 不使用 state
+     * {@link info.dong4j.idea.plugin.settings.ProjectSettingsPage#testAndHelpListener()}
+     *
+     * @param inputStream the input stream
+     * @param fileName    the file name
+     * @param jPanel      the j panel
+     * @return the string
+     */
+    @Override
+    public String upload(InputStream inputStream, String fileName, JPanel jPanel) {
+        Map<String, String> map = getTestFieldText(jPanel);
+
+        String bucketName = map.get("bucketName");
+        String accessKey = map.get("accessKey");
+        String accessSecretKey = map.get("secretKey");
+        String endpoint = map.get("endpoint");
+        String filedir = map.get("filedir");
+
+        return upload(inputStream,
+                      fileName,
+                      bucketName,
+                      accessKey,
+                      accessSecretKey,
+                      endpoint,
+                      filedir);
+    }
+
+    /**
+     * test 按钮点击事件后请求, 成功后保留 client, paste 或者 右键 上传时使用
+     *
+     * @param inputStream     the input stream
+     * @param fileName        the file name
+     * @param bucketName      the bucketName name
+     * @param accessKey       the access key
+     * @param accessSecretKey the access secret key
+     * @param endpoint        the endpoint
+     * @param filedir         the temp file dir
+     * @return the string
+     */
+    private String upload(InputStream inputStream,
+                          String fileName,
+                          String bucketName,
+                          String accessKey,
+                          String accessSecretKey,
+                          String endpoint,
+                          String filedir) {
+
+        filedir = org.apache.commons.lang.StringUtils.isBlank(filedir) ? "" : filedir + "/";
+
+        AliyunOssClient aliyunOssClient = AliyunOssClient.getInstance();
+        OSS ossClient = new OSSClientBuilder().build(endpoint, accessKey, accessSecretKey);
+
+        aliyunOssClient.setBucketName(bucketName);
+        String url = aliyunOssClient.upload(ossClient, inputStream, filedir, fileName);
+
+        if (org.apache.commons.lang.StringUtils.isNotBlank(url)) {
+            int hashcode = bucketName.hashCode() +
+                           accessKey.hashCode() +
+                           accessSecretKey.hashCode() +
+                           endpoint.hashCode();
+            OssState.saveStatus(aliyunOssState, hashcode, ImageManagerState.OLD_HASH_KEY);
+            aliyunOssClient.setOssClient(ossClient);
+        }
+        return url;
     }
 }

@@ -25,11 +25,14 @@ import javax.swing.JTextField;
  * <p>Description: </p>
  *
  * @author dong4j
- * @email sjdong3@iflytek.com
- * @since 2019-03-20 11:52
+ * @email sjdong3 @iflytek.com
+ * @since 2019 -03-20 11:52
  */
 public interface OssClient {
-    String PREFIX = "MIK-upload-";
+    /** 用于反射调用时的缓存 */
+    Map<String, Object> UPLOADER = new ConcurrentHashMap<>(12);
+    /** 重命名文件的前缀 */
+    String PREFIX = "MIK-";
 
     /**
      * 统一处理 fileName
@@ -57,7 +60,32 @@ public interface OssClient {
         return fileName;
     }
 
-    Map<String, Object> UPLOADER = new ConcurrentHashMap<>(12);
+    /**
+     * 需要设置 JTextField 的 name 属性
+     *
+     * @param jPanel the jpanel
+     * @return the test field text
+     */
+    @NotNull
+    default Map<String, String> getTestFieldText(JPanel jPanel) {
+        Map<String, String> fieldMap = new HashMap<>(10);
+        Component[] components = jPanel.getComponents();
+        for (Component c : components) {
+            if (c instanceof JTextField) {
+                JTextField textField = (JTextField) c;
+                fieldMap.put(textField.getName(), textField.getText());
+            }
+        }
+        return fieldMap;
+    }
+
+    /**
+     * Upload string.
+     *
+     * @param file the file
+     * @return the string
+     */
+    String upload(File file);
 
     /**
      * Upload string.
@@ -69,24 +97,14 @@ public interface OssClient {
     String upload(InputStream inputStream, String fileName);
 
     /**
-     * 需要设置 JTextField 的 name 属性
+     * "Upload Test" 按钮反射调用
      *
-     * @param jPanel the j panel
-     * @return the test field text
+     * @param inputStream the input stream
+     * @param fileName    the file name
+     * @param jPanel      the j panel
+     * @return the string
      */
-    @NotNull
-    default Map<String, String> getTestFieldText(JPanel jPanel) {
-        Map<String, String> fieldMap = new HashMap<>(10);
-        // 保存认证信息, 这个顺序是确定的
-        Component[] components = jPanel.getComponents();
-        for (Component c : components) {
-            if (c instanceof JTextField) {
-                JTextField textField = (JTextField) c;
-                fieldMap.put(textField.getName(), textField.getText());
-            }
-        }
-        return fieldMap;
-    }
+    String upload(InputStream inputStream, String fileName, JPanel jPanel);
 
     /**
      * The enum Upload way enum.

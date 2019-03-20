@@ -9,6 +9,9 @@ import com.intellij.openapi.editor.EditorModificationUtil;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.editor.actionSystem.EditorTextInsertHandler;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.vcs.AbstractVcs;
+import com.intellij.openapi.vcs.ProjectLevelVcsManager;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.Producer;
@@ -20,7 +23,6 @@ import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
 import info.dong4j.idea.plugin.settings.OssState;
-import info.dong4j.idea.plugin.singleton.OssClient;
 import info.dong4j.idea.plugin.util.CharacterUtils;
 import info.dong4j.idea.plugin.util.EnumsUtils;
 import info.dong4j.idea.plugin.util.ImageUtils;
@@ -37,11 +39,10 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.imageio.ImageIO;
@@ -94,10 +95,13 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                 boolean isClipboardControl = state.isClipboardControl();
                 if (isClipboardControl) {
                     //<editor-fold desc="如果右键菜单不可用, 此项功能也不可用, 执行了默认 paste 操作后退出.">
-                    if(!OssState.getStatus(state.getCloudType())){
+                    // todo-dong4j : (2019年03月20日 17:32) [使用如下代码获取]
+                    //  http://www.jetbrains.org/intellij/sdk/docs/basics/persisting_state_of_components.html
+                    //  "PropertiesComponent.getInstance().setValue("PI__LAST_DIR_PATTERN", dirPattern);"
+                    if (!OssState.getStatus(state.getCloudType())) {
                         defaultAction(editor, caret, dataContext);
                         // todo-dong4j : (2019年03月20日 14:50) [消息通知]
-                        return ;
+                        return;
                     }
                     //</editor-fold>
 
@@ -223,8 +227,11 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                         .size(bufferedImage.getWidth(), bufferedImage.getHeight())
                         .outputQuality(state.getCompressBeforeUploadOfPercent() * 1.0 / 100).asBufferedImage();
                     ImageIO.write(compressedImage, "png", imageFile);
-                    // 保存到文件后异步刷新缓存, 让图片显示到文件树中
+                    // 保存到文件后同步刷新缓存, 让图片显示到文件树中
                     VirtualFileManager.getInstance().syncRefresh();
+                    // todo-dong4j : (2019年03月20日 17:42) [使用 VirtualFile.createChildData() 创建虚拟文件]
+                    //  以解决还未刷新前使用右键上传图片时找不到文件的问题.
+
                 } catch (IOException e) {
                     // todo-dong4j : (2019年03月17日 15:11) [消息通知]
                     log.trace("", e);
@@ -235,13 +242,29 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
     }
 
     /**
+     * Create virtual file.
+     * https://intellij-support.jetbrains.com/hc/en-us/community/posts/206144389-Create-virtual-file-from-file-path
+     *
+     * @param ed        the ed
+     * @param imageFile the image file
+     */
+    private void createVirtualFile(Editor ed, File imageFile) {
+        VirtualFile fileByPath = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(imageFile);
+        assert fileByPath != null;
+        AbstractVcs usedVcs = ProjectLevelVcsManager.getInstance(Objects.requireNonNull(ed.getProject())).getVcsFor(fileByPath);
+        if (usedVcs != null && usedVcs.getCheckinEnvironment() != null) {
+            usedVcs.getCheckinEnvironment().scheduleUnversionedFilesForAddition(Collections.singletonList(fileByPath));
+        }
+    }
+
+    /**
      * 上传图片并在光标位置插入上传后的 markdown image mark
      *
      * @param editor        the editor
      * @param bufferedImage the buffered image
      * @param imageName     the image name
      */
-    private void uploadAndInsert(@NotNull Editor editor, BufferedImage bufferedImage, String imageName) {
+    public void uploadAndInsert(@NotNull Editor editor, BufferedImage bufferedImage, String imageName) {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             ImageIO.write(bufferedImage, "png", os);
             InputStream is = new ByteArrayInputStream(os.toByteArray());
@@ -250,7 +273,7 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
             Optional<CloudEnum> cloudType = EnumsUtils.getEnumObject(CloudEnum.class, e -> e.getIndex() == index);
             // 此处进行异步处理, 不然上传大图时会卡死
             Runnable r = () -> {
-                String imageUrl = upload(cloudType.orElse(CloudEnum.WEIBO_CLOUD), is, imageName);
+                String imageUrl = UploadUtils.upload(cloudType.orElse(CloudEnum.WEIBO_CLOUD), is, imageName);
                 if (StringUtils.isNotBlank(imageUrl)) {
                     String newLineText = UploadUtils.getFinalImageMark("", imageUrl, imageUrl, ImageContents.LINE_BREAK);
                     EditorModificationUtil.insertStringAtCaret(editor, newLineText);
@@ -261,37 +284,6 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
             // todo-dong4j : (2019年03月17日 03:20) [添加通知]
             log.trace("", e);
         }
-    }
-
-    /**
-     * 通过反射调用, 避免条件判断, 便于扩展
-     * todo-dong4j : (2019年03月17日 14:13) [考虑将上传到具体的 OSS 使用 properties]
-     * 通过反射调用 upload 单个文件上传{@link info.dong4j.idea.plugin.strategy.UploadStrategy#upload}
-     *
-     * @param cloudEnum   the cloud enum    图床类型
-     * @param inputStream the input stream
-     * @return the string
-     */
-    private String upload(@NotNull CloudEnum cloudEnum, InputStream inputStream, String fileName) {
-        String className = cloudEnum.getClassName();
-        try {
-            Class<?> cls = Class.forName(className);
-            Object uploader = OssClient.UPLOADER.get(className);
-
-            if(uploader == null){
-                Constructor constructor = cls.getDeclaredConstructor();
-                // 有意破坏单例, 避免条件判断
-                constructor.setAccessible(true);
-                uploader = constructor.newInstance();
-                OssClient.UPLOADER.put(className, uploader);
-            }
-            Method setFunc = cls.getMethod("upload", InputStream.class, String.class);
-            return (String) setFunc.invoke(uploader, inputStream, fileName);
-        } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException | InstantiationException | NoSuchMethodException e) {
-            // todo-dong4j : (2019年03月17日 03:20) [添加通知]
-            log.trace("", e);
-        }
-        return "";
     }
 
     @Override

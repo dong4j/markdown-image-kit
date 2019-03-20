@@ -4,16 +4,20 @@ import org.jetbrains.annotations.Contract;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: 枚举顺序不能改变</p>
+ * <p>Description: 枚举顺序不能改变
+ * 后期扩展时, 只需要实现具体的上传逻辑, 需要在此处添加具体的 OssClient</p>
  *
  * @author dong4j
  * @date 2019-03-17 00:15
  * @email sjdong3@iflytek.com
  */
 public enum CloudEnum {
+    /** @see info.dong4j.idea.plugin.singleton.WeiboOssClient */
     WEIBO_CLOUD(0, "微博", "info.dong4j.idea.plugin.singleton.WeiboOssClient"),
-    ALIYUN_CLOUD(1, "阿里云", "info.dong4j.idea.plugin.strategy.AliyunUploadStrategy"),
-    QINIU_CLOUD(2, "七牛云", "info.dong4j.idea.plugin.strategy.QiniuUploadStrategy"),
+    /** @see info.dong4j.idea.plugin.singleton.AliyunOssClient */
+    ALIYUN_CLOUD(1, "阿里云", "info.dong4j.idea.plugin.singleton.AliyunOssClient"),
+    /** @see info.dong4j.idea.plugin.singleton.QiniuOssClient */
+    QINIU_CLOUD(2, "七牛云", "info.dong4j.idea.plugin.singleton.QiniuOssClient"),
     WANGYI_CLOUD(3, "网易云", ""),
     BAIDU_CLOUD(4, "百度云", ""),
     JINGDONG_CLOUD(5, "京东云", ""),
