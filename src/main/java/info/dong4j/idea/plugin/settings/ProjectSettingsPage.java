@@ -386,7 +386,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     /**
      * 初始化 upload 配置组
      */
-    private void initGlobalPanel(ImageManagerState state) {
+    private void initGlobalPanel(@NotNull ImageManagerState state) {
         initChangeToHtmlGroup();
         initCompressGroup();
         initExpandGroup();

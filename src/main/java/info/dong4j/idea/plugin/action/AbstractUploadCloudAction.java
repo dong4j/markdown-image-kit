@@ -39,6 +39,7 @@ import info.dong4j.idea.plugin.util.PsiDocumentUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -370,6 +371,7 @@ public abstract class AbstractUploadCloudAction extends AnAction {
      * @param line        the line
      * @return the markdown image
      */
+    @Nullable
     private MarkdownImage matchImageMark(VirtualFile virtualFile, String lineText, int line) {
         lineText = StringUtils.trim(lineText);
         // 匹配 '![' 字符串
@@ -405,7 +407,8 @@ public abstract class AbstractUploadCloudAction extends AnAction {
      * @param markdownImage the markdown image
      * @return the markdown image
      */
-    private MarkdownImage resolveImageMark(MarkdownImage markdownImage) {
+    @Contract("_ -> param1")
+    private MarkdownImage resolveImageMark(@NotNull MarkdownImage markdownImage) {
         // 如果以 `<a` 开始, 以 `a>` 结束, 需要修改偏移量
         String lineText = markdownImage.getOriginalLineText();
         if (lineText.startsWith(ImageContents.HTML_TAG_A_START) && lineText.endsWith(ImageContents.HTML_TAG_A_END)) {
@@ -556,6 +559,5 @@ public abstract class AbstractUploadCloudAction extends AnAction {
 
         // 找到特定 PSI 元素的使用位置
         // ReferencesSearch.search();
-
     }
 }
