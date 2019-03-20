@@ -1,11 +1,15 @@
 package info.dong4j.idea.plugin.action;
 
+import info.dong4j.idea.plugin.icon.KitIcons;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.singleton.AliyunOssClient;
 
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+
+import javax.swing.Icon;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,7 +22,14 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019 -03-12 17:20
  */
 @Slf4j
-public final class AliyunObjectStorageServiceAction extends AbstractObjectStorageServiceAction {
+public final class UploadAliyunCloudAction extends AbstractUploadCloudAction {
+
+    @NotNull
+    @Contract(pure = true)
+    @Override
+    protected Icon getIcon() {
+        return KitIcons.ALIYUN_OSS;
+    }
 
     @Contract(pure = true)
     @Override

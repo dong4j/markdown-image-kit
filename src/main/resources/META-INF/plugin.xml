@@ -1,6 +1,6 @@
 <idea-plugin>
-    <id>info.dong4j.upload_oss</id>
-    <name>Markdown Image Manger</name>
+    <id>info.dong4j.idea.plugin.markdown.image.kit</id>
+    <name>Markdown Image Kit</name>
     <version>0.0.1</version>
     <vendor email="dong4j@gmail.com" url="http://www.dong4j.info">dong4j</vendor>
 
@@ -25,13 +25,13 @@
     </extensions>
 
     <actions>
-        <action id="AliyunObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.AliyunObjectStorageServiceAction"
+        <action id="AliyunObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.UploadAliyunCloudAction"
                 popup="true" text="上传到阿里云">
         </action>
-        <action id="WeiboObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.WeiboObjectStorageServiceAction"
+        <action id="WeiboObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.UploadWeiboCloudAction"
                 popup="true" text="上传到微博">
         </action>
-        <action id="QiniuObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.QiniuObjectStorageServiceAction"
+        <action id="QiniuObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.UploadQiniuCloudAction"
                 popup="true" text="上传到七牛云">
         </action>
         <action id="ImageCompressAction" class="info.dong4j.idea.plugin.action.ImageCompressAction"
@@ -41,7 +41,9 @@
                 popup="true" text="图床迁移计划">
         </action>
 
-        <group popup="true" id="info.dong4j.idea.plugin.graph_bed_plan" text="Markdown Image Manager">
+        <group popup="true" id="info.dong4j.idea.plugin.markdown.image.kit"
+               class="info.dong4j.idea.plugin.action.UploadGroupAction"
+               text="Markdown Image Kit">
             <reference ref="WeiboObjectStorageServiceAction"/>
             <reference ref="AliyunObjectStorageServiceAction"/>
             <reference ref="QiniuObjectStorageServiceAction"/>
@@ -55,7 +57,8 @@
         </group>
 
         <!-- 编辑器右键菜单 -->
-        <group popup="true" id="info.dong4j.idea.plugin.editor.popup.menu.group" text="Upload Image">
+        <group popup="true" id="info.dong4j.idea.plugin.editor.popup.menu.group" text="Upload Image"
+               icon="AllIcons.Gutter.Colors">
             <reference ref="WeiboObjectStorageServiceAction"/>
             <reference ref="AliyunObjectStorageServiceAction"/>
             <reference ref="QiniuObjectStorageServiceAction"/>

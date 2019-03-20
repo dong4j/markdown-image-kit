@@ -1,5 +1,6 @@
 package info.dong4j.idea.plugin.action;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -23,6 +24,8 @@ public final class MoveToOtherStorageAction extends AnAction {
     public void update(@NotNull AnActionEvent event) {
         final Presentation presentation = event.getPresentation();
         presentation.setEnabled(false);
+        presentation.setVisible(true);
+        presentation.setIcon(AllIcons.Actions.Lightning);
     }
 
     @Override

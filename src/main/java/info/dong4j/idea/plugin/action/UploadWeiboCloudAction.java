@@ -1,11 +1,14 @@
 package info.dong4j.idea.plugin.action;
 
+import info.dong4j.idea.plugin.icon.KitIcons;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.singleton.WeiboOssClient;
 
 import org.jetbrains.annotations.Contract;
 
 import java.io.*;
+
+import javax.swing.Icon;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,7 +21,13 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019-03-14 16:39
  */
 @Slf4j
-public final class WeiboObjectStorageServiceAction extends AbstractObjectStorageServiceAction {
+public final class UploadWeiboCloudAction extends AbstractUploadCloudAction {
+    @Contract(pure = true)
+    @Override
+    protected Icon getIcon() {
+        return KitIcons.WEIBO_OSS;
+    }
+
     @Contract(pure = true)
     @Override
     boolean isPassedTest() {

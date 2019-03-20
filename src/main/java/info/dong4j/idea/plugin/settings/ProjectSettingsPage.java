@@ -3,6 +3,10 @@ package info.dong4j.idea.plugin.settings;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.SearchableConfigurable;
+import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.ui.ComponentValidator;
+import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.JBColor;
 
@@ -113,7 +117,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JTextField whereToCopyTextField;
     private JCheckBox uploadAndReplaceCheckBox;
     private JComboBox defaultCloudComboBox;
+    // todo-dong4j : (2019年03月20日 04:53) [将阿里云的图片后缀选择使用这个代替]
     private JCheckBox 图片上传时重命名CheckBox;
+    private JTextField myPort;
 
     public ProjectSettingsPage() {
         log.trace("ProjectSettingsPage Constructor invoke");
@@ -132,7 +138,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     @Nls
     @Override
     public String getDisplayName() {
-        return "Image Manager";
+        return "Markdown Image Kit";
     }
 
     @Override
@@ -149,6 +155,37 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         initAuthorizationTabbedPanel(state);
         initGlobalPanel();
         initClipboardControl();
+
+       String MESSAGE = "The port number should be between 0 and 65535.";
+
+        // Components initialization
+        new ComponentValidator(ProjectManager.getInstance().getDefaultProject()).withValidator(v -> {
+            String pt = myPort.getText();
+            if (StringUtil.isNotEmpty(pt)) {
+                try {
+                    int portValue = Integer.parseInt(pt);
+                    if (portValue >= 0 && portValue <= 65535) {
+                        v.updateInfo(null);
+                    }
+                    else {
+                        v.updateInfo(new ValidationInfo(MESSAGE, myPort));
+                    }
+                }
+                catch (NumberFormatException nfe) {
+                    v.updateInfo(new ValidationInfo(MESSAGE, myPort));
+                }
+            }
+            else {
+                v.updateInfo(null);
+            }
+        }).installOn(myPort);
+
+        myPort.getDocument().addDocumentListener(new DocumentAdapter() {
+            @Override
+            protected void textChanged(@NotNull DocumentEvent e) {
+                ComponentValidator.getInstance(myPort).ifPresent(ComponentValidator::revalidate);
+            }
+        });
     }
 
     /**

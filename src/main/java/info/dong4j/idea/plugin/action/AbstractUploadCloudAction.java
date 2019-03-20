@@ -49,6 +49,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import javax.swing.Icon;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -60,9 +62,16 @@ import lombok.extern.slf4j.Slf4j;
  * @email sjdong3 @iflytek.com
  */
 @Slf4j
-public abstract class AbstractObjectStorageServiceAction extends AnAction {
+public abstract class AbstractUploadCloudAction extends AnAction {
 
     private static final String NODE_MODULES_FILE = "node_modules";
+
+    /**
+     * Gets icon.
+     *
+     * @return the icon
+     */
+    abstract protected Icon getIcon();
 
     /**
      * 检查 "upload to XXX OSS" 按钮是否可用
@@ -76,6 +85,8 @@ public abstract class AbstractObjectStorageServiceAction extends AnAction {
     public void update(@NotNull AnActionEvent event) {
         final Presentation presentation = event.getPresentation();
         final DataContext dataContext = event.getDataContext();
+        presentation.setVisible(true);
+        presentation.setIcon(getIcon());
 
         // 未打开 project 时, 不可用
         final Project project = event.getProject();
@@ -210,6 +221,12 @@ public abstract class AbstractObjectStorageServiceAction extends AnAction {
      */
     abstract boolean isPassedTest();
 
+    /**
+     * Valid from state boolean.
+     *
+     * @param state the state
+     * @return the boolean
+     */
     boolean validFromState(OssState state){
         boolean isPassedTest = state.isPassedTest();
         Map<String, String> oldAndNewAuth = state.getOldAndNewAuthInfo();
