@@ -18,7 +18,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -46,11 +45,9 @@ public class WbpUploadRequest implements UploadRequest {
     private volatile String preLoginResult;
     private String username;
     private String password;
-    private static final Set<String> IMAGE_EXTENSION = new HashSet<>();
+    private static final Set<String> IMAGE_EXTENSION = new HashSet<>(3);
     /** 重连1次, cookies 过期后自动获取 cookie */
     private static AtomicInteger tryLoginCount = new AtomicInteger(1);
-    /** 结束时间 */
-    private static volatile long endTime = 0;
 
     WbpUploadRequest(WbpHttpRequest wbpHttpRequest, String username, String password) {
         this.wbpHttpRequest = wbpHttpRequest;
@@ -83,7 +80,6 @@ public class WbpUploadRequest implements UploadRequest {
         // 判断是否已经登陆
         checkLogin();
 
-        String fileExtension = getFileExtension(image.getName());
         String base64image = imageToBase64(image);
         WbpUploadResponse uploadResponse = new WbpUploadResponse();
 
@@ -106,8 +102,6 @@ public class WbpUploadRequest implements UploadRequest {
                 return upload(image);
             } else {
                 uploadResponse.setResult(UploadResponse.ResultStatus.FAILED);
-                uploadResponse.setMessage("上传失败，大概是cookie过期了，尝试重新登陆失败，目前是第" + tryLoginCount.get() + "登陆，" +
-                                          "距离下次登陆时间为:" + new Date(endTime));
                 return uploadResponse;
             }
         } else if (retCode != 1) {

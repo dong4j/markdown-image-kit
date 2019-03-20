@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019 -03-19 15:25
  */
 @Slf4j
-public class QiniuOssClient {
+public class QiniuOssClient implements OssClient {
     /**
      * The constant DEAD_LINE.
      */
@@ -77,7 +77,7 @@ public class QiniuOssClient {
      * @param bucketName the bucket name
      * @return the string
      */
-    public static String buildToken(Auth auth, String bucketName){
+    public static String buildToken(Auth auth, String bucketName) {
         return auth.uploadToken(bucketName, null, DEAD_LINE, null, true);
     }
 
@@ -86,9 +86,10 @@ public class QiniuOssClient {
      *
      * @param newDomain the new domain
      */
-    public void setDomain(String newDomain){
+    public void setDomain(String newDomain) {
         domain = newDomain;
     }
+
     /**
      * 在调用 ossClient 之前先检查, 如果为 null 就 init()
      */
@@ -156,17 +157,19 @@ public class QiniuOssClient {
      * @return the string
      */
     public String upload(UploadManager ossClient, InputStream inputStream, String fileName) {
+        // todo-dong4j : (2019年03月20日 12:29) [统一处理文件名]
+        fileName = processFileName(fileName);
         try {
             ossClient.put(inputStream, fileName, token, null, null);
             // 拼接 url, 需要正确配置域名 (https://developer.qiniu.com/fusion/kb/1322/how-to-configure-cname-domain-name)
             URL url = new URL(domain);
             log.trace("{}", url.getUserInfo());
-            if(StringUtils.isBlank(url.getPath())){
+            if (StringUtils.isBlank(url.getPath())) {
                 domain = domain + "/";
-            }else {
+            } else {
                 domain = domain.endsWith("/") ? domain : domain + "/";
             }
-            return  domain + fileName;
+            return domain + fileName;
         } catch (QiniuException ex) {
             Response r = ex.response;
             log.trace(r.toString());

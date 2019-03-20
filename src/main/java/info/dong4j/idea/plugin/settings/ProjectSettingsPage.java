@@ -12,7 +12,6 @@ import com.intellij.ui.JBColor;
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
-import info.dong4j.idea.plugin.enums.SuffixEnum;
 import info.dong4j.idea.plugin.enums.ZoneEnum;
 import info.dong4j.idea.plugin.singleton.AliyunOssClient;
 import info.dong4j.idea.plugin.util.DES;
@@ -25,7 +24,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.util.Objects;
 import java.util.Optional;
 
 import javax.swing.ButtonGroup;
@@ -73,7 +71,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JPasswordField aliyunOssAccessSecretKeyTextField;
     private JTextField aliyunOssEndpointTextField;
     private JTextField aliyunOssFileDirTextField;
-    private JComboBox aliyunOssSuffixBoxField;
     private JTextField exampleTextField;
     /** qiniuOssAuthorizationPanel group */
     private JPanel qiniuOssAuthorizationPanel;
@@ -104,6 +101,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JTextField styleNameTextField;
     private JCheckBox transportCheckBox;
     private JCheckBox backupCheckBox;
+    private JCheckBox renameCheckBox;
+    private JComboBox fileNameSuffixBoxField;
 
     /** 按钮 group */
     private JButton testButton;
@@ -117,8 +116,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JTextField whereToCopyTextField;
     private JCheckBox uploadAndReplaceCheckBox;
     private JComboBox defaultCloudComboBox;
-    // todo-dong4j : (2019年03月20日 04:53) [将阿里云的图片后缀选择使用这个代替]
-    private JCheckBox 图片上传时重命名CheckBox;
+
+    /** todo-dong4j : (2019年03月20日 13:25) [测试输入验证用]*/
     private JTextField myPort;
 
     public ProjectSettingsPage() {
@@ -153,10 +152,10 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private void initFromSettings() {
         ImageManagerState state = config.getState();
         initAuthorizationTabbedPanel(state);
-        initGlobalPanel();
+        initGlobalPanel(state);
         initClipboardControl();
 
-       String MESSAGE = "The port number should be between 0 and 65535.";
+        String MESSAGE = "The port number should be between 0 and 65535.";
 
         // Components initialization
         new ComponentValidator(ProjectManager.getInstance().getDefaultProject()).withValidator(v -> {
@@ -166,16 +165,13 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                     int portValue = Integer.parseInt(pt);
                     if (portValue >= 0 && portValue <= 65535) {
                         v.updateInfo(null);
-                    }
-                    else {
+                    } else {
                         v.updateInfo(new ValidationInfo(MESSAGE, myPort));
                     }
-                }
-                catch (NumberFormatException nfe) {
+                } catch (NumberFormatException nfe) {
                     v.updateInfo(new ValidationInfo(MESSAGE, myPort));
                 }
-            }
-            else {
+            } else {
                 v.updateInfo(null);
             }
         }).installOn(myPort);
@@ -260,8 +256,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         String aliyunOssAccessSecretKey = config.getState().getAliyunOssState().getAccessSecretKey();
         aliyunOssAccessSecretKeyTextField.setText(DES.decrypt(aliyunOssAccessSecretKey, ImageManagerState.ALIYUN));
 
-        // 根据持久化配置设置为被选中的 item
-        aliyunOssSuffixBoxField.setSelectedItem(config.getState().getAliyunOssState().getSuffix());
         // 处理当 aliyunOssFileDirTextField.getText() 为 空字符时, 不拼接 "/
         setExampleText();
 
@@ -287,11 +281,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             protected void textChanged(@NotNull DocumentEvent e) {
                 setExampleText();
             }
-        });
-
-        // 添加监听器, 当选项被修改后, 修改 exampleTextField 中的 text
-        aliyunOssSuffixBoxField.addItemListener(e -> {
-            setExampleText();
         });
     }
 
@@ -391,16 +380,25 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         String endpoint = aliyunOssEndpointTextField.getText().trim();
         String backetName = aliyunOssBucketNameTextField.getText().trim();
         String url = AliyunOssClient.URL_PROTOCOL_HTTPS + "://" + backetName + "." + endpoint;
-        exampleTextField.setText(url + fileDir + getSufixString(Objects.requireNonNull(aliyunOssSuffixBoxField.getSelectedItem()).toString()));
+        exampleTextField.setText(url + fileDir +  "/test.png");
     }
 
     /**
      * 初始化 upload 配置组
      */
-    private void initGlobalPanel() {
+    private void initGlobalPanel(ImageManagerState state) {
         initChangeToHtmlGroup();
         initCompressGroup();
         initExpandGroup();
+
+        // 初始化上传图片的后缀
+        renameCheckBox.setSelected(config.getState().isRename());
+        fileNameSuffixBoxField.setSelectedIndex(state.getSuffixIndex());
+        fileNameSuffixBoxField.setEnabled(config.getState().isRename());
+        renameCheckBox.addChangeListener(e -> {
+            JCheckBox checkBox = (JCheckBox) e.getSource();
+            fileNameSuffixBoxField.setEnabled(checkBox.isSelected());
+        });
     }
 
     /**
@@ -460,12 +458,10 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         });
 
         compressBeforeUploadCheckBox.addChangeListener(e -> {
-            JCheckBox checkBox = (JCheckBox) e.getSource();
-            compressSlider.setEnabled(checkBox.isSelected());
+            compressSlider.setEnabled(compressBeforeUploadCheckBox.isSelected());
         });
         compressAtLookupCheckBox.addChangeListener(e -> {
-            JCheckBox checkBox = (JCheckBox) e.getSource();
-            styleNameTextField.setEnabled(checkBox.isSelected());
+            styleNameTextField.setEnabled(compressAtLookupCheckBox.isSelected());
         });
     }
 
@@ -539,25 +535,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     /**
-     * 生成文件名后缀
-     *
-     * @param name the name
-     * @return the sufix string
-     */
-    @NotNull
-    private String getSufixString(String name) {
-        if (SuffixEnum.FILE_NAME.name.equals(name)) {
-            return "/image.png";
-        } else if (SuffixEnum.DATE_FILE_NAME.name.equals(name)) {
-            return "/2019-2-30-image.png";
-        } else if (SuffixEnum.RANDOM.name.equals(name)) {
-            return "/98knb.png";
-        } else {
-            return "";
-        }
-    }
-
-    /**
      * 判断 GUI 是否有变化
      *
      * @return the boolean
@@ -572,6 +549,35 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                  && isGeneralModified(state)
                  && isClipboardModified(state)
         );
+    }
+
+    private boolean isAliyunAuthModified(@NotNull ImageManagerState state) {
+        AliyunOssState aliyunOssState = state.getAliyunOssState();
+        String bucketName = aliyunOssBucketNameTextField.getText().trim();
+        String accessKey = aliyunOssAccessKeyTextField.getText().trim();
+        String secretKey = new String(aliyunOssAccessSecretKeyTextField.getPassword());
+        if (StringUtils.isNotBlank(secretKey)) {
+            secretKey = DES.encrypt(secretKey, ImageManagerState.ALIYUN);
+        }
+        String endpoint = aliyunOssEndpointTextField.getText().trim();
+        String filedir = aliyunOssFileDirTextField.getText().trim();
+
+        return bucketName.equals(aliyunOssState.getBucketName())
+               && accessKey.equals(aliyunOssState.getAccessKey())
+               && secretKey.equals(aliyunOssState.getAccessSecretKey())
+               && endpoint.equals(aliyunOssState.getEndpoint())
+               && filedir.equals(aliyunOssState.getFiledir());
+    }
+
+    private boolean isWeiboAuthModified(@NotNull ImageManagerState state) {
+        WeiboOssState weiboOssState = state.getWeiboOssState();
+        String weiboUsername = weiboUserNameTextField.getText().trim();
+        String weiboPassword = new String(weiboPasswordField.getPassword());
+        if (StringUtils.isNotBlank(weiboPassword)) {
+            weiboPassword = DES.encrypt(weiboPassword, ImageManagerState.WEIBOKEY);
+        }
+        return weiboUsername.equals(weiboOssState.getUserName())
+               && weiboPassword.equals(weiboOssState.getPassword());
     }
 
     private boolean isQiniuAuthModified(ImageManagerState state) {
@@ -592,40 +598,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                && secretKey.equals(qiniuOssState.getAccessSecretKey())
                && zoneIndex == qiniuOssState.getZoneIndex()
                && endpoint.equals(qiniuOssState.getEndpoint());
-    }
-
-    private boolean isAliyunAuthModified(@NotNull ImageManagerState state) {
-        AliyunOssState aliyunOssState = state.getAliyunOssState();
-        String bucketName = aliyunOssBucketNameTextField.getText().trim();
-        String accessKey = aliyunOssAccessKeyTextField.getText().trim();
-        String secretKey = new String(aliyunOssAccessSecretKeyTextField.getPassword());
-        if (StringUtils.isNotBlank(secretKey)) {
-            secretKey = DES.encrypt(secretKey, ImageManagerState.ALIYUN);
-        }
-        String endpoint = aliyunOssEndpointTextField.getText().trim();
-        String filedir = aliyunOssFileDirTextField.getText().trim();
-
-        int index = aliyunOssSuffixBoxField.getSelectedIndex();
-        Optional<SuffixEnum> type = EnumsUtils.getEnumObject(SuffixEnum.class, e -> e.getIndex() == index);
-        String suffix = type.orElse(SuffixEnum.RANDOM).name;
-
-        return bucketName.equals(aliyunOssState.getBucketName())
-               && accessKey.equals(aliyunOssState.getAccessKey())
-               && secretKey.equals(aliyunOssState.getAccessSecretKey())
-               && endpoint.equals(aliyunOssState.getEndpoint())
-               && filedir.equals(aliyunOssState.getFiledir())
-               && suffix.equals(aliyunOssState.getSuffix());
-    }
-
-    private boolean isWeiboAuthModified(@NotNull ImageManagerState state) {
-        WeiboOssState weiboOssState = state.getWeiboOssState();
-        String weiboUsername = weiboUserNameTextField.getText().trim();
-        String weiboPassword = new String(weiboPasswordField.getPassword());
-        if (StringUtils.isNotBlank(weiboPassword)) {
-            weiboPassword = DES.encrypt(weiboPassword, ImageManagerState.WEIBOKEY);
-        }
-        return weiboUsername.equals(weiboOssState.getUserName())
-               && weiboPassword.equals(weiboOssState.getPassword());
     }
 
     private boolean isGeneralModified(ImageManagerState state) {
@@ -672,6 +644,10 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         // 图片备份
         boolean backup = backupCheckBox.isSelected();
 
+        boolean isRename = renameCheckBox.isSelected();
+        // 图片后缀
+        int index = fileNameSuffixBoxField.getSelectedIndex();
+
         return changeToHtmlTag == state.isChangeToHtmlTag()
                && tagType.equals(state.getTagType())
                && tagTypeCode.equals(state.getTagTypeCode())
@@ -681,7 +657,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                && compressAtLookup == state.isCompressAtLookup()
                && styleName.equals(state.getStyleName())
                && transport == state.isTransport()
-               && backup == state.isBackup();
+               && backup == state.isBackup()
+               && isRename == state.isRename()
+               && index == state.getSuffixIndex();
     }
 
     private boolean isClipboardModified(@NotNull ImageManagerState state) {
@@ -760,7 +738,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         aliyunOssState.setAccessSecretKey(accessSecretKey);
         aliyunOssState.setEndpoint(endpoint);
         aliyunOssState.setFiledir(this.aliyunOssFileDirTextField.getText().trim());
-        aliyunOssState.setSuffix(Objects.requireNonNull(this.aliyunOssSuffixBoxField.getSelectedItem()).toString());
     }
 
     private void applyWeiboAuthConfigs(ImageManagerState state) {
@@ -807,6 +784,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         state.setStyleName(this.styleNameTextField.getText().trim());
         state.setTransport(this.transportCheckBox.isSelected());
         state.setBackup(this.backupCheckBox.isSelected());
+        state.setRename(renameCheckBox.isSelected());
+        state.setSuffixIndex(fileNameSuffixBoxField.getSelectedIndex());
     }
 
     private void applyClipboardConfigs(ImageManagerState state) {
@@ -849,7 +828,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.aliyunOssAccessSecretKeyTextField.setText(DES.decrypt(aliyunOssAccessSecreKey, ImageManagerState.ALIYUN));
         this.aliyunOssEndpointTextField.setText(aliyunOssState.getEndpoint());
         this.aliyunOssFileDirTextField.setText(aliyunOssState.getFiledir());
-        this.aliyunOssSuffixBoxField.setSelectedItem(aliyunOssState.getFiledir());
     }
 
     private void resetWeiboConfigs(@NotNull ImageManagerState state) {
@@ -872,6 +850,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.styleNameTextField.setText(state.getStyleName());
         this.transportCheckBox.setSelected(state.isTransport());
         this.backupCheckBox.setSelected(state.isBackup());
+        this.renameCheckBox.setSelected(state.isRename());
+        this.fileNameSuffixBoxField.setSelectedIndex(state.getSuffixIndex());
     }
 
     private void resetClipboardConfigs(ImageManagerState state) {

@@ -1,8 +1,10 @@
 package info.dong4j.idea.plugin.settings;
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
+import info.dong4j.idea.plugin.enums.SuffixEnum;
 
 import lombok.Data;
+
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
  * <p>Description: </p>
@@ -22,7 +24,7 @@ public class ImageManagerState {
     public ImageManagerState() {
         this.aliyunOssState = new AliyunOssState();
         this.qiniuOssState = new QiniuOssState();
-        this.weiboOssState = new  WeiboOssState();
+        this.weiboOssState = new WeiboOssState();
     }
 
     private WeiboOssState weiboOssState;
@@ -58,4 +60,9 @@ public class ImageManagerState {
     private String imageSavePath = "";
     /** 默认图床 */
     private int cloudType = CloudEnum.WEIBO_CLOUD.index;
+    private String suffix = "日期-文件名";
+    /** 重命名文件*/
+    private boolean rename;
+    /** 文件名后缀 */
+    private int suffixIndex = SuffixEnum.FILE_NAME.index;
 }

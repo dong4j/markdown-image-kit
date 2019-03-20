@@ -45,7 +45,7 @@ public class QiniuUploadStrategy implements UploadStrategy {
 
     @Override
     public String upload(InputStream inputStream, String fileName) {
-        return uploadFromState(inputStream, fileName);
+        return uploadFromPaste(inputStream, fileName);
     }
 
     /**
@@ -56,7 +56,7 @@ public class QiniuUploadStrategy implements UploadStrategy {
      * @return the string
      */
     @NotNull
-    private String uploadFromState(InputStream inputStream, String fileName) {
+    private String uploadFromPaste(InputStream inputStream, String fileName) {
         endpoint = qiniuOssState.getEndpoint();
         accessKey = qiniuOssState.getAccessKey();
         secretKey = DES.decrypt(qiniuOssState.getAccessSecretKey(), ImageManagerState.QINIU);

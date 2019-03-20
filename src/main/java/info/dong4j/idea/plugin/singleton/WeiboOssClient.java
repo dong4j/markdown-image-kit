@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019 -03-18 09:57
  */
 @Slf4j
-public class WeiboOssClient {
+public class WeiboOssClient implements OssClient {
     private final Object lock = new Object();
     private static WbpUploadRequest ossClient = null;
 
@@ -130,17 +130,18 @@ public class WeiboOssClient {
     }
 
     /**
-     * Upload string.
+     * final upload method, process fileName
      *
      * @param ossClient the oss client
      * @param file      the file
      * @return the string
      * @throws IOException the io exception
      */
-    public String upload(WbpUploadRequest ossClient, File file)  {
+    public String upload(WbpUploadRequest ossClient, File file) {
         String url = "";
         UploadResponse response;
         try {
+            // 微博上传处理不了 fileName, 因为会自动随机处理
             response = ossClient.upload(file);
             if (response.getResult().equals(UploadResponse.ResultStatus.SUCCESS)) {
                 url = response.getImageInfo().getLarge();

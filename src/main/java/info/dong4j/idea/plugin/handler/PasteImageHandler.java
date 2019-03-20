@@ -19,6 +19,7 @@ import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
+import info.dong4j.idea.plugin.strategy.UploadStrategy;
 import info.dong4j.idea.plugin.util.CharacterUtils;
 import info.dong4j.idea.plugin.util.EnumsUtils;
 import info.dong4j.idea.plugin.util.ImageUtils;
@@ -121,15 +122,15 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                             // 如果 image 的数量等于总文件数, 才执行,否则执行默认操作
                             if (imageMap.size() == fileList.size()) {
                                 for (Map.Entry<String, Image> imageEntry : imageMap.entrySet()) {
-                                    invoke(editor, document, imageEntry.getValue(), imageEntry.getKey());
+                                    invoke(editor, imageEntry.getValue(), imageEntry.getKey());
                                 }
                                 // 处理后退出, 避免执行默认的 paste 操作
                                 return;
                             }
                         } else {
                             // image 类型统一重命名, 因为获取不到文件名
-                            String fileName = CharacterUtils.getRandomString(8) + ".png";
-                            invoke(editor, document, (Image) entry.getValue(), fileName);
+                            String fileName = CharacterUtils.getRandomString(6) + ".png";
+                            invoke(editor, (Image) entry.getValue(), fileName);
                             return;
                         }
                     }
@@ -157,11 +158,10 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
      * 执行上传或拷贝处理
      *
      * @param editor   the editor
-     * @param document the document
      * @param image    the image
      * @param fileName the file name
      */
-    private void invoke(@NotNull Editor editor, Document document, Image image, String fileName) {
+    private void invoke(@NotNull Editor editor, Image image, String fileName) {
         ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
         boolean isCopyToDir = state.isCopyToDir();
         boolean isUploadAndReplace = state.isUploadAndReplace();
@@ -170,28 +170,26 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
             // 圆角处理
             bufferedImage = ImageUtils.toBufferedImage(ImageUtils.makeRoundedCorner(bufferedImage, 20));
             if (isUploadAndReplace) {
-                uploadAndReplace(editor, bufferedImage, fileName);
+                uploadAndInsert(editor, bufferedImage, fileName);
             }
             if (isCopyToDir) {
-                copyToDirAndReplace(editor, document, state, bufferedImage, fileName);
+                saveAndInsert(editor, bufferedImage, fileName);
             }
         }
     }
 
     /**
-     * Copy to dir.
+     * 保存图片并在当前光标位置插入替换后的 markdown image mark
      *
      * @param editor        the editor
-     * @param document      the document
-     * @param state         the state
      * @param bufferedImage the buffered image
      * @param imageName     the image name
      */
-    private void copyToDirAndReplace(@NotNull Editor editor,
-                                     Document document,
-                                     ImageManagerState state,
-                                     BufferedImage bufferedImage,
-                                     String imageName) {
+    private void saveAndInsert(@NotNull Editor editor,
+                               BufferedImage bufferedImage,
+                               String imageName) {
+        ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
+        Document document = editor.getDocument();
         // 保存图片
         VirtualFile currentFile = FileDocumentManager.getInstance().getFile(document);
         assert currentFile != null;
@@ -225,14 +223,13 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
     }
 
     /**
-     * Upload and replace.
-     * todo-dong4j : (2019年03月17日 19:53) [处理是否替换标签]
+     * 上传图片并在光标位置插入上传后的 markdown image mark
      *
      * @param editor        the editor
      * @param bufferedImage the buffered image
      * @param imageName     the image name
      */
-    private void uploadAndReplace(@NotNull Editor editor, BufferedImage bufferedImage, String imageName) {
+    private void uploadAndInsert(@NotNull Editor editor, BufferedImage bufferedImage, String imageName) {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             ImageIO.write(bufferedImage, "png", os);
             InputStream is = new ByteArrayInputStream(os.toByteArray());
@@ -259,16 +256,21 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
      * todo-dong4j : (2019年03月17日 14:13) [考虑将上传到具体的 OSS 使用 properties]
      * 通过反射调用 upload 单个文件上传{@link info.dong4j.idea.plugin.strategy.UploadStrategy#upload}
      *
-     * @param cloudEnum   the cloud enum
+     * @param cloudEnum   the cloud enum    图床类型
      * @param inputStream the input stream
      * @return the string
      */
     private String upload(@NotNull CloudEnum cloudEnum, InputStream inputStream, String fileName) {
+        String className = cloudEnum.getClassName();
         try {
-            Class<?> cls = Class.forName(cloudEnum.getClassName());
-            Object obj = cls.newInstance();
+            Class<?> cls = Class.forName(className);
+            Object uploader = UploadStrategy.UPLOADER.get(className);
+            if(uploader == null){
+                uploader = cls.newInstance();
+                UploadStrategy.UPLOADER.put(className, uploader);
+            }
             Method setFunc = cls.getMethod("upload", InputStream.class, String.class);
-            return (String) setFunc.invoke(obj, inputStream, fileName);
+            return (String) setFunc.invoke(uploader, inputStream, fileName);
         } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException | InstantiationException | NoSuchMethodException e) {
             // todo-dong4j : (2019年03月17日 03:20) [添加通知]
             log.trace("", e);

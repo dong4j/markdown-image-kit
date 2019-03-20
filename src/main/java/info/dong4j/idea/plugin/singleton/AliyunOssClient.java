@@ -4,11 +4,9 @@ import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.ObjectMetadata;
 
-import info.dong4j.idea.plugin.enums.SuffixEnum;
 import info.dong4j.idea.plugin.settings.AliyunOssState;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
-import info.dong4j.idea.plugin.util.CharacterUtils;
 import info.dong4j.idea.plugin.util.DES;
 
 import org.apache.commons.lang3.StringUtils;
@@ -17,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.net.*;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import lombok.extern.slf4j.Slf4j;
@@ -31,21 +28,12 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019 -03-18 09:57
  */
 @Slf4j
-public class AliyunOssClient {
+public class AliyunOssClient implements OssClient {
     private static final String URL_PROTOCOL_HTTP = "http";
-    /**
-     * The constant URL_PROTOCOL_HTTPS.
-     */
     public static final String URL_PROTOCOL_HTTPS = "https";
-    private final Object lock = new Object();
-    private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-");
 
-    /**
-     * The constant bucketName.
-     */
     private static String bucketName;
-    private static String fileDir;
-    private static String sufix;
+    private static String filedir;
     private static OSS ossClient = null;
 
     private AliyunOssClient() {
@@ -69,8 +57,7 @@ public class AliyunOssClient {
         String accessSecretKey = DES.decrypt(aliyunOssState.getAccessSecretKey(), ImageManagerState.ALIYUN);
         String endpoint = aliyunOssState.getEndpoint();
         String tempFileDir = aliyunOssState.getFiledir();
-        fileDir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";
-        sufix = aliyunOssState.getSuffix();
+        filedir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";
         try {
             ossClient = new OSSClientBuilder().build(endpoint, accessKey, accessSecretKey);
         } catch (Exception ignored) {
@@ -82,7 +69,7 @@ public class AliyunOssClient {
      *
      * @param newBucketName the new bucket name
      */
-    public void setBucketName(String newBucketName){
+    public void setBucketName(String newBucketName) {
         bucketName = newBucketName;
     }
 
@@ -103,94 +90,6 @@ public class AliyunOssClient {
      */
     public void setOssClient(OSS oss) {
         ossClient = oss;
-    }
-
-    /**
-     * Upload img 2 ossClient string.
-     *
-     * @param file the file
-     * @return the string
-     */
-    public String upload(File file) {
-        String name = getSufixName(file.getName());
-        try {
-            return upload(new FileInputStream(file), name);
-        } catch (Exception e) {
-            log.trace("", e);
-        }
-        return "";
-    }
-
-    private static String getSufixName(String fileName) {
-        if (SuffixEnum.FILE_NAME.name.equals(sufix)) {
-            return fileName;
-        } else if (SuffixEnum.DATE_FILE_NAME.name.equals(sufix)) {
-            // todo-dong4j : (2019年03月13日 18:01) [修改为线程安全的]
-            return dateFormat.format(new Date()) + fileName;
-        } else if (SuffixEnum.RANDOM.name.equals(sufix)) {
-            return CharacterUtils.getRandomString(8) + fileName.substring(fileName.lastIndexOf("."));
-        } else {
-            return fileName;
-        }
-    }
-
-    /**
-     * 上传到OSS服务器  如果同名文件会覆盖服务器上的
-     *
-     * @param inputStream 文件流
-     * @param fileName    文件名称 包括后缀名
-     * @return 出错返回 "" ,唯一MD5数字签名
-     */
-    private String upload(InputStream inputStream, String fileName) {
-        return upload(inputStream, fileDir, fileName);
-    }
-
-
-    /**
-     * Upload file 2 ossClient string.
-     *
-     * @param inputStream the inputStream
-     * @param filedir     the filedir
-     * @param fileName    the file name
-     * @return the string
-     */
-    public String upload(InputStream inputStream, String filedir, String fileName) {
-        return upload(ossClient, inputStream, filedir, fileName);
-    }
-
-    /**
-     * Upload file 2 ossClient string.
-     *
-     * @param ossClient the ossClient client
-     * @param instream  the instream
-     * @param filedir   the filedir
-     * @param fileName  the file name
-     * @return the string
-     */
-    public String upload(OSS ossClient,
-                         @NotNull InputStream instream,
-                         String filedir,
-                         @NotNull String fileName) {
-        try {
-            // 创建上传 Object 的 Metadata
-            ObjectMetadata objectMetadata = new ObjectMetadata();
-            objectMetadata.setContentLength(instream.available());
-            objectMetadata.setCacheControl("no-cache");
-            objectMetadata.setHeader("Pragma", "no-cache");
-            objectMetadata.setContentType(getcontentType(fileName.substring(fileName.lastIndexOf("."))));
-            objectMetadata.setContentDisposition("inline;filename=" + fileName);
-            ossClient.putObject(bucketName, filedir + fileName, instream, objectMetadata);
-            return getUrl(ossClient, filedir, fileName);
-        } catch (IOException e) {
-            log.trace("", e);
-        } finally {
-            try {
-                instream.close();
-            } catch (IOException e) {
-                log.trace("", e);
-            }
-        }
-        return "";
     }
 
     /**
@@ -240,12 +139,12 @@ public class AliyunOssClient {
      *
      * @param ossClient the oss client
      * @param filedir   the filedir
-     * @param name      the name
+     * @param fileName  the name
      * @return the url
      */
-    private String getUrl(OSS ossClient, String filedir, String name) {
+    private String getUrl(@NotNull OSS ossClient, String filedir, String fileName) {
         Date expiration = new Date(System.currentTimeMillis() + 3600L * 1000 * 24 * 365 * 10);
-        URL url = ossClient.generatePresignedUrl(bucketName, filedir + name, expiration);
+        URL url = ossClient.generatePresignedUrl(bucketName, filedir + fileName, expiration);
         if (url != null) {
             String[] split = url.toString().split("\\?");
             String uri = split[0];
@@ -253,6 +152,82 @@ public class AliyunOssClient {
                 uri = uri.replace(URL_PROTOCOL_HTTP, URL_PROTOCOL_HTTPS);
             }
             return uri;
+        }
+        return "";
+    }
+
+    /**
+     * Upload string.
+     *
+     * @param file the file
+     * @return the string
+     */
+    public String upload(File file) {
+        try {
+            return upload(new FileInputStream(file), file.getName());
+        } catch (FileNotFoundException e) {
+            log.trace("", e);
+        }
+        return "";
+    }
+
+    /**
+     * 上传到OSS服务器  如果同名文件会覆盖服务器上的
+     *
+     * @param inputStream 文件流
+     * @param fileName    文件名称 包括后缀名
+     * @return 出错返回 "" ,唯一MD5数字签名
+     */
+    private String upload(InputStream inputStream, String fileName) {
+        return upload(inputStream, filedir, fileName);
+    }
+
+
+    /**
+     * Upload string.
+     *
+     * @param inputStream the inputStream
+     * @param filedir     the filedir
+     * @param fileName    the file name
+     * @return the string
+     */
+    public String upload(InputStream inputStream, String filedir, String fileName) {
+        return upload(ossClient, inputStream, filedir, fileName);
+    }
+
+    /**
+     * Upload string.
+     *
+     * @param ossClient the ossClient client
+     * @param instream  the instream
+     * @param filedir   the filedir
+     * @param fileName  the file name
+     * @return the string
+     */
+    public String upload(OSS ossClient,
+                         @NotNull InputStream instream,
+                         String filedir,
+                         @NotNull String fileName) {
+        // todo-dong4j : (2019年03月20日 12:29) [统一处理文件名]
+        fileName = processFileName(fileName);
+        try {
+            // 创建上传 Object 的 Metadata
+            ObjectMetadata objectMetadata = new ObjectMetadata();
+            objectMetadata.setContentLength(instream.available());
+            objectMetadata.setCacheControl("no-cache");
+            objectMetadata.setHeader("Pragma", "no-cache");
+            objectMetadata.setContentType(getcontentType(fileName.substring(fileName.lastIndexOf("."))));
+            objectMetadata.setContentDisposition("inline;filename=" + fileName);
+            ossClient.putObject(bucketName, filedir + fileName, instream, objectMetadata);
+            return getUrl(ossClient, filedir, fileName);
+        } catch (IOException e) {
+            log.trace("", e);
+        } finally {
+            try {
+                instream.close();
+            } catch (IOException e) {
+                log.trace("", e);
+            }
         }
         return "";
     }
