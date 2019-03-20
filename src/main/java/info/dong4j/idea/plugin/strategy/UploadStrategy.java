@@ -6,7 +6,6 @@ import java.awt.Component;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -20,7 +19,6 @@ import javax.swing.JTextField;
  * @email sjdong3 @iflytek.com
  */
 public interface UploadStrategy {
-    Map<String, Object> UPLOADER = new ConcurrentHashMap<>(12);
     /**
      * Upload string.
      *

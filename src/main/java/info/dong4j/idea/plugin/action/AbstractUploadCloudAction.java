@@ -33,8 +33,6 @@ import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
-import info.dong4j.idea.plugin.settings.ImageManagerState;
-import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.util.PsiDocumentUtils;
 
 import org.apache.commons.lang.StringUtils;
@@ -99,7 +97,7 @@ public abstract class AbstractUploadCloudAction extends AnAction {
         final Editor editor = PlatformDataKeys.EDITOR.getData(dataContext);
         if (null != editor) {
             final PsiFile file = PsiUtilBase.getPsiFileInEditor(editor, project);
-            presentation.setEnabled(file != null && isValidForFile(file) && isPassedTest());
+            presentation.setEnabled(file != null && isValidForFile(file) && isAvailable());
             return;
         }
 
@@ -123,7 +121,7 @@ public abstract class AbstractUploadCloudAction extends AnAction {
                 }
             }
         }
-        presentation.setEnabled(isValid && isPassedTest());
+        presentation.setEnabled(isValid && isAvailable());
     }
 
     /**
@@ -215,25 +213,11 @@ public abstract class AbstractUploadCloudAction extends AnAction {
     }
 
     /**
-     * 是否通过测试
+     * 是否为可用状态
      *
      * @return the boolean
      */
-    abstract boolean isPassedTest();
-
-    /**
-     * Valid from state boolean.
-     *
-     * @param state the state
-     * @return the boolean
-     */
-    boolean validFromState(OssState state){
-        boolean isPassedTest = state.isPassedTest();
-        Map<String, String> oldAndNewAuth = state.getOldAndNewAuthInfo();
-        return isPassedTest
-               && StringUtils.isNotEmpty(oldAndNewAuth.get(ImageManagerState.OLD_HASH_KEY))
-               && oldAndNewAuth.get(ImageManagerState.OLD_HASH_KEY).equals(oldAndNewAuth.get(ImageManagerState.NEW_HASH_KEY));
-    }
+    abstract boolean isAvailable();
 
     /**
      * 显示提示对话框

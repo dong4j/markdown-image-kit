@@ -41,7 +41,7 @@ public class ImageManagerState {
     /** 上传前压缩 */
     private boolean compressBeforeUpload = false;
     /** 压缩比例 */
-    private int compressBeforeUploadOfPercent = 80;
+    private int compressBeforeUploadOfPercent = 60;
     /** 查看时压缩 */
     private boolean compressAtLookup = false;
     /** Aliyun OSS 图片压缩配置 */
@@ -60,9 +60,8 @@ public class ImageManagerState {
     private String imageSavePath = "";
     /** 默认图床 */
     private int cloudType = CloudEnum.WEIBO_CLOUD.index;
-    private String suffix = "日期-文件名";
     /** 重命名文件*/
-    private boolean rename;
+    private boolean rename = false;
     /** 文件名后缀 */
     private int suffixIndex = SuffixEnum.FILE_NAME.index;
 }

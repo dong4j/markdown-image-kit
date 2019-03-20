@@ -178,7 +178,8 @@ public class AliyunOssClient implements OssClient {
      * @param fileName    文件名称 包括后缀名
      * @return 出错返回 "" ,唯一MD5数字签名
      */
-    private String upload(InputStream inputStream, String fileName) {
+    @Override
+    public String upload(InputStream inputStream, String fileName) {
         return upload(inputStream, filedir, fileName);
     }
 
@@ -208,7 +209,6 @@ public class AliyunOssClient implements OssClient {
                          @NotNull InputStream instream,
                          String filedir,
                          @NotNull String fileName) {
-        // todo-dong4j : (2019年03月20日 12:29) [统一处理文件名]
         fileName = processFileName(fileName);
         try {
             // 创建上传 Object 的 Metadata

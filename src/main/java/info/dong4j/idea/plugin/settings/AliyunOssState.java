@@ -21,10 +21,4 @@ public class AliyunOssState extends OssState {
     private String accessSecretKey = "";
     private String bucketName = "";
     private String filedir = "";
-    /** todo-dong4j : (2019年03月17日 01:49) [使用 index 保存] */
-    private String suffix = "日期-文件名";
-    /** 查看时压缩 */
-    private boolean compressAtLookup = false;
-    /** Aliyun OSS 图片压缩配置 */
-    private String styleName = "";
 }

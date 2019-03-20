@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Contract;
  * @email sjdong3@iflytek.com
  */
 public enum CloudEnum {
-    WEIBO_CLOUD(0, "微博", "info.dong4j.idea.plugin.strategy.WeiboUploadStrategy"),
+    WEIBO_CLOUD(0, "微博", "info.dong4j.idea.plugin.singleton.WeiboOssClient"),
     ALIYUN_CLOUD(1, "阿里云", "info.dong4j.idea.plugin.strategy.AliyunUploadStrategy"),
     QINIU_CLOUD(2, "七牛云", "info.dong4j.idea.plugin.strategy.QiniuUploadStrategy"),
     WANGYI_CLOUD(3, "网易云", ""),

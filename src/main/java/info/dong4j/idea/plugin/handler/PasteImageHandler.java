@@ -19,7 +19,8 @@ import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
-import info.dong4j.idea.plugin.strategy.UploadStrategy;
+import info.dong4j.idea.plugin.settings.OssState;
+import info.dong4j.idea.plugin.singleton.OssClient;
 import info.dong4j.idea.plugin.util.CharacterUtils;
 import info.dong4j.idea.plugin.util.EnumsUtils;
 import info.dong4j.idea.plugin.util.ImageUtils;
@@ -36,6 +37,7 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -82,17 +84,25 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
     protected void doExecute(@NotNull Editor editor, @Nullable Caret caret, DataContext dataContext) {
         Document document = editor.getDocument();
         VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
+
         if (virtualFile != null) {
             if (virtualFile.getFileType().getName().equals(MarkdownContents.MARKDOWN_FILE_TYPE)
                 || virtualFile.getName().endsWith(MarkdownContents.MARKDOWN_FILE_SUFIX)) {
-                // 根据配置操作. 是否开启 clioboard 监听; 是否将文件拷贝到目录; 是否开启上传到图床
+
+                //<editor-fold desc="开启 clipboard 监听后执行">
                 ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
-
                 boolean isClipboardControl = state.isClipboardControl();
-
                 if (isClipboardControl) {
+                    //<editor-fold desc="如果右键菜单不可用, 此项功能也不可用, 执行了默认 paste 操作后退出.">
+                    if(!OssState.getStatus(state.getCloudType())){
+                        defaultAction(editor, caret, dataContext);
+                        // todo-dong4j : (2019年03月20日 14:50) [消息通知]
+                        return ;
+                    }
+                    //</editor-fold>
+
+                    //<editor-fold desc="图片操作流程 只会循环一次">
                     Map<DataFlavor, Object> clipboardData = ImageUtils.getDataFromClipboard();
-                    // 只会循环一次
                     for (Map.Entry<DataFlavor, Object> entry : clipboardData.entrySet()) {
                         if (entry.getKey().equals(DataFlavor.javaFileListFlavor)) {
                             // 肯定是 List<File> 类型
@@ -134,7 +144,9 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                             return;
                         }
                     }
+                    //</editor-fold>
                 }
+                //</editor-fold>
             }
         }
         defaultAction(editor, caret, dataContext);
@@ -264,10 +276,14 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
         String className = cloudEnum.getClassName();
         try {
             Class<?> cls = Class.forName(className);
-            Object uploader = UploadStrategy.UPLOADER.get(className);
+            Object uploader = OssClient.UPLOADER.get(className);
+
             if(uploader == null){
-                uploader = cls.newInstance();
-                UploadStrategy.UPLOADER.put(className, uploader);
+                Constructor constructor = cls.getDeclaredConstructor();
+                // 有意破坏单例, 避免条件判断
+                constructor.setAccessible(true);
+                uploader = constructor.newInstance();
+                OssClient.UPLOADER.put(className, uploader);
             }
             Method setFunc = cls.getMethod("upload", InputStream.class, String.class);
             return (String) setFunc.invoke(uploader, inputStream, fileName);

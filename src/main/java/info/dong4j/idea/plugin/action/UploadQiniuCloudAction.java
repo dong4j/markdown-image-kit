@@ -2,6 +2,7 @@ package info.dong4j.idea.plugin.action;
 
 import info.dong4j.idea.plugin.icon.KitIcons;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
+import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.singleton.QiniuOssClient;
 
 import org.jetbrains.annotations.Contract;
@@ -29,8 +30,8 @@ public final class UploadQiniuCloudAction extends AbstractUploadCloudAction {
 
     @Contract(pure = true)
     @Override
-    boolean isPassedTest() {
-        return validFromState(ImageManagerPersistenComponent.getInstance().getState().getQiniuOssState());
+    boolean isAvailable() {
+        return OssState.getStatus(ImageManagerPersistenComponent.getInstance().getState().getQiniuOssState());
     }
 
     @NotNull

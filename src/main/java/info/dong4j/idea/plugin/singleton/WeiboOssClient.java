@@ -2,16 +2,23 @@ package info.dong4j.idea.plugin.singleton;
 
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
+import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.settings.WeiboOssState;
 import info.dong4j.idea.plugin.util.DES;
+import info.dong4j.idea.plugin.weibo.CookieContext;
 import info.dong4j.idea.plugin.weibo.UploadRequestBuilder;
 import info.dong4j.idea.plugin.weibo.UploadResponse;
 import info.dong4j.idea.plugin.weibo.WbpUploadRequest;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.util.Map;
+
+import javax.swing.JPanel;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,8 +34,10 @@ import lombok.extern.slf4j.Slf4j;
 public class WeiboOssClient implements OssClient {
     private final Object lock = new Object();
     private static WbpUploadRequest ossClient = null;
+    private WeiboOssState weiboOssState = ImageManagerPersistenComponent.getInstance().getState().getWeiboOssState();
 
     private WeiboOssClient() {
+        checkClient();
     }
 
     private static class SingletonHandler {
@@ -58,12 +67,11 @@ public class WeiboOssClient implements OssClient {
     /**
      * 在调用 ossClient 之前先检查, 如果为 null 就 init()
      */
-    private boolean checkClient() {
+    private void checkClient() {
         synchronized (lock) {
             if (ossClient == null) {
                 init();
             }
-            return ossClient != null;
         }
     }
 
@@ -72,7 +80,7 @@ public class WeiboOssClient implements OssClient {
      *
      * @param oss the oss
      */
-    public void setOssClient(WbpUploadRequest oss) {
+    private void setOssClient(WbpUploadRequest oss) {
         ossClient = oss;
     }
 
@@ -87,13 +95,14 @@ public class WeiboOssClient implements OssClient {
     }
 
     /**
-     * Upload string.
+     * 被 paste 操作调用 (反射).
      *
      * @param inputStream the input stream
      * @param fileName    the file name
      * @return the string
      * @throws IOException the io exception
      */
+    @Override
     public String upload(InputStream inputStream, String fileName) {
         return upload(ossClient, inputStream, fileName);
     }
@@ -148,6 +157,55 @@ public class WeiboOssClient implements OssClient {
             }
         } catch (IOException e) {
             log.trace("", e);
+        }
+        return url;
+    }
+
+    /**
+     * "Upload Test" 按钮被点击后调用 (反射)
+     * {@link info.dong4j.idea.plugin.settings.ProjectSettingsPage #upload}
+     *
+     * @param inputStream the input stream
+     * @param fileName    the file name
+     * @param jPanel      the j panel
+     * @return the string
+     */
+    public String upload(InputStream inputStream, String fileName, JPanel jPanel) {
+        Map<String, String> map = getTestFieldText(jPanel);
+        String username = map.get("username");
+        String password = map.get("password");
+
+        return upload(inputStream, fileName, username, password);
+    }
+
+    /**
+     * test 按钮点击事件后请求, 成功后保留 client, paste 或者 右键 上传时使用
+     *
+     * @param inputStream the input stream
+     * @param fileName    the file name
+     * @param username    the username
+     * @param password    the password
+     * @return the string
+     */
+    @NotNull
+    @Contract(pure = true)
+    private String upload(InputStream inputStream,
+                         String fileName,
+                         String username,
+                         String password) {
+
+        String url;
+        WeiboOssClient weiboOssClient = WeiboOssClient.getInstance();
+        CookieContext.getInstance().deleteCookie();
+        WbpUploadRequest ossClient = new UploadRequestBuilder()
+            .setAcount(username, password)
+            .build();
+        url = weiboOssClient.upload(ossClient, inputStream, fileName);
+
+        if (StringUtils.isNotBlank(url)) {
+            int hashcode = username.hashCode() + password.hashCode();
+            OssState.saveStatus(weiboOssState, hashcode, ImageManagerState.OLD_HASH_KEY);
+            weiboOssClient.setOssClient(ossClient);
         }
         return url;
     }

@@ -22,12 +22,5 @@ public class QiniuOssState extends OssState{
     private String accessKey = "";
     private String accessSecretKey = "";
     private String bucketName = "";
-    private String filedir = "";
-    private String suffix = "日期-文件名";
-    /** 查看时压缩 */
-    private boolean compressAtLookup = false;
-    /** Aliyun OSS 图片压缩配置 */
-    private String styleName = "";
-    private String url = "";
     private int zoneIndex = ZoneEnum.EAST_CHINA.index;
 }

@@ -144,6 +144,7 @@ public class QiniuOssClient implements OssClient {
      * @param fileName    the file name
      * @return the string
      */
+    @Override
     public String upload(InputStream inputStream, String fileName) {
         return upload(ossClient, inputStream, fileName);
     }

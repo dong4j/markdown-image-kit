@@ -8,6 +8,7 @@ import info.dong4j.idea.plugin.settings.ImageManagerState;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.*;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -76,8 +77,11 @@ public class UploadUtils {
     public static String upload(CloudEnum cloudEnum, InputStream inputStream, String fileName, JPanel jPanel) {
         try {
             Class<?> cls = Class.forName(cloudEnum.getClassName());
-            Object obj = cls.newInstance();
-            Method setFunc = cls.getMethod("uploadFromTest", InputStream.class, String.class, JPanel.class);
+            Constructor constructor = cls.getDeclaredConstructor();
+            // 有意破坏单例, 避免条件判断
+            constructor.setAccessible(true);
+            Object obj = constructor.newInstance();
+            Method setFunc = cls.getMethod("upload", InputStream.class, String.class, JPanel.class);
             return (String) setFunc.invoke(obj, inputStream, fileName, jPanel);
         } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException | InstantiationException | NoSuchMethodException e) {
             // todo-dong4j : (2019年03月17日 03:20) [添加通知]
