@@ -7,6 +7,7 @@ import com.qiniu.storage.Configuration;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Auth;
 
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.enums.ZoneEnum;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
@@ -121,6 +122,11 @@ public class QiniuOssClient implements OssClient {
     @Contract(pure = true)
     public static QiniuOssClient getInstance() {
         return QiniuOssClient.SingletonHandler.singleton;
+    }
+
+    @Override
+    public String getName() {
+        return MikBundle.message("oss.client.qiniu");
     }
 
     /**

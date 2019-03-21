@@ -4,6 +4,7 @@ import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.ObjectMetadata;
 
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.settings.AliyunOssState;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
@@ -174,6 +175,11 @@ public class AliyunOssClient implements OssClient {
             return uri;
         }
         return "";
+    }
+
+    @Override
+    public String getName() {
+        return MikBundle.message("oss.client.aliyun");
     }
 
     /**

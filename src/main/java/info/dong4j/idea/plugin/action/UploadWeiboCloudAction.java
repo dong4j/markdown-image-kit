@@ -3,11 +3,10 @@ package info.dong4j.idea.plugin.action;
 import info.dong4j.idea.plugin.icon.KitIcons;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.OssState;
+import info.dong4j.idea.plugin.singleton.OssClient;
 import info.dong4j.idea.plugin.singleton.WeiboOssClient;
 
 import org.jetbrains.annotations.Contract;
-
-import java.io.*;
 
 import javax.swing.Icon;
 
@@ -35,8 +34,9 @@ public final class UploadWeiboCloudAction extends AbstractUploadCloudAction {
         return OssState.getStatus(ImageManagerPersistenComponent.getInstance().getState().getWeiboOssState());
     }
 
+    @Contract(pure = true)
     @Override
-    public String upload(File file) {
-        return WeiboOssClient.getInstance().upload(file);
+    OssClient getOssClient() {
+        return WeiboOssClient.getInstance();
     }
 }

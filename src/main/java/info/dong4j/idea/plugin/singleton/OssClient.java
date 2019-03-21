@@ -80,6 +80,13 @@ public interface OssClient {
     }
 
     /**
+     * The constant getName.
+     *
+     * @return the name
+     */
+    String getName();
+
+    /**
      * Upload string.
      *
      * @param file the file

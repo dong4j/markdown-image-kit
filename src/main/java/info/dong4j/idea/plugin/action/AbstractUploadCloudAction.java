@@ -1,15 +1,8 @@
 package info.dong4j.idea.plugin.action;
 
-import com.google.common.collect.Iterables;
-
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationType;
-import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.editor.Document;
@@ -17,24 +10,20 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.search.FilenameIndex;
-import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiUtilBase;
-import com.intellij.ui.content.MessageView;
 
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
-import info.dong4j.idea.plugin.util.PsiDocumentUtils;
+import info.dong4j.idea.plugin.singleton.OssClient;
+import info.dong4j.idea.plugin.task.UploadBackgroundTask;
 
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Contract;
@@ -43,11 +32,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import javax.swing.Icon;
 
@@ -222,24 +209,6 @@ public abstract class AbstractUploadCloudAction extends AnAction {
     abstract boolean isAvailable();
 
     /**
-     * 显示提示对话框
-     *
-     * @param title            the title
-     * @param subTitle         the sub title
-     * @param text             the text
-     * @param notificationType the notification type
-     */
-    void notifucation(String title, String subTitle, String text, NotificationType notificationType) {
-        Notification notification = new Notification("Upload to OSS", null, notificationType);
-        // 可使用 HTML 标签
-        notification.setContent(text);
-        notification.setTitle(title);
-        notification.setSubtitle(subTitle);
-        notification.setImportant(true);
-        Notifications.Bus.notify(notification);
-    }
-
-    /**
      * 由子类实现具体上传方式
      *
      * @param event                  the event
@@ -255,81 +224,25 @@ public abstract class AbstractUploadCloudAction extends AnAction {
         final Project project = event.getProject();
         if (project != null) {
             if (waitingForUploadImages.size() > 0) {
-                int totalProcessed = 0;
-                int totalFailured = 0;
-                StringBuilder notFoundImages = new StringBuilder();
-                for (Map.Entry<Document, List<MarkdownImage>> entry : waitingForUploadImages.entrySet()) {
-                    Document document = entry.getKey();
-                    for (MarkdownImage markdownImage : entry.getValue()) {
-                        if (markdownImage.getLocation().equals(ImageLocationEnum.LOCAL)) {
-                            String imageName = markdownImage.getPath();
-                            if (StringUtils.isNotBlank(imageName)) {
-                                // 先刷新一次, 避免才添加的文件未被添加的 VFS 中, 导致找不到文件的问题
-                                // todo-dong4j : (2019年03月20日 17:46) [或者通过以下 API 精准查找]
-                                //  "VirtualFile fileByPath = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(new File(imageName));"
-                                VirtualFileManager.getInstance().syncRefresh();
-                                Collection<VirtualFile> findedFiles = FilenameIndex.getVirtualFilesByName(project, imageName, GlobalSearchScope.allScope(project));
-
-                                // 没有对应的图片, 则忽略
-                                if (findedFiles.size() <= 0) {
-                                    notFoundImages.append("\t").append(imageName).append("\n");
-                                    continue;
-                                }
-
-                                // 只取第一个图片
-                                VirtualFile virtualFile = Iterables.getFirst(findedFiles, null);
-                                assert virtualFile != null;
-                                String fileType = virtualFile.getFileType().getName();
-                                if (ImageContents.IMAGE_TYPE_NAME.equals(fileType)) {
-                                    File file = new File(virtualFile.getPath());
-                                    // 子类执行上传
-                                    String uploadedUrl = upload(file);
-                                    if (StringUtils.isBlank(uploadedUrl)) {
-                                        // todo-dong4j : (2019年03月18日 01:15) [提供失败的文件链接]
-                                        totalFailured++;
-                                    }
-                                    markdownImage.setUploadedUrl(uploadedUrl);
-                                }
-                            }
-                        }
-                        // todo-dong4j : (2019年03月15日 20:02) [此处会多次修改, 考虑直接使用 setText() 一次性修改全部文本数据]
-                        PsiDocumentUtils.commitAndSaveDocument(project, document, markdownImage);
-                        totalProcessed++;
-                    }
-                }
-                notifucation("Upload Completed",
-                             "",
-                             "Processed File = " + waitingForUploadImages.size() +
-                             "\nImage Mark = " + totalProcessed + "\n" +
-                             "Failured = " + totalFailured + "\n" +
-                             "Some Images Not Found: \n" + notFoundImages.toString(),
-                             NotificationType.INFORMATION);
-
-                // ConsoleView consoleView = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
-                //
-                // consoleView.print("Processed File = " + waitingForUploadImages.size() +
-                //                   "\nImage Mark = " + totalProcessed + "\n" +
-                //                   "Failured = " + totalFailured + "\n" +
-                //                   "Some Images Not Found: \n" + notFoundImages.toString(), ConsoleViewContentType.SYSTEM_OUTPUT);
-
-                MessageView messageView = MessageView.SERVICE.getInstance(project);
-                messageView.runWhenInitialized(new Runnable() {
-                    @Override
-                    public void run() {
-                        System.out.println("MessageView inited");
-                    }
-                });
+                // 先刷新一次, 避免才添加的文件未被添加的 VFS 中, 导致找不到文件的问题
+                VirtualFileManager.getInstance().syncRefresh();
+                // 所有任务提交给后台任务进行, 避免大量上传阻塞 UI 线程
+                OssClient ossClient = getOssClient();
+                new UploadBackgroundTask(event.getProject(),
+                                         MikBundle.message("mik.uploading.files.progress") + " " + ossClient.getName(),
+                                         true,
+                                         waitingForUploadImages,
+                                         ossClient).queue();
             }
         }
     }
 
     /**
-     * Upload string.
+     * 获取具体上传的客户端, 委托给后台任务执行
      *
-     * @param file the file
-     * @return the string
+     * @return the oss client
      */
-    abstract String upload(File file);
+    abstract OssClient getOssClient();
 
     /**
      * 从 markdown 文件中获取图片信息
@@ -440,33 +353,6 @@ public abstract class AbstractUploadCloudAction extends AnAction {
     }
 
     /**
-     * 获取 VirtualFile 的几种方式
-     *
-     * @param e the e
-     */
-    private void getVirtualFile(AnActionEvent e) {
-        // 获取 VirtualFile 方式一:
-        VirtualFile virtualFile = e.getData(PlatformDataKeys.VIRTUAL_FILE);
-        // 递归子目录
-        recursivelyMarkdownFile(virtualFile);
-        // 获取多个 VirtualFile
-        VirtualFile[] virtualFiles = e.getData(PlatformDataKeys.VIRTUAL_FILE_ARRAY);
-        // 方式二: 从本地文件系统路径获取
-        VirtualFile virtualFileFromLocalFileSystem = LocalFileSystem.getInstance().findFileByIoFile(new File("path"));
-        // 方式三: 从 PSI 文件 (如果 PSI 文件仅存在内存中, 则可能返回 null)
-        PsiFile psiFile = e.getData(CommonDataKeys.PSI_FILE);
-        if (psiFile != null) {
-            psiFile.getVirtualFile();
-        }
-        // 方式四: 从 document 中
-        Document document = Objects.requireNonNull(e.getData(PlatformDataKeys.EDITOR)).getDocument();
-        VirtualFile virtualFileFromDocument = FileDocumentManager.getInstance().getFile(document);
-
-        // 获取 document
-        getDocument(e);
-    }
-
-    /**
      * 递归遍历目录, 返回所有 markdown 文件
      *
      * @param virtualFile the virtual file
@@ -500,64 +386,5 @@ public abstract class AbstractUploadCloudAction extends AnAction {
                                                    return true;
                                                });
         return markdownFiles;
-    }
-
-    /**
-     * 获取 document 的几种方式
-     *
-     * @param e the e
-     */
-    private void getDocument(AnActionEvent e) {
-        // 从当前编辑器中获取
-        Document documentFromEditor = Objects.requireNonNull(e.getData(PlatformDataKeys.EDITOR)).getDocument();
-        // 从 VirtualFile 获取 (如果之前未加载文档内容，则此调用会强制从磁盘加载文档内容)
-        VirtualFile virtualFile = e.getData(PlatformDataKeys.VIRTUAL_FILE);
-        if (virtualFile != null) {
-            Document documentFromVirtualFile = FileDocumentManager.getInstance().getDocument(virtualFile);
-            // 从缓存中获取
-            Document documentFromVirtualFileCache = FileDocumentManager.getInstance().getCachedDocument(virtualFile);
-
-            // 从 PSI 中获取
-            Project project = e.getProject();
-            if (project != null) {
-                // 获取 PSI (一)
-                PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
-                // 获取 PSI (二)
-                psiFile = e.getData(CommonDataKeys.PSI_FILE);
-                if (psiFile != null) {
-                    Document documentFromPsi = PsiDocumentManager.getInstance(project).getDocument(psiFile);
-                    // 从缓存中获取
-                    Document documentFromPsiCache = PsiDocumentManager.getInstance(project).getCachedDocument(psiFile);
-                }
-            }
-        }
-    }
-
-    /**
-     * 获取 PSI 的几种方式
-     *
-     * @param e the e
-     */
-    private void getPsiFile(AnActionEvent e) {
-        // 从 action 中获取
-        PsiFile psiFileFromAction = e.getData(LangDataKeys.PSI_FILE);
-        Project project = e.getProject();
-        if (project != null) {
-            VirtualFile virtualFile = e.getData(PlatformDataKeys.VIRTUAL_FILE);
-            if (virtualFile != null) {
-                // 从 VirtualFile 获取
-                PsiFile psiFileFromVirtualFile = PsiManager.getInstance(project).findFile(virtualFile);
-
-                // 从 document
-                Document documentFromEditor = Objects.requireNonNull(e.getData(PlatformDataKeys.EDITOR)).getDocument();
-                PsiFile psiFileFromDocument = PsiDocumentManager.getInstance(project).getPsiFile(documentFromEditor);
-
-                // 在 project 范围内查找特定 PsiFile
-                FilenameIndex.getFilesByName(project, "fileName", GlobalSearchScope.projectScope(project));
-            }
-        }
-
-        // 找到特定 PSI 元素的使用位置
-        // ReferencesSearch.search();
     }
 }

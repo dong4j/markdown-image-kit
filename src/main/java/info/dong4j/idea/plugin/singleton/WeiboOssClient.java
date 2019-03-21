@@ -1,5 +1,6 @@
 package info.dong4j.idea.plugin.singleton;
 
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
 import info.dong4j.idea.plugin.settings.OssState;
@@ -126,6 +127,11 @@ public class WeiboOssClient implements OssClient {
             log.trace("", e);
         }
         return "";
+    }
+
+    @Override
+    public String getName() {
+        return MikBundle.message("oss.client.weibo");
     }
 
     /**

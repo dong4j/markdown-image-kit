@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
  * @email sjdong3 @iflytek.com
  */
 @Slf4j
-@State(name = "ImageManagerSetting", storages = @Storage(file = "image.manager.configs.xml"))
+@State(name = "ImageManagerSetting", storages = @Storage(value = Storage.NOT_ROAMABLE_FILE, file = "$APP_CONFIG$/image.manager.configs.xml"))
 public class ImageManagerPersistenComponent implements PersistentStateComponent<ImageManagerState> {
 
     /**

@@ -4,11 +4,10 @@ import info.dong4j.idea.plugin.icon.KitIcons;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.singleton.AliyunOssClient;
+import info.dong4j.idea.plugin.singleton.OssClient;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-
-import java.io.*;
 
 import javax.swing.Icon;
 
@@ -38,8 +37,9 @@ public final class UploadAliyunCloudAction extends AbstractUploadCloudAction {
         return OssState.getStatus(ImageManagerPersistenComponent.getInstance().getState().getAliyunOssState());
     }
 
+    @Contract(pure = true)
     @Override
-    public String upload(File file) {
-        return AliyunOssClient.getInstance().upload(file);
+    OssClient getOssClient() {
+        return AliyunOssClient.getInstance();
     }
 }

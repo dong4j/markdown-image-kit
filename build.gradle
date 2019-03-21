@@ -59,25 +59,25 @@ dependencies {
     // https://mvnrepository.com/artifact/net.coobird/thumbnailator
     compile group: 'net.coobird', name: 'thumbnailator', version: '0.4.8'
 
-//    // 单个依赖
-//    compile group: 'log4j', name: 'log4j', version: '1.2.17'
-//    // 简写 => compile 'log4j:log4j:1.2.17'
-//
-//    // 以数组形式添加多个依赖
-//    compile 'joda-time:joda-time:2.9.2', 'log4j:log4j:1.2.17'
-//
-//    // 闭包形式，以添加额外配置
-//    compile(group: 'log4j', name: 'log4j', version: '1.2.17') {
-//        // ... 额外配置
-//    }
-//    // 等价于
-//    compile('log4j:log4j:1.2.17') {
-//        // ... 额外配置
-//    }
-//    // 排除 依赖
-//    compile (group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.11.0') {
-//        exclude group: 'org.slf4j', module: 'slf4j-api'
-//    }
+    //    // 单个依赖
+    //    compile group: 'log4j', name: 'log4j', version: '1.2.17'
+    //    // 简写 => compile 'log4j:log4j:1.2.17'
+    //
+    //    // 以数组形式添加多个依赖
+    //    compile 'joda-time:joda-time:2.9.2', 'log4j:log4j:1.2.17'
+    //
+    //    // 闭包形式，以添加额外配置
+    //    compile(group: 'log4j', name: 'log4j', version: '1.2.17') {
+    //        // ... 额外配置
+    //    }
+    //    // 等价于
+    //    compile('log4j:log4j:1.2.17') {
+    //        // ... 额外配置
+    //    }
+    //    // 排除 依赖
+    //    compile (group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.11.0') {
+    //        exclude group: 'org.slf4j', module: 'slf4j-api'
+    //    }
 
 }
 
