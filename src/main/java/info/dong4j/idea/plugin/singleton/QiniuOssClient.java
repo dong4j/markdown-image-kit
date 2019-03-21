@@ -185,8 +185,7 @@ public class QiniuOssClient implements OssClient {
         }
         return "";
     }
-
-
+    
     /**
      * Upload from test string.
      * {@link info.dong4j.idea.plugin.settings.ProjectSettingsPage#testAndHelpListener()}
