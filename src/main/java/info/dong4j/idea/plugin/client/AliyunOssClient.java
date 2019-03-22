@@ -47,10 +47,7 @@ public class AliyunOssClient implements OssClient{
     private static String filedir;
     private static OSS ossClient = null;
 
-    /**
-     * 必须设置为 public, 不然使用 ServiceLoader.load 会报错
-     */
-    public AliyunOssClient() {
+    private AliyunOssClient() {
         checkClient();
     }
 

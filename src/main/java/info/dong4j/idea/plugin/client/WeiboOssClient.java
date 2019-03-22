@@ -38,7 +38,7 @@ public class WeiboOssClient implements OssClient{
     private static WbpUploadRequest ossClient = null;
     private WeiboOssState weiboOssState = ImageManagerPersistenComponent.getInstance().getState().getWeiboOssState();
 
-    public WeiboOssClient() {
+    private WeiboOssClient() {
         // 反射调用时判断是否初始化
         checkClient();
     }

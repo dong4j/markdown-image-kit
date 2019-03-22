@@ -46,7 +46,7 @@ public class QiniuOssClient implements OssClient {
     private static UploadManager ossClient = null;
     private static String domain;
 
-    public QiniuOssClient() {
+    private QiniuOssClient() {
         checkClient();
     }
 
