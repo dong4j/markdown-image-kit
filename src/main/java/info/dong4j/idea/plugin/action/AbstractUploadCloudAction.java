@@ -182,7 +182,7 @@ public abstract class AbstractUploadCloudAction extends AnAction {
                 VirtualFileManager.getInstance().syncRefresh();
                 // 获取对应的 client
                 OssClient ossClient = getOssClient();
-                new Uploader().setUploadWay(new UploadFromAction(project, ossClient, waitingForUploadImages)).upload();
+                Uploader.getInstance().setUploadWay(new UploadFromAction(project, ossClient, waitingForUploadImages)).upload();
             }
         }
     }

@@ -1,5 +1,7 @@
 package info.dong4j.idea.plugin.strategy;
 
+import org.jetbrains.annotations.Contract;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -13,6 +15,22 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Uploader {
     private UploadWay uploadWay;
+
+    private Uploader() {}
+
+    private static class SingletonHandler {
+        private static Uploader singleton = new Uploader();
+    }
+
+    /**
+     * Gets instance.
+     *
+     * @return the instance
+     */
+    @Contract(pure = true)
+    public static Uploader getInstance() {
+        return Uploader.SingletonHandler.singleton;
+    }
 
     /**
      * Set upload way uploader.

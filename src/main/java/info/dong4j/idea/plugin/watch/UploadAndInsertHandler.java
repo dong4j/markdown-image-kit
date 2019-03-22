@@ -80,7 +80,7 @@ public class UploadAndInsertHandler extends PasteActionHandler {
                             Runnable r = () -> {
                                 OssClient client = ClientUtils.getInstance(cloudType.orElse(CloudEnum.WEIBO_CLOUD));
                                 indicator.setText2("Uploading " + imageName);
-                                String imageUrl = new Uploader().setUploadWay(new UploadFromPaste(client, inputStream, imageName)).upload();
+                                String imageUrl = Uploader.getInstance().setUploadWay(new UploadFromPaste(client, inputStream, imageName)).upload();
 
                                 if (StringUtils.isNotBlank(imageUrl)) {
                                     indicator.setText2("Replace " + imageUrl);
