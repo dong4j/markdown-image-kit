@@ -243,22 +243,6 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
     }
 
     /**
-     * Create virtual file.
-     * https://intellij-support.jetbrains.com/hc/en-us/community/posts/206144389-Create-virtual-file-from-file-path
-     *
-     * @param ed        the ed
-     * @param imageFile the image file
-     */
-    private void createVirtualFile(Editor ed, File imageFile) {
-        VirtualFile fileByPath = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(imageFile);
-        assert fileByPath != null;
-        AbstractVcs usedVcs = ProjectLevelVcsManager.getInstance(Objects.requireNonNull(ed.getProject())).getVcsFor(fileByPath);
-        if (usedVcs != null && usedVcs.getCheckinEnvironment() != null) {
-            usedVcs.getCheckinEnvironment().scheduleUnversionedFilesForAddition(Collections.singletonList(fileByPath));
-        }
-    }
-
-    /**
      * 上传图片并在光标位置插入上传后的 markdown image mark
      *
      * @param editor        the editor
@@ -286,6 +270,22 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
         } catch (IOException e) {
             // todo-dong4j : (2019年03月17日 03:20) [添加通知]
             log.trace("", e);
+        }
+    }
+
+    /**
+     * Create virtual file.
+     * https://intellij-support.jetbrains.com/hc/en-us/community/posts/206144389-Create-virtual-file-from-file-path
+     *
+     * @param ed        the ed
+     * @param imageFile the image file
+     */
+    private void createVirtualFile(Editor ed, File imageFile) {
+        VirtualFile fileByPath = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(imageFile);
+        assert fileByPath != null;
+        AbstractVcs usedVcs = ProjectLevelVcsManager.getInstance(Objects.requireNonNull(ed.getProject())).getVcsFor(fileByPath);
+        if (usedVcs != null && usedVcs.getCheckinEnvironment() != null) {
+            usedVcs.getCheckinEnvironment().scheduleUnversionedFilesForAddition(Collections.singletonList(fileByPath));
         }
     }
 
