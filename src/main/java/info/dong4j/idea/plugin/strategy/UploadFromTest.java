@@ -13,8 +13,8 @@ import javax.swing.JPanel;
  * <p>Description: 从测试按钮发起的上传请求</p>
  *
  * @author dong4j
- * @email sjdong3@iflytek.com
- * @since 2019-03-22 13:14
+ * @email sjdong3 @iflytek.com
+ * @since 2019 -03-22 13:14
  */
 public class UploadFromTest implements UploadWay {
     private OssClient client;
@@ -22,6 +22,14 @@ public class UploadFromTest implements UploadWay {
     private String fileName;
     private JPanel jPanel;
 
+    /**
+     * Instantiates a new Upload from test.
+     *
+     * @param client      the client
+     * @param inputStream the input stream
+     * @param fileName    the file name
+     * @param jPanel      the j panel
+     */
     @Contract("null, _, _, _ -> fail")
     public UploadFromTest(OssClient client, InputStream inputStream, String fileName, JPanel jPanel) {
         assert client != null;

@@ -351,14 +351,10 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             Optional<CloudEnum> cloudType = EnumsUtils.getEnumObject(CloudEnum.class, i -> i.getIndex() == index);
 
             OssClient client = AbstractOssClient.getInstance(cloudType.orElse(CloudEnum.WEIBO_CLOUD));
-
-            Uploader uploader = new Uploader();
-            uploader.setUploadWay(new UploadFromTest(client,
-                                                     inputStream,
-                                                     TEST_FILE_NAME,
-                                                     (JPanel) authorizationTabbedPanel.getComponentAt(index)));
-            String url = uploader.upload();
-
+            String url = new Uploader().setUploadWay(new UploadFromTest(client,
+                                                                        inputStream,
+                                                                        TEST_FILE_NAME,
+                                                                        (JPanel) authorizationTabbedPanel.getComponentAt(index))).upload();
             if (StringUtils.isNotBlank(url)) {
                 testMessage.setForeground(JBColor.GREEN);
                 testMessage.setText("Upload Succeed");

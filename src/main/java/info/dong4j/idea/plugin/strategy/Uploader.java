@@ -1,6 +1,5 @@
 package info.dong4j.idea.plugin.strategy;
 
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -12,11 +11,26 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019 -03-22 13:16
  */
 @Slf4j
-@Data
 public class Uploader {
     private UploadWay uploadWay;
 
-    public String upload(){
+    /**
+     * Set upload way uploader.
+     *
+     * @param uploadWay the upload way
+     * @return the uploader
+     */
+    public Uploader setUploadWay(UploadWay uploadWay) {
+        this.uploadWay = uploadWay;
+        return this;
+    }
+
+    /**
+     * Upload string.
+     *
+     * @return the string
+     */
+    public String upload() {
         return uploadWay.upload();
     }
 }

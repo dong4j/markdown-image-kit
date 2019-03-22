@@ -24,6 +24,8 @@ import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
 import info.dong4j.idea.plugin.settings.OssState;
+import info.dong4j.idea.plugin.strategy.UploadFromPaste;
+import info.dong4j.idea.plugin.strategy.Uploader;
 import info.dong4j.idea.plugin.util.CharacterUtils;
 import info.dong4j.idea.plugin.util.EnumsUtils;
 import info.dong4j.idea.plugin.util.ImageUtils;
@@ -266,15 +268,15 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
     private void uploadAndInsert(@NotNull Editor editor, BufferedImage bufferedImage, String imageName) {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             ImageIO.write(bufferedImage, "png", os);
-            InputStream is = new ByteArrayInputStream(os.toByteArray());
+            InputStream inputStream = new ByteArrayInputStream(os.toByteArray());
             // 上传到默认图床
             int index = ImageManagerPersistenComponent.getInstance().getState().getCloudType();
             Optional<CloudEnum> cloudType = EnumsUtils.getEnumObject(CloudEnum.class, e -> e.getIndex() == index);
             // 此处进行异步处理, 不然上传大图时会卡死
             Runnable r = () -> {
                 OssClient client = AbstractOssClient.getInstance(cloudType.orElse(CloudEnum.WEIBO_CLOUD));
-                assert client != null;
-                String imageUrl = client.upload(is, imageName);
+                String imageUrl = new Uploader().setUploadWay(new UploadFromPaste(client, inputStream, imageName)).upload();
+
                 if (StringUtils.isNotBlank(imageUrl)) {
                     String newLineText = UploadUtils.getFinalImageMark("", imageUrl, imageUrl, ImageContents.LINE_BREAK);
                     EditorModificationUtil.insertStringAtCaret(editor, newLineText);

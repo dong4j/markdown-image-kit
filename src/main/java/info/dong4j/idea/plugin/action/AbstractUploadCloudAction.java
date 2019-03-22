@@ -16,14 +16,14 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiUtilBase;
 
-import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
-import info.dong4j.idea.plugin.task.UploadBackgroundTask;
+import info.dong4j.idea.plugin.strategy.UploadFromAction;
+import info.dong4j.idea.plugin.strategy.Uploader;
 import info.dong4j.idea.plugin.util.MarkdownUtils;
 
 import org.apache.commons.lang.StringUtils;
@@ -198,12 +198,7 @@ public abstract class AbstractUploadCloudAction extends AnAction {
                 VirtualFileManager.getInstance().syncRefresh();
                 // 获取执行的 client 上传
                 OssClient ossClient = getOssClient();
-                // 所有任务提交给后台任务进行, 避免大量上传阻塞 UI 线程
-                new UploadBackgroundTask(event.getProject(),
-                                         MikBundle.message("mik.uploading.files.progress") + " " + ossClient.getName(),
-                                         true,
-                                         waitingForUploadImages,
-                                         ossClient).queue();
+                new Uploader().setUploadWay(new UploadFromAction(project, ossClient, waitingForUploadImages)).upload();
             }
         }
     }
