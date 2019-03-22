@@ -1,0 +1,3 @@
+info.dong4j.idea.plugin.client.AliyunOssClient
+info.dong4j.idea.plugin.client.QiniuOssClient
+info.dong4j.idea.plugin.client.WeiboOssClient

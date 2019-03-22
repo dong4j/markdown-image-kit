@@ -1,6 +1,6 @@
 package info.dong4j.idea.plugin.client;
 
-import info.dong4j.idea.plugin.MikBundle;
+import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
 import info.dong4j.idea.plugin.settings.OssState;
@@ -32,12 +32,13 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019 -03-18 09:57
  */
 @Slf4j
-public class WeiboOssClient extends AbstractOssClient {
+@Client(CloudEnum.WEIBO_CLOUD)
+public class WeiboOssClient implements OssClient{
     private static final Object LOCK = new Object();
     private static WbpUploadRequest ossClient = null;
     private WeiboOssState weiboOssState = ImageManagerPersistenComponent.getInstance().getState().getWeiboOssState();
 
-    private WeiboOssClient() {
+    public WeiboOssClient() {
         // 反射调用时判断是否初始化
         checkClient();
     }
@@ -131,9 +132,13 @@ public class WeiboOssClient extends AbstractOssClient {
 
     @Override
     public String getName() {
-        return MikBundle.message("oss.client.weibo");
+        return getCloudType().title;
     }
 
+    @Override
+    public CloudEnum getCloudType() {
+        return CloudEnum.WEIBO_CLOUD;
+    }
     /**
      * Upload string.
      *

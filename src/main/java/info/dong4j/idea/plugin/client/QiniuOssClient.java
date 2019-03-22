@@ -1,13 +1,12 @@
 package info.dong4j.idea.plugin.client;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.common.Zone;
 import com.qiniu.http.Response;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Auth;
 
-import info.dong4j.idea.plugin.MikBundle;
+import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.ZoneEnum;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
@@ -38,7 +37,8 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019 -03-19 15:25
  */
 @Slf4j
-public class QiniuOssClient extends AbstractOssClient {
+@Client(CloudEnum.QINIU_CLOUD)
+public class QiniuOssClient implements OssClient {
     private QiniuOssState qiniuOssState = ImageManagerPersistenComponent.getInstance().getState().getQiniuOssState();
     private static final long DEAD_LINE = 3600L * 1000 * 24 * 365 * 10;
     private static String token;
@@ -46,7 +46,7 @@ public class QiniuOssClient extends AbstractOssClient {
     private static UploadManager ossClient = null;
     private static String domain;
 
-    private QiniuOssClient() {
+    public QiniuOssClient() {
         checkClient();
     }
 
@@ -67,11 +67,14 @@ public class QiniuOssClient extends AbstractOssClient {
         String accessKey = qiniuOssState.getAccessKey();
         String secretKey = DES.decrypt(qiniuOssState.getAccessSecretKey(), ImageManagerState.QINIU);
         String bucketName = qiniuOssState.getBucketName();
-        // 设置区域
-        Configuration cfg = new Configuration(Zone.zone2());
-        ossClient = new UploadManager(cfg);
-        Auth auth = Auth.create(accessKey, secretKey);
-        buildToken(auth, bucketName);
+
+        Optional<ZoneEnum> zone = EnumsUtils.getEnumObject(ZoneEnum.class, e -> e.getIndex() == qiniuOssState.getZoneIndex());
+        try {
+            Configuration cfg = new Configuration(zone.orElse(ZoneEnum.EAST_CHINA).zone);
+            ossClient = new UploadManager(cfg);
+            buildToken(Auth.create(accessKey, secretKey), bucketName);
+        } catch (Exception ignored) {
+        }
     }
 
     /**
@@ -126,7 +129,12 @@ public class QiniuOssClient extends AbstractOssClient {
 
     @Override
     public String getName() {
-        return MikBundle.message("oss.client.qiniu");
+        return getCloudType().title;
+    }
+
+    @Override
+    public CloudEnum getCloudType() {
+        return CloudEnum.QINIU_CLOUD;
     }
 
     /**
@@ -191,7 +199,7 @@ public class QiniuOssClient extends AbstractOssClient {
         }
         return "";
     }
-    
+
     /**
      * Upload from test string.
      * {@link info.dong4j.idea.plugin.settings.ProjectSettingsPage#testAndHelpListener()}

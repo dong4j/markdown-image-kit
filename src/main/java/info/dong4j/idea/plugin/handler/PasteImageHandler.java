@@ -17,7 +17,6 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.Producer;
 import com.intellij.util.containers.hash.HashMap;
 
-import info.dong4j.idea.plugin.client.AbstractOssClient;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.enums.CloudEnum;
@@ -27,6 +26,7 @@ import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.strategy.UploadFromPaste;
 import info.dong4j.idea.plugin.strategy.Uploader;
 import info.dong4j.idea.plugin.util.CharacterUtils;
+import info.dong4j.idea.plugin.util.ClientUtils;
 import info.dong4j.idea.plugin.util.EnumsUtils;
 import info.dong4j.idea.plugin.util.ImageUtils;
 import info.dong4j.idea.plugin.util.MarkdownUtils;
@@ -274,7 +274,7 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
             Optional<CloudEnum> cloudType = EnumsUtils.getEnumObject(CloudEnum.class, e -> e.getIndex() == index);
             // 此处进行异步处理, 不然上传大图时会卡死
             Runnable r = () -> {
-                OssClient client = AbstractOssClient.getInstance(cloudType.orElse(CloudEnum.WEIBO_CLOUD));
+                OssClient client = ClientUtils.getInstance(cloudType.orElse(CloudEnum.WEIBO_CLOUD));
                 String imageUrl = new Uploader().setUploadWay(new UploadFromPaste(client, inputStream, imageName)).upload();
 
                 if (StringUtils.isNotBlank(imageUrl)) {

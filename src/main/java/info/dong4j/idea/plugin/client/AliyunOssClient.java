@@ -4,7 +4,7 @@ import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.ObjectMetadata;
 
-import info.dong4j.idea.plugin.MikBundle;
+import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.AliyunOssState;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
@@ -34,7 +34,8 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019 -03-18 09:57
  */
 @Slf4j
-public class AliyunOssClient extends AbstractOssClient {
+@Client(CloudEnum.ALIYUN_CLOUD)
+public class AliyunOssClient implements OssClient{
     /**
      * The constant URL_PROTOCOL_HTTPS.
      */
@@ -46,7 +47,10 @@ public class AliyunOssClient extends AbstractOssClient {
     private static String filedir;
     private static OSS ossClient = null;
 
-    private AliyunOssClient() {
+    /**
+     * 必须设置为 public, 不然使用 ServiceLoader.load 会报错
+     */
+    public AliyunOssClient() {
         checkClient();
     }
 
@@ -138,7 +142,12 @@ public class AliyunOssClient extends AbstractOssClient {
 
     @Override
     public String getName() {
-        return MikBundle.message("oss.client.aliyun");
+        return getCloudType().title;
+    }
+
+    @Override
+    public CloudEnum getCloudType() {
+        return CloudEnum.ALIYUN_CLOUD;
     }
 
     /**

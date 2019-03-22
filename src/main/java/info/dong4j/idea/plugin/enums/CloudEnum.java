@@ -13,29 +13,27 @@ import org.jetbrains.annotations.Contract;
  */
 public enum CloudEnum {
     /** @see info.dong4j.idea.plugin.client.WeiboOssClient */
-    WEIBO_CLOUD(0, "微博", "info.dong4j.idea.plugin.client.WeiboOssClient"),
+    WEIBO_CLOUD(0, "微博"),
     /** @see info.dong4j.idea.plugin.client.AliyunOssClient */
-    ALIYUN_CLOUD(1, "阿里云", "info.dong4j.idea.plugin.client.AliyunOssClient"),
+    ALIYUN_CLOUD(1, "阿里云"),
     /** @see info.dong4j.idea.plugin.client.QiniuOssClient */
-    QINIU_CLOUD(2, "七牛云", "info.dong4j.idea.plugin.client.QiniuOssClient"),
-    WANGYI_CLOUD(3, "网易云", ""),
-    BAIDU_CLOUD(4, "百度云", ""),
-    JINGDONG_CLOUD(5, "京东云", ""),
-    YOUPAI_CLOUD(6, "又拍云", ""),
-    SM_MS_CLOUD(7, "sm.ms", ""),
-    IMGUR_CLOUD(8, "Imgur", ""),
-    U_CLOUD(9, "Ucloud", ""),
-    QING_CLOUD(10, "QIngCloud", ""),
-    CUSTOMIZE(11, "自定义", "");
+    QINIU_CLOUD(2, "七牛云"),
+    WANGYI_CLOUD(3, "网易云"),
+    BAIDU_CLOUD(4, "百度云"),
+    JINGDONG_CLOUD(5, "京东云"),
+    YOUPAI_CLOUD(6, "又拍云"),
+    SM_MS_CLOUD(7, "sm.ms"),
+    IMGUR_CLOUD(8, "Imgur"),
+    U_CLOUD(9, "Ucloud"),
+    QING_CLOUD(10, "QIngCloud"),
+    CUSTOMIZE(11, "自定义");
 
     public int index;
     public String title;
-    public String className;
 
-    CloudEnum(int index, String title, String className) {
+    CloudEnum(int index, String title) {
         this.index = index;
         this.title = title;
-        this.className = className;
     }
 
     @Contract(pure = true)
@@ -46,10 +44,5 @@ public enum CloudEnum {
     @Contract(pure = true)
     public String getTitle() {
         return title;
-    }
-
-    @Contract(pure = true)
-    public String getClassName() {
-        return className;
     }
 }

@@ -1,5 +1,6 @@
 package info.dong4j.idea.plugin.client;
 
+import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.SuffixEnum;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
@@ -30,10 +31,51 @@ import javax.swing.JTextField;
  * @since 2019 -03-20 11:52
  */
 public interface OssClient {
-    /** 用于反射调用时的缓存, 容量为实现类个数 */
-    Map<String, OssClient> INSTANCES = new ConcurrentHashMap<>(12);
+    /** 用于反射调用时的缓存 <className, client>, 容量为实现类个数 */
+    Map<CloudEnum, OssClient> INSTANCES = new ConcurrentHashMap<>(12);
     /** 重命名文件的前缀 */
     String PREFIX = "MIK-";
+
+    /**
+     * The constant getName.
+     *
+     * @return the name
+     */
+    String getName();
+
+    /**
+     * Gets cloud type.
+     *
+     * @return the cloud type
+     */
+    CloudEnum getCloudType();
+
+    /**
+     * Upload string.
+     *
+     * @param file the file
+     * @return the string
+     */
+    String upload(File file);
+
+    /**
+     * Upload string.
+     *
+     * @param inputStream the input stream
+     * @param fileName    the file name
+     * @return the string
+     */
+    String upload(InputStream inputStream, String fileName);
+
+    /**
+     * "Upload Test" 按钮反射调用
+     *
+     * @param inputStream the input stream
+     * @param fileName    the file name
+     * @param jPanel      the j panel
+     * @return the string
+     */
+    String upload(InputStream inputStream, String fileName, JPanel jPanel);
 
     /**
      * 统一处理 fileName
@@ -78,51 +120,5 @@ public interface OssClient {
             }
         }
         return fieldMap;
-    }
-
-    /**
-     * The constant getName.
-     *
-     * @return the name
-     */
-    String getName();
-
-    /**
-     * Upload string.
-     *
-     * @param file the file
-     * @return the string
-     */
-    String upload(File file);
-
-    /**
-     * Upload string.
-     *
-     * @param inputStream the input stream
-     * @param fileName    the file name
-     * @return the string
-     */
-    String upload(InputStream inputStream, String fileName);
-
-    /**
-     * "Upload Test" 按钮反射调用
-     *
-     * @param inputStream the input stream
-     * @param fileName    the file name
-     * @param jPanel      the j panel
-     * @return the string
-     */
-    String upload(InputStream inputStream, String fileName, JPanel jPanel);
-
-    /**
-     * The enum Upload way enum.
-     */
-    enum UploadWayEnum {
-        /** 测试按钮 */
-        FROM_TEST,
-        /** 右键上传 */
-        FROM_ACTION,
-        /** clipboard 监听 */
-        FROM_PASTE
     }
 }
