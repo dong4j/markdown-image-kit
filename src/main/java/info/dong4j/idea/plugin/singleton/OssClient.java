@@ -1,5 +1,6 @@
 package info.dong4j.idea.plugin.singleton;
 
+import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.SuffixEnum;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
@@ -33,6 +34,12 @@ public interface OssClient {
     Map<String, Object> UPLOADER = new ConcurrentHashMap<>(12);
     /** 重命名文件的前缀 */
     String PREFIX = "MIK-";
+
+
+    default OssClient getInstance(CloudEnum cloudEnum){
+        // UploadUtils.upload()
+        return null;
+    }
 
     /**
      * 统一处理 fileName

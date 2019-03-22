@@ -120,6 +120,9 @@ public abstract class AbstractUploadCloudAction extends AnAction {
      */
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
+        // 编辑器事件传递
+        // EditorActionManager.getInstance().getActionHandler(IdeActions.ACTION_EDITOR_ENTER).execute(editor, caret, dataContext);
+
         Map<Document, List<MarkdownImage>> waitingForUploadImages = new HashMap<>(20);
 
         final Project project = event.getProject();
