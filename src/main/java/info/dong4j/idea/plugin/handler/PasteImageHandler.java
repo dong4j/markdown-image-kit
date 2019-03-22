@@ -1,14 +1,12 @@
 package info.dong4j.idea.plugin.handler;
 
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.editor.actionSystem.EditorTextInsertHandler;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.AbstractVcs;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -18,7 +16,6 @@ import com.intellij.util.containers.hash.HashMap;
 
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
-import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.util.CharacterUtils;
 import info.dong4j.idea.plugin.util.ImageUtils;
 import info.dong4j.idea.plugin.util.MarkdownUtils;
@@ -27,6 +24,7 @@ import info.dong4j.idea.plugin.watch.FinalActionHandler;
 import info.dong4j.idea.plugin.watch.SaveAndInsertHandler;
 import info.dong4j.idea.plugin.watch.UploadAndInsertHandler;
 
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -79,7 +77,6 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
      */
     @Override
     protected void doExecute(@NotNull Editor editor, @Nullable Caret caret, DataContext dataContext) {
-        Project project = DataKeys.PROJECT.getData(dataContext);
 
         Document document = editor.getDocument();
         VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
@@ -89,15 +86,6 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
             boolean isClipboardControl = state.isClipboardControl();
 
             if (isClipboardControl) {
-                // todo-dong4j : (2019年03月20日 17:32) [使用如下代码获取]
-                //  http://www.jetbrains.org/intellij/sdk/docs/basics/persisting_state_of_components.html
-                //  "PropertiesComponent.getInstance().setValue("PI__LAST_DIR_PATTERN", dirPattern);"
-                if (!OssState.getStatus(state.getCloudType())) {
-                    defaultAction(editor, caret, dataContext);
-                    // todo-dong4j : (2019年03月20日 14:50) [消息通知]
-                    return;
-                }
-
                 Map<DataFlavor, Object> clipboardData = ImageUtils.getDataFromClipboard();
                 if(clipboardData != null){
                     Iterator<Map.Entry<DataFlavor, Object>> iterator = clipboardData.entrySet().iterator();
@@ -114,12 +102,11 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                         .addHandler(new UploadAndInsertHandler(editor, imageMap))
                         .addHandler(new FinalActionHandler())
                         .invoke();
-
                     return;
                 }
             }
-            defaultAction(editor, caret, dataContext);
         }
+        defaultAction(editor, caret, dataContext);
     }
 
     private Map<String, Image> resolveClipboardData(ImageManagerState state, @NotNull Map.Entry<DataFlavor, Object> entry) {
@@ -129,8 +116,12 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
             @SuppressWarnings("unchecked") List<File> fileList = (List<File>) entry.getValue();
 
             for (File file : fileList) {
+                // 第一步先初步排除非图片类型, 避免复制大量文件导致 OOM
+                if(StringUtils.isBlank(ImageUtils.getImageType(file.getName()))){
+                    return imageMap;
+                }
                 // 先检查是否为图片类型
-                Image image = null;
+                Image image;
                 try {
                     File compressedFile = new File(System.getProperty("java.io.tmpdir") + file.getName());
                     // todo-dong4j : (2019年03月20日 04:29) [判断是否启动图片压缩]
@@ -142,16 +133,15 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                     // 读到缓冲区
                     image = ImageIO.read(compressedFile);
                 } catch (IOException ignored) {
+                    // 如果抛异常, 则不是图片, 直接返回, 避免 OOM
+                    imageMap.clear();
+                    return imageMap;
                 }
                 String fileName = file.getName();
                 // 只要有一个文件不是 image, 就执行默认操作然后退出
                 if (image != null) {
                     imageMap.put(fileName, image);
                 }
-            }
-            // 如果复制的文件个数不全是 image 类型的, 则执行默认操作
-            if(imageMap.size() < fileList.size()){
-                imageMap.clear();
             }
         } else {
             // image 类型统一重命名, 因为获取不到文件名
