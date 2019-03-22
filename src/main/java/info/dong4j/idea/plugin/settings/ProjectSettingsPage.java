@@ -16,6 +16,8 @@ import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.enums.ZoneEnum;
+import info.dong4j.idea.plugin.strategy.UploadFromTest;
+import info.dong4j.idea.plugin.strategy.Uploader;
 import info.dong4j.idea.plugin.util.DES;
 import info.dong4j.idea.plugin.util.EnumsUtils;
 
@@ -349,10 +351,13 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             Optional<CloudEnum> cloudType = EnumsUtils.getEnumObject(CloudEnum.class, i -> i.getIndex() == index);
 
             OssClient client = AbstractOssClient.getInstance(cloudType.orElse(CloudEnum.WEIBO_CLOUD));
-            assert client != null;
-            String url = client.upload(inputStream,
-                                            TEST_FILE_NAME,
-                                            (JPanel) authorizationTabbedPanel.getComponentAt(index));
+
+            Uploader uploader = new Uploader();
+            uploader.setUploadWay(new UploadFromTest(client,
+                                                     inputStream,
+                                                     TEST_FILE_NAME,
+                                                     (JPanel) authorizationTabbedPanel.getComponentAt(index)));
+            String url = uploader.upload();
 
             if (StringUtils.isNotBlank(url)) {
                 testMessage.setForeground(JBColor.GREEN);

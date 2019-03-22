@@ -208,8 +208,6 @@ public abstract class AbstractUploadCloudAction extends AnAction {
         }
     }
 
-
-
     /**
      * 从 markdown 文件中获取图片信息
      *

@@ -151,6 +151,7 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
             }
             //</editor-fold>
         }
+
         defaultAction(editor, caret, dataContext);
     }
 
