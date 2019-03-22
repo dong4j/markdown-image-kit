@@ -17,12 +17,12 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiUtilBase;
 
 import info.dong4j.idea.plugin.MikBundle;
+import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
-import info.dong4j.idea.plugin.singleton.OssClient;
 import info.dong4j.idea.plugin.task.UploadBackgroundTask;
 
 import org.apache.commons.lang.StringUtils;

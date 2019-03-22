@@ -10,12 +10,12 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.JBColor;
 
+import info.dong4j.idea.plugin.client.AbstractOssClient;
+import info.dong4j.idea.plugin.client.AliyunOssClient;
+import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.enums.ZoneEnum;
-import info.dong4j.idea.plugin.singleton.AbstractOssClient;
-import info.dong4j.idea.plugin.singleton.AliyunOssClient;
-import info.dong4j.idea.plugin.singleton.OssClient;
 import info.dong4j.idea.plugin.util.DES;
 import info.dong4j.idea.plugin.util.EnumsUtils;
 

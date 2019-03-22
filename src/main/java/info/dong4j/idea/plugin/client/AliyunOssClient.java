@@ -1,4 +1,4 @@
-package info.dong4j.idea.plugin.singleton;
+package info.dong4j.idea.plugin.client;
 
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;

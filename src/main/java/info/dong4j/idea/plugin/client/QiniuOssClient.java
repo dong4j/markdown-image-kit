@@ -1,4 +1,4 @@
-package info.dong4j.idea.plugin.singleton;
+package info.dong4j.idea.plugin.client;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;

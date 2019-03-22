@@ -1,4 +1,4 @@
-package info.dong4j.idea.plugin.singleton;
+package info.dong4j.idea.plugin.client;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;

@@ -17,14 +17,14 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.Producer;
 import com.intellij.util.containers.hash.HashMap;
 
+import info.dong4j.idea.plugin.client.AbstractOssClient;
+import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
 import info.dong4j.idea.plugin.settings.OssState;
-import info.dong4j.idea.plugin.singleton.AbstractOssClient;
-import info.dong4j.idea.plugin.singleton.OssClient;
 import info.dong4j.idea.plugin.util.CharacterUtils;
 import info.dong4j.idea.plugin.util.EnumsUtils;
 import info.dong4j.idea.plugin.util.ImageUtils;

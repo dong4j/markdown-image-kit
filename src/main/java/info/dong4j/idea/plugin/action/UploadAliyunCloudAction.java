@@ -1,10 +1,10 @@
 package info.dong4j.idea.plugin.action;
 
+import info.dong4j.idea.plugin.client.AliyunOssClient;
+import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.icon.KitIcons;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.OssState;
-import info.dong4j.idea.plugin.singleton.AliyunOssClient;
-import info.dong4j.idea.plugin.singleton.OssClient;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
