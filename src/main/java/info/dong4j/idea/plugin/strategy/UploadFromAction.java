@@ -37,6 +37,14 @@ public class UploadFromAction implements UploadWay {
         this.waitingForUploadImages = waitingForUploadImages;
     }
 
+    /**
+     * todo-dong4j : (2019年03月15日 19:06) []
+     *  1. 是否设置图片压缩
+     *  2. 是否开启图床迁移
+     *  3. 是否开启备份
+     *
+     * @return the string
+     */
     @Override
     public String upload() {
         // 所有任务提交给后台任务进行, 避免大量上传阻塞 UI 线程

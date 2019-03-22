@@ -57,7 +57,7 @@ public class ImageManagerState {
     /** 上传图片并替换 */
     private boolean uploadAndReplace = false;
     /** 图片保存路径 */
-    private String imageSavePath = "";
+    private String imageSavePath = "./imgs";
     /** 默认图床 */
     private int cloudType = CloudEnum.WEIBO_CLOUD.index;
     /** 重命名文件*/

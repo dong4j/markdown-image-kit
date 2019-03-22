@@ -71,6 +71,7 @@ public final class ImageUtils {
      *
      * @return the data from clipboard  map 中只有一对 kev-value
      */
+    @Nullable
     public static Map<DataFlavor, Object> getDataFromClipboard() {
         Map<DataFlavor, Object> data = new HashMap<>(1);
         Transferable transferable = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
@@ -85,7 +86,7 @@ public final class ImageUtils {
                     // Image
                     dataFlavor = DataFlavor.imageFlavor;
                 } else {
-                    return data;
+                    return null;
                 }
                 Object object = transferable.getTransferData(dataFlavor);
                 data.put(dataFlavor, object);

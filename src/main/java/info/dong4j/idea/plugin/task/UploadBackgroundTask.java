@@ -78,7 +78,7 @@ public class UploadBackgroundTask extends Task.Backgroundable {
         StringBuilder notFoundImages = new StringBuilder();
         try {
             for (Map.Entry<Document, List<MarkdownImage>> entry : waitingForUploadImages.entrySet()) {
-                int tatalCount = entry.getValue().size();
+                int totalCount = entry.getValue().size();
                 Document document = entry.getKey();
                 for (MarkdownImage markdownImage : entry.getValue()) {
                     indicator.setText2("process file: " + markdownImage.getFileName() + " image path: " + markdownImage.getPath());
@@ -118,7 +118,7 @@ public class UploadBackgroundTask extends Task.Backgroundable {
                     }
                     // todo-dong4j : (2019年03月15日 20:02) [此处会多次修改, 考虑直接使用 setText() 一次性修改全部文本数据]
                     PsiDocumentUtils.commitAndSaveDocument(project, document, markdownImage);
-                    indicator.setFraction( ++totalProcessed * 1.0 / tatalCount);
+                    indicator.setFraction( ++totalProcessed * 1.0 / totalCount);
                 }
             }
             // ConsoleView consoleView = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();

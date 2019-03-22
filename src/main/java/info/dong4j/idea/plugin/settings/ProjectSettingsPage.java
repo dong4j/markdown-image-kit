@@ -116,6 +116,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     /** clipboard group */
     private JCheckBox clipboardControlCheckBox;
     private JCheckBox copyToDirCheckBox;
+    // todo-dong4j : (2019年03月22日 21:45) [设置默认路径 ./imgs]
     private JTextField whereToCopyTextField;
     private JCheckBox uploadAndReplaceCheckBox;
     private JComboBox defaultCloudComboBox;
