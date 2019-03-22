@@ -139,6 +139,7 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                     } else {
                         compressedFile = file;
                     }
+                    // 读到缓冲区
                     image = ImageIO.read(compressedFile);
                 } catch (IOException ignored) {
                 }

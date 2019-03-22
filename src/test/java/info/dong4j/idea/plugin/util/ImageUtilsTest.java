@@ -1,5 +1,7 @@
 package info.dong4j.idea.plugin.util;
 
+import net.coobird.thumbnailator.Thumbnails;
+
 import org.junit.Test;
 
 import sun.awt.image.MultiResolutionCachedImage;
@@ -307,13 +309,43 @@ public class ImageUtilsTest {
     @Test
     public void test10() throws IOException {
         ImageUtils.compress(new File("/Users/dong4j/Downloads/wade-meng-LgCj9qcrfhI.jpg"),
-                            new File("/Users/dong4j/Develop/test.jpg"), 80);
+                            new File("/Users/dong4j/Develop/test.jpg"), 60);
 
     }
 
     @Test
-    public void test11(){
+    public void test11() {
         log.info("{}", ImageUtils.getFileSuffix("aaa.png"));
+    }
+
+    @Test
+    public void test12() throws IOException {
+        /**
+         * outputFormat(图像格式)
+         */
+        Thumbnails.of("/Users/dong4j/Downloads/wade-meng-LgCj9qcrfhI.jpg").size(1280, 1024).outputFormat("png").toFile("/Users/dong4j/Develop/test.png");
+    }
+
+    @Test
+    public void test13() throws IOException {
+        // ImageUtils.compress(new File("/Users/dong4j/Downloads/wade-meng-LgCj9qcrfhI.jpg"),
+        //                     new File("/Users/dong4j/Develop/test.jpg"), 60);
+
+        BufferedImage bufferedImage = Thumbnails.of(new File("/Users/dong4j/Downloads/wade-meng-LgCj9qcrfhI.jpg"))
+            .scale(1f)
+            .outputQuality(0.6)
+            .asBufferedImage();
+
+        if (bufferedImage != null) {
+            bufferedImage = ImageUtils.toBufferedImage(ImageUtils.makeRoundedCorner(bufferedImage, 80));
+
+            Thumbnails.of(bufferedImage)
+                .size(bufferedImage.getWidth(), bufferedImage.getHeight())
+                .outputFormat("jpg")
+                .toFile("/Users/dong4j/Develop/test2.jpg");
+
+            // ImageIO.write(compressedImage, "png", new File("/Users/dong4j/Develop/test.png"));
+        }
     }
 }
 

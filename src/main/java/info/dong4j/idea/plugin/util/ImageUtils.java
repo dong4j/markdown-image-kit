@@ -2,6 +2,7 @@ package info.dong4j.idea.plugin.util;
 
 import com.intellij.ui.JBColor;
 import com.intellij.util.containers.hash.HashMap;
+import com.intellij.util.ui.UIUtil;
 import com.siyeh.ig.portability.mediatype.ImageMediaType;
 
 import net.coobird.thumbnailator.Thumbnails;
@@ -145,7 +146,7 @@ public final class ImageUtils {
 
         // other options
         int type = BufferedImage.TYPE_INT_ARGB;
-        BufferedImage dest = new BufferedImage(w, h, type);
+        BufferedImage dest =  UIUtil.createImage(w, h, type);
         Graphics2D g2 = dest.createGraphics();
         g2.drawImage(src, 0, 0, null);
         g2.dispose();

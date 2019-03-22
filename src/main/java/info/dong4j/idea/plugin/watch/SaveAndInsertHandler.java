@@ -16,8 +16,6 @@ import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
 import info.dong4j.idea.plugin.util.ImageUtils;
 
-import net.coobird.thumbnailator.Thumbnails;
-
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.Image;
@@ -67,8 +65,6 @@ public class SaveAndInsertHandler extends PasteActionHandler {
                     BufferedImage bufferedImage = ImageUtils.toBufferedImage(imageEntry.getValue());
 
                     if (bufferedImage != null) {
-                        bufferedImage = ImageUtils.toBufferedImage(ImageUtils.makeRoundedCorner(bufferedImage, 20));
-
                         ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
                         Document document = editor.getDocument();
                         // 保存图片
@@ -76,11 +72,12 @@ public class SaveAndInsertHandler extends PasteActionHandler {
                         assert currentFile != null;
                         File curDocument = new File(currentFile.getPath());
                         String savepath = state.getImageSavePath();
+                        // 保存图片的路径
                         File imageDir = new File(curDocument.getParent(), savepath);
                         boolean checkDir = imageDir.exists() && imageDir.isDirectory();
                         if (checkDir || imageDir.mkdirs()) {
                             File imageFile = new File(imageDir, imageName);
-                            BufferedImage finalBufferedImage = bufferedImage;
+
                             Runnable r = () -> {
                                 try {
                                     // 如果勾选了上传且替换, 就不再插入本地的图片标签
@@ -92,11 +89,7 @@ public class SaveAndInsertHandler extends PasteActionHandler {
                                         EditorModificationUtil.insertStringAtCaret(editor, mark);
                                     }
                                     indicator.setText2("Save Image");
-                                    assert finalBufferedImage != null;
-                                    BufferedImage compressedImage = Thumbnails.of(finalBufferedImage)
-                                        .size(finalBufferedImage.getWidth(), finalBufferedImage.getHeight())
-                                        .outputQuality(state.getCompressBeforeUploadOfPercent() * 1.0 / 100).asBufferedImage();
-                                    ImageIO.write(compressedImage, "png", imageFile);
+                                    ImageIO.write(bufferedImage, ImageUtils.getFileSuffix(imageFile.getName()).replace(".", ""), imageFile);
                                     // 保存到文件后同步刷新缓存, 让图片显示到文件树中
                                     VirtualFileManager.getInstance().syncRefresh();
                                     // todo-dong4j : (2019年03月20日 17:42) [使用 VirtualFile.createChildData() 创建虚拟文件]
