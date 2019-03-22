@@ -11,6 +11,7 @@ import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
+import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.strategy.UploadFromPaste;
 import info.dong4j.idea.plugin.strategy.Uploader;
 import info.dong4j.idea.plugin.util.ClientUtils;
@@ -47,7 +48,10 @@ public class UploadAndInsertHandler extends PasteActionHandler {
 
     @Override
     public boolean isEnabled() {
-        return STATE.isUploadAndReplace() && STATE.isClipboardControl();
+        // todo-dong4j : (2019年03月20日 17:32) [使用如下代码获取]
+        //  http://www.jetbrains.org/intellij/sdk/docs/basics/persisting_state_of_components.html
+        //  "PropertiesComponent.getInstance().setValue("PI__LAST_DIR_PATTERN", dirPattern);"
+        return OssState.getStatus(STATE.getCloudType()) && STATE.isUploadAndReplace() && STATE.isClipboardControl();
     }
 
     @Override
