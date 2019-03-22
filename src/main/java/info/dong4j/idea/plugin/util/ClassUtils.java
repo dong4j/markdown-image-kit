@@ -9,7 +9,12 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
- * The type Class utils.
+ * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Description: </p>
+ *
+ * @author dong4j
+ * @date 2019-03-23 02:23
+ * @email sjdong3@iflytek.com
  */
 public class ClassUtils {
 
