@@ -13,10 +13,11 @@ import com.intellij.ui.JBColor;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.enums.ZoneEnum;
+import info.dong4j.idea.plugin.singleton.AbstractOssClient;
 import info.dong4j.idea.plugin.singleton.AliyunOssClient;
+import info.dong4j.idea.plugin.singleton.OssClient;
 import info.dong4j.idea.plugin.util.DES;
 import info.dong4j.idea.plugin.util.EnumsUtils;
-import info.dong4j.idea.plugin.util.UploadUtils;
 
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Nls;
@@ -117,7 +118,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JCheckBox uploadAndReplaceCheckBox;
     private JComboBox defaultCloudComboBox;
 
-    /** todo-dong4j : (2019年03月20日 13:25) [测试输入验证用]*/
+    /** todo-dong4j : (2019年03月20日 13:25) [测试输入验证用] */
     private JTextField myPort;
 
     public ProjectSettingsPage() {
@@ -346,10 +347,13 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             int index = authorizationTabbedPanel.getSelectedIndex();
             InputStream inputStream = this.getClass().getResourceAsStream("/" + TEST_FILE_NAME);
             Optional<CloudEnum> cloudType = EnumsUtils.getEnumObject(CloudEnum.class, i -> i.getIndex() == index);
-            String url = UploadUtils.upload(cloudType.orElse(CloudEnum.WEIBO_CLOUD),
-                                            inputStream,
+
+            OssClient client = AbstractOssClient.getInstance(cloudType.orElse(CloudEnum.WEIBO_CLOUD));
+            assert client != null;
+            String url = client.upload(inputStream,
                                             TEST_FILE_NAME,
                                             (JPanel) authorizationTabbedPanel.getComponentAt(index));
+
             if (StringUtils.isNotBlank(url)) {
                 testMessage.setForeground(JBColor.GREEN);
                 testMessage.setText("Upload Succeed");
@@ -380,7 +384,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         String endpoint = aliyunOssEndpointTextField.getText().trim();
         String backetName = aliyunOssBucketNameTextField.getText().trim();
         String url = AliyunOssClient.URL_PROTOCOL_HTTPS + "://" + backetName + "." + endpoint;
-        exampleTextField.setText(url + fileDir +  "/test.png");
+        exampleTextField.setText(url + fileDir + "/test.png");
     }
 
     /**

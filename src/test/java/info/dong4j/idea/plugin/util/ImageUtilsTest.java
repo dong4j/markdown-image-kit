@@ -310,5 +310,10 @@ public class ImageUtilsTest {
                             new File("/Users/dong4j/Develop/test.jpg"), 80);
 
     }
+
+    @Test
+    public void test11(){
+        log.info("{}", ImageUtils.getFileSuffix("aaa.png"));
+    }
 }
 

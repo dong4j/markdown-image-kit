@@ -2,10 +2,12 @@ package info.dong4j.idea.plugin.util;
 
 import com.intellij.ui.JBColor;
 import com.intellij.util.containers.hash.HashMap;
+import com.siyeh.ig.portability.mediatype.ImageMediaType;
 
 import net.coobird.thumbnailator.Thumbnails;
 
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.AlphaComposite;
@@ -233,6 +235,7 @@ public final class ImageUtils {
      * @param imageURL the image url
      * @return the buffered image
      */
+    @Nullable
     public static BufferedImage loadImageFromURL(String imageURL) {
         try {
             return toBufferedImage(new ImageIcon(new URL(imageURL)).getImage());
@@ -249,7 +252,7 @@ public final class ImageUtils {
      * @param cornerRadius the corner radius
      * @return the buffered image
      */
-    public static BufferedImage makeRoundedCorner(BufferedImage image, int cornerRadius) {
+    public static BufferedImage makeRoundedCorner(@NotNull BufferedImage image, int cornerRadius) {
         int w = image.getWidth();
         int h = image.getHeight();
         BufferedImage output = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
@@ -274,7 +277,7 @@ public final class ImageUtils {
      * @param image the image
      * @return the buffered image
      */
-    public static BufferedImage removeAlpha(BufferedImage image) {
+    public static BufferedImage removeAlpha(@NotNull BufferedImage image) {
         BufferedImage bufferedImage = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_RGB);
         Graphics g = bufferedImage.createGraphics();
         //Color.WHITE estes the background to white. You can use any other color
@@ -291,7 +294,7 @@ public final class ImageUtils {
      * @param image the image
      * @return the image
      */
-    public static Image whiteToTransparent(BufferedImage image) {
+    public static Image whiteToTransparent(@NotNull BufferedImage image) {
         ImageFilter filter = new RGBImageFilter() {
             int markerRGB = JBColor.WHITE.getRGB() | 0xFF000000;
 
@@ -352,6 +355,37 @@ public final class ImageUtils {
                 .toFile(out);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Get file suffix string.
+     *
+     * @param fileName the file name
+     * @return the string
+     */
+    @NotNull
+    public static String getFileSuffix(@NotNull String fileName) {
+        return fileName.substring(fileName.lastIndexOf("."));
+    }
+
+    /**
+     * Description: 判断OSS服务文件上传时文件的contentType
+     *
+     * @param fileName the file name
+     * @return String string
+     */
+    public static String getImageType(String fileName) {
+        switch (fileName.toLowerCase()) {
+            case ".gif":
+                return ImageMediaType.GIF.toString();
+            case ".jpg":
+            case ".png":
+                return ImageMediaType.PNG.toString();
+            case ".jpeg":
+                return ImageMediaType.JPEG.toString();
+            default:
+                return ImageMediaType.PNG.toString();
         }
     }
 }

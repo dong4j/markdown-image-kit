@@ -32,8 +32,8 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019 -03-18 09:57
  */
 @Slf4j
-public class WeiboOssClient implements OssClient {
-    private final Object lock = new Object();
+public class WeiboOssClient extends AbstractOssClient {
+    private static final Object LOCK = new Object();
     private static WbpUploadRequest ossClient = null;
     private WeiboOssState weiboOssState = ImageManagerPersistenComponent.getInstance().getState().getWeiboOssState();
 
@@ -69,8 +69,8 @@ public class WeiboOssClient implements OssClient {
     /**
      * 在调用 ossClient 之前先检查, 如果为 null 就 init()
      */
-    private void checkClient() {
-        synchronized (lock) {
+    private static void checkClient() {
+        synchronized (LOCK) {
             if (ossClient == null) {
                 init();
             }

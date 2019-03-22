@@ -38,7 +38,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019 -03-19 15:25
  */
 @Slf4j
-public class QiniuOssClient implements OssClient {
+public class QiniuOssClient extends AbstractOssClient {
     private QiniuOssState qiniuOssState = ImageManagerPersistenComponent.getInstance().getState().getQiniuOssState();
     private static final long DEAD_LINE = 3600L * 1000 * 24 * 365 * 10;
     private static String token;

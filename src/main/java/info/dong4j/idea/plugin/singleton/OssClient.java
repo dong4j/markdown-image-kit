@@ -1,11 +1,11 @@
 package info.dong4j.idea.plugin.singleton;
 
-import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.SuffixEnum;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
 import info.dong4j.idea.plugin.util.CharacterUtils;
 import info.dong4j.idea.plugin.util.EnumsUtils;
+import info.dong4j.idea.plugin.util.ImageUtils;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.jetbrains.annotations.NotNull;
@@ -30,16 +30,10 @@ import javax.swing.JTextField;
  * @since 2019 -03-20 11:52
  */
 public interface OssClient {
-    /** 用于反射调用时的缓存 */
-    Map<String, Object> UPLOADER = new ConcurrentHashMap<>(12);
+    /** 用于反射调用时的缓存, 容量为实现类个数 */
+    Map<String, OssClient> INSTANCES = new ConcurrentHashMap<>(12);
     /** 重命名文件的前缀 */
     String PREFIX = "MIK-";
-
-
-    default OssClient getInstance(CloudEnum cloudEnum){
-        // UploadUtils.upload()
-        return null;
-    }
 
     /**
      * 统一处理 fileName
@@ -59,7 +53,7 @@ public interface OssClient {
                 case DATE_FILE_NAME:
                     return DateFormatUtils.format(new Date(), "yyyy-MM-dd-") + fileName;
                 case RANDOM:
-                    return PREFIX + CharacterUtils.getRandomString(6) + fileName.substring(fileName.lastIndexOf("."));
+                    return PREFIX + CharacterUtils.getRandomString(6) + ImageUtils.getFileSuffix(fileName);
                 default:
                     return fileName;
             }

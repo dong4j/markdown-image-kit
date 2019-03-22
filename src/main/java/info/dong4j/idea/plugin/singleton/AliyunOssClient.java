@@ -10,6 +10,7 @@ import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
 import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.util.DES;
+import info.dong4j.idea.plugin.util.ImageUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Contract;
@@ -33,14 +34,14 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019 -03-18 09:57
  */
 @Slf4j
-public class AliyunOssClient implements OssClient {
+public class AliyunOssClient extends AbstractOssClient {
     /**
      * The constant URL_PROTOCOL_HTTPS.
      */
     public static final String URL_PROTOCOL_HTTPS = "https";
     private static final String URL_PROTOCOL_HTTP = "http";
     private AliyunOssState aliyunOssState = ImageManagerPersistenComponent.getInstance().getState().getAliyunOssState();
-    private final Object lock = new Object();
+    private static final Object LOCK = new Object();
     private static String bucketName;
     private static String filedir;
     private static OSS ossClient = null;
@@ -51,7 +52,7 @@ public class AliyunOssClient implements OssClient {
 
     private static class SingletonHandler {
         static {
-            init();
+            checkClient();
         }
 
         private static AliyunOssClient singleton = new AliyunOssClient();
@@ -77,8 +78,8 @@ public class AliyunOssClient implements OssClient {
     /**
      * 在调用 ossClient 之前先检查, 如果为 null 就 init()
      */
-    private void checkClient() {
-        synchronized (lock) {
+    private static void checkClient() {
+        synchronized (LOCK) {
             if (ossClient == null) {
                 init();
             }
@@ -111,48 +112,6 @@ public class AliyunOssClient implements OssClient {
      */
     private void setOssClient(OSS oss) {
         ossClient = oss;
-    }
-
-    /**
-     * Description: 判断OSS服务文件上传时文件的contentType
-     *
-     * @param filenameExtension 文件后缀
-     * @return String
-     */
-    @NotNull
-    private String getcontentType(String filenameExtension) {
-        if (".bmp".equalsIgnoreCase(filenameExtension)) {
-            return "image/bmp";
-        }
-        if (".gif".equalsIgnoreCase(filenameExtension)) {
-            return "image/gif";
-        }
-        if (".jpeg".equalsIgnoreCase(filenameExtension) ||
-            ".jpg".equalsIgnoreCase(filenameExtension) ||
-            ".png".equalsIgnoreCase(filenameExtension)) {
-            return "image/jpeg";
-        }
-        if (".html".equalsIgnoreCase(filenameExtension)) {
-            return "text/html";
-        }
-        if (".txt".equalsIgnoreCase(filenameExtension)) {
-            return "text/plain";
-        }
-        if (".vsd".equalsIgnoreCase(filenameExtension)) {
-            return "application/vnd.visio";
-        }
-        if (".pptx".equalsIgnoreCase(filenameExtension) ||
-            ".ppt".equalsIgnoreCase(filenameExtension)) {
-            return "application/vnd.ms-powerpoint";
-        }
-        if (".docx".equalsIgnoreCase(filenameExtension) ||
-            ".doc".equalsIgnoreCase(filenameExtension)) {
-            return "application/msword";
-        }
-        if (".xml".equalsIgnoreCase(filenameExtension)) {
-            return "text/xml";
-        }
-        return "image/jpeg";
     }
 
     /**
@@ -242,7 +201,7 @@ public class AliyunOssClient implements OssClient {
             objectMetadata.setContentLength(instream.available());
             objectMetadata.setCacheControl("no-cache");
             objectMetadata.setHeader("Pragma", "no-cache");
-            objectMetadata.setContentType(getcontentType(fileName.substring(fileName.lastIndexOf("."))));
+            objectMetadata.setContentType(ImageUtils.getImageType(fileName));
             objectMetadata.setContentDisposition("inline;filename=" + fileName);
             ossClient.putObject(bucketName, filedir + fileName, instream, objectMetadata);
             return getUrl(ossClient, filedir, fileName);
