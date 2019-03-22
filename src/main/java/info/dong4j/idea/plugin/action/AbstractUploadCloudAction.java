@@ -24,6 +24,7 @@ import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.task.UploadBackgroundTask;
+import info.dong4j.idea.plugin.util.MarkdownUtils;
 
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Contract;
@@ -61,6 +62,20 @@ public abstract class AbstractUploadCloudAction extends AnAction {
     abstract protected Icon getIcon();
 
     /**
+     * action 是否为可用状态
+     *
+     * @return the boolean
+     */
+    abstract boolean isAvailable();
+
+    /**
+     * 获取具体上传的客户端, 委托给后台任务执行
+     *
+     * @return the oss client
+     */
+    abstract OssClient getOssClient();
+
+    /**
      * 检查 "upload to XXX OSS" 按钮是否可用
      * 1. 相关 test 通过后
      * a. 如果全是目录则可用
@@ -86,7 +101,7 @@ public abstract class AbstractUploadCloudAction extends AnAction {
         final Editor editor = PlatformDataKeys.EDITOR.getData(dataContext);
         if (null != editor) {
             final PsiFile file = PsiUtilBase.getPsiFileInEditor(editor, project);
-            presentation.setEnabled(file != null && isValidForFile(file) && isAvailable());
+            presentation.setEnabled(file != null && MarkdownUtils.isValidForFile(file) && isAvailable());
             return;
         }
 
@@ -104,7 +119,7 @@ public abstract class AbstractUploadCloudAction extends AnAction {
                     break;
                 }
                 // 只要其中一个是 markdown 文件, 则可用
-                if (isMardownFile(file.getName())) {
+                if (MarkdownUtils.isMardownFile(file)) {
                     isValid = true;
                     break;
                 }
@@ -114,15 +129,12 @@ public abstract class AbstractUploadCloudAction extends AnAction {
     }
 
     /**
-     * 处理事件
+     * 所有子类都走这个逻辑, 做一些前置判断和解析 markdown image mark
      *
      * @param event the an action event
      */
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
-        // 编辑器事件传递
-        // EditorActionManager.getInstance().getActionHandler(IdeActions.ACTION_EDITOR_ENTER).execute(editor, caret, dataContext);
-
         Map<Document, List<MarkdownImage>> waitingForUploadImages = new HashMap<>(20);
 
         final Project project = event.getProject();
@@ -146,7 +158,7 @@ public abstract class AbstractUploadCloudAction extends AnAction {
                 final VirtualFile[] files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(dataContext);
                 if (null != files) {
                     for (VirtualFile file : files) {
-                        if (isMardownFile(file.getName())) {
+                        if (MarkdownUtils.isMardownFile(file)) {
                             // 解析此文件中所有的图片标签
                             Document documentFromVirtualFile = FileDocumentManager.getInstance().getDocument(file);
                             waitingForUploadImages.put(documentFromVirtualFile, getImageInfoFromFiles(file));
@@ -162,64 +174,19 @@ public abstract class AbstractUploadCloudAction extends AnAction {
                     }
                 }
             }
-
-            // 调用子类的 upload()
-            upload(event, waitingForUploadImages);
+            execute(event, waitingForUploadImages);
         }
     }
 
     /**
-     * 通过文件验证是否为 markdown 且是否可写
-     *
-     * @param file the file
-     * @return the boolean
-     */
-    private boolean isValidForFile(@NotNull PsiFile file) {
-        if (!isMardownFile(file)) {
-            return false;
-        }
-        // 不可写时按钮不可用
-        return file.isWritable();
-    }
-
-    /**
-     * 不使用 FileType 判断是因为可能未安装 Markdown support 插件
-     *
-     * @param name the name
-     * @return the boolean
-     */
-    @Contract(pure = true)
-    private boolean isMardownFile(String name) {
-        return name.endsWith(MarkdownContents.MARKDOWN_FILE_SUFIX);
-    }
-
-    /**
-     * Is mardown file boolean.
-     *
-     * @param psiFile the psi file
-     * @return the boolean
-     */
-    @Contract("null -> false")
-    private boolean isMardownFile(PsiFile psiFile) {
-        return psiFile != null && isMardownFile(psiFile.getOriginalFile().getName());
-    }
-
-    /**
-     * 是否为可用状态
-     *
-     * @return the boolean
-     */
-    abstract boolean isAvailable();
-
-    /**
-     * 由子类实现具体上传方式
+     * 新建后台任务, 调用 upload() 执行上传逻辑
      *
      * @param event                  the event
      * @param waitingForUploadImages the waiting for upload images
-     * @return the string   url
+     * @return the string   url                                     上传成功后返回的 url
      */
     @Contract(pure = true)
-    protected void upload(AnActionEvent event, Map<Document, List<MarkdownImage>> waitingForUploadImages) {
+    private void execute(@NotNull AnActionEvent event, Map<Document, List<MarkdownImage>> waitingForUploadImages) {
         // todo-dong4j : (2019年03月15日 19:06) []
         //  1. 是否设置图片压缩
         //  2. 是否开启图床迁移
@@ -229,8 +196,9 @@ public abstract class AbstractUploadCloudAction extends AnAction {
             if (waitingForUploadImages.size() > 0) {
                 // 先刷新一次, 避免才添加的文件未被添加的 VFS 中, 导致找不到文件的问题
                 VirtualFileManager.getInstance().syncRefresh();
-                // 所有任务提交给后台任务进行, 避免大量上传阻塞 UI 线程
+                // 获取执行的 client 上传
                 OssClient ossClient = getOssClient();
+                // 所有任务提交给后台任务进行, 避免大量上传阻塞 UI 线程
                 new UploadBackgroundTask(event.getProject(),
                                          MikBundle.message("mik.uploading.files.progress") + " " + ossClient.getName(),
                                          true,
@@ -240,19 +208,13 @@ public abstract class AbstractUploadCloudAction extends AnAction {
         }
     }
 
-    /**
-     * 获取具体上传的客户端, 委托给后台任务执行
-     *
-     * @return the oss client
-     */
-    abstract OssClient getOssClient();
+
 
     /**
      * 从 markdown 文件中获取图片信息
-     * Document 操作
      *
      * @param virtualFile the virtual file
-     * @return the list 避免
+     * @return the list
      */
     private List<MarkdownImage> getImageInfoFromFiles(VirtualFile virtualFile) {
         List<MarkdownImage> markdownImageList = new ArrayList<>();

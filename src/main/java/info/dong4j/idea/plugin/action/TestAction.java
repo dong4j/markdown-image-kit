@@ -30,7 +30,6 @@ import java.util.Objects;
  * @since 2019-03-21 21:42
  */
 public class TestAction extends AnAction {
-
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         // PsiFile file = PsiFileFactory.getInstance(e.getProject()).createFileFromText()
@@ -38,6 +37,8 @@ public class TestAction extends AnAction {
         // PsiElementFactory factory = virtualFile.getManager().getElementFactory();
         // PsiComment comment = factory.createCommentFromText(msg, file);
         // file.addBefore(comment, file.getFirstChild());
+        // 编辑器事件传递
+        // EditorActionManager.getInstance().getActionHandler(IdeActions.ACTION_EDITOR_ENTER).execute(editor, caret, dataContext);
     }
 
     /**

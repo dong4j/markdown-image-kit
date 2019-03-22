@@ -20,7 +20,6 @@ import com.intellij.util.containers.hash.HashMap;
 import info.dong4j.idea.plugin.client.AbstractOssClient;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.content.ImageContents;
-import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
@@ -28,6 +27,7 @@ import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.util.CharacterUtils;
 import info.dong4j.idea.plugin.util.EnumsUtils;
 import info.dong4j.idea.plugin.util.ImageUtils;
+import info.dong4j.idea.plugin.util.MarkdownUtils;
 import info.dong4j.idea.plugin.util.UploadUtils;
 
 import net.coobird.thumbnailator.Thumbnails;
@@ -88,72 +88,68 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
         Document document = editor.getDocument();
         VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
 
-        if (virtualFile != null) {
-            if (virtualFile.getFileType().getName().equals(MarkdownContents.MARKDOWN_FILE_TYPE)
-                || virtualFile.getName().endsWith(MarkdownContents.MARKDOWN_FILE_SUFIX)) {
+        if (virtualFile != null && MarkdownUtils.isMardownFile(virtualFile)) {
+            //<editor-fold desc="开启 clipboard 监听后执行">
+            ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
+            boolean isClipboardControl = state.isClipboardControl();
+            if (isClipboardControl) {
+                //<editor-fold desc="如果右键菜单不可用, 此项功能也不可用, 执行了默认 paste 操作后退出.">
+                // todo-dong4j : (2019年03月20日 17:32) [使用如下代码获取]
+                //  http://www.jetbrains.org/intellij/sdk/docs/basics/persisting_state_of_components.html
+                //  "PropertiesComponent.getInstance().setValue("PI__LAST_DIR_PATTERN", dirPattern);"
+                if (!OssState.getStatus(state.getCloudType())) {
+                    defaultAction(editor, caret, dataContext);
+                    // todo-dong4j : (2019年03月20日 14:50) [消息通知]
+                    return;
+                }
+                //</editor-fold>
 
-                //<editor-fold desc="开启 clipboard 监听后执行">
-                ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
-                boolean isClipboardControl = state.isClipboardControl();
-                if (isClipboardControl) {
-                    //<editor-fold desc="如果右键菜单不可用, 此项功能也不可用, 执行了默认 paste 操作后退出.">
-                    // todo-dong4j : (2019年03月20日 17:32) [使用如下代码获取]
-                    //  http://www.jetbrains.org/intellij/sdk/docs/basics/persisting_state_of_components.html
-                    //  "PropertiesComponent.getInstance().setValue("PI__LAST_DIR_PATTERN", dirPattern);"
-                    if (!OssState.getStatus(state.getCloudType())) {
-                        defaultAction(editor, caret, dataContext);
-                        // todo-dong4j : (2019年03月20日 14:50) [消息通知]
-                        return;
-                    }
-                    //</editor-fold>
-
-                    //<editor-fold desc="图片操作流程 只会循环一次">
-                    Map<DataFlavor, Object> clipboardData = ImageUtils.getDataFromClipboard();
-                    for (Map.Entry<DataFlavor, Object> entry : clipboardData.entrySet()) {
-                        if (entry.getKey().equals(DataFlavor.javaFileListFlavor)) {
-                            // 肯定是 List<File> 类型
-                            @SuppressWarnings("unchecked") List<File> fileList = (List<File>) entry.getValue();
-                            Map<String, Image> imageMap = new HashMap<>(fileList.size());
-                            for (File file : fileList) {
-                                // 先检查是否为图片类型
-                                Image image = null;
-                                try {
-                                    File compressedFile = new File(System.getProperty("java.io.tmpdir") + file.getName());
-                                    // todo-dong4j : (2019年03月20日 04:29) [判断是否启动图片压缩]
-                                    if (file.isFile() && file.getName().endsWith("jpg")) {
-                                        ImageUtils.compress(file, compressedFile, state.getCompressBeforeUploadOfPercent() - 20);
-                                    } else {
-                                        compressedFile = file;
-                                    }
-                                    image = ImageIO.read(compressedFile);
-                                } catch (IOException ignored) {
+                //<editor-fold desc="图片操作流程 只会循环一次">
+                Map<DataFlavor, Object> clipboardData = ImageUtils.getDataFromClipboard();
+                for (Map.Entry<DataFlavor, Object> entry : clipboardData.entrySet()) {
+                    if (entry.getKey().equals(DataFlavor.javaFileListFlavor)) {
+                        // 肯定是 List<File> 类型
+                        @SuppressWarnings("unchecked") List<File> fileList = (List<File>) entry.getValue();
+                        Map<String, Image> imageMap = new HashMap<>(fileList.size());
+                        for (File file : fileList) {
+                            // 先检查是否为图片类型
+                            Image image = null;
+                            try {
+                                File compressedFile = new File(System.getProperty("java.io.tmpdir") + file.getName());
+                                // todo-dong4j : (2019年03月20日 04:29) [判断是否启动图片压缩]
+                                if (file.isFile() && file.getName().endsWith("jpg")) {
+                                    ImageUtils.compress(file, compressedFile, state.getCompressBeforeUploadOfPercent() - 20);
+                                } else {
+                                    compressedFile = file;
                                 }
-                                String fileName = file.getName();
-                                // 只要有一个文件不是 image, 就执行默认操作然后退出
-                                if (image != null) {
-                                    imageMap.put(fileName, image);
-                                }
+                                image = ImageIO.read(compressedFile);
+                            } catch (IOException ignored) {
                             }
-
-                            // 如果 image 的数量等于总文件数, 才执行,否则执行默认操作
-                            if (imageMap.size() == fileList.size()) {
-                                for (Map.Entry<String, Image> imageEntry : imageMap.entrySet()) {
-                                    invoke(editor, imageEntry.getValue(), imageEntry.getKey());
-                                }
-                                // 处理后退出, 避免执行默认的 paste 操作
-                                return;
+                            String fileName = file.getName();
+                            // 只要有一个文件不是 image, 就执行默认操作然后退出
+                            if (image != null) {
+                                imageMap.put(fileName, image);
                             }
-                        } else {
-                            // image 类型统一重命名, 因为获取不到文件名
-                            String fileName = CharacterUtils.getRandomString(6) + ".png";
-                            invoke(editor, (Image) entry.getValue(), fileName);
+                        }
+
+                        // 如果 image 的数量等于总文件数, 才执行,否则执行默认操作
+                        if (imageMap.size() == fileList.size()) {
+                            for (Map.Entry<String, Image> imageEntry : imageMap.entrySet()) {
+                                invoke(editor, imageEntry.getValue(), imageEntry.getKey());
+                            }
+                            // 处理后退出, 避免执行默认的 paste 操作
                             return;
                         }
+                    } else {
+                        // image 类型统一重命名, 因为获取不到文件名
+                        String fileName = CharacterUtils.getRandomString(6) + ".png";
+                        invoke(editor, (Image) entry.getValue(), fileName);
+                        return;
                     }
-                    //</editor-fold>
                 }
                 //</editor-fold>
             }
+            //</editor-fold>
         }
         defaultAction(editor, caret, dataContext);
     }
