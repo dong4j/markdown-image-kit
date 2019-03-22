@@ -9,30 +9,21 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiUtilBase;
 
 import info.dong4j.idea.plugin.client.OssClient;
-import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
-import info.dong4j.idea.plugin.enums.ImageLocationEnum;
-import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.strategy.UploadFromAction;
 import info.dong4j.idea.plugin.strategy.Uploader;
 import info.dong4j.idea.plugin.util.MarkdownUtils;
 
-import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,9 +42,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public abstract class AbstractUploadCloudAction extends AnAction {
-
-    private static final String NODE_MODULES_FILE = "node_modules";
-
     /**
      * Gets icon.
      *
@@ -113,7 +101,7 @@ public abstract class AbstractUploadCloudAction extends AnAction {
         if (null != files) {
             for (VirtualFile file : files) {
                 // 只要有一个是文件夹且不是 node_modules 文件夹 , 则可用
-                if (file.isDirectory() && !NODE_MODULES_FILE.equals(file.getName())) {
+                if (file.isDirectory() && !MarkdownContents.NODE_MODULES_FILE.equals(file.getName())) {
                     // 文件夹可用
                     isValid = true;
                     break;
@@ -150,7 +138,7 @@ public abstract class AbstractUploadCloudAction extends AnAction {
                 // 解析此文件中所有的图片标签
                 Document documentFromEditor = editor.getDocument();
                 VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(documentFromEditor);
-                waitingForUploadImages.put(documentFromEditor, getImageInfoFromFiles(virtualFile));
+                waitingForUploadImages.put(documentFromEditor, MarkdownUtils.getImageInfoFromFiles(virtualFile));
             }
             // todo-dong4j : (2019年03月15日 09:41) [没有选中编辑器]
             else {
@@ -161,14 +149,14 @@ public abstract class AbstractUploadCloudAction extends AnAction {
                         if (MarkdownUtils.isMardownFile(file)) {
                             // 解析此文件中所有的图片标签
                             Document documentFromVirtualFile = FileDocumentManager.getInstance().getDocument(file);
-                            waitingForUploadImages.put(documentFromVirtualFile, getImageInfoFromFiles(file));
+                            waitingForUploadImages.put(documentFromVirtualFile, MarkdownUtils.getImageInfoFromFiles(file));
                         }
                         // 如果是目录, 则递归获取所有 markdown 文件
                         if (file.isDirectory()) {
-                            List<VirtualFile> markdownFiles = recursivelyMarkdownFile(file);
+                            List<VirtualFile> markdownFiles = MarkdownUtils.recursivelyMarkdownFile(file);
                             for (VirtualFile virtualFile : markdownFiles) {
                                 Document documentFromVirtualFile = FileDocumentManager.getInstance().getDocument(virtualFile);
-                                waitingForUploadImages.put(documentFromVirtualFile, getImageInfoFromFiles(virtualFile));
+                                waitingForUploadImages.put(documentFromVirtualFile, MarkdownUtils.getImageInfoFromFiles(virtualFile));
                             }
                         }
                     }
@@ -187,162 +175,15 @@ public abstract class AbstractUploadCloudAction extends AnAction {
      */
     @Contract(pure = true)
     private void execute(@NotNull AnActionEvent event, Map<Document, List<MarkdownImage>> waitingForUploadImages) {
-        // todo-dong4j : (2019年03月15日 19:06) []
-        //  1. 是否设置图片压缩
-        //  2. 是否开启图床迁移
-        //  3. 是否开启备份
         final Project project = event.getProject();
         if (project != null) {
             if (waitingForUploadImages.size() > 0) {
                 // 先刷新一次, 避免才添加的文件未被添加的 VFS 中, 导致找不到文件的问题
                 VirtualFileManager.getInstance().syncRefresh();
-                // 获取执行的 client 上传
+                // 获取对应的 client
                 OssClient ossClient = getOssClient();
                 new Uploader().setUploadWay(new UploadFromAction(project, ossClient, waitingForUploadImages)).upload();
             }
         }
-    }
-
-    /**
-     * 从 markdown 文件中获取图片信息
-     *
-     * @param virtualFile the virtual file
-     * @return the list
-     */
-    private List<MarkdownImage> getImageInfoFromFiles(VirtualFile virtualFile) {
-        List<MarkdownImage> markdownImageList = new ArrayList<>();
-        Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
-        if (document != null) {
-            int lineCount = document.getLineCount();
-            for (int line = 0; line < lineCount; line++) {
-                // 获取指定行的第一个字符在全文中的偏移量，行号的取值范围为：[0,getLineCount()-1]
-                int startOffset = document.getLineStartOffset(line);
-                // 获取指定行的最后一个字符在全文中的偏移量，行号的取值范围为：[0,getLineCount()-1]
-                int endOffset = document.getLineEndOffset(line);
-                TextRange currentLineTextRange = TextRange.create(startOffset, endOffset);
-                // 保存每一行字符串
-                String originalLineText = document.getText(currentLineTextRange);
-                if (StringUtils.isNotBlank(originalLineText)) {
-                    log.trace("originalLineText: {}", originalLineText);
-                    MarkdownImage markdownImage;
-                    if ((markdownImage = matchImageMark(virtualFile, originalLineText, line)) != null) {
-                        markdownImageList.add(markdownImage);
-                    }
-                }
-            }
-        }
-        return markdownImageList;
-    }
-
-    /**
-     * 不使用正则, 因为需要记录偏移量
-     *
-     * @param virtualFile the virtual file
-     * @param lineText    the line text
-     * @param line        the line
-     * @return the markdown image
-     */
-    @Nullable
-    private MarkdownImage matchImageMark(VirtualFile virtualFile, String lineText, int line) {
-        lineText = StringUtils.trim(lineText);
-        // 匹配 '![' 字符串
-        int indexPrefix = lineText.indexOf(ImageContents.IMAGE_MARK_PREFIX);
-        boolean hasImageTagPrefix = indexPrefix > -1;
-        if (hasImageTagPrefix) {
-            // 匹配 ']('
-            int indexMiddle = lineText.indexOf(ImageContents.IMAGE_MARK_MIDDLE, indexPrefix);
-            boolean hasImageTagMiddle = indexMiddle > -1;
-            if (hasImageTagMiddle) {
-                // 匹配 匹配 ')'
-                int indexSuffix = lineText.indexOf(ImageContents.IMAGE_MARK_SUFFIX, indexMiddle);
-                boolean hasImageTagSuffix = indexSuffix > -1;
-                if (hasImageTagSuffix) {
-                    log.trace("image text: {}", lineText);
-                    MarkdownImage markdownImage = new MarkdownImage();
-                    markdownImage.setFileName(virtualFile.getName());
-                    markdownImage.setOriginalLineText(lineText);
-                    markdownImage.setLineNumber(line);
-                    markdownImage.setLineStartOffset(indexPrefix);
-                    markdownImage.setLineEndOffset(indexSuffix);
-                    // 解析 markdown 图片标签
-                    return resolveImageMark(markdownImage);
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * 解析图片标签, 拿到 title, 文件路径 或标签类型
-     *
-     * @param markdownImage the markdown image
-     * @return the markdown image
-     */
-    @Contract("_ -> param1")
-    private MarkdownImage resolveImageMark(@NotNull MarkdownImage markdownImage) {
-        // 如果以 `<a` 开始, 以 `a>` 结束, 需要修改偏移量
-        String lineText = markdownImage.getOriginalLineText();
-        if (lineText.startsWith(ImageContents.HTML_TAG_A_START) && lineText.endsWith(ImageContents.HTML_TAG_A_END)) {
-            markdownImage.setLineStartOffset(0);
-            markdownImage.setLineEndOffset(lineText.length());
-            if (lineText.contains(ImageContents.LARG_IMAGE_MARK_ID)) {
-                markdownImage.setImageMarkType(ImageMarkEnum.LARGE_PICTURE);
-            } else if (lineText.contains(ImageContents.COMMON_IMAGE_MARK_ID)) {
-                markdownImage.setImageMarkType(ImageMarkEnum.COMMON_PICTURE);
-            } else {
-                markdownImage.setImageMarkType(ImageMarkEnum.CUSTOM);
-            }
-        }
-
-        String title = lineText.substring(lineText.indexOf(ImageContents.IMAGE_MARK_PREFIX) + ImageContents.IMAGE_MARK_PREFIX.length(),
-                                          lineText.indexOf(ImageContents.IMAGE_MARK_MIDDLE));
-        String path = lineText.substring(lineText.indexOf(ImageContents.IMAGE_MARK_MIDDLE) + ImageContents.IMAGE_MARK_MIDDLE.length(),
-                                         lineText.indexOf(ImageContents.IMAGE_MARK_SUFFIX));
-        markdownImage.setTitle(title);
-        if (path.startsWith(ImageContents.IMAGE_LOCATION)) {
-            markdownImage.setLocation(ImageLocationEnum.NETWORK);
-            markdownImage.setPath(path);
-        } else {
-            // 本地文件只需要文件名
-            String imageName = path.substring(path.lastIndexOf(File.separator) + 1);
-            markdownImage.setPath(imageName);
-        }
-        return markdownImage;
-    }
-
-    /**
-     * 递归遍历目录, 返回所有 markdown 文件
-     *
-     * @param virtualFile the virtual file
-     */
-    private List<VirtualFile> recursivelyMarkdownFile(VirtualFile virtualFile) {
-        List<VirtualFile> markdownFiles = new ArrayList<>();
-        /*
-         * 递归遍历子文件
-         *
-         * @param root     the root         父文件
-         * @param filter   the filter       过滤器
-         * @param iterator the iterator     处理方式
-         * @return the boolean
-         */
-        VfsUtilCore.iterateChildrenRecursively(virtualFile,
-                                               file -> {
-                                                   // todo-dong4j : (2019年03月15日 13:02) [从 .gitignore 中获取忽略的文件]
-                                                   boolean allowAccept = file.isDirectory() && !file.getName().equals(NODE_MODULES_FILE);
-                                                   if (allowAccept || file.getName().endsWith(MarkdownContents.MARKDOWN_FILE_SUFIX)) {
-                                                       log.trace("accept = {}", file.getPath());
-                                                       return true;
-                                                   }
-                                                   return false;
-                                               },
-                                               fileOrDir -> {
-                                                   // todo-dong4j : (2019年03月15日 13:04) [处理 markdown 逻辑实现]
-                                                   if (!fileOrDir.isDirectory()) {
-                                                       log.trace("processFile = {}", fileOrDir.getName());
-                                                       markdownFiles.add(fileOrDir);
-                                                   }
-                                                   return true;
-                                               });
-        return markdownFiles;
     }
 }
