@@ -5,6 +5,8 @@ import com.intellij.util.containers.hash.HashMap;
 import com.intellij.util.ui.UIUtil;
 import com.siyeh.ig.portability.mediatype.ImageMediaType;
 
+import info.dong4j.idea.plugin.enums.FileType;
+
 import net.coobird.thumbnailator.Thumbnails;
 
 import org.jetbrains.annotations.Contract;
@@ -378,7 +380,8 @@ public final class ImageUtils {
      * @return String string
      */
     public static String getImageType(String fileName) {
-        switch (fileName.toLowerCase()) {
+        String suffix = getFileSuffix(fileName);
+        switch (suffix.toLowerCase()) {
             case ".gif":
                 return ImageMediaType.GIF.toString();
             case ".jpg":
@@ -387,7 +390,35 @@ public final class ImageUtils {
             case ".jpeg":
                 return ImageMediaType.JPEG.toString();
             default:
-                return ImageMediaType.PNG.toString();
+                return "";
         }
+    }
+
+    /**
+     * Gets file type.
+     *
+     * @param is the is
+     * @return the file type
+     * @throws IOException the io exception
+     */
+    public static FileType getFileType(InputStream is) throws IOException {
+        byte[] src = new byte[28];
+        is.read(src, 0, 28);
+        StringBuilder stringBuilder = new StringBuilder();
+        for (byte b : src) {
+            int v = b & 0xFF;
+            String hv = Integer.toHexString(v).toUpperCase();
+            if (hv.length() < 2) {
+                stringBuilder.append(0);
+            }
+            stringBuilder.append(hv);
+        }
+        FileType[] fileTypes = FileType.values();
+        for (FileType fileType : fileTypes) {
+            if (stringBuilder.toString().startsWith(fileType.getValue())) {
+                return fileType;
+            }
+        }
+        return null;
     }
 }
