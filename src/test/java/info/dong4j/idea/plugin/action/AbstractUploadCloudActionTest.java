@@ -25,7 +25,6 @@
 
 package info.dong4j.idea.plugin.action;
 
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.LangDataKeys;
@@ -48,14 +47,13 @@ import java.util.Objects;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: open api 测试类</p>
+ * <p>Description: ${description}</p>
  *
  * @author dong4j
+ * @date 2019-03-23 15:02
  * @email sjdong3@iflytek.com
- * @since 2019-03-21 21:42
  */
-public class TestAction extends AnAction {
-    @Override
+public class AbstractUploadCloudActionTest {
     public void actionPerformed(@NotNull AnActionEvent e) {
         // PsiFile file = PsiFileFactory.getInstance(e.getProject()).createFileFromText()
         // VirtualFile virtualFile = e.getData(PlatformDataKeys.VIRTUAL_FILE);
@@ -149,4 +147,5 @@ public class TestAction extends AnAction {
         // 找到特定 PSI 元素的使用位置
         // ReferencesSearch.search();
     }
+
 }
