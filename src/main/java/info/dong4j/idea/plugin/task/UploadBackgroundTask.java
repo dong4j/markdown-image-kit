@@ -27,9 +27,6 @@ package info.dong4j.idea.plugin.task;
 
 import com.google.common.collect.Iterables;
 
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationType;
-import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -43,7 +40,9 @@ import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
+import info.dong4j.idea.plugin.exception.UploadException;
 import info.dong4j.idea.plugin.util.PsiDocumentUtils;
+import info.dong4j.idea.plugin.util.UploadNotification;
 
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Nls;
@@ -143,51 +142,31 @@ public class UploadBackgroundTask extends Task.Backgroundable {
                     }
                     // todo-dong4j : (2019年03月15日 20:02) [此处会多次修改, 考虑直接使用 setText() 一次性修改全部文本数据]
                     PsiDocumentUtils.commitAndSaveDocument(project, document, markdownImage);
-                    indicator.setFraction( ++totalProcessed * 1.0 / totalCount);
+                    indicator.setFraction(++totalProcessed * 1.0 / totalCount);
                 }
             }
-            // ConsoleView consoleView = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
-            // consoleView.print("Processed File = " + waitingForUploadImages.size() +
-            //                   "\nImage Mark = " + totalProcessed + "\n" +
-            //                   "Failured = " + totalFailured + "\n" +
-            //                   "Some Images Not Found: \n" + notFoundImages.toString(), ConsoleViewContentType.SYSTEM_OUTPUT);
 
-            // MessageView messageView = MessageView.SERVICE.getInstance(project);
-            // messageView.runWhenInitialized(new Runnable() {
-            //     @Override
-            //     public void run() {
-            //         System.out.println("MessageView inited");
-            //     }
-            // });
-        } catch (Exception ignored) {
-            notifucation("Upload Error",
-                         "",
-                         "Processed File = " + waitingForUploadImages.size() +
-                         "\nImage Mark = " + totalProcessed + "\n" +
-                         "Failured = " + totalFailured + "\n",
-                         NotificationType.INFORMATION);
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("Processed File = ")
+                .append(waitingForUploadImages.size())
+                .append("\n")
+                .append("Image Mark = ")
+                .append(totalProcessed)
+                .append("\n");
+            if(totalFailured > 0){
+                stringBuilder.append("Failured = ").append(totalFailured).append("\n");
+            }
+            if(StringUtils.isNotBlank(notFoundImages.toString())){
+                stringBuilder.append("NotFoundImages = ").append(notFoundImages);
+            }
+            UploadNotification.notifyUploadFinshed(stringBuilder.toString());
+
+        } catch (UploadException e) {
+            UploadNotification.notifyUploadFailure(e, project);
         } finally {
             // 设置进度
             indicator.setFraction(1.0);
             indicator.popState();
         }
-    }
-
-    /**
-     * 显示提示对话框
-     *
-     * @param title            the title
-     * @param subTitle         the sub title
-     * @param text             the text
-     * @param notificationType the notification type
-     */
-    void notifucation(String title, String subTitle, String text, NotificationType notificationType) {
-        Notification notification = new Notification("Upload to OSS", null, notificationType);
-        // 可使用 HTML 标签
-        notification.setContent(text);
-        notification.setTitle(title);
-        notification.setSubtitle(subTitle);
-        notification.setImportant(true);
-        Notifications.Bus.notify(notification);
     }
 }

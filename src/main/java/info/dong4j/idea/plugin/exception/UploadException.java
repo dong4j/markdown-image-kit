@@ -33,13 +33,13 @@ package info.dong4j.idea.plugin.exception;
  * @email sjdong3 @iflytek.com
  * @since 2019 -03-13 10:54
  */
-public class ImgException extends RuntimeException {
+public class UploadException extends RuntimeException {
     private static final long serialVersionUID = 4076461843028836262L;
 
     /**
      * Instantiates a new Img exception.
      */
-    public ImgException() {
+    public UploadException() {
         super();
     }
 
@@ -48,7 +48,7 @@ public class ImgException extends RuntimeException {
      *
      * @param message the message
      */
-    public ImgException(String message) {
+    public UploadException(String message) {
         super(message);
     }
 
@@ -58,7 +58,7 @@ public class ImgException extends RuntimeException {
      * @param message the message
      * @param cause   the cause
      */
-    public ImgException(String message, Throwable cause) {
+    public UploadException(String message, Throwable cause) {
         super(message, cause);
     }
 
@@ -67,7 +67,7 @@ public class ImgException extends RuntimeException {
      *
      * @param cause the cause
      */
-    public ImgException(Throwable cause) {
+    public UploadException(Throwable cause) {
         super(cause);
     }
 
@@ -79,7 +79,7 @@ public class ImgException extends RuntimeException {
      * @param enableSuppression  the enable suppression
      * @param writableStackTrace the writable stack trace
      */
-    protected ImgException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    protected UploadException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }
