@@ -37,7 +37,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,24 +50,20 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public final class ClientUtils {
-    private static AtomicBoolean isInit = new AtomicBoolean(false);
 
     static {
-        if (!isInit.get()) {
-            try {
-                // 获取特定包下所有的类(包括接口和类)
-                cache(ClassUtils.getAllClassByInterface(OssClient.class));
-            } catch (Exception e) {
-                log.trace("", e);
-            }
-            isInit.set(true);
+        try {
+            // 获取特定包下所有的类(包括接口和类)
+            cache(ClassUtils.getAllClassByInterface(OssClient.class));
+        } catch (Exception e) {
+            log.trace("", e);
         }
     }
 
     /**
      * 缓存 client 关系
      *
-     * @param clsList    the cls list
+     * @param clsList the cls list
      */
     private static void cache(List<String> clsList) {
         if (clsList != null && clsList.size() > 0) {
