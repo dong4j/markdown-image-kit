@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
  * <p>Description: </p>
@@ -41,7 +43,8 @@ import java.util.jar.JarFile;
  * @date 2019-03-23 02:23
  * @email sjdong3@iflytek.com
  */
-public class ClassUtils {
+@Slf4j
+public final class ClassUtils {
 
     /**
      * 通过包名获取包内所有类
@@ -61,28 +64,14 @@ public class ClassUtils {
      * @param c the c
      * @return the all class by interface
      */
-    public static List<String> getAllClassByInterface(Class<?> c) {
+    static List<String> getAllClassByInterface(Class<?> c) {
         List<String> returnClassList = new ArrayList<>();
-
         if (c.isInterface()) {
             // 获取当前的包名
             String packageName = c.getPackage().getName();
-            // 获取当前包下以及子包下所以的类
+            // 获取当前包下以及子包下所有的类
             returnClassList = getClasses(packageName, c);
-            // if (allClass != null) {
-            //     returnClassList = new ArrayList<>();
-            //     for (Class<?> cls : allClass) {
-            //         // 判断是否是同一个接口
-            //         if (c.isAssignableFrom(cls)) {
-            //             // 本身不加入进去
-            //             if (!c.equals(cls)) {
-            //                 returnClassList.add(cls);
-            //             }
-            //         }
-            //     }
-            // }
         }
-        // return returnClassList;
         return returnClassList;
     }
 
@@ -172,12 +161,12 @@ public class ClassUtils {
                             }
                         }
                     } catch (IOException e) {
-                        e.printStackTrace();
+                       log.trace("", e);
                     }
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.trace("", e);
         }
 
         return classes;
