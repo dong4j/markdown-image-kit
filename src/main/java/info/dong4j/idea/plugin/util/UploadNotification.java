@@ -73,6 +73,8 @@ public class UploadNotification extends Notification {
 
     /**
      * 上传失败通知, 可打开设置面板
+     * 文件链接, 帮助链接, 设置链接
+     * todo-dong4j : (2019年03月23日 15:14) [{@link com.intellij.openapi.fileTypes.impl.ApproveRemovedMappingsActivity}]
      *
      * @param e       the e
      * @param project the project

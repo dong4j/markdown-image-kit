@@ -38,11 +38,11 @@ import org.jetbrains.annotations.Contract;
  */
 public enum CloudEnum {
     /** @see info.dong4j.idea.plugin.client.WeiboOssClient */
-    WEIBO_CLOUD(0, "微博"),
+    WEIBO_CLOUD(0, "Weibo"),
     /** @see info.dong4j.idea.plugin.client.AliyunOssClient */
-    ALIYUN_CLOUD(1, "阿里云"),
+    ALIYUN_CLOUD(1, "Aliyun"),
     /** @see info.dong4j.idea.plugin.client.QiniuOssClient */
-    QINIU_CLOUD(2, "七牛云"),
+    QINIU_CLOUD(2, "Qiniu"),
     WANGYI_CLOUD(3, "网易云"),
     BAIDU_CLOUD(4, "百度云"),
     JINGDONG_CLOUD(5, "京东云"),
