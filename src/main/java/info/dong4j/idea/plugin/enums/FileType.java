@@ -178,13 +178,13 @@ public enum FileType {
     private String value = "";
     private String ext = "";
 
-    FileType(String value) {
-        this.value = value;
-    }
-
     FileType(String value, String ext) {
         this(value);
         this.ext = ext;
+    }
+
+    FileType(String value) {
+        this.value = value;
     }
 
     public String getExt() {

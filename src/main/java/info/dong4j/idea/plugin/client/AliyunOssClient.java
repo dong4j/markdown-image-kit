@@ -60,28 +60,28 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Client(CloudEnum.ALIYUN_CLOUD)
-public class AliyunOssClient implements OssClient{
-    /**
-     * The constant URL_PROTOCOL_HTTPS.
-     */
+public class AliyunOssClient implements OssClient {
     public static final String URL_PROTOCOL_HTTPS = "https";
     private static final String URL_PROTOCOL_HTTP = "http";
-    private AliyunOssState aliyunOssState = ImageManagerPersistenComponent.getInstance().getState().getAliyunOssState();
     private static final Object LOCK = new Object();
     private static String bucketName;
     private static String filedir;
     private static OSS ossClient = null;
+    private AliyunOssState aliyunOssState = ImageManagerPersistenComponent.getInstance().getState().getAliyunOssState();
 
     private AliyunOssClient() {
         checkClient();
     }
 
-    private static class SingletonHandler {
-        static {
-            checkClient();
+    /**
+     * 在调用 ossClient 之前先检查, 如果为 null 就 init()
+     */
+    private static void checkClient() {
+        synchronized (LOCK) {
+            if (ossClient == null) {
+                init();
+            }
         }
-
-        private static AliyunOssClient singleton = new AliyunOssClient();
     }
 
     /**
@@ -99,67 +99,6 @@ public class AliyunOssClient implements OssClient{
             ossClient = new OSSClientBuilder().build(endpoint, accessKey, accessSecretKey);
         } catch (Exception ignored) {
         }
-    }
-
-    /**
-     * 在调用 ossClient 之前先检查, 如果为 null 就 init()
-     */
-    private static void checkClient() {
-        synchronized (LOCK) {
-            if (ossClient == null) {
-                init();
-            }
-        }
-    }
-
-    /**
-     * Set bucket name.
-     *
-     * @param newBucketName the new bucket name
-     */
-    private void setBucketName(String newBucketName) {
-        bucketName = newBucketName;
-    }
-
-    /**
-     * Gets instance.
-     *
-     * @return the instance
-     */
-    @Contract(pure = true)
-    public static AliyunOssClient getInstance() {
-        return SingletonHandler.singleton;
-    }
-
-    /**
-     * Set oss client.
-     *
-     * @param oss the oss
-     */
-    private void setOssClient(OSS oss) {
-        ossClient = oss;
-    }
-
-    /**
-     * Gets url.
-     *
-     * @param ossClient the oss client
-     * @param filedir   the filedir
-     * @param fileName  the name
-     * @return the url
-     */
-    private String getUrl(@NotNull OSS ossClient, String filedir, String fileName) {
-        Date expiration = new Date(System.currentTimeMillis() + 3600L * 1000 * 24 * 365 * 10);
-        URL url = ossClient.generatePresignedUrl(bucketName, filedir + fileName, expiration);
-        if (url != null) {
-            String[] split = url.toString().split("\\?");
-            String uri = split[0];
-            if (url.getProtocol().equals(URL_PROTOCOL_HTTP)) {
-                uri = uri.replace(URL_PROTOCOL_HTTP, URL_PROTOCOL_HTTPS);
-            }
-            return uri;
-        }
-        return "";
     }
 
     @Override
@@ -198,54 +137,6 @@ public class AliyunOssClient implements OssClient{
     @Override
     public String upload(InputStream inputStream, String fileName) {
         return upload(inputStream, filedir, fileName);
-    }
-
-    /**
-     * Upload string.
-     *
-     * @param inputStream the inputStream
-     * @param filedir     the filedir
-     * @param fileName    the file name
-     * @return the string
-     */
-    public String upload(InputStream inputStream, String filedir, String fileName) {
-        return upload(ossClient, inputStream, filedir, fileName);
-    }
-
-    /**
-     * Upload string.
-     *
-     * @param ossClient the ossClient client
-     * @param instream  the instream
-     * @param filedir   the filedir
-     * @param fileName  the file name
-     * @return the string
-     */
-    public String upload(OSS ossClient,
-                         @NotNull InputStream instream,
-                         String filedir,
-                         @NotNull String fileName) {
-        fileName = processFileName(fileName);
-        try {
-            // 创建上传 Object 的 Metadata
-            ObjectMetadata objectMetadata = new ObjectMetadata();
-            objectMetadata.setContentLength(instream.available());
-            objectMetadata.setCacheControl("no-cache");
-            objectMetadata.setHeader("Pragma", "no-cache");
-            objectMetadata.setContentType(ImageUtils.getImageType(fileName));
-            objectMetadata.setContentDisposition("inline;filename=" + fileName);
-            ossClient.putObject(bucketName, filedir + fileName, instream, objectMetadata);
-            return getUrl(ossClient, filedir, fileName);
-        } catch (IOException e) {
-            log.trace("", e);
-        } finally {
-            try {
-                instream.close();
-            } catch (IOException e) {
-                log.trace("", e);
-            }
-        }
-        return "";
     }
 
     /**
@@ -313,5 +204,111 @@ public class AliyunOssClient implements OssClient{
             aliyunOssClient.setOssClient(ossClient);
         }
         return url;
+    }
+
+    /**
+     * Gets instance.
+     *
+     * @return the instance
+     */
+    @Contract(pure = true)
+    public static AliyunOssClient getInstance() {
+        return SingletonHandler.singleton;
+    }
+
+    /**
+     * Set bucket name.
+     *
+     * @param newBucketName the new bucket name
+     */
+    private void setBucketName(String newBucketName) {
+        bucketName = newBucketName;
+    }
+
+    /**
+     * Set oss client.
+     *
+     * @param oss the oss
+     */
+    private void setOssClient(OSS oss) {
+        ossClient = oss;
+    }
+
+    /**
+     * Upload string.
+     *
+     * @param inputStream the inputStream
+     * @param filedir     the filedir
+     * @param fileName    the file name
+     * @return the string
+     */
+    public String upload(InputStream inputStream, String filedir, String fileName) {
+        return upload(ossClient, inputStream, filedir, fileName);
+    }
+
+    /**
+     * Upload string.
+     *
+     * @param ossClient the ossClient client
+     * @param instream  the instream
+     * @param filedir   the filedir
+     * @param fileName  the file name
+     * @return the string
+     */
+    public String upload(OSS ossClient,
+                         @NotNull InputStream instream,
+                         String filedir,
+                         @NotNull String fileName) {
+        fileName = processFileName(fileName);
+        try {
+            // 创建上传 Object 的 Metadata
+            ObjectMetadata objectMetadata = new ObjectMetadata();
+            objectMetadata.setContentLength(instream.available());
+            objectMetadata.setCacheControl("no-cache");
+            objectMetadata.setHeader("Pragma", "no-cache");
+            objectMetadata.setContentType(ImageUtils.getImageType(fileName));
+            objectMetadata.setContentDisposition("inline;filename=" + fileName);
+            ossClient.putObject(bucketName, filedir + fileName, instream, objectMetadata);
+            return getUrl(ossClient, filedir, fileName);
+        } catch (IOException e) {
+            log.trace("", e);
+        } finally {
+            try {
+                instream.close();
+            } catch (IOException e) {
+                log.trace("", e);
+            }
+        }
+        return "";
+    }
+
+    /**
+     * Gets url.
+     *
+     * @param ossClient the oss client
+     * @param filedir   the filedir
+     * @param fileName  the name
+     * @return the url
+     */
+    private String getUrl(@NotNull OSS ossClient, String filedir, String fileName) {
+        Date expiration = new Date(System.currentTimeMillis() + 3600L * 1000 * 24 * 365 * 10);
+        URL url = ossClient.generatePresignedUrl(bucketName, filedir + fileName, expiration);
+        if (url != null) {
+            String[] split = url.toString().split("\\?");
+            String uri = split[0];
+            if (url.getProtocol().equals(URL_PROTOCOL_HTTP)) {
+                uri = uri.replace(URL_PROTOCOL_HTTP, URL_PROTOCOL_HTTPS);
+            }
+            return uri;
+        }
+        return "";
+    }
+
+    private static class SingletonHandler {
+        private static AliyunOssClient singleton = new AliyunOssClient();
+
+        static {
+            checkClient();
+        }
     }
 }

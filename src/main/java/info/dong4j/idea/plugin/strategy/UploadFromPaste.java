@@ -39,7 +39,7 @@ import java.io.*;
  * @email sjdong3 @iflytek.com
  * @since 2019 -03-22 13:14
  */
-public class UploadFromPaste implements UploadWay{
+public class UploadFromPaste implements UploadWay {
     private OssClient client;
     private InputStream inputStream;
     private String fileName;
@@ -52,7 +52,7 @@ public class UploadFromPaste implements UploadWay{
      * @param fileName    the file name
      */
     @Contract("null, _, _ -> fail")
-    public UploadFromPaste(OssClient client, InputStream inputStream, String fileName){
+    public UploadFromPaste(OssClient client, InputStream inputStream, String fileName) {
         assert client != null;
         this.client = client;
         this.inputStream = inputStream;

@@ -61,6 +61,6 @@ public class MarkdownImage implements Serializable {
     private ImageLocationEnum location = ImageLocationEnum.LOCAL;
     /** 上传后的 url */
     private String uploadedUrl;
-    /** 原始文本标签类型*/
+    /** 原始文本标签类型 */
     private ImageMarkEnum imageMarkType = ImageMarkEnum.ORIGINAL;
 }

@@ -46,6 +46,8 @@ import lombok.extern.slf4j.Slf4j;
 @State(name = "ImageManagerSetting", storages = @Storage(value = Storage.NOT_ROAMABLE_FILE, file = "$APP_CONFIG$/image.manager.configs.xml"))
 public class ImageManagerPersistenComponent implements PersistentStateComponent<ImageManagerState> {
 
+    private ImageManagerState myState = new ImageManagerState();
+
     /**
      * Get the instance of this service.
      *
@@ -55,16 +57,14 @@ public class ImageManagerPersistenComponent implements PersistentStateComponent<
         return ServiceManager.getService(ImageManagerPersistenComponent.class);
     }
 
-    private ImageManagerState myState = new ImageManagerState();
-
-    @Override
-    public void loadState(@NotNull ImageManagerState state) {
-        this.myState = state;
-    }
-
     @NotNull
     @Override
     public ImageManagerState getState() {
         return this.myState;
+    }
+
+    @Override
+    public void loadState(@NotNull ImageManagerState state) {
+        this.myState = state;
     }
 }

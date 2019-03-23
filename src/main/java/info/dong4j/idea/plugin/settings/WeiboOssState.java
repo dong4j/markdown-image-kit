@@ -40,7 +40,7 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
-public class WeiboOssState extends OssState{
+public class WeiboOssState extends OssState {
     private String userName = "";
     private String password = "";
     private String cookies = "";

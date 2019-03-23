@@ -76,20 +76,6 @@ public abstract class OssState {
     }
 
     /**
-     * 根据 state 获取当前可用状态
-     *
-     * @param state the state
-     * @return the boolean
-     */
-    public static boolean getStatus(OssState state) {
-        boolean isPassedTest = state.isPassedTest();
-        Map<String, String> oldAndNewAuth = state.getOldAndNewAuthInfo();
-        return isPassedTest
-               && StringUtils.isNotEmpty(oldAndNewAuth.get(ImageManagerState.OLD_HASH_KEY))
-               && oldAndNewAuth.get(ImageManagerState.OLD_HASH_KEY).equals(oldAndNewAuth.get(ImageManagerState.NEW_HASH_KEY));
-    }
-
-    /**
      * 获取当前图床的可用状态
      * todo-dong4j : (2019年03月20日 15:47) [增加图床实现时记得改这里]
      *
@@ -130,5 +116,19 @@ public abstract class OssState {
             default:
                 return false;
         }
+    }
+
+    /**
+     * 根据 state 获取当前可用状态
+     *
+     * @param state the state
+     * @return the boolean
+     */
+    public static boolean getStatus(OssState state) {
+        boolean isPassedTest = state.isPassedTest();
+        Map<String, String> oldAndNewAuth = state.getOldAndNewAuthInfo();
+        return isPassedTest
+               && StringUtils.isNotEmpty(oldAndNewAuth.get(ImageManagerState.OLD_HASH_KEY))
+               && oldAndNewAuth.get(ImageManagerState.OLD_HASH_KEY).equals(oldAndNewAuth.get(ImageManagerState.NEW_HASH_KEY));
     }
 }

@@ -16,7 +16,7 @@ public interface UploadRequest {
      *
      * @param image the image
      * @return the upload response
-     * @throws IOException    the io exception
+     * @throws IOException the io exception
      */
     UploadResponse upload(File image) throws IOException;
 }

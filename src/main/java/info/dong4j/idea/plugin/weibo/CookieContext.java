@@ -16,8 +16,8 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class CookieContext implements CookieCacheable {
-    private static volatile CookieContext context = null;
     private static final Object LOCK = new Object();
+    private static volatile CookieContext context = null;
     private volatile String cookie = null;
 
     private CookieContext() {
@@ -51,7 +51,7 @@ public class CookieContext implements CookieCacheable {
             return context.cookie;
         }
         String cookie = context.readCookie();
-        if(StringUtils.isBlank(cookie)){
+        if (StringUtils.isBlank(cookie)) {
             return null;
         }
         return cookie;
@@ -78,7 +78,7 @@ public class CookieContext implements CookieCacheable {
     }
 
     @Override
-    public void deleteCookie(){
+    public void deleteCookie() {
         context.cookie = null;
         saveCookie("");
     }

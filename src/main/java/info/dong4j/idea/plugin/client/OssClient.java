@@ -120,7 +120,7 @@ public interface OssClient {
                 case DATE_FILE_NAME:
                     return DateFormatUtils.format(new Date(), "yyyy-MM-dd-") + fileName;
                 case RANDOM:
-                    return PREFIX + CharacterUtils.getRandomString(6) + ImageUtils.getFileSuffix(fileName);
+                    return PREFIX + CharacterUtils.getRandomString(6) + ImageUtils.getFileExtension(fileName);
                 default:
                     return fileName;
             }

@@ -41,13 +41,13 @@ import static java.net.HttpURLConnection.HTTP_OK;
  */
 @Slf4j
 public class WbpUploadRequest implements UploadRequest {
+    private static final Set<String> IMAGE_EXTENSION = new HashSet<>(3);
+    /** 重连1次, cookies 过期后自动获取 cookie */
+    private static AtomicInteger tryLoginCount = new AtomicInteger(1);
     private WbpHttpRequest wbpHttpRequest;
     private volatile String preLoginResult;
     private String username;
     private String password;
-    private static final Set<String> IMAGE_EXTENSION = new HashSet<>(3);
-    /** 重连1次, cookies 过期后自动获取 cookie */
-    private static AtomicInteger tryLoginCount = new AtomicInteger(1);
 
     WbpUploadRequest(WbpHttpRequest wbpHttpRequest, String username, String password) {
         this.wbpHttpRequest = wbpHttpRequest;
@@ -219,21 +219,6 @@ public class WbpUploadRequest implements UploadRequest {
             log.trace("Exception while reading the Image " + ioe);
         }
         return base64Image;
-    }
-
-    private String getFileExtension(String fileName) {
-        String extension = null;
-        int i = fileName.lastIndexOf(".");
-        if (i > 0) {
-            extension = fileName.substring(i + 1);
-        }
-        if (extension == null) {
-            return "jpg";
-        }
-        if (IMAGE_EXTENSION.contains(extension)) {
-            return extension;
-        }
-        return "jpg";
     }
 
     private void checkLogin() throws IOException, LoginFailedException {

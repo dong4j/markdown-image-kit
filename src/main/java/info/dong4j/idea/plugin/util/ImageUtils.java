@@ -152,36 +152,6 @@ public final class ImageUtils {
         return op.filter(sourceImage, null);
     }
 
-
-    /**
-     * To buffered image buffered image.
-     *
-     * @param src the src
-     * @return the buffered image
-     */
-    @Nullable
-    public static BufferedImage toBufferedImage(Image src) {
-        if (src instanceof BufferedImage) {
-            return (BufferedImage) src;
-        }
-
-        int w = src.getWidth(null);
-        int h = src.getHeight(null);
-        if (w < 0 || h < 0) {
-            return null;
-        }
-
-        // other options
-        int type = BufferedImage.TYPE_INT_ARGB;
-        BufferedImage dest =  UIUtil.createImage(w, h, type);
-        Graphics2D g2 = dest.createGraphics();
-        g2.drawImage(src, 0, 0, null);
-        g2.dispose();
-
-        return dest;
-    }
-
-
     /**
      * Save.
      *
@@ -217,7 +187,6 @@ public final class ImageUtils {
         return QiniuUploadUtils.uploadImage(byteOutputStream.toByteArray(), preFix, accessKey, secretKey, upHost);
 
     }
-
 
     /**
      * Load image from file buffered image.
@@ -257,7 +226,6 @@ public final class ImageUtils {
         return null;
     }
 
-
     /**
      * Load image from url buffered image.
      *
@@ -273,6 +241,33 @@ public final class ImageUtils {
         return null;
     }
 
+    /**
+     * To buffered image buffered image.
+     *
+     * @param src the src
+     * @return the buffered image
+     */
+    @Nullable
+    public static BufferedImage toBufferedImage(Image src) {
+        if (src instanceof BufferedImage) {
+            return (BufferedImage) src;
+        }
+
+        int w = src.getWidth(null);
+        int h = src.getHeight(null);
+        if (w < 0 || h < 0) {
+            return null;
+        }
+
+        // other options
+        int type = BufferedImage.TYPE_INT_ARGB;
+        BufferedImage dest = UIUtil.createImage(w, h, type);
+        Graphics2D g2 = dest.createGraphics();
+        g2.drawImage(src, 0, 0, null);
+        g2.dispose();
+
+        return dest;
+    }
 
     /**
      * http://stackoverflow.com/questions/7603400/how-to-make-a-rounded-corner-image-in-java
@@ -344,6 +339,16 @@ public final class ImageUtils {
     }
 
     /**
+     * Is image file boolean.
+     *
+     * @param filePath the file path
+     * @return the boolean
+     */
+    public static boolean isImageFile(String filePath) {
+        return isImageFile(new File(filePath));
+    }
+
+    /**
      * 通过 ImageReader 来解码这个 file 并返回一个 BufferedImage 对象
      * 如果找不到合适的 javax.imageio.ImageReader 则会返回 null, 则认为这不是图片文件
      *
@@ -357,16 +362,6 @@ public final class ImageUtils {
         } catch (IOException ex) {
             return false;
         }
-    }
-
-    /**
-     * Is image file boolean.
-     *
-     * @param filePath the file path
-     * @return the boolean
-     */
-    public static boolean isImageFile(String filePath) {
-        return isImageFile(new File(filePath));
     }
 
     /**
@@ -388,35 +383,35 @@ public final class ImageUtils {
     }
 
     /**
-     * Get file suffix string.
-     *
-     * @param fileName the file name
-     * @return the string
-     */
-    @NotNull
-    public static String getFileSuffix(@NotNull String fileName) {
-        return fileName.substring(fileName.lastIndexOf("."));
-    }
-
-    /**
      * Description: 判断OSS服务文件上传时文件的contentType
      *
      * @param fileName the file name
      * @return String string
      */
     public static String getImageType(String fileName) {
-        String suffix = getFileSuffix(fileName);
-        switch (suffix.toLowerCase()) {
+        String extension = getFileExtension(fileName);
+        switch (extension.toLowerCase()) {
             case ".gif":
                 return ImageMediaType.GIF.toString();
-            case ".jpg":
             case ".png":
                 return ImageMediaType.PNG.toString();
+            case ".jpg":
             case ".jpeg":
                 return ImageMediaType.JPEG.toString();
             default:
                 return "";
         }
+    }
+
+    /**
+     * Get file suffix string.
+     *
+     * @param fileName the file name
+     * @return the string
+     */
+    @NotNull
+    public static String getFileExtension(@NotNull String fileName) {
+        return fileName.substring(fileName.lastIndexOf("."));
     }
 
     /**

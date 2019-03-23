@@ -42,7 +42,7 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
-public class QiniuOssState extends OssState{
+public class QiniuOssState extends OssState {
     private String endpoint = "";
     private String accessKey = "";
     private String accessSecretKey = "";

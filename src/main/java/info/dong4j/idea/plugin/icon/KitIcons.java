@@ -38,13 +38,13 @@ import javax.swing.Icon;
  * @email sjdong3@iflytek.com
  */
 public class KitIcons {
-    private static Icon load(String path) {
-        return IconLoader.getIcon(path, KitIcons.class);
-    }
-
     public static final Icon ALIYUN_OSS = IconLoader.getIcon("/icons/aliyun.png");
     public static final Icon QINIU_OSS = IconLoader.getIcon("/icons/qiniu.png");
     public static final Icon WEIBO_OSS = IconLoader.getIcon("/icons/weibo.png");
     public static final Icon COMPRESS = IconLoader.getIcon("/icons/compress.png");
     public static final Icon MOVE = IconLoader.getIcon("/icons/move.png");
+
+    private static Icon load(String path) {
+        return IconLoader.getIcon(path, KitIcons.class);
+    }
 }

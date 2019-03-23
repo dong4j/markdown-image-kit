@@ -12,13 +12,13 @@ import java.net.*;
  */
 class ClassLoaderWrapper {
     /**
-     * The System class loader.
-     */
-    private ClassLoader systemClassLoader;
-    /**
      * The Default class loader.
      */
     ClassLoader defaultClassLoader;
+    /**
+     * The System class loader.
+     */
+    private ClassLoader systemClassLoader;
 
     /**
      * Instantiates a new Class loader wrapper.
@@ -40,17 +40,6 @@ class ClassLoaderWrapper {
      */
     URL getResourceAsURL(String resource) {
         return getResourceAsURL(resource, getClassLoaders(null));
-    }
-
-    /**
-     * Gets resource as url.
-     *
-     * @param resource    the resource
-     * @param classLoader the class loader
-     * @return the resource as url
-     */
-    URL getResourceAsURL(String resource, ClassLoader classLoader) {
-        return getResourceAsURL(resource, getClassLoaders(classLoader));
     }
 
     /**
@@ -83,6 +72,33 @@ class ClassLoaderWrapper {
     }
 
     /**
+     * Get class loaders class loader [ ].
+     *
+     * @param classLoader the class loader
+     * @return the class loader [ ]
+     */
+    private ClassLoader[] getClassLoaders(ClassLoader classLoader) {
+        return new ClassLoader[] {
+            classLoader,
+            defaultClassLoader,
+            Thread.currentThread().getContextClassLoader(),
+            getClass().getClassLoader(),
+            systemClassLoader
+        };
+    }
+
+    /**
+     * Gets resource as url.
+     *
+     * @param resource    the resource
+     * @param classLoader the class loader
+     * @return the resource as url
+     */
+    URL getResourceAsURL(String resource, ClassLoader classLoader) {
+        return getResourceAsURL(resource, getClassLoaders(classLoader));
+    }
+
+    /**
      * Gets resource as stream.
      *
      * @param resource the resource
@@ -112,21 +128,5 @@ class ClassLoaderWrapper {
             }
         }
         return null;
-    }
-
-    /**
-     * Get class loaders class loader [ ].
-     *
-     * @param classLoader the class loader
-     * @return the class loader [ ]
-     */
-    private ClassLoader[] getClassLoaders(ClassLoader classLoader) {
-        return new ClassLoader[]{
-                classLoader,
-                defaultClassLoader,
-                Thread.currentThread().getContextClassLoader(),
-                getClass().getClassLoader(),
-                systemClassLoader
-        };
     }
 }

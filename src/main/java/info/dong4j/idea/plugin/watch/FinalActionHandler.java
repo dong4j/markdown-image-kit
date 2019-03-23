@@ -36,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019-03-22 19:50
  */
 @Slf4j
-public class FinalActionHandler extends BaseActionHandler{
+public class FinalActionHandler extends BaseActionHandler {
     @Override
     public boolean isEnabled() {
         return true;

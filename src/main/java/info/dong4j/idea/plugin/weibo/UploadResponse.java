@@ -12,18 +12,11 @@ import info.dong4j.idea.plugin.weibo.entity.ImageInfo;
 public interface UploadResponse {
 
     /**
-     * The enum Result status.
+     * Gets result.
+     *
+     * @return the result
      */
-    enum ResultStatus {
-        /**
-         * Success result status.
-         */
-        SUCCESS,
-        /**
-         * Failed result status.
-         */
-        FAILED
-    }
+    ResultStatus getResult();
 
     /**
      * Sets result.
@@ -33,11 +26,11 @@ public interface UploadResponse {
     void setResult(ResultStatus rs);
 
     /**
-     * Gets result.
+     * Gets message.
      *
-     * @return the result
+     * @return the message
      */
-    ResultStatus getResult();
+    String getMessage();
 
     /**
      * Sets message.
@@ -45,13 +38,6 @@ public interface UploadResponse {
      * @param message the message
      */
     void setMessage(String message);
-
-    /**
-     * Gets message.
-     *
-     * @return the message
-     */
-    String getMessage();
 
     /**
      * Gets image info.
@@ -66,4 +52,18 @@ public interface UploadResponse {
      * @param imageInfo the image info
      */
     void setImageInfo(ImageInfo imageInfo);
+
+    /**
+     * The enum Result status.
+     */
+    enum ResultStatus {
+        /**
+         * Success result status.
+         */
+        SUCCESS,
+        /**
+         * Failed result status.
+         */
+        FAILED
+    }
 }

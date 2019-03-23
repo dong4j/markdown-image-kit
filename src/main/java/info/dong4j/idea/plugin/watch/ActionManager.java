@@ -39,14 +39,14 @@ import java.util.List;
 public class ActionManager {
     private List<IActionHandler> handlersChain = new LinkedList<>();
 
-    public ActionManager addHandler(IActionHandler handler){
+    public ActionManager addHandler(IActionHandler handler) {
         handlersChain.add(handler);
         return this;
     }
 
-    public void invoke(){
-        for(IActionHandler handler : handlersChain){
-            if(handler.isEnabled()){
+    public void invoke() {
+        for (IActionHandler handler : handlersChain) {
+            if (handler.isEnabled()) {
                 handler.execute();
             }
         }

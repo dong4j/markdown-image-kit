@@ -56,7 +56,6 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.Image;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Collections;
 import java.util.Iterator;
@@ -112,13 +111,13 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
 
             if (isClipboardControl) {
                 Map<DataFlavor, Object> clipboardData = ImageUtils.getDataFromClipboard();
-                if(clipboardData != null){
+                if (clipboardData != null) {
                     Iterator<Map.Entry<DataFlavor, Object>> iterator = clipboardData.entrySet().iterator();
                     Map.Entry<DataFlavor, Object> entry = iterator.next();
 
                     Map<String, Image> imageMap = resolveClipboardData(state, entry);
 
-                    if(imageMap.size() == 0){
+                    if (imageMap.size() == 0) {
                         defaultAction(editor, caret, dataContext);
                         return;
                     }
@@ -142,7 +141,7 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
 
             for (File file : fileList) {
                 // 第一步先初步排除非图片类型, 避免复制大量文件导致 OOM
-                if(StringUtils.isBlank(ImageUtils.getImageType(file.getName()))){
+                if (StringUtils.isBlank(ImageUtils.getImageType(file.getName()))) {
                     return imageMap;
                 }
                 // 先检查是否为图片类型
@@ -188,108 +187,6 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
         if (editorActionHandler != null) {
             editorActionHandler.execute(editor, caret, dataContext);
         }
-    }
-
-    /**
-     * 执行上传或拷贝处理
-     *
-     * @param editor   the editor
-     * @param image    the image
-     * @param fileName the file name
-     */
-    private void invoke(@NotNull Editor editor, Image image, String fileName) {
-        ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
-        boolean isCopyToDir = state.isCopyToDir();
-        boolean isUploadAndReplace = state.isUploadAndReplace();
-        BufferedImage bufferedImage = ImageUtils.toBufferedImage(image);
-        if (bufferedImage != null) {
-            // 圆角处理
-            bufferedImage = ImageUtils.toBufferedImage(ImageUtils.makeRoundedCorner(bufferedImage, 20));
-            if (isUploadAndReplace) {
-                uploadAndInsert(editor, bufferedImage, fileName);
-            }
-            if (isCopyToDir) {
-                saveAndInsert(editor, bufferedImage, fileName);
-            }
-        }
-    }
-
-    /**
-     * 保存图片并在当前光标位置插入替换后的 markdown image mark
-     *
-     * @param editor        the editor
-     * @param bufferedImage the buffered image
-     * @param imageName     the image name
-     */
-    private void saveAndInsert(@NotNull Editor editor,
-                               BufferedImage bufferedImage,
-                               String imageName) {
-        // ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
-        // Document document = editor.getDocument();
-        // // 保存图片
-        // VirtualFile currentFile = FileDocumentManager.getInstance().getFile(document);
-        // assert currentFile != null;
-        // File curDocument = new File(currentFile.getPath());
-        // String savepath = state.getImageSavePath();
-        // File imageDir = new File(curDocument.getParent(), savepath);
-        // boolean checkDir = imageDir.exists() && imageDir.isDirectory();
-        // if (checkDir || imageDir.mkdirs()) {
-        //     File imageFile = new File(imageDir, imageName);
-        //     Runnable r = () -> {
-        //         try {
-        //             // 如果勾选了上传且替换, 就不再插入本地的图片标签
-        //             if (!state.isUploadAndReplace()) {
-        //                 File imageFileRelativizePath = curDocument.getParentFile().toPath().relativize(imageFile.toPath()).toFile();
-        //                 String relImagePath = imageFileRelativizePath.toString().replace('\\', '/');
-        //                 EditorModificationUtil.insertStringAtCaret(editor, "![](" + relImagePath + ")" + ImageContents.LINE_BREAK);
-        //             }
-        //             BufferedImage compressedImage = Thumbnails.of(bufferedImage)
-        //                 .size(bufferedImage.getWidth(), bufferedImage.getHeight())
-        //                 .outputQuality(state.getCompressBeforeUploadOfPercent() * 1.0 / 100).asBufferedImage();
-        //             ImageIO.write(compressedImage, "png", imageFile);
-        //             // 保存到文件后同步刷新缓存, 让图片显示到文件树中
-        //             VirtualFileManager.getInstance().syncRefresh();
-        //             // todo-dong4j : (2019年03月20日 17:42) [使用 VirtualFile.createChildData() 创建虚拟文件]
-        //             //  以解决还未刷新前使用右键上传图片时找不到文件的问题.
-        //
-        //         } catch (IOException e) {
-        //             // todo-dong4j : (2019年03月17日 15:11) [消息通知]
-        //             log.trace("", e);
-        //         }
-        //     };
-        //     WriteCommandAction.runWriteCommandAction(editor.getProject(), r);
-        // }
-    }
-
-    /**
-     * 上传图片并在光标位置插入上传后的 markdown image mark
-     *
-     * @param editor        the editor
-     * @param bufferedImage the buffered image
-     * @param imageName     the image name
-     */
-    private void uploadAndInsert(@NotNull Editor editor, BufferedImage bufferedImage, String imageName) {
-        // try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-        //     ImageIO.write(bufferedImage, "png", os);
-        //     InputStream inputStream = new ByteArrayInputStream(os.toByteArray());
-        //     // 上传到默认图床
-        //     int index = ImageManagerPersistenComponent.getInstance().getState().getCloudType();
-        //     Optional<CloudEnum> cloudType = EnumsUtils.getEnumObject(CloudEnum.class, e -> e.getIndex() == index);
-        //     // 此处进行异步处理, 不然上传大图时会卡死
-        //     Runnable r = () -> {
-        //         OssClient client = ClientUtils.getInstance(cloudType.orElse(CloudEnum.WEIBO_CLOUD));
-        //         String imageUrl = new Uploader().setUploadWay(new UploadFromPaste(client, inputStream, imageName)).upload();
-        //
-        //         if (StringUtils.isNotBlank(imageUrl)) {
-        //             String newLineText = UploadUtils.getFinalImageMark("", imageUrl, imageUrl, ImageContents.LINE_BREAK);
-        //             EditorModificationUtil.insertStringAtCaret(editor, newLineText);
-        //         }
-        //     };
-        //     WriteCommandAction.runWriteCommandAction(editor.getProject(), r);
-        // } catch (IOException e) {
-        //     // todo-dong4j : (2019年03月17日 03:20) [添加通知]
-        //     log.trace("", e);
-        // }
     }
 
     /**

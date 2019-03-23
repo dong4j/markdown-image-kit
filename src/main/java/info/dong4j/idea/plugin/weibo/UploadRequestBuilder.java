@@ -15,7 +15,6 @@ import org.apache.commons.lang.StringUtils;
 public class UploadRequestBuilder {
     private String username;
     private String password;
-    private long tryLoginTime = 0;
 
     /**
      * Sets acount.
@@ -27,17 +26,6 @@ public class UploadRequestBuilder {
     public UploadRequestBuilder setAcount(String username, String password) {
         this.username = username;
         this.password = password;
-        return this;
-    }
-
-    /**
-     * Sets try login time.
-     *
-     * @param time the time
-     * @return the try login time
-     */
-    public UploadRequestBuilder setTryLoginTime(long time) {
-        this.tryLoginTime = time;
         return this;
     }
 

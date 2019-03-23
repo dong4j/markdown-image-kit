@@ -68,27 +68,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class AbstractUploadCloudAction extends AnAction {
     /**
-     * Gets icon.
-     *
-     * @return the icon
-     */
-    abstract protected Icon getIcon();
-
-    /**
-     * action 是否为可用状态
-     *
-     * @return the boolean
-     */
-    abstract boolean isAvailable();
-
-    /**
-     * 获取具体上传的客户端, 委托给后台任务执行
-     *
-     * @return the oss client
-     */
-    abstract OssClient getOssClient();
-
-    /**
      * 检查 "upload to XXX OSS" 按钮是否可用
      * 1. 相关 test 通过后
      * a. 如果全是目录则可用
@@ -140,6 +119,20 @@ public abstract class AbstractUploadCloudAction extends AnAction {
         }
         presentation.setEnabled(isValid && isAvailable());
     }
+
+    /**
+     * Gets icon.
+     *
+     * @return the icon
+     */
+    abstract protected Icon getIcon();
+
+    /**
+     * action 是否为可用状态
+     *
+     * @return the boolean
+     */
+    abstract boolean isAvailable();
 
     /**
      * 所有子类都走这个逻辑, 做一些前置判断和解析 markdown image mark
@@ -196,7 +189,7 @@ public abstract class AbstractUploadCloudAction extends AnAction {
      *
      * @param event                  the event
      * @param waitingForUploadImages the waiting for upload images
-     * @return the string   url                                     上传成功后返回的 url
+     * @return the string   url      上传成功后返回的 url
      */
     @Contract(pure = true)
     private void execute(@NotNull AnActionEvent event, Map<Document, List<MarkdownImage>> waitingForUploadImages) {
@@ -211,4 +204,11 @@ public abstract class AbstractUploadCloudAction extends AnAction {
             }
         }
     }
+
+    /**
+     * 获取具体上传的客户端, 委托给后台任务执行
+     *
+     * @return the oss client
+     */
+    abstract OssClient getOssClient();
 }

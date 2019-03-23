@@ -46,6 +46,17 @@ public final class ParserUtils {
     }
 
     /**
+     * 解析使用 ${} 的占位符
+     *
+     * @param text the text
+     * @param args the args
+     * @return the string
+     */
+    public static String parse0(String text, Object... args) {
+        return parse("${", "}", text, args);
+    }
+
+    /**
      * 将字符串text中由openToken和closeToken组成的占位符依次替换为args数组中的值
      *
      * @param openToken  the open token     占位符开始
@@ -121,17 +132,6 @@ public final class ParserUtils {
     }
 
     /**
-     * 解析使用 ${} 的占位符
-     *
-     * @param text the text
-     * @param args the args
-     * @return the string
-     */
-    public static String parse0(String text, Object... args) {
-        return parse("${", "}", text, args);
-    }
-
-    /**
      * 解析使用 {} 的占位符
      *
      * @param text the text
@@ -150,13 +150,13 @@ public final class ParserUtils {
      */
     @NotNull
     @Contract("_ -> new")
-    public static Map<String, String> parseImageTag(String text){
+    public static Map<String, String> parseImageTag(String text) {
         int start = text.indexOf("![");
         int end = text.indexOf("]");
 
         String describe = text.substring(start + 2, end);
         String file = text.substring(text.indexOf("(") + 1, text.indexOf(")"));
-        return new HashMap<String, String>(1){
+        return new HashMap<String, String>(1) {
             {
                 put(describe, file);
             }

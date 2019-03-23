@@ -64,9 +64,9 @@ public class UploadFromAction implements UploadWay {
 
     /**
      * todo-dong4j : (2019年03月15日 19:06) []
-     *  1. 是否设置图片压缩
-     *  2. 是否开启图床迁移
-     *  3. 是否开启备份
+     * 1. 是否设置图片压缩
+     * 2. 是否开启图床迁移
+     * 3. 是否开启备份
      *
      * @return the string
      */

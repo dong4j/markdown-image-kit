@@ -105,7 +105,6 @@ public class UploadAndInsertHandler extends PasteActionHandler {
                             // 上传到默认图床
                             int index = ImageManagerPersistenComponent.getInstance().getState().getCloudType();
                             Optional<CloudEnum> cloudType = EnumsUtils.getEnumObject(CloudEnum.class, e -> e.getIndex() == index);
-                            // 此处进行异步处理, 不然上传大图时会卡死
                             Runnable r = () -> {
                                 OssClient client = ClientUtils.getInstance(cloudType.orElse(CloudEnum.WEIBO_CLOUD));
                                 indicator.setText2("Uploading " + imageName);
@@ -123,7 +122,7 @@ public class UploadAndInsertHandler extends PasteActionHandler {
                             log.trace("", e);
                         }
                     }
-                    indicator.setFraction( ++totalProcessed * 1.0 / totalCount);
+                    indicator.setFraction(++totalProcessed * 1.0 / totalCount);
                 }
                 indicator.setFraction(1.0);
                 indicator.popState();

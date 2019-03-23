@@ -64,23 +64,26 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Client(CloudEnum.QINIU_CLOUD)
 public class QiniuOssClient implements OssClient {
-    private QiniuOssState qiniuOssState = ImageManagerPersistenComponent.getInstance().getState().getQiniuOssState();
     private static final long DEAD_LINE = 3600L * 1000 * 24 * 365 * 10;
-    private static String token;
     private static final Object LOCK = new Object();
+    private static String token;
     private static UploadManager ossClient = null;
     private static String domain;
+    private QiniuOssState qiniuOssState = ImageManagerPersistenComponent.getInstance().getState().getQiniuOssState();
 
     private QiniuOssClient() {
         checkClient();
     }
 
-    private static class SingletonHandler {
-        static {
-            checkClient();
+    /**
+     * 在调用 ossClient 之前先检查, 如果为 null 就 init()
+     */
+    private static void checkClient() {
+        synchronized (LOCK) {
+            if (ossClient == null) {
+                init();
+            }
         }
-
-        private static QiniuOssClient singleton = new QiniuOssClient();
     }
 
     /**
@@ -111,45 +114,6 @@ public class QiniuOssClient implements OssClient {
      */
     private static void buildToken(Auth auth, String bucketName) {
         token = auth.uploadToken(bucketName, null, DEAD_LINE, null, true);
-    }
-
-    /**
-     * Set domain.
-     *
-     * @param newDomain the new domain
-     */
-    private void setDomain(String newDomain) {
-        domain = newDomain;
-    }
-
-    /**
-     * 在调用 ossClient 之前先检查, 如果为 null 就 init()
-     */
-    private static void checkClient() {
-        synchronized (LOCK) {
-            if (ossClient == null) {
-                init();
-            }
-        }
-    }
-
-    /**
-     * Set oss client.
-     *
-     * @param oss the oss
-     */
-    private void setOssClient(UploadManager oss) {
-        ossClient = oss;
-    }
-
-    /**
-     * Gets instance.
-     *
-     * @return the instance
-     */
-    @Contract(pure = true)
-    public static QiniuOssClient getInstance() {
-        return QiniuOssClient.SingletonHandler.singleton;
     }
 
     @Override
@@ -189,40 +153,6 @@ public class QiniuOssClient implements OssClient {
     @Override
     public String upload(InputStream inputStream, String fileName) {
         return upload(ossClient, inputStream, fileName);
-    }
-
-    /**
-     * Upload string.
-     *
-     * @param ossClient   the oss client
-     * @param inputStream the input stream
-     * @param fileName    the file name
-     * @return the string
-     */
-    public String upload(UploadManager ossClient, InputStream inputStream, String fileName) {
-        fileName = processFileName(fileName);
-        try {
-            ossClient.put(inputStream, fileName, token, null, null);
-            // 拼接 url, 需要正确配置域名 (https://developer.qiniu.com/fusion/kb/1322/how-to-configure-cname-domain-name)
-            URL url = new URL(domain);
-            log.trace("{}", url.getUserInfo());
-            if (StringUtils.isBlank(url.getPath())) {
-                domain = domain + "/";
-            } else {
-                domain = domain.endsWith("/") ? domain : domain + "/";
-            }
-            return domain + fileName;
-        } catch (QiniuException ex) {
-            Response r = ex.response;
-            log.trace(r.toString());
-            try {
-                log.trace(r.bodyString());
-            } catch (QiniuException ignored) {
-            }
-        } catch (MalformedURLException e) {
-            log.trace("", e);
-        }
-        return "";
     }
 
     /**
@@ -296,5 +226,75 @@ public class QiniuOssClient implements OssClient {
             qiniuOssClient.setOssClient(ossClient);
         }
         return url;
+    }
+
+    /**
+     * Gets instance.
+     *
+     * @return the instance
+     */
+    @Contract(pure = true)
+    public static QiniuOssClient getInstance() {
+        return QiniuOssClient.SingletonHandler.singleton;
+    }
+
+    /**
+     * Set domain.
+     *
+     * @param newDomain the new domain
+     */
+    private void setDomain(String newDomain) {
+        domain = newDomain;
+    }
+
+    /**
+     * Set oss client.
+     *
+     * @param oss the oss
+     */
+    private void setOssClient(UploadManager oss) {
+        ossClient = oss;
+    }
+
+    /**
+     * Upload string.
+     *
+     * @param ossClient   the oss client
+     * @param inputStream the input stream
+     * @param fileName    the file name
+     * @return the string
+     */
+    public String upload(UploadManager ossClient, InputStream inputStream, String fileName) {
+        fileName = processFileName(fileName);
+        try {
+            ossClient.put(inputStream, fileName, token, null, null);
+            // 拼接 url, 需要正确配置域名 (https://developer.qiniu.com/fusion/kb/1322/how-to-configure-cname-domain-name)
+            URL url = new URL(domain);
+            log.trace("{}", url.getUserInfo());
+            if (StringUtils.isBlank(url.getPath())) {
+                domain = domain + "/";
+            } else {
+                domain = domain.endsWith("/") ? domain : domain + "/";
+            }
+            return domain + fileName;
+        } catch (QiniuException ex) {
+            Response r = ex.response;
+            log.trace(r.toString());
+            try {
+                log.trace(r.bodyString());
+            } catch (QiniuException ignored) {
+            }
+        } catch (MalformedURLException e) {
+            log.trace("", e);
+        }
+        return "";
+    }
+
+    private static class SingletonHandler {
+        private static QiniuOssClient singleton = new QiniuOssClient();
+
+        static {
+            checkClient();
+        }
     }
 }

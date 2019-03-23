@@ -153,10 +153,10 @@ public class UploadBackgroundTask extends Task.Backgroundable {
                 .append("Image Mark = ")
                 .append(totalProcessed)
                 .append("\n");
-            if(totalFailured > 0){
+            if (totalFailured > 0) {
                 stringBuilder.append("Failured = ").append(totalFailured).append("\n");
             }
-            if(StringUtils.isNotBlank(notFoundImages.toString())){
+            if (StringUtils.isNotBlank(notFoundImages.toString())) {
                 stringBuilder.append("NotFoundImages = ").append(notFoundImages);
             }
             UploadNotification.notifyUploadFinshed(stringBuilder.toString());

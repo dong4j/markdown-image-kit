@@ -315,7 +315,7 @@ public class ImageUtilsTest {
 
     @Test
     public void test11() {
-        log.info("{}", ImageUtils.getFileSuffix("aaa.png"));
+        log.info("{}", ImageUtils.getFileExtension("aaa.png"));
     }
 
     @Test

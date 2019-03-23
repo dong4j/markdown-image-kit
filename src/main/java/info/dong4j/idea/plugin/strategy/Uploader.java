@@ -43,10 +43,6 @@ public class Uploader {
 
     private Uploader() {}
 
-    private static class SingletonHandler {
-        private static Uploader singleton = new Uploader();
-    }
-
     /**
      * Gets instance.
      *
@@ -75,5 +71,9 @@ public class Uploader {
      */
     public String upload() {
         return uploadWay.upload();
+    }
+
+    private static class SingletonHandler {
+        private static Uploader singleton = new Uploader();
     }
 }

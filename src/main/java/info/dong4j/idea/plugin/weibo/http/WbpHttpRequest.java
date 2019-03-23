@@ -13,18 +13,18 @@ import java.util.Set;
  */
 public interface WbpHttpRequest {
     /**
-     * Sets header.
-     *
-     * @param header the header
-     */
-    void setHeader(Map<String, String> header);
-
-    /**
      * Gets header.
      *
      * @return the header
      */
     Map<String, String> getHeader();
+
+    /**
+     * Sets header.
+     *
+     * @param header the header
+     */
+    void setHeader(Map<String, String> header);
 
     /**
      * Do get wbp http response.

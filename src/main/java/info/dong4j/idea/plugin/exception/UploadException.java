@@ -25,6 +25,8 @@
 
 package info.dong4j.idea.plugin.exception;
 
+import com.intellij.openapi.project.Project;
+
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
  * <p>Description: </p>
@@ -35,6 +37,7 @@ package info.dong4j.idea.plugin.exception;
  */
 public class UploadException extends RuntimeException {
     private static final long serialVersionUID = 4076461843028836262L;
+    private Project project;
 
     /**
      * Instantiates a new Img exception.
@@ -45,11 +48,20 @@ public class UploadException extends RuntimeException {
 
     /**
      * Instantiates a new Img exception.
+     */
+    public UploadException(Project project) {
+        super();
+        this.project = project;
+    }
+
+    /**
+     * Instantiates a new Img exception.
      *
      * @param message the message
      */
-    public UploadException(String message) {
+    public UploadException(Project project, String message) {
         super(message);
+        this.project = project;
     }
 
     /**
@@ -79,7 +91,10 @@ public class UploadException extends RuntimeException {
      * @param enableSuppression  the enable suppression
      * @param writableStackTrace the writable stack trace
      */
-    protected UploadException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    protected UploadException(String message,
+                              Throwable cause,
+                              boolean enableSuppression,
+                              boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

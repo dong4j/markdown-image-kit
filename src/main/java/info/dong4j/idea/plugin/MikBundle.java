@@ -45,16 +45,20 @@ import java.util.ResourceBundle;
  */
 public class MikBundle {
 
+    @NonNls
+    private static final String BUNDLE = "messages.MikBundle";
+    private static Reference<ResourceBundle> ourBundle;
+    private MikBundle() {
+    }
+
+    @NotNull
+    public static String visibilityPresentation(@NotNull String modifier) {
+        return message(modifier + ".visibility.presentation");
+    }
+
     @NotNull
     public static String message(@NotNull @PropertyKey(resourceBundle = BUNDLE) String key, @NotNull Object... params) {
         return CommonBundle.message(getBundle(), key, params);
-    }
-
-    private static Reference<ResourceBundle> ourBundle;
-    @NonNls
-    private static final String BUNDLE = "messages.MikBundle";
-
-    private MikBundle() {
     }
 
     private static ResourceBundle getBundle() {
@@ -64,10 +68,5 @@ public class MikBundle {
             ourBundle = new SoftReference<>(bundle);
         }
         return bundle;
-    }
-
-    @NotNull
-    public static String visibilityPresentation(@NotNull String modifier) {
-        return message(modifier + ".visibility.presentation");
     }
 }

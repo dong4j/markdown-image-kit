@@ -35,13 +35,21 @@ public class DefaultWbpHttpRequest implements WbpHttpRequest {
     }
 
     @Override
-    public WbpHttpResponse doGet(String url) throws IOException {
-        return doGet(url, this.header, null);
+    public Map<String, String> getHeader() {
+        return this.header;
     }
 
+    /**
+     * 增添header，新的header将替换旧的
+     *
+     * @param header the header
+     */
     @Override
-    public WbpHttpResponse doGet(String url, Map<String, String> params) throws IOException {
-        return doGet(url, this.header, params);
+    public void setHeader(Map<String, String> header) {
+        Set<Map.Entry<String, String>> entries = header.entrySet();
+        entries.forEach(stringStringEntry -> {
+            this.header.put(stringStringEntry.getKey(), stringStringEntry.getValue());
+        });
     }
 
     @Override
@@ -66,17 +74,15 @@ public class DefaultWbpHttpRequest implements WbpHttpRequest {
         );
     }
 
-
     @Override
-    public WbpHttpResponse doPost(String url) throws IOException {
-        return doPost(url, null);
+    public WbpHttpResponse doGet(String url, Map<String, String> params) throws IOException {
+        return doGet(url, this.header, params);
     }
 
     @Override
-    public WbpHttpResponse doPost(String url, Map<String, String> params) throws IOException {
-        return doPost(url, this.header, params);
+    public WbpHttpResponse doGet(String url) throws IOException {
+        return doGet(url, this.header, null);
     }
-
 
     @Override
     public WbpHttpResponse doPost(String url, Map<String, String> header, Map<String, String> params) throws IOException {
@@ -107,17 +113,14 @@ public class DefaultWbpHttpRequest implements WbpHttpRequest {
         );
     }
 
-    /**
-     * 增添header，新的header将替换旧的
-     *
-     * @param header the header
-     */
     @Override
-    public void setHeader(Map<String, String> header) {
-        Set<Map.Entry<String, String>> entries = header.entrySet();
-        entries.forEach(stringStringEntry -> {
-            this.header.put(stringStringEntry.getKey(), stringStringEntry.getValue());
-        });
+    public WbpHttpResponse doPost(String url, Map<String, String> params) throws IOException {
+        return doPost(url, this.header, params);
+    }
+
+    @Override
+    public WbpHttpResponse doPost(String url) throws IOException {
+        return doPost(url, null);
     }
 
     @Override
@@ -157,12 +160,6 @@ public class DefaultWbpHttpRequest implements WbpHttpRequest {
             getBodyFromConnection(connection)
         );
     }
-
-    @Override
-    public Map<String, String> getHeader() {
-        return this.header;
-    }
-
 
     private Map<String, String> getHeaderFromConnection(HttpURLConnection connection) {
         Map<String, List<String>> headerFields = connection.getHeaderFields();

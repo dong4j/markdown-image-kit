@@ -114,7 +114,7 @@ public class SaveAndInsertHandler extends PasteActionHandler {
                                         EditorModificationUtil.insertStringAtCaret(editor, mark);
                                     }
                                     indicator.setText2("Save Image");
-                                    ImageIO.write(bufferedImage, ImageUtils.getFileSuffix(imageFile.getName()).replace(".", ""), imageFile);
+                                    ImageIO.write(bufferedImage, ImageUtils.getFileExtension(imageFile.getName()).replace(".", ""), imageFile);
                                     // 保存到文件后同步刷新缓存, 让图片显示到文件树中
                                     VirtualFileManager.getInstance().syncRefresh();
                                     // todo-dong4j : (2019年03月20日 17:42) [使用 VirtualFile.createChildData() 创建虚拟文件]
@@ -127,7 +127,7 @@ public class SaveAndInsertHandler extends PasteActionHandler {
                             WriteCommandAction.runWriteCommandAction(editor.getProject(), r);
                         }
                     }
-                    indicator.setFraction( ++totalProcessed * 1.0 / totalCount);
+                    indicator.setFraction(++totalProcessed * 1.0 / totalCount);
                 }
                 indicator.setFraction(1.0);
                 indicator.popState();

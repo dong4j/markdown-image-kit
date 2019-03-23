@@ -45,13 +45,6 @@ public class ImageManagerState {
     public static final String QINIU = "gerb2.erhgds'5yf@4ybtree!43h34hbd4_";
     public static final String OLD_HASH_KEY = "old";
     public static final String NEW_HASH_KEY = "new";
-
-    public ImageManagerState() {
-        this.aliyunOssState = new AliyunOssState();
-        this.qiniuOssState = new QiniuOssState();
-        this.weiboOssState = new WeiboOssState();
-    }
-
     private WeiboOssState weiboOssState;
     private AliyunOssState aliyunOssState;
     private QiniuOssState qiniuOssState;
@@ -85,8 +78,13 @@ public class ImageManagerState {
     private String imageSavePath = "./imgs";
     /** 默认图床 */
     private int cloudType = CloudEnum.WEIBO_CLOUD.index;
-    /** 重命名文件*/
+    /** 重命名文件 */
     private boolean rename = false;
     /** 文件名后缀 */
     private int suffixIndex = SuffixEnum.FILE_NAME.index;
+    public ImageManagerState() {
+        this.aliyunOssState = new AliyunOssState();
+        this.qiniuOssState = new QiniuOssState();
+        this.weiboOssState = new WeiboOssState();
+    }
 }

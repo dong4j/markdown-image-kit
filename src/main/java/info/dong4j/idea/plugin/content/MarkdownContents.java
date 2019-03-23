@@ -38,6 +38,6 @@ public interface MarkdownContents {
     String MARKDOWN_FILE_SUFIX = ".md";
     /** markdown file type, 必须安装了 markdown 插件才能识别为此类型 */
     String MARKDOWN_FILE_TYPE = "Markdown";
-    /** nodejs 库*/
+    /** nodejs 库 */
     String NODE_MODULES_FILE = "node_modules";
 }

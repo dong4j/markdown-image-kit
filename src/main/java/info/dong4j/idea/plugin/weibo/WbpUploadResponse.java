@@ -15,23 +15,23 @@ public class WbpUploadResponse implements UploadResponse {
     private ImageInfo imageInfo;
 
     @Override
-    public void setResult(ResultStatus rs) {
-        this.resultStatus = rs;
-    }
-
-    @Override
     public ResultStatus getResult() {
         return this.resultStatus;
     }
 
     @Override
-    public void setMessage(String message) {
-        this.message = message;
+    public void setResult(ResultStatus rs) {
+        this.resultStatus = rs;
     }
 
     @Override
     public String getMessage() {
         return this.message;
+    }
+
+    @Override
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     @Override

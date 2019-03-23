@@ -58,7 +58,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Client(CloudEnum.WEIBO_CLOUD)
-public class WeiboOssClient implements OssClient{
+public class WeiboOssClient implements OssClient {
     private static final Object LOCK = new Object();
     private static WbpUploadRequest ossClient = null;
     private WeiboOssState weiboOssState = ImageManagerPersistenComponent.getInstance().getState().getWeiboOssState();
@@ -68,12 +68,15 @@ public class WeiboOssClient implements OssClient{
         checkClient();
     }
 
-    private static class SingletonHandler {
-        static {
-            init();
+    /**
+     * 在调用 ossClient 之前先检查, 如果为 null 就 init()
+     */
+    private static void checkClient() {
+        synchronized (LOCK) {
+            if (ossClient == null) {
+                init();
+            }
         }
-
-        private static WeiboOssClient singleton = new WeiboOssClient();
     }
 
     /**
@@ -92,34 +95,26 @@ public class WeiboOssClient implements OssClient{
         }
     }
 
-    /**
-     * 在调用 ossClient 之前先检查, 如果为 null 就 init()
-     */
-    private static void checkClient() {
-        synchronized (LOCK) {
-            if (ossClient == null) {
-                init();
-            }
-        }
+    @Override
+    public String getName() {
+        return getCloudType().title;
+    }
+
+    @Override
+    public CloudEnum getCloudType() {
+        return CloudEnum.WEIBO_CLOUD;
     }
 
     /**
-     * Set oss client.
+     * Upload string.
      *
-     * @param oss the oss
+     * @param file the file
+     * @return the string
+     * @throws IOException the io exception
      */
-    private void setOssClient(WbpUploadRequest oss) {
-        ossClient = oss;
-    }
-
-    /**
-     * Gets instance.
-     *
-     * @return the instance
-     */
-    @Contract(pure = true)
-    public static WeiboOssClient getInstance() {
-        return WeiboOssClient.SingletonHandler.singleton;
+    @Override
+    public String upload(File file) {
+        return upload(ossClient, file);
     }
 
     /**
@@ -153,27 +148,6 @@ public class WeiboOssClient implements OssClient{
             log.trace("", e);
         }
         return "";
-    }
-
-    @Override
-    public String getName() {
-        return getCloudType().title;
-    }
-
-    @Override
-    public CloudEnum getCloudType() {
-        return CloudEnum.WEIBO_CLOUD;
-    }
-    /**
-     * Upload string.
-     *
-     * @param file the file
-     * @return the string
-     * @throws IOException the io exception
-     */
-    @Override
-    public String upload(File file) {
-        return upload(ossClient, file);
     }
 
     /**
@@ -229,9 +203,9 @@ public class WeiboOssClient implements OssClient{
     @NotNull
     @Contract(pure = true)
     private String upload(InputStream inputStream,
-                         String fileName,
-                         String username,
-                         String password) {
+                          String fileName,
+                          String username,
+                          String password) {
 
         WeiboOssClient weiboOssClient = WeiboOssClient.getInstance();
         CookieContext.getInstance().deleteCookie();
@@ -246,5 +220,32 @@ public class WeiboOssClient implements OssClient{
             weiboOssClient.setOssClient(ossClient);
         }
         return url;
+    }
+
+    /**
+     * Gets instance.
+     *
+     * @return the instance
+     */
+    @Contract(pure = true)
+    public static WeiboOssClient getInstance() {
+        return WeiboOssClient.SingletonHandler.singleton;
+    }
+
+    /**
+     * Set oss client.
+     *
+     * @param oss the oss
+     */
+    private void setOssClient(WbpUploadRequest oss) {
+        ossClient = oss;
+    }
+
+    private static class SingletonHandler {
+        private static WeiboOssClient singleton = new WeiboOssClient();
+
+        static {
+            init();
+        }
     }
 }
