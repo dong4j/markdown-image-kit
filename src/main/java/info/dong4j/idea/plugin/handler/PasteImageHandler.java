@@ -121,6 +121,8 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                         defaultAction(editor, caret, dataContext);
                         return;
                     }
+
+                    // todo-dong4j : (2019年03月25日 12:26) [通知一次]
                     new ActionManager()
                         .addHandler(new SaveAndInsertHandler(editor, imageMap))
                         .addHandler(new UploadAndInsertHandler(editor, imageMap))

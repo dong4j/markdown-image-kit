@@ -41,7 +41,6 @@ import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
-import info.dong4j.idea.plugin.exception.UploadException;
 import info.dong4j.idea.plugin.util.PsiDocumentUtils;
 import info.dong4j.idea.plugin.util.UploadNotification;
 
@@ -161,17 +160,14 @@ public class UploadBackgroundTask extends Task.Backgroundable {
                     fileNotFoundListMap.put(virtualFileFromDocument, notFoundImages);
                 }
                 // 上传失败的
-                if(uploadFailured.size() > 0){
+                if (uploadFailured.size() > 0) {
                     uploadFailuredListMap.put(virtualFileFromDocument, uploadFailured);
                 }
             }
 
-            if(fileNotFoundListMap.size() > 0 || uploadFailuredListMap.size() > 0){
+            if (fileNotFoundListMap.size() > 0 || uploadFailuredListMap.size() > 0) {
                 UploadNotification.notifyUploadFailure(fileNotFoundListMap, uploadFailuredListMap, project);
             }
-
-        } catch (UploadException e) {
-            UploadNotification.notifyConfigurableError(project, ossClient.getName());
         } finally {
             // 设置进度
             indicator.setFraction(1.0);
