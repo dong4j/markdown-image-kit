@@ -25,18 +25,22 @@
 
 package info.dong4j.idea.plugin.util;
 
+import com.intellij.ide.BrowserUtil;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationDisplayType;
 import com.intellij.notification.NotificationGroup;
+import com.intellij.notification.NotificationListener;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.exception.UploadException;
 import info.dong4j.idea.plugin.settings.ProjectSettingsPage;
 
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.event.HyperlinkEvent;
@@ -53,6 +57,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class UploadNotification extends Notification {
+    private static final String HELP_URL = MikBundle.message("mik.help");
     private static final String UPLOAD_NOTIFICATION_GROUP = "MIK Group";
     private static final String UPLOAD_FINSHED = "Upload Finshed";
     /** 注册到通知 */
@@ -116,18 +121,29 @@ public class UploadNotification extends Notification {
      *
      * @param project the project
      */
-    public static void notifyConfigurableError(Project project, String actionName){
+    public static void notifyConfigurableError(Project project, String actionName) {
         String content = "<p><a href=''>Configure " + actionName + "</a></p>";
         content = "<p>You may need to reset your account. Please be sure to <b>test</b> it after the setup is complete.</p>" + content;
-        Notifications.Bus.notify(new Notification(UPLOAD_NOTIFICATION_GROUP, "Configurable Error",
-                                                  content, NotificationType.ERROR,
-                                                  (notification, event) -> {
-                                                      ProjectSettingsPage configurable = new ProjectSettingsPage();
-                                                      // 打开设置面板
-                                                      ShowSettingsUtil.getInstance().editConfigurable(project, configurable);
-                                                      // 点击超链接后关闭通知
-                                                      if (event.getEventType().equals(HyperlinkEvent.EventType.ENTERED)) {
-                                                          notification.hideBalloon();
+        content = content + "<p>Or you may need a little <a href='" + HELP_URL + "'>Help</a></p>";
+        Notifications.Bus.notify(new Notification(UPLOAD_NOTIFICATION_GROUP,
+                                                  "Configurable Error",
+                                                  content,
+                                                  NotificationType.ERROR,
+                                                  new NotificationListener.Adapter() {
+                                                      @Override
+                                                      protected void hyperlinkActivated(@NotNull Notification notification, @NotNull HyperlinkEvent e) {
+                                                          String url = e.getDescription();
+                                                          log.trace("{}",e.getDescription());
+                                                          if(StringUtils.isBlank(url)){
+                                                              ProjectSettingsPage configurable = new ProjectSettingsPage();
+                                                              // 打开设置面板
+                                                              ShowSettingsUtil.getInstance().editConfigurable(project, configurable);
+                                                          } else {
+                                                              BrowserUtil.browse(url);
+                                                          }
+                                                          if(notification.getBalloon() != null){
+                                                              notification.getBalloon().hide();
+                                                          }
                                                       }
                                                   }), project);
     }
