@@ -159,8 +159,7 @@ public class UploadBackgroundTask extends Task.Backgroundable {
             if (StringUtils.isNotBlank(notFoundImages.toString())) {
                 stringBuilder.append("NotFoundImages = ").append(notFoundImages);
             }
-            UploadNotification.notifyUploadFinshed(stringBuilder.toString());
-
+            // UploadNotification.notifyUploadFinshed(stringBuilder.toString());
         } catch (UploadException e) {
             UploadNotification.notifyUploadFailure(e, project);
         } finally {
