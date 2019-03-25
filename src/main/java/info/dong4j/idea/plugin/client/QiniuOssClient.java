@@ -39,6 +39,7 @@ import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.settings.QiniuOssState;
 import info.dong4j.idea.plugin.util.DES;
 import info.dong4j.idea.plugin.util.EnumsUtils;
+import info.dong4j.idea.plugin.util.ImageUtils;
 
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Contract;
@@ -265,7 +266,7 @@ public class QiniuOssClient implements OssClient {
      * @return the string
      */
     public String upload(UploadManager ossClient, InputStream inputStream, String fileName) {
-        fileName = processFileName(fileName);
+        fileName = ImageUtils.processFileName(fileName);
         try {
             ossClient.put(inputStream, fileName, token, null, null);
             // 拼接 url, 需要正确配置域名 (https://developer.qiniu.com/fusion/kb/1322/how-to-configure-cname-domain-name)

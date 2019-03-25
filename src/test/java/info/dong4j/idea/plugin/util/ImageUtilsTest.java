@@ -2,6 +2,7 @@ package info.dong4j.idea.plugin.util;
 
 import net.coobird.thumbnailator.Thumbnails;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
 import sun.awt.image.MultiResolutionCachedImage;
@@ -346,6 +347,27 @@ public class ImageUtilsTest {
 
             // ImageIO.write(compressedImage, "png", new File("/Users/dong4j/Develop/test.png"));
         }
+    }
+
+    @Test
+    public void test14() throws IOException {
+        File in = new File("/Users/dong4j/Downloads/2019-03-25 23.18.31.gif");
+        File out = new File("/Users/dong4j/Develop/test.gif");
+        FileUtils.copyFile(in, out);
+        BufferedImage  bufferedImage = ImageIO.read(out);
+        File out1 = new File("/Users/dong4j/Develop/test1.gif");
+        ImageIO.write(bufferedImage,"gif",out1);
+        // Image image = ImageIO.read(out);
+    }
+
+    @Test
+    public void test15() throws IOException {
+        File in = new File("/Users/dong4j/Downloads/xu.png");
+        BufferedImage image = ImageIO.read(in);
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        ImageIO.write(image, "png", os);
+        InputStream is = new ByteArrayInputStream(os.toByteArray());
+        com.intellij.xml.actions.xmlbeans.FileUtils.saveStreamContentAsFile("/Users/dong4j/Develop/test.png", is);
     }
 }
 

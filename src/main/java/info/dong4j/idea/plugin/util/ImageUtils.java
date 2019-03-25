@@ -31,9 +31,13 @@ import com.intellij.util.ui.UIUtil;
 import com.siyeh.ig.portability.mediatype.ImageMediaType;
 
 import info.dong4j.idea.plugin.enums.FileType;
+import info.dong4j.idea.plugin.enums.SuffixEnum;
+import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
+import info.dong4j.idea.plugin.settings.ImageManagerState;
 
 import net.coobird.thumbnailator.Thumbnails;
 
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -58,7 +62,9 @@ import java.awt.image.ImageProducer;
 import java.awt.image.RGBImageFilter;
 import java.io.*;
 import java.net.*;
+import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -75,6 +81,9 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public final class ImageUtils {
+    public static final String FROM_CLIBOARD = "clipboard";
+    /** 重命名文件的前缀 */
+    private static final String PREFIX = "MIK-";
 
     /**
      * Gets image from clipboard.
@@ -440,5 +449,36 @@ public final class ImageUtils {
             }
         }
         return null;
+    }
+
+    /**
+     * 统一处理 fileName
+     *
+     * @param fileName the file name
+     * @return the string
+     */
+    public static String processFileName(String fileName) {
+        ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
+        if (state.isRename()) {
+            if(FROM_CLIBOARD.equals(fileName)){
+                fileName = CharacterUtils.getRandomString(6) + ".png";
+            }
+            // 处理文件名有空格导致上传 gif 变为静态图的问题
+            fileName = fileName.replaceAll("\\s*", "");
+            int sufixIndex = state.getSuffixIndex();
+            Optional<SuffixEnum> sufix = EnumsUtils.getEnumObject(SuffixEnum.class, e -> e.getIndex() == sufixIndex);
+            SuffixEnum suffixEnum = sufix.orElse(SuffixEnum.FILE_NAME);
+            switch (suffixEnum) {
+                case FILE_NAME:
+                    return fileName;
+                case DATE_FILE_NAME:
+                    return DateFormatUtils.format(new Date(), "yyyy-MM-dd-") + fileName;
+                case RANDOM:
+                    return PREFIX + CharacterUtils.getRandomString(6) + ImageUtils.getFileExtension(fileName);
+                default:
+                    return fileName;
+            }
+        }
+        return fileName;
     }
 }

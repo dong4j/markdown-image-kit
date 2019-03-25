@@ -32,6 +32,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.editor.actionSystem.EditorTextInsertHandler;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.AbstractVcs;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -39,16 +40,18 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Producer;
 import com.intellij.util.containers.hash.HashMap;
 
+import info.dong4j.idea.plugin.exception.UploadException;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
-import info.dong4j.idea.plugin.util.CharacterUtils;
 import info.dong4j.idea.plugin.util.ImageUtils;
 import info.dong4j.idea.plugin.util.MarkdownUtils;
+import info.dong4j.idea.plugin.util.UploadNotification;
 import info.dong4j.idea.plugin.watch.ActionManager;
 import info.dong4j.idea.plugin.watch.FinalActionHandler;
 import info.dong4j.idea.plugin.watch.SaveAndInsertHandler;
 import info.dong4j.idea.plugin.watch.UploadAndInsertHandler;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -56,6 +59,7 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.Image;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Collections;
 import java.util.Iterator;
@@ -115,7 +119,7 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                     Iterator<Map.Entry<DataFlavor, Object>> iterator = clipboardData.entrySet().iterator();
                     Map.Entry<DataFlavor, Object> entry = iterator.next();
 
-                    Map<String, Image> imageMap = resolveClipboardData(state, entry);
+                    Map<String, File> imageMap = resolveClipboardData(state, entry, editor.getProject());
 
                     if (imageMap.size() == 0) {
                         defaultAction(editor, caret, dataContext);
@@ -135,8 +139,8 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
         defaultAction(editor, caret, dataContext);
     }
 
-    private Map<String, Image> resolveClipboardData(ImageManagerState state, @NotNull Map.Entry<DataFlavor, Object> entry) {
-        Map<String, Image> imageMap = new HashMap<>(10);
+    private Map<String, File> resolveClipboardData(ImageManagerState state, @NotNull Map.Entry<DataFlavor, Object> entry, Project project) {
+        Map<String, File> imageMap = new HashMap<>(10);
         if (entry.getKey().equals(DataFlavor.javaFileListFlavor)) {
             // 肯定是 List<File> 类型
             @SuppressWarnings("unchecked") List<File> fileList = (List<File>) entry.getValue();
@@ -146,33 +150,48 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                 if (StringUtils.isBlank(ImageUtils.getImageType(file.getName()))) {
                     return imageMap;
                 }
+                // 检查是否重命名文件
+                String fileName = ImageUtils.processFileName(file.getName());
                 // 先检查是否为图片类型
                 Image image;
+                File compressedFile = new File(System.getProperty("java.io.tmpdir") + fileName);
                 try {
-                    File compressedFile = new File(System.getProperty("java.io.tmpdir") + file.getName());
                     // todo-dong4j : (2019年03月20日 04:29) [判断是否启动图片压缩]
                     if (file.isFile() && file.getName().endsWith("jpg")) {
                         ImageUtils.compress(file, compressedFile, state.getCompressBeforeUploadOfPercent() - 20);
                     } else {
-                        compressedFile = file;
+                        FileUtils.copyFile(file, compressedFile);
                     }
-                    // 读到缓冲区
+                    // 读到缓冲区, 如果抛异常, 则不是图片
                     image = ImageIO.read(compressedFile);
                 } catch (IOException ignored) {
                     // 如果抛异常, 则不是图片, 直接返回, 避免 OOM
                     imageMap.clear();
                     return imageMap;
                 }
-                String fileName = file.getName();
                 // 只要有一个文件不是 image, 就执行默认操作然后退出
                 if (image != null) {
-                    imageMap.put(fileName, image);
+                    imageMap.put(fileName, compressedFile);
                 }
             }
         } else {
-            // image 类型统一重命名, 因为获取不到文件名
-            String fileName = CharacterUtils.getRandomString(6) + ".png";
-            imageMap.put(fileName, (Image) entry.getValue());
+            // image 类型统一重命名, 后缀为 png, 因为获取不到文件名
+            String fileName = ImageUtils.processFileName(ImageUtils.FROM_CLIBOARD);
+            // 如果是 image 类型, 则需要转换成 File
+            Image image = (Image) entry.getValue();
+            BufferedImage bufferedImage = ImageUtils.toBufferedImage(image);
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            assert bufferedImage != null;
+            File temp = new File(System.getProperty("java.io.tmpdir") + fileName);
+            try {
+                ImageIO.write(bufferedImage, "png", os);
+                InputStream is = new ByteArrayInputStream(os.toByteArray());
+                // 写入到临时文件
+                FileUtils.copyToFile(is, temp);
+            } catch (IOException e) {
+                UploadNotification.notifyUploadFailure(new UploadException("文件转换失败"), project);
+            }
+            imageMap.put(fileName, temp);
         }
         return imageMap;
     }

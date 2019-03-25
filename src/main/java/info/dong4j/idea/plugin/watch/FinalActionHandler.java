@@ -44,7 +44,7 @@ public class FinalActionHandler extends BaseActionHandler {
 
     @Override
     public boolean execute() {
-        log.info("上传操作");
+        log.trace("上传操作");
         return false;
     }
 }

@@ -41,19 +41,14 @@ import info.dong4j.idea.plugin.strategy.UploadFromPaste;
 import info.dong4j.idea.plugin.strategy.Uploader;
 import info.dong4j.idea.plugin.util.ClientUtils;
 import info.dong4j.idea.plugin.util.EnumsUtils;
-import info.dong4j.idea.plugin.util.ImageUtils;
 import info.dong4j.idea.plugin.util.UploadUtils;
 
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Map;
 import java.util.Optional;
-
-import javax.imageio.ImageIO;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -67,7 +62,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class UploadAndInsertHandler extends PasteActionHandler {
-    public UploadAndInsertHandler(@NotNull Editor editor, Map<String, Image> imageMap) {
+    public UploadAndInsertHandler(@NotNull Editor editor, Map<String, File> imageMap) {
         super(editor, imageMap);
     }
 
@@ -92,36 +87,30 @@ public class UploadAndInsertHandler extends PasteActionHandler {
 
                 int totalProcessed = 0;
                 int totalCount = imageMap.size();
-                for (Map.Entry<String, Image> imageEntry : imageMap.entrySet()) {
+                for (Map.Entry<String, File> imageEntry : imageMap.entrySet()) {
                     String imageName = imageEntry.getKey();
-                    BufferedImage bufferedImage = ImageUtils.toBufferedImage(imageEntry.getValue());
-                    // todo-dong4j : (2019年03月22日 21:03) []
-                    if (bufferedImage != null) {
-                        bufferedImage = ImageUtils.toBufferedImage(ImageUtils.makeRoundedCorner(bufferedImage, 20));
-                        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-                            assert bufferedImage != null;
-                            ImageIO.write(bufferedImage, "png", os);
-                            InputStream inputStream = new ByteArrayInputStream(os.toByteArray());
-                            // 上传到默认图床
-                            int index = ImageManagerPersistenComponent.getInstance().getState().getCloudType();
-                            Optional<CloudEnum> cloudType = EnumsUtils.getEnumObject(CloudEnum.class, e -> e.getIndex() == index);
-                            Runnable r = () -> {
-                                OssClient client = ClientUtils.getInstance(cloudType.orElse(CloudEnum.WEIBO_CLOUD));
-                                indicator.setText2("Uploading " + imageName);
-                                String imageUrl = Uploader.getInstance().setUploadWay(new UploadFromPaste(client, inputStream, imageName)).upload();
+                    try {
+                        InputStream inputStream = new FileInputStream(imageEntry.getValue());
+                        // 上传到默认图床
+                        int index = ImageManagerPersistenComponent.getInstance().getState().getCloudType();
+                        Optional<CloudEnum> cloudType = EnumsUtils.getEnumObject(CloudEnum.class, e -> e.getIndex() == index);
+                        Runnable r = () -> {
+                            OssClient client = ClientUtils.getInstance(cloudType.orElse(CloudEnum.WEIBO_CLOUD));
+                            indicator.setText2("Uploading " + imageName);
+                            String imageUrl = Uploader.getInstance().setUploadWay(new UploadFromPaste(client, inputStream, imageName)).upload();
 
-                                if (StringUtils.isNotBlank(imageUrl)) {
-                                    indicator.setText2("Replace " + imageUrl);
-                                    String newLineText = UploadUtils.getFinalImageMark("", imageUrl, imageUrl, ImageContents.LINE_BREAK);
-                                    EditorModificationUtil.insertStringAtCaret(editor, newLineText);
-                                }
-                            };
-                            WriteCommandAction.runWriteCommandAction(editor.getProject(), r);
-                        } catch (IOException e) {
-                            // todo-dong4j : (2019年03月17日 03:20) [添加通知]
-                            log.trace("", e);
-                        }
+                            if (StringUtils.isNotBlank(imageUrl)) {
+                                indicator.setText2("Replace " + imageUrl);
+                                String newLineText = UploadUtils.getFinalImageMark("", imageUrl, imageUrl, ImageContents.LINE_BREAK);
+                                EditorModificationUtil.insertStringAtCaret(editor, newLineText);
+                            }
+                        };
+                        WriteCommandAction.runWriteCommandAction(editor.getProject(), r);
+                    } catch (IOException e) {
+                        // todo-dong4j : (2019年03月17日 03:20) [添加通知]
+                        log.trace("", e);
                     }
+
                     indicator.setFraction(++totalProcessed * 1.0 / totalCount);
                 }
                 indicator.setFraction(1.0);

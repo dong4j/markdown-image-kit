@@ -259,7 +259,7 @@ public class AliyunOssClient implements OssClient {
                          @NotNull InputStream instream,
                          String filedir,
                          @NotNull String fileName) {
-        fileName = processFileName(fileName);
+        fileName = ImageUtils.processFileName(fileName);
         try {
             // 创建上传 Object 的 Metadata
             ObjectMetadata objectMetadata = new ObjectMetadata();

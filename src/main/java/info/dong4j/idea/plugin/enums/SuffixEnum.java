@@ -36,9 +36,9 @@ import org.jetbrains.annotations.Contract;
  * @email sjdong3@iflytek.com
  */
 public enum SuffixEnum {
-    FILE_NAME(1, "文件名"),
-    DATE_FILE_NAME(2, "日期-文件名"),
-    RANDOM(3, "随机");
+    FILE_NAME(0, "文件名"),
+    DATE_FILE_NAME(1, "日期-文件名"),
+    RANDOM(2, "随机");
 
     public int index;
     public String name;

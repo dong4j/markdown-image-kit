@@ -26,22 +26,13 @@
 package info.dong4j.idea.plugin.client;
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
-import info.dong4j.idea.plugin.enums.SuffixEnum;
-import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
-import info.dong4j.idea.plugin.settings.ImageManagerState;
-import info.dong4j.idea.plugin.util.CharacterUtils;
-import info.dong4j.idea.plugin.util.EnumsUtils;
-import info.dong4j.idea.plugin.util.ImageUtils;
 
-import org.apache.commons.lang3.time.DateFormatUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.Component;
 import java.io.*;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JPanel;
@@ -58,8 +49,7 @@ import javax.swing.JTextField;
 public interface OssClient {
     /** 用于反射调用时的缓存 <className, client>, 容量为实现类个数 */
     Map<CloudEnum, OssClient> INSTANCES = new ConcurrentHashMap<>(12);
-    /** 重命名文件的前缀 */
-    String PREFIX = "MIK-";
+
 
     /**
      * The constant getName.
@@ -101,32 +91,6 @@ public interface OssClient {
      * @return the string
      */
     String upload(InputStream inputStream, String fileName, JPanel jPanel);
-
-    /**
-     * 统一处理 fileName
-     *
-     * @param fileName the file name
-     * @return the string
-     */
-    default String processFileName(String fileName) {
-        ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
-        if (state.isRename()) {
-            int sufixIndex = state.getSuffixIndex();
-            Optional<SuffixEnum> sufix = EnumsUtils.getEnumObject(SuffixEnum.class, e -> e.getIndex() == sufixIndex);
-            SuffixEnum suffixEnum = sufix.orElse(SuffixEnum.FILE_NAME);
-            switch (suffixEnum) {
-                case FILE_NAME:
-                    return fileName;
-                case DATE_FILE_NAME:
-                    return DateFormatUtils.format(new Date(), "yyyy-MM-dd-") + fileName;
-                case RANDOM:
-                    return PREFIX + CharacterUtils.getRandomString(6) + ImageUtils.getFileExtension(fileName);
-                default:
-                    return fileName;
-            }
-        }
-        return fileName;
-    }
 
     /**
      * 需要设置 JTextField 的 name 属性

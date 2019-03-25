@@ -29,7 +29,7 @@ import com.intellij.openapi.editor.Editor;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.Image;
+import java.io.*;
 import java.util.Map;
 
 /**
@@ -42,9 +42,9 @@ import java.util.Map;
  */
 public abstract class PasteActionHandler extends BaseActionHandler {
     protected Editor editor;
-    Map<String, Image> imageMap;
+    Map<String, File> imageMap;
 
-    PasteActionHandler(@NotNull Editor editor, Map<String, Image> imageMap) {
+    PasteActionHandler(@NotNull Editor editor, Map<String, File> imageMap) {
         this.editor = editor;
         this.imageMap = imageMap;
     }
