@@ -117,6 +117,11 @@ public class WeiboOssClient implements OssClient {
         return upload(ossClient, file);
     }
 
+    @Override
+    public String upload(File file, String fileName) {
+        return null;
+    }
+
     /**
      * 被 paste 操作调用 (反射).
      *
