@@ -26,6 +26,7 @@
 package info.dong4j.idea.plugin.util;
 
 import com.intellij.ide.BrowserUtil;
+import com.intellij.ide.actions.ShowFilePathAction;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationDisplayType;
 import com.intellij.notification.NotificationGroup;
@@ -34,7 +35,9 @@ import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.popup.Balloon;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.exception.UploadException;
@@ -42,6 +45,11 @@ import info.dong4j.idea.plugin.settings.ProjectSettingsPage;
 
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.*;
+import java.net.*;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.event.HyperlinkEvent;
 
@@ -79,6 +87,16 @@ public class UploadNotification extends Notification {
     /**
      * 上传失败通知, 可打开设置面板
      * 文件链接, 帮助链接, 设置链接
+     *
+     * @param project the project
+     */
+    public static void notifyUploadFailure(Project project) {
+        notifyUploadFailure(new UploadException(""), project);
+    }
+
+    /**
+     * 上传失败通知, 可打开设置面板
+     * 文件链接, 帮助链接, 设置链接
      * todo-dong4j : (2019年03月23日 15:14) [{@link com.intellij.openapi.fileTypes.impl.ApproveRemovedMappingsActivity}]
      *
      * @param e       the e
@@ -87,7 +105,7 @@ public class UploadNotification extends Notification {
     public static void notifyUploadFailure(UploadException e, Project project) {
         String details = e.getMessage();
         String content = "<p><a href=\"\">Configure oss...</a></p>";
-        if (!StringUtil.isEmpty(details)) {
+        if (StringUtil.isNotEmpty(details)) {
             content = "<p>" + details + "</p>" + content;
         }
         Notifications.Bus.notify(new Notification(UPLOAD_NOTIFICATION_GROUP, "Upload Failured",
@@ -101,6 +119,50 @@ public class UploadNotification extends Notification {
                                                           notification.hideBalloon();
                                                       }
                                                   }), project);
+    }
+
+    public static void notifyUploadFailure(Map<VirtualFile, List<String>> fileNotFoundListMap,
+                                           Map<VirtualFile, List<String>> uploadFailuredListMap,
+                                           Project project) {
+        StringBuilder content = new StringBuilder();
+
+        StringBuilder fileNotFoundContent = new StringBuilder();
+        StringBuilder uploadFailuredContent = new StringBuilder();
+
+        if (fileNotFoundListMap.size() > 0) {
+            buildContent(fileNotFoundListMap, fileNotFoundContent, "Image Not Found:");
+        }
+
+        if (uploadFailuredListMap.size() > 0) {
+            buildContent(uploadFailuredListMap, uploadFailuredContent, "Image Upload Failured:");
+        }
+        content.append(fileNotFoundContent).append(uploadFailuredContent);
+        Notifications.Bus.notify(new Notification(UPLOAD_NOTIFICATION_GROUP, "Upload Warning",
+                                                  content.toString(), NotificationType.WARNING, new NotificationListener.Adapter() {
+            @Override
+            protected void hyperlinkActivated(@NotNull Notification notification, @NotNull HyperlinkEvent e) {
+                URL url = e.getURL();
+                if (url != null) {
+                    try {
+                        ShowFilePathAction.openFile(new File(url.toURI()));
+                    } catch (URISyntaxException ex) {
+                        log.warn("invalid URL: " + url, ex);
+                    }
+                }
+                hideBalloon(notification.getBalloon());
+            }
+        }), project);
+    }
+
+    private static void buildContent(Map<VirtualFile, List<String>> listMap, StringBuilder content, String s) {
+        for (Map.Entry<VirtualFile, List<String>> entry : listMap.entrySet()) {
+            String fileName = entry.getKey().getName();
+            List<String> images = entry.getValue();
+            content.append("<p>").append(s).append(" <a href='").append(entry.getKey().getUrl()).append("'>Open ").append(fileName).append("</a></p>");
+            for (String image : images) {
+                content.append("<p><li>").append(image).append("</li></p>");
+            }
+        }
     }
 
     /**
@@ -119,10 +181,11 @@ public class UploadNotification extends Notification {
     /**
      * 上传时检查到配置错误时通知
      *
-     * @param project the project
+     * @param project    the project
+     * @param actionName the action name
      */
     public static void notifyConfigurableError(Project project, String actionName) {
-        String content = "<p><a href=''>Configure " + actionName + "</a></p>";
+        String content = "<p><a href=''>Configure " + actionName + " OSS</a></p>";
         content = "<p>You may need to reset your account. Please be sure to <b>test</b> it after the setup is complete.</p>" + content;
         content = content + "<p>Or you may need a little <a href='" + HELP_URL + "'>Help</a></p>";
         Notifications.Bus.notify(new Notification(UPLOAD_NOTIFICATION_GROUP,
@@ -133,18 +196,22 @@ public class UploadNotification extends Notification {
                                                       @Override
                                                       protected void hyperlinkActivated(@NotNull Notification notification, @NotNull HyperlinkEvent e) {
                                                           String url = e.getDescription();
-                                                          log.trace("{}",e.getDescription());
-                                                          if(StringUtils.isBlank(url)){
+                                                          log.trace("{}", e.getDescription());
+                                                          if (StringUtils.isBlank(url)) {
                                                               ProjectSettingsPage configurable = new ProjectSettingsPage();
                                                               // 打开设置面板
                                                               ShowSettingsUtil.getInstance().editConfigurable(project, configurable);
                                                           } else {
                                                               BrowserUtil.browse(url);
                                                           }
-                                                          if(notification.getBalloon() != null){
-                                                              notification.getBalloon().hide();
-                                                          }
+                                                          hideBalloon(notification.getBalloon());
                                                       }
                                                   }), project);
+    }
+
+    private static void hideBalloon(Balloon balloon) {
+        if (balloon != null) {
+            balloon.hide();
+        }
     }
 }

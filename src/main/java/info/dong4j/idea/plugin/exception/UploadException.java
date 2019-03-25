@@ -46,6 +46,10 @@ public class UploadException extends RuntimeException {
         super();
     }
 
+    public UploadException(String message) {
+        super(message);
+    }
+
     /**
      * Instantiates a new Img exception.
      */

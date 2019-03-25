@@ -29,6 +29,7 @@ import com.google.common.collect.Iterables;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -50,7 +51,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -98,12 +101,21 @@ public class UploadBackgroundTask extends Task.Backgroundable {
     private void uploadTask(ProgressIndicator indicator) {
         indicator.setFraction(0.0);
         int totalProcessed = 0;
-        int totalFailured = 0;
-        StringBuilder notFoundImages = new StringBuilder();
+        // 当前处理的 markdown 文件和所包含的 image 关系
+        Map<VirtualFile, List<String>> fileNotFoundListMap = new HashMap<>(10);
+        // 当前处理的 markdown 文件和 上传失败的 image 关系
+        Map<VirtualFile, List<String>> uploadFailuredListMap = new HashMap<>(10);
         try {
+            Document document;
+            VirtualFile virtualFileFromDocument;
             for (Map.Entry<Document, List<MarkdownImage>> entry : waitingForUploadImages.entrySet()) {
                 int totalCount = entry.getValue().size();
-                Document document = entry.getKey();
+                document = entry.getKey();
+                virtualFileFromDocument = FileDocumentManager.getInstance().getFile(document);
+                // 填充未找到的图片文件名
+                List<String> notFoundImages = new ArrayList<>();
+                // 上传失败的图片文件名
+                List<String> uploadFailured = new ArrayList<>();
                 for (MarkdownImage markdownImage : entry.getValue()) {
                     indicator.setText2("process file: " + markdownImage.getFileName() + " image path: " + markdownImage.getPath());
                     if (markdownImage.getLocation().equals(ImageLocationEnum.LOCAL)) {
@@ -119,7 +131,7 @@ public class UploadBackgroundTask extends Task.Backgroundable {
 
                             // 没有对应的图片, 则忽略
                             if (findedFiles.get().size() <= 0) {
-                                notFoundImages.append("\t").append(imageName).append("\n");
+                                notFoundImages.add(imageName);
                                 continue;
                             }
 
@@ -133,7 +145,7 @@ public class UploadBackgroundTask extends Task.Backgroundable {
                                 String uploadedUrl = ossClient.upload(file);
                                 if (StringUtils.isBlank(uploadedUrl)) {
                                     // todo-dong4j : (2019年03月18日 01:15) [提供失败的文件链接]
-                                    totalFailured++;
+                                    uploadFailured.add(file.getPath());
                                     indicator.setText2("image path: " + markdownImage.getPath() + " upload failed");
                                 }
                                 markdownImage.setUploadedUrl(uploadedUrl);
@@ -144,24 +156,22 @@ public class UploadBackgroundTask extends Task.Backgroundable {
                     PsiDocumentUtils.commitAndSaveDocument(project, document, markdownImage);
                     indicator.setFraction(++totalProcessed * 1.0 / totalCount);
                 }
+                // image 文件未找到的
+                if (notFoundImages.size() > 0) {
+                    fileNotFoundListMap.put(virtualFileFromDocument, notFoundImages);
+                }
+                // 上传失败的
+                if(uploadFailured.size() > 0){
+                    uploadFailuredListMap.put(virtualFileFromDocument, uploadFailured);
+                }
             }
 
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("Processed File = ")
-                .append(waitingForUploadImages.size())
-                .append("\n")
-                .append("Image Mark = ")
-                .append(totalProcessed)
-                .append("\n");
-            if (totalFailured > 0) {
-                stringBuilder.append("Failured = ").append(totalFailured).append("\n");
+            if(fileNotFoundListMap.size() > 0 || uploadFailuredListMap.size() > 0){
+                UploadNotification.notifyUploadFailure(fileNotFoundListMap, uploadFailuredListMap, project);
             }
-            if (StringUtils.isNotBlank(notFoundImages.toString())) {
-                stringBuilder.append("NotFoundImages = ").append(notFoundImages);
-            }
-            // UploadNotification.notifyUploadFinshed(stringBuilder.toString());
+
         } catch (UploadException e) {
-            UploadNotification.notifyUploadFailure(e, project);
+            UploadNotification.notifyConfigurableError(project, ossClient.getName());
         } finally {
             // 设置进度
             indicator.setFraction(1.0);
