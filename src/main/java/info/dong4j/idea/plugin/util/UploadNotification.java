@@ -110,4 +110,25 @@ public class UploadNotification extends Notification {
         notification.setContent(content);
         Notifications.Bus.notify(notification);
     }
+
+    /**
+     * 上传时检查到配置错误时通知
+     *
+     * @param project the project
+     */
+    public static void notifyConfigurableError(Project project, String actionName){
+        String content = "<p><a href=''>Configure " + actionName + "</a></p>";
+        content = "<p>You may need to reset your account. Please be sure to <b>test</b> it after the setup is complete.</p>" + content;
+        Notifications.Bus.notify(new Notification(UPLOAD_NOTIFICATION_GROUP, "Configurable Error",
+                                                  content, NotificationType.ERROR,
+                                                  (notification, event) -> {
+                                                      ProjectSettingsPage configurable = new ProjectSettingsPage();
+                                                      // 打开设置面板
+                                                      ShowSettingsUtil.getInstance().editConfigurable(project, configurable);
+                                                      // 点击超链接后关闭通知
+                                                      if (event.getEventType().equals(HyperlinkEvent.EventType.ENTERED)) {
+                                                          notification.hideBalloon();
+                                                      }
+                                                  }), project);
+    }
 }

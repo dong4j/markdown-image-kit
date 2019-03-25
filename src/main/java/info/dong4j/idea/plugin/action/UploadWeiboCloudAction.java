@@ -27,11 +27,13 @@ package info.dong4j.idea.plugin.action;
 
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.client.WeiboOssClient;
+import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.icon.KitIcons;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.OssState;
 
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
@@ -57,6 +59,13 @@ public final class UploadWeiboCloudAction extends AbstractUploadCloudAction {
     @Override
     boolean isAvailable() {
         return OssState.getStatus(ImageManagerPersistenComponent.getInstance().getState().getWeiboOssState());
+    }
+
+    @Nullable
+    @Contract(pure = true)
+    @Override
+    String getName() {
+        return CloudEnum.WEIBO_CLOUD.title;
     }
 
     @Contract(pure = true)

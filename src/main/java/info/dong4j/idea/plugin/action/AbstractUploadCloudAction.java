@@ -45,6 +45,7 @@ import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.strategy.UploadFromAction;
 import info.dong4j.idea.plugin.strategy.Uploader;
 import info.dong4j.idea.plugin.util.MarkdownUtils;
+import info.dong4j.idea.plugin.util.UploadNotification;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -93,7 +94,7 @@ public abstract class AbstractUploadCloudAction extends AnAction {
         final Editor editor = PlatformDataKeys.EDITOR.getData(dataContext);
         if (null != editor) {
             final PsiFile file = PsiUtilBase.getPsiFileInEditor(editor, project);
-            presentation.setEnabled(file != null && MarkdownUtils.isValidForFile(file) && isAvailable());
+            presentation.setEnabled(file != null && MarkdownUtils.isValidForFile(file));
             return;
         }
 
@@ -117,7 +118,7 @@ public abstract class AbstractUploadCloudAction extends AnAction {
                 }
             }
         }
-        presentation.setEnabled(isValid && isAvailable());
+        presentation.setEnabled(isValid);
     }
 
     /**
@@ -135,6 +136,13 @@ public abstract class AbstractUploadCloudAction extends AnAction {
     abstract boolean isAvailable();
 
     /**
+     * 获取 action name
+     *
+     * @return the name
+     */
+    abstract String getName();
+
+    /**
      * 所有子类都走这个逻辑, 做一些前置判断和解析 markdown image mark
      *
      * @param event the an action event
@@ -145,6 +153,13 @@ public abstract class AbstractUploadCloudAction extends AnAction {
 
         final Project project = event.getProject();
         if (project != null) {
+
+            // 如果账号未设置或者设置后未测试, 则给出提示
+            if(!isAvailable()){
+                log.trace("No account set or setting error. action = {}", getName());
+                UploadNotification.notifyConfigurableError(project, getName());
+                return;
+            }
 
             log.trace("project's base path = {}", project.getBasePath());
             // 如果选中编辑器
