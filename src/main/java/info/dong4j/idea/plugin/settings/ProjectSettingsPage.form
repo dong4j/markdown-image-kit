@@ -1401,6 +1401,7 @@
             </constraints>
             <properties>
               <enabled value="false"/>
+              <text value="./imgs"/>
               <toolTipText value="指定图片存储的目录"/>
             </properties>
           </component>
