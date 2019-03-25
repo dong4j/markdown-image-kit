@@ -25,6 +25,8 @@
 
 package info.dong4j.idea.plugin.util;
 
+import com.google.gson.Gson;
+
 import com.intellij.ide.BrowserUtil;
 import com.intellij.ide.actions.ShowFilePathAction;
 import com.intellij.notification.Notification;
@@ -40,9 +42,13 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 
 import info.dong4j.idea.plugin.MikBundle;
+import info.dong4j.idea.plugin.entity.HelpResult;
+import info.dong4j.idea.plugin.enums.HelpType;
 import info.dong4j.idea.plugin.exception.UploadException;
 import info.dong4j.idea.plugin.settings.ProjectSettingsPage;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -65,7 +71,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class UploadNotification extends Notification {
-    private static final String HELP_URL = MikBundle.message("mik.help");
+    private static final String HELP_URL = helpUrl(HelpType.NOTTIFY.where);
     private static final String UPLOAD_NOTIFICATION_GROUP = "MIK Group";
     private static final String UPLOAD_FINSHED = "Upload Finshed";
     /** 注册到通知 */
@@ -121,6 +127,13 @@ public class UploadNotification extends Notification {
                                                   }), project);
     }
 
+    /**
+     * Notify upload failure.
+     *
+     * @param fileNotFoundListMap   the file not found list map
+     * @param uploadFailuredListMap the upload failured list map
+     * @param project               the project
+     */
     public static void notifyUploadFailure(Map<VirtualFile, List<String>> fileNotFoundListMap,
                                            Map<VirtualFile, List<String>> uploadFailuredListMap,
                                            Project project) {
@@ -213,5 +226,29 @@ public class UploadNotification extends Notification {
         if (balloon != null) {
             balloon.hide();
         }
+    }
+
+    /**
+     * 获取帮助页
+     *
+     * @return the string
+     */
+    public static String helpUrl(String where) {
+        HttpClient client = new HttpClient();
+        PostMethod method = new PostMethod(MikBundle.message("mik.help.rest.url") + where);
+        client.getParams().setContentCharset("UTF-8");
+        HelpResult helpResult = null;
+        try {
+            client.executeMethod(method);
+            String response = method.getResponseBodyAsString(1000);
+            helpResult = new Gson().fromJson(response, HelpResult.class);
+
+        } catch (IOException e) {
+            log.trace("", e);
+        } finally {
+            method.releaseConnection();
+        }
+        assert helpResult != null;
+        return helpResult.getUrl();
     }
 }

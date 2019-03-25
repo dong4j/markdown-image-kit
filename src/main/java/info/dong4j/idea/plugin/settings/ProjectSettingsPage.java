@@ -38,6 +38,7 @@ import com.intellij.ui.JBColor;
 import info.dong4j.idea.plugin.client.AliyunOssClient;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.enums.CloudEnum;
+import info.dong4j.idea.plugin.enums.HelpType;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.enums.ZoneEnum;
 import info.dong4j.idea.plugin.strategy.UploadFromTest;
@@ -45,6 +46,7 @@ import info.dong4j.idea.plugin.strategy.Uploader;
 import info.dong4j.idea.plugin.util.ClientUtils;
 import info.dong4j.idea.plugin.util.DES;
 import info.dong4j.idea.plugin.util.EnumsUtils;
+import info.dong4j.idea.plugin.util.UploadNotification;
 
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Nls;
@@ -447,7 +449,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         // help button 监听
         helpButton.addActionListener(e -> {
             // 打开浏览器到帮助页面
-            String url = "http://dong4j.info";
+            String url = UploadNotification.helpUrl(HelpType.SETTING.where);
             BrowserUtil.browse(url);
         });
     }
