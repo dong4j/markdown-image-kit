@@ -69,6 +69,27 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class AbstractUploadCloudAction extends AnAction {
     /**
+     * Gets icon.
+     *
+     * @return the icon
+     */
+    abstract protected Icon getIcon();
+
+    /**
+     * action 是否为可用状态
+     *
+     * @return the boolean
+     */
+    abstract boolean isAvailable();
+
+    /**
+     * 获取 action name
+     *
+     * @return the name
+     */
+    abstract String getName();
+
+    /**
      * 检查 "upload to XXX OSS" 按钮是否可用
      * 1. 相关 test 通过后
      * a. 如果全是目录则可用
@@ -94,6 +115,7 @@ public abstract class AbstractUploadCloudAction extends AnAction {
         final Editor editor = PlatformDataKeys.EDITOR.getData(dataContext);
         if (null != editor) {
             final PsiFile file = PsiUtilBase.getPsiFileInEditor(editor, project);
+            // 是 markdown 文件时可用
             presentation.setEnabled(file != null && MarkdownUtils.isValidForFile(file));
             return;
         }
@@ -120,27 +142,6 @@ public abstract class AbstractUploadCloudAction extends AnAction {
         }
         presentation.setEnabled(isValid);
     }
-
-    /**
-     * Gets icon.
-     *
-     * @return the icon
-     */
-    abstract protected Icon getIcon();
-
-    /**
-     * action 是否为可用状态
-     *
-     * @return the boolean
-     */
-    abstract boolean isAvailable();
-
-    /**
-     * 获取 action name
-     *
-     * @return the name
-     */
-    abstract String getName();
 
     /**
      * 所有子类都走这个逻辑, 做一些前置判断和解析 markdown image mark

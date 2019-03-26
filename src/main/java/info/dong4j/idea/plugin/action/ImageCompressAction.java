@@ -26,7 +26,6 @@
 package info.dong4j.idea.plugin.action;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 
@@ -43,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019-03-15 20:43
  */
 @Slf4j
-public final class ImageCompressAction extends AnAction {
+public final class ImageCompressAction extends AbstractImageAction {
 
     @Override
     public void update(@NotNull AnActionEvent event) {

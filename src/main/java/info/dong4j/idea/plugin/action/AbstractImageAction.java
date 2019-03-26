@@ -23,30 +23,32 @@
  *
  */
 
-package info.dong4j.idea.plugin.chain;
+package info.dong4j.idea.plugin.action;
 
-import info.dong4j.idea.plugin.entity.EventData;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 
-import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: </p>
+ * <p>Description: 图片处理</p>
  *
  * @author dong4j
  * @email sjdong3@iflytek.com
- * @since 2019-03-22 19:50
+ * @since 2019-03-26 15:32
  */
-@Slf4j
-public class FinalActionHandler extends BaseActionHandler {
+public abstract class AbstractImageAction extends AnAction {
     @Override
-    public boolean isEnabled(EventData data) {
-        return true;
+    public void update(@NotNull AnActionEvent event) {
+        final Presentation presentation = event.getPresentation();
+        presentation.setVisible(true);
+
     }
 
     @Override
-    public boolean execute(EventData data) {
-        log.trace("上传操作");
-        return false;
+    public void actionPerformed(@NotNull AnActionEvent event) {
+
     }
 }

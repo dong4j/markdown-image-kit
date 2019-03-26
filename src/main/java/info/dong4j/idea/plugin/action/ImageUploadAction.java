@@ -23,26 +23,15 @@
  *
  */
 
-package info.dong4j.idea.plugin.chain;
-
-import info.dong4j.idea.plugin.entity.EventData;
+package info.dong4j.idea.plugin.action;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: </p>
+ * <p>Description: 图片右键直接上传</p>
  *
  * @author dong4j
  * @email sjdong3@iflytek.com
- * @since 2019-03-22 18:43
+ * @since 2019-03-26 15:36
  */
-public class ImageBackupHandler extends MenuActionHandler {
-    @Override
-    public boolean isEnabled(EventData data) {
-        return false;
-    }
-
-    @Override
-    public boolean execute(EventData data) {
-        return false;
-    }
+public final class ImageUploadAction extends AbstractImageAction{
 }
