@@ -31,6 +31,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.PasteActionHandler;
@@ -117,10 +118,6 @@ public class ImageStorageHandler extends PasteActionHandler {
                                 log.trace("", e);
                                 continue;
                             }
-                            // 保存到文件后同步刷新缓存, 让图片显示到文件树中
-                            // VirtualFileManager.getInstance().syncRefresh();
-                            // todo-dong4j : (2019年03月20日 17:42) [使用 VirtualFile.createChildData() 创建虚拟文件]
-                            //  以解决还未刷新前使用右键上传图片时找不到文件的问题.
 
                             // 保存后 imageMap 对应的 File 修改为保存后的图片
                             imageMap.put(fileName, finalFile);
@@ -153,6 +150,10 @@ public class ImageStorageHandler extends PasteActionHandler {
             @Override
             public void onFinished() {
                 log.trace("finished callback");
+                // 保存到文件后同步刷新缓存, 让图片显示到文件树中
+                VirtualFileManager.getInstance().syncRefresh();
+                // todo-dong4j : (2019年03月20日 17:42) [使用 VirtualFile.createChildData() 创建虚拟文件]
+                //  以解决还未刷新前使用右键上传图片时找不到文件的问题.
                 data.setSaveImageFinished(true);
             }
         };
