@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2019 dong4j
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,32 +23,22 @@
  *
  */
 
-package info.dong4j.idea.plugin.util;
-
-import com.google.gson.Gson;
+package info.dong4j.idea.plugin.notify;
 
 import com.intellij.ide.BrowserUtil;
 import com.intellij.ide.actions.ShowFilePathAction;
 import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationDisplayType;
-import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationListener;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.popup.Balloon;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 
-import info.dong4j.idea.plugin.MikBundle;
-import info.dong4j.idea.plugin.entity.HelpResult;
-import info.dong4j.idea.plugin.enums.HelpType;
 import info.dong4j.idea.plugin.exception.UploadException;
 import info.dong4j.idea.plugin.settings.ProjectSettingsPage;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -70,12 +60,8 @@ import lombok.extern.slf4j.Slf4j;
  * @email sjdong3 @iflytek.com
  */
 @Slf4j
-public class UploadNotification extends Notification {
-    private static final String HELP_URL = helpUrl(HelpType.NOTTIFY.where);
-    private static final String UPLOAD_NOTIFICATION_GROUP = "MIK Group";
+public class UploadNotification extends MikNotification {
     private static final String UPLOAD_FINSHED = "Upload Finshed";
-    /** 注册到通知 */
-    private static final NotificationGroup NOTIFICATION_GROUP = new NotificationGroup(UPLOAD_NOTIFICATION_GROUP, NotificationDisplayType.TOOL_WINDOW, true);
 
     /**
      * Instantiates a new Upload notification.
@@ -87,7 +73,7 @@ public class UploadNotification extends Notification {
     public UploadNotification(@NotNull String title,
                               @NotNull String content,
                               @NotNull NotificationType type) {
-        super(UPLOAD_NOTIFICATION_GROUP, title, content, type);
+        super(title, content, type);
     }
 
     /**
@@ -114,7 +100,7 @@ public class UploadNotification extends Notification {
         if (StringUtil.isNotEmpty(details)) {
             content = "<p>" + details + "</p>" + content;
         }
-        Notifications.Bus.notify(new Notification(UPLOAD_NOTIFICATION_GROUP, "Upload Failured",
+        Notifications.Bus.notify(new Notification(MIK_NOTIFICATION_GROUP, "Upload Failured",
                                                   content, NotificationType.ERROR,
                                                   (notification, event) -> {
                                                       ProjectSettingsPage configurable = new ProjectSettingsPage();
@@ -150,7 +136,7 @@ public class UploadNotification extends Notification {
             buildContent(uploadFailuredListMap, uploadFailuredContent, "Image Upload Failured:");
         }
         content.append(fileNotFoundContent).append(uploadFailuredContent);
-        Notifications.Bus.notify(new Notification(UPLOAD_NOTIFICATION_GROUP, "Upload Warning",
+        Notifications.Bus.notify(new Notification(MIK_NOTIFICATION_GROUP, "Upload Warning",
                                                   content.toString(), NotificationType.WARNING, new NotificationListener.Adapter() {
             @Override
             protected void hyperlinkActivated(@NotNull Notification notification, @NotNull HyperlinkEvent e) {
@@ -184,7 +170,7 @@ public class UploadNotification extends Notification {
      * @param content the content
      */
     public static void notifyUploadFinshed(String content) {
-        Notification notification = new Notification(UPLOAD_NOTIFICATION_GROUP, null, NotificationType.INFORMATION);
+        Notification notification = new Notification(MIK_NOTIFICATION_GROUP, null, NotificationType.INFORMATION);
         notification.setTitle(UPLOAD_FINSHED);
         // 可使用 HTML 标签
         notification.setContent(content);
@@ -201,7 +187,7 @@ public class UploadNotification extends Notification {
         String content = "<p><a href=''>Configure " + actionName + " OSS</a></p><br />";
         content = "<p>You may need to set or reset your account. Please be sure to <b>test</b> it after the setup is complete.</p>" + content + "<br />";
         content = content + "<p>Or you may need <a href='" + HELP_URL + "'>Help</a></p>";
-        Notifications.Bus.notify(new Notification(UPLOAD_NOTIFICATION_GROUP,
+        Notifications.Bus.notify(new Notification(MIK_NOTIFICATION_GROUP,
                                                   "Configurable Error",
                                                   content,
                                                   NotificationType.ERROR,
@@ -220,35 +206,5 @@ public class UploadNotification extends Notification {
                                                           hideBalloon(notification.getBalloon());
                                                       }
                                                   }), project);
-    }
-
-    private static void hideBalloon(Balloon balloon) {
-        if (balloon != null) {
-            balloon.hide();
-        }
-    }
-
-    /**
-     * 获取帮助页
-     *
-     * @return the string
-     */
-    public static String helpUrl(String where) {
-        HttpClient client = new HttpClient();
-        PostMethod method = new PostMethod(MikBundle.message("mik.help.rest.url") + where);
-        client.getParams().setContentCharset("UTF-8");
-        HelpResult helpResult = null;
-        try {
-            client.executeMethod(method);
-            String response = method.getResponseBodyAsString(1000);
-            helpResult = new Gson().fromJson(response, HelpResult.class);
-
-        } catch (IOException e) {
-            log.trace("", e);
-        } finally {
-            method.releaseConnection();
-        }
-        assert helpResult != null;
-        return helpResult.getUrl();
     }
 }

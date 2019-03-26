@@ -32,11 +32,11 @@ import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.InsertEnum;
+import info.dong4j.idea.plugin.notify.UploadNotification;
 import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.strategy.UploadFromPaste;
 import info.dong4j.idea.plugin.strategy.Uploader;
 import info.dong4j.idea.plugin.util.ClientUtils;
-import info.dong4j.idea.plugin.util.UploadNotification;
 
 import org.apache.commons.lang.StringUtils;
 

@@ -84,6 +84,7 @@ public class ChainBackgroupTask extends Task.Backgroundable{
     @Override
     public void onFinished() {
         log.trace("finished callback");
+        // 刷新 VFS, 避免新增的图片很久才显示出来
         ApplicationManager.getApplication().runWriteAction(() -> {
             VirtualFileManager.getInstance().syncRefresh();
         });

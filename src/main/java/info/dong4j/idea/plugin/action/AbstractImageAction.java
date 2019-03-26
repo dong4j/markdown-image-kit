@@ -143,16 +143,16 @@ public abstract class AbstractImageAction extends AnAction {
                 // 获取被选中的有文件和目录
                 final VirtualFile[] virtualFiles = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(dataContext);
                 if (null != virtualFiles) {
-                    for (VirtualFile virtualFile : virtualFiles) {
-                        if (ImageContents.IMAGE_TYPE_NAME.equals(virtualFile.getFileType().getName())) {
-                            transform(imageMap, virtualFileMap, virtualFile, virtualFile.getName());
+                    for (VirtualFile rootFile : virtualFiles) {
+                        if (ImageContents.IMAGE_TYPE_NAME.equals(rootFile.getFileType().getName())) {
+                            transform(imageMap, virtualFileMap, rootFile, rootFile.getName());
 
                         }
                         // 如果是目录, 则递归获取所有 image 文件
-                        if (virtualFile.isDirectory()) {
-                            List<VirtualFile> imageFiles = ImageUtils.recursivelyImageFile(virtualFile);
-                            for (VirtualFile imageFile : imageFiles) {
-                                transform(imageMap, virtualFileMap, imageFile, virtualFile.getName());
+                        if (rootFile.isDirectory()) {
+                            List<VirtualFile> imageFiles = ImageUtils.recursivelyImageFile(rootFile);
+                            for (VirtualFile subFile : imageFiles) {
+                                transform(imageMap, virtualFileMap, subFile, subFile.getName());
                             }
                         }
                     }

@@ -41,11 +41,11 @@ import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.HelpType;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.enums.ZoneEnum;
+import info.dong4j.idea.plugin.notify.MikNotification;
 import info.dong4j.idea.plugin.strategy.UploadFromTest;
 import info.dong4j.idea.plugin.strategy.Uploader;
 import info.dong4j.idea.plugin.util.ClientUtils;
 import info.dong4j.idea.plugin.util.DES;
-import info.dong4j.idea.plugin.util.UploadNotification;
 
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Nls;
@@ -445,7 +445,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         // help button 监听
         helpButton.addActionListener(e -> {
             // 打开浏览器到帮助页面
-            String url = UploadNotification.helpUrl(HelpType.SETTING.where);
+            String url = MikNotification.helpUrl(HelpType.SETTING.where);
             BrowserUtil.browse(url);
         });
     }
