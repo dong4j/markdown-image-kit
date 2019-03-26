@@ -50,7 +50,6 @@ public interface OssClient {
     /** 用于反射调用时的缓存 <className, client>, 容量为实现类个数 */
     Map<CloudEnum, OssClient> INSTANCES = new ConcurrentHashMap<>(12);
 
-
     /**
      * The constant getName.
      *

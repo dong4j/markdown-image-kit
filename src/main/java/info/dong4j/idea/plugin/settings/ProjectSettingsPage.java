@@ -80,7 +80,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ProjectSettingsPage implements SearchableConfigurable, Configurable.NoScroll {
-    private static final String TEST_FILE_NAME = "test.png";
+    private static final String TEST_FILE_NAME = "mik.png";
     private ImageManagerPersistenComponent config;
     private JPanel myMainPanel;
 
@@ -570,7 +570,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         String endpoint = aliyunOssEndpointTextField.getText().trim();
         String backetName = aliyunOssBucketNameTextField.getText().trim();
         String url = AliyunOssClient.URL_PROTOCOL_HTTPS + "://" + backetName + "." + endpoint;
-        exampleTextField.setText(url + fileDir + "/test.png");
+        exampleTextField.setText(url + fileDir + "/" + TEST_FILE_NAME);
     }
 
     /**
