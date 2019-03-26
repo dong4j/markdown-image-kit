@@ -71,4 +71,6 @@ public class EventData {
     private volatile boolean uploadImageFinished = false;
     /** markdown image mark 插入的位置 */
     private InsertEnum insertType = InsertEnum.DOCUMENT;
+    /** 图片压缩信息*/
+    private Map<String, String> compressInfo;
 }

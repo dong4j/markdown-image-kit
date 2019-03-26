@@ -25,9 +25,11 @@
 
 package info.dong4j.idea.plugin.task;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFileManager;
 
 import info.dong4j.idea.plugin.chain.ActionManager;
 
@@ -82,10 +84,13 @@ public class ChainBackgroupTask extends Task.Backgroundable{
     @Override
     public void onFinished() {
         log.trace("finished callback");
+        ApplicationManager.getApplication().runWriteAction(() -> {
+            VirtualFileManager.getInstance().syncRefresh();
+        });
     }
 
     @Override
-    public void onThrowable(Throwable throwable) {
+    public void onThrowable(@NotNull Throwable throwable) {
         super.onThrowable(throwable);
         log.trace("error callback");
     }
