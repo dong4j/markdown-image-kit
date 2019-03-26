@@ -58,7 +58,8 @@ public class ImageLabelInsertHandler extends BaseActionHandler {
     }
 
     /**
-     * 如果只是 save, 则插入 saveMarkList, 如果是 upload, 则插入 uploadedMarkList
+     * 如果只是 save, 则使用 saveMarkList, 如果是 upload, 则使用 uploadedMarkList
+     * 如果是从图片直接上传, 则写入 clipboard, 否则写入 markdown 文件
      *
      * @return the boolean
      */
