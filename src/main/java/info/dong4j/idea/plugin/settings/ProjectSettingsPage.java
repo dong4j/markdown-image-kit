@@ -127,7 +127,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JLabel compressLabel;
     private JTextField styleNameTextField;
     private JCheckBox transportCheckBox;
-    private JCheckBox backupCheckBox;
     private JCheckBox renameCheckBox;
     private JComboBox fileNameSuffixBoxField;
 
@@ -194,7 +193,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.compressLabel.setText(String.valueOf(compressSlider.getValue()));
         this.styleNameTextField.setText(state.getStyleName());
         this.transportCheckBox.setSelected(state.isTransport());
-        this.backupCheckBox.setSelected(state.isBackup());
         this.renameCheckBox.setSelected(state.isRename());
         this.fileNameSuffixBoxField.setSelectedIndex(state.getSuffixIndex());
     }
@@ -559,7 +557,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private void initExpandGroup() {
         // todo-dong4j : (2019年03月15日 20:52) [删除此设置, 使用 MoveToOtherStorageAction 替代]
         this.transportCheckBox.setSelected(config.getState().isTransport());
-        this.backupCheckBox.setSelected(config.getState().isBackup());
     }
 
     /**
@@ -723,8 +720,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         }
         // 图床迁移
         boolean transport = transportCheckBox.isSelected();
-        // 图片备份
-        boolean backup = backupCheckBox.isSelected();
 
         boolean isRename = renameCheckBox.isSelected();
         // 图片后缀
@@ -739,7 +734,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                && compressAtLookup == state.isCompressAtLookup()
                && styleName.equals(state.getStyleName())
                && transport == state.isTransport()
-               && backup == state.isBackup()
                && isRename == state.isRename()
                && index == state.getSuffixIndex();
     }
@@ -848,7 +842,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         state.setCompressAtLookup(this.compressAtLookupCheckBox.isSelected());
         state.setStyleName(this.styleNameTextField.getText().trim());
         state.setTransport(this.transportCheckBox.isSelected());
-        state.setBackup(this.backupCheckBox.isSelected());
         state.setRename(renameCheckBox.isSelected());
         state.setSuffixIndex(fileNameSuffixBoxField.getSelectedIndex());
     }

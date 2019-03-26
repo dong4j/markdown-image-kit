@@ -78,6 +78,8 @@ public class UploadFromAction implements UploadWay {
                                  true,
                                  waitingForUploadImages,
                                  ossClient).queue();
+
+
         return "";
     }
 }
