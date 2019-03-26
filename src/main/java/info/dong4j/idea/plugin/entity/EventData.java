@@ -52,4 +52,8 @@ public class EventData {
     private List<String> saveMarkList;
     /** upload markdown image mark*/
     private List<String> uploadedMarkList;
+    /** save image task status*/
+    private volatile boolean saveImageFinished;
+    /** upload image task status*/
+    private volatile boolean uploadImageFinished;
 }

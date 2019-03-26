@@ -77,9 +77,9 @@ public class ImageStorageHandler extends PasteActionHandler {
         Editor editor = data.getEditor();
 
         // 后台任务保存图片到指定目录
-        new Task.Backgroundable(editor.getProject(),
-                                MikBundle.message("mik.paste.save.progress"),
-                                true) {
+        Task.Backgroundable task = new Task.Backgroundable(editor.getProject(),
+                                                           MikBundle.message("mik.paste.save.progress"),
+                                                           true) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 startBackgroupTask(indicator);
@@ -136,9 +136,28 @@ public class ImageStorageHandler extends PasteActionHandler {
                     data.setSaveMarkList(markList);
                 } finally {
                     endBackgroupTask(indicator);
+                    this.onSuccess();
                 }
             }
-        }.queue();
+
+            @Override
+            public void onCancel() {
+                log.trace("cancel callback");
+            }
+
+            @Override
+            public void onSuccess() {
+                log.trace("success callback");
+            }
+
+            @Override
+            public void onFinished() {
+                log.trace("finished callback");
+                data.setSaveImageFinished(true);
+            }
+        };
+
+        task.queue();
 
         return false;
     }

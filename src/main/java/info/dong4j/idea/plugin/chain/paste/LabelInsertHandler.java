@@ -38,6 +38,8 @@ import info.dong4j.idea.plugin.entity.EventData;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -73,21 +75,26 @@ public class LabelInsertHandler extends PasteActionHandler {
             public void run(@NotNull ProgressIndicator indicator) {
                 startBackgroupTask(indicator);
 
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
                 int totalCount = data.getImageMap().size();
                 int totalProcessed = 0;
                 try {
                     List<String> markList;
                     // 以 isUploadAndReplace 优先
                     if (STATE.isUploadAndReplace()) {
+                        // 等待后台任务完成
+                        boolean finished = data.isUploadImageFinished();
+                        while(!finished){
+                            LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(100));
+                            finished = data.isUploadImageFinished();
+                        }
                         indicator.setText2("Use Uploaded Mark: ");
                         markList = data.getUploadedMarkList();
                     } else {
+                        boolean finished = data.isSaveImageFinished();
+                        while(!finished){
+                            LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(100));
+                            finished = data.isSaveImageFinished();
+                        }
                         indicator.setText2("Use Saved Mark: ");
                         markList = data.getSaveMarkList();
                     }

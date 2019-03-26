@@ -271,7 +271,7 @@ public class QiniuOssClient implements OssClient {
             ossClient.put(inputStream, fileName, token, null, null);
             // 拼接 url, 需要正确配置域名 (https://developer.qiniu.com/fusion/kb/1322/how-to-configure-cname-domain-name)
             URL url = new URL(domain);
-            log.trace("{}", url.getUserInfo());
+            log.trace("getUserInfo = {}", url.getUserInfo());
             if (StringUtils.isBlank(url.getPath())) {
                 domain = domain + "/";
             } else {

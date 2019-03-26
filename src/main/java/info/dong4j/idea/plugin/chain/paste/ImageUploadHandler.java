@@ -92,7 +92,7 @@ public class ImageUploadHandler extends PasteActionHandler {
 
         Editor editor = data.getEditor();
 
-        new Task.Backgroundable(editor.getProject(),
+        Task.Backgroundable task = new Task.Backgroundable(editor.getProject(),
                                 MikBundle.message("mik.paste.upload.progress"),
                                 true) {
             @Override
@@ -130,7 +130,25 @@ public class ImageUploadHandler extends PasteActionHandler {
                     endBackgroupTask(indicator);
                 }
             }
-        }.queue();
+
+            @Override
+            public void onCancel() {
+                log.trace("cancel callback");
+            }
+
+            @Override
+            public void onSuccess() {
+                log.trace("success callback");
+            }
+
+            @Override
+            public void onFinished() {
+                log.trace("finished callback");
+                data.setUploadImageFinished(true);
+            }
+        };
+
+        task.queue();
 
         return false;
     }
