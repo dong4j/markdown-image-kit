@@ -28,12 +28,11 @@ package info.dong4j.idea.plugin.entity;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 
 import info.dong4j.idea.plugin.enums.InsertEnum;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -60,11 +59,12 @@ public class EventData {
     private Project project;
     private Editor editor;
     /** 从 clipboard 中解析的文件 */
-    private Map<String, File> imageMap = new HashMap<>(1);
+    private Map<String, File> imageMap;
+    private Map<String, VirtualFile> virtualFileMap;
     /** save markdown image mark */
-    private List<String> saveMarkList = new ArrayList<>(1);
+    private List<String> saveMarkList;
     /** upload markdown image mark */
-    private List<String> uploadedMarkList = new ArrayList<>(1);
+    private List<String> uploadedMarkList;
     /** save image task status */
     private volatile boolean saveImageFinished = false;
     /** upload image task status */

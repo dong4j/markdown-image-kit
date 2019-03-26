@@ -35,7 +35,7 @@
                 popup="true" text="上传到七牛云">
         </action>
         <action id="ImageCompressAction" class="info.dong4j.idea.plugin.action.ImageCompressAction"
-                popup="true" text="压缩图片">
+                popup="true" text="图片压缩">
         </action>
         <action id="ImageUploadAction" class="info.dong4j.idea.plugin.action.ImageUploadAction"
                 popup="true" text="图片上传">

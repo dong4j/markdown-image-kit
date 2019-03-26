@@ -26,8 +26,22 @@
 package info.dong4j.idea.plugin.action;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
+
+import info.dong4j.idea.plugin.chain.ActionManager;
+import info.dong4j.idea.plugin.chain.ImageCompressHandler;
+import info.dong4j.idea.plugin.chain.ImageLabelChangeHandler;
+import info.dong4j.idea.plugin.chain.ImageLabelInsertHandler;
+import info.dong4j.idea.plugin.chain.paste.ImageUploadHandler;
+import info.dong4j.idea.plugin.entity.EventData;
+import info.dong4j.idea.plugin.enums.InsertEnum;
+import info.dong4j.idea.plugin.task.ChainBackgroupTask;
 
 import org.jetbrains.annotations.Contract;
+
+import java.io.*;
+import java.util.Map;
 
 import javax.swing.Icon;
 
@@ -44,5 +58,23 @@ public final class ImageUploadAction extends AbstractImageAction {
     @Override
     protected Icon getIcon() {
         return AllIcons.Debugger.Overhead;
+    }
+
+    @Override
+    protected void execute(Map<String, File> imageMap, Map<String, VirtualFile> virtualFileMap, Project project) {
+        EventData data = new EventData()
+            .setProject(project)
+            .setImageMap(imageMap)
+            .setInsertType(InsertEnum.CLIPBOADR);
+
+        ActionManager manager = new ActionManager(data)
+            .addHandler(new ImageCompressHandler())
+            .addHandler(new ImageUploadHandler())
+            .addHandler(new ImageLabelChangeHandler())
+            .addHandler(new ImageLabelInsertHandler());
+
+        new ChainBackgroupTask(project,
+                               "Image Upload Task",
+                               manager).queue();
     }
 }

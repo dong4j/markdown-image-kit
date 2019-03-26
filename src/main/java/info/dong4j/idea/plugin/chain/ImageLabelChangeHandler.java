@@ -67,17 +67,15 @@ public class ImageLabelChangeHandler extends BaseActionHandler {
 
         int size = data.getSize();
         indicator.setText2(MikBundle.message("mik.paste.change.progress"));
-        List<String> markList = data.getUploadedMarkList();
-        int totalProcessed = 0;
-        int totalCount = markList.size();
 
         boolean isPasteUpload = (InsertEnum.DOCUMENT.equals(data.getInsertType()) && STATE.isUploadAndReplace());
         if (isPasteUpload || InsertEnum.CLIPBOADR.equals(data.getInsertType())) {
+            int totalProcessed = 0;
             List<String> oldMarks = data.getUploadedMarkList();
+            int totalCount = oldMarks.size();
+
             List<String> changedMarks = new ArrayList<>(oldMarks.size());
-            for (String mark : markList) {
-                // 删除末尾 \n
-                mark = mark.replaceAll("\\n", "");
+            for (String mark : oldMarks) {
                 String newLineText = UploadUtils.getFinalImageMark("", mark, mark, ImageContents.LINE_BREAK);
                 changedMarks.add(newLineText);
                 indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);

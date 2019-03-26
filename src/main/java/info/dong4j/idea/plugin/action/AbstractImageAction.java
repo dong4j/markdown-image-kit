@@ -36,16 +36,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiUtilBase;
 
-import info.dong4j.idea.plugin.chain.ActionManager;
-import info.dong4j.idea.plugin.chain.ImageCompressHandler;
-import info.dong4j.idea.plugin.chain.ImageLabelChangeHandler;
-import info.dong4j.idea.plugin.chain.ImageLabelInsertHandler;
-import info.dong4j.idea.plugin.chain.paste.ImageUploadHandler;
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.content.MarkdownContents;
-import info.dong4j.idea.plugin.entity.EventData;
-import info.dong4j.idea.plugin.enums.InsertEnum;
-import info.dong4j.idea.plugin.task.ChainBackgroupTask;
 import info.dong4j.idea.plugin.util.ImageUtils;
 
 import org.apache.commons.io.FileUtils;
@@ -76,6 +68,13 @@ public abstract class AbstractImageAction extends AnAction {
      * @return the icon
      */
     abstract protected Icon getIcon();
+
+    /**
+     * Execute.
+     */
+    abstract protected void execute(Map<String, File> imageMap,
+                                    Map<String, VirtualFile> virtualFileMap,
+                                    Project project);
 
     @Override
     public void update(@NotNull AnActionEvent event) {
@@ -125,8 +124,8 @@ public abstract class AbstractImageAction extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
-        // 获取光标所选的所有图片文件
         Map<String, File> imageMap = new HashMap<>(32);
+        Map<String, VirtualFile> virtualFileMap = new HashMap<>(32);
 
         final Project project = event.getProject();
         if (project != null) {
@@ -139,42 +138,29 @@ public abstract class AbstractImageAction extends AnAction {
             if (null != editor) {
                 VirtualFile virtualFile = event.getData(PlatformDataKeys.VIRTUAL_FILE);
                 assert virtualFile != null;
-                transform(imageMap, virtualFile, virtualFile.getName());
+                transform(imageMap, virtualFileMap, virtualFile, virtualFile.getName());
             } else {
                 // 获取被选中的有文件和目录
-                final VirtualFile[] files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(dataContext);
-                if (null != files) {
-                    for (VirtualFile file : files) {
-                        if (ImageContents.IMAGE_TYPE_NAME.equals(file.getFileType().getName())) {
-                            transform(imageMap, file, file.getName());
+                final VirtualFile[] virtualFiles = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(dataContext);
+                if (null != virtualFiles) {
+                    for (VirtualFile virtualFile : virtualFiles) {
+                        if (ImageContents.IMAGE_TYPE_NAME.equals(virtualFile.getFileType().getName())) {
+                            transform(imageMap, virtualFileMap, virtualFile, virtualFile.getName());
 
                         }
                         // 如果是目录, 则递归获取所有 image 文件
-                        if (file.isDirectory()) {
-                            List<VirtualFile> imageFiles = ImageUtils.recursivelyImageFile(file);
+                        if (virtualFile.isDirectory()) {
+                            List<VirtualFile> imageFiles = ImageUtils.recursivelyImageFile(virtualFile);
                             for (VirtualFile imageFile : imageFiles) {
-                                transform(imageMap, imageFile, file.getName());
+                                transform(imageMap, virtualFileMap, imageFile, virtualFile.getName());
                             }
                         }
                     }
                 }
             }
 
-            if(imageMap.size() > 0){
-                EventData data = new EventData()
-                    .setProject(project)
-                    .setImageMap(imageMap)
-                    .setInsertType(InsertEnum.CLIPBOADR);
-
-                ActionManager manager = new ActionManager(data)
-                    .addHandler(new ImageCompressHandler())
-                    .addHandler(new ImageUploadHandler())
-                    .addHandler(new ImageLabelChangeHandler())
-                    .addHandler(new ImageLabelInsertHandler());
-
-                new ChainBackgroupTask(project,
-                                       "Image Upload Task",
-                                       manager).queue();
+            if (imageMap.size() > 0) {
+                execute(imageMap, virtualFileMap, project);
             }
         }
     }
@@ -186,11 +172,15 @@ public abstract class AbstractImageAction extends AnAction {
      * @param virtualFile the virtual file
      * @param name        the name
      */
-    private void transform(Map<String, File> imageMap, VirtualFile virtualFile, String name) {
+    private void transform(@NotNull Map<String, File> imageMap,
+                           @NotNull Map<String, VirtualFile> virtualFileMap,
+                           @NotNull VirtualFile virtualFile,
+                           String name) {
         File out = ImageUtils.buildTempFile(virtualFile.getName());
         try {
             FileUtils.copyToFile(virtualFile.getInputStream(), out);
             imageMap.put(name, out);
+            virtualFileMap.put(name, virtualFile);
         } catch (IOException e) {
             log.trace("", e);
         }
