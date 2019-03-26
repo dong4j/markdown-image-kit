@@ -352,9 +352,9 @@ public class ImageUtilsTest {
         File in = new File("/Users/dong4j/Downloads/2019-03-25 23.18.31.gif");
         File out = new File("/Users/dong4j/Develop/test.gif");
         FileUtils.copyFile(in, out);
-        BufferedImage  bufferedImage = ImageIO.read(out);
+        BufferedImage bufferedImage = ImageIO.read(out);
         File out1 = new File("/Users/dong4j/Develop/test1.gif");
-        ImageIO.write(bufferedImage,"gif",out1);
+        ImageIO.write(bufferedImage, "gif", out1);
         // Image image = ImageIO.read(out);
     }
 
@@ -371,7 +371,7 @@ public class ImageUtilsTest {
     @Test
     public void test16() throws Exception {
         File temp = File.createTempFile("testrunoobtmp", ".txt");
-        System.out.println("文件路径: "+temp.getAbsolutePath());
+        System.out.println("文件路径: " + temp.getAbsolutePath());
         temp.deleteOnExit();
         BufferedWriter out = new BufferedWriter(new FileWriter(temp));
         out.write("aString");

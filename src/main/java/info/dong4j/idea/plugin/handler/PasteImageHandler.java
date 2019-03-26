@@ -40,6 +40,10 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Producer;
 import com.intellij.util.containers.hash.HashMap;
 
+import info.dong4j.idea.plugin.chain.ActionManager;
+import info.dong4j.idea.plugin.chain.FinalActionHandler;
+import info.dong4j.idea.plugin.chain.SaveAndInsertHandler;
+import info.dong4j.idea.plugin.chain.UploadAndInsertHandler;
 import info.dong4j.idea.plugin.exception.UploadException;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
@@ -47,10 +51,6 @@ import info.dong4j.idea.plugin.util.CharacterUtils;
 import info.dong4j.idea.plugin.util.ImageUtils;
 import info.dong4j.idea.plugin.util.MarkdownUtils;
 import info.dong4j.idea.plugin.util.UploadNotification;
-import info.dong4j.idea.plugin.watch.ActionManager;
-import info.dong4j.idea.plugin.watch.FinalActionHandler;
-import info.dong4j.idea.plugin.watch.SaveAndInsertHandler;
-import info.dong4j.idea.plugin.watch.UploadAndInsertHandler;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;

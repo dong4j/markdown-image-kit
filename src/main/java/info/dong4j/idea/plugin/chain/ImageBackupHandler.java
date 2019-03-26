@@ -23,33 +23,24 @@
  *
  */
 
-package info.dong4j.idea.plugin.watch;
-
-import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
-import info.dong4j.idea.plugin.settings.ImageManagerState;
+package info.dong4j.idea.plugin.chain;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
  * <p>Description: </p>
  *
  * @author dong4j
- * @email sjdong3 @iflytek.com
- * @since 2019 -03-22 18:35
+ * @email sjdong3@iflytek.com
+ * @since 2019-03-22 18:43
  */
-public interface IActionHandler {
-    ImageManagerState STATE = ImageManagerPersistenComponent.getInstance().getState();
+public class ImageBackupHandler extends MenuActionHandler {
+    @Override
+    public boolean isEnabled() {
+        return false;
+    }
 
-    /**
-     * 是否符合该处理类的处理范围
-     *
-     * @return 是否符合
-     */
-    boolean isEnabled();
-
-    /**
-     * 执行具体的处理逻辑
-     *
-     * @return 是否阻止系统的事件传递 boolean
-     */
-    boolean execute();
+    @Override
+    public boolean execute() {
+        return false;
+    }
 }

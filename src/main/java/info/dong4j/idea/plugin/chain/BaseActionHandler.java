@@ -23,7 +23,7 @@
  *
  */
 
-package info.dong4j.idea.plugin.watch;
+package info.dong4j.idea.plugin.chain;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
@@ -31,7 +31,7 @@ package info.dong4j.idea.plugin.watch;
  *
  * @author dong4j
  * @email sjdong3@iflytek.com
- * @since 2019-03-22 21:01
+ * @since 2019-03-22 18:37
  */
-public class PasteData {
+public abstract class BaseActionHandler implements IActionHandler {
 }

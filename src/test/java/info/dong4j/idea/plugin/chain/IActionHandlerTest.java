@@ -1,4 +1,4 @@
-package info.dong4j.idea.plugin.watch;
+package info.dong4j.idea.plugin.chain;
 
 import org.junit.Test;
 

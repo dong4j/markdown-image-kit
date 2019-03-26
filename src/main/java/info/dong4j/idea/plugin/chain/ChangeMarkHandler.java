@@ -23,7 +23,7 @@
  *
  */
 
-package info.dong4j.idea.plugin.watch;
+package info.dong4j.idea.plugin.chain;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>

@@ -23,7 +23,7 @@
  *
  */
 
-package info.dong4j.idea.plugin.watch;
+package info.dong4j.idea.plugin.chain;
 
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Editor;

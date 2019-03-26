@@ -23,7 +23,14 @@
  *
  */
 
-package info.dong4j.idea.plugin.watch;
+package info.dong4j.idea.plugin.chain;
+
+import com.intellij.openapi.editor.Editor;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.io.*;
+import java.util.Map;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
@@ -31,9 +38,17 @@ package info.dong4j.idea.plugin.watch;
  *
  * @author dong4j
  * @email sjdong3@iflytek.com
- * @since 2019-03-22 18:43
+ * @since 2019-03-22 18:38
  */
-public class ImageBackupHandler extends MenuActionHandler {
+public abstract class PasteActionHandler extends BaseActionHandler {
+    protected Editor editor;
+    Map<String, File> imageMap;
+
+    PasteActionHandler(@NotNull Editor editor, Map<String, File> imageMap) {
+        this.editor = editor;
+        this.imageMap = imageMap;
+    }
+
     @Override
     public boolean isEnabled() {
         return false;
