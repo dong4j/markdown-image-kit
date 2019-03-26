@@ -143,7 +143,6 @@ public class UploadBackgroundTask extends Task.Backgroundable {
                                 // 子类执行上传
                                 String uploadedUrl = ossClient.upload(file);
                                 if (StringUtils.isBlank(uploadedUrl)) {
-                                    // todo-dong4j : (2019年03月18日 01:15) [提供失败的文件链接]
                                     uploadFailured.add(file.getPath());
                                     indicator.setText2("image path: " + markdownImage.getPath() + " upload failed");
                                 }
