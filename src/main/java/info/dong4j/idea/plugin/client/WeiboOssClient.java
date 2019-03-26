@@ -31,6 +31,7 @@ import info.dong4j.idea.plugin.settings.ImageManagerState;
 import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.settings.WeiboOssState;
 import info.dong4j.idea.plugin.util.DES;
+import info.dong4j.idea.plugin.util.ImageUtils;
 import info.dong4j.idea.plugin.weibo.CookieContext;
 import info.dong4j.idea.plugin.weibo.UploadRequestBuilder;
 import info.dong4j.idea.plugin.weibo.UploadResponse;
@@ -117,11 +118,6 @@ public class WeiboOssClient implements OssClient {
         return upload(ossClient, file);
     }
 
-    @Override
-    public String upload(File file, String fileName) {
-        return null;
-    }
-
     /**
      * 被 paste 操作调用 (反射).
      *
@@ -145,9 +141,9 @@ public class WeiboOssClient implements OssClient {
      * @throws IOException the io exception
      */
     public String upload(WbpUploadRequest ossClient, InputStream inputStream, String fileName) {
-        File file = new File(System.getProperty("java.io.tmpdir") + fileName);
+        File file = ImageUtils.buildTempFile(fileName);
         try {
-            FileUtils.copyInputStreamToFile(inputStream, file);
+            FileUtils.copyToFile(inputStream, file);
             return upload(ossClient, file);
         } catch (IOException e) {
             log.trace("", e);

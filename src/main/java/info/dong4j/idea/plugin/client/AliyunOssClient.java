@@ -127,11 +127,6 @@ public class AliyunOssClient implements OssClient {
         return "";
     }
 
-    @Override
-    public String upload(File file, String fileName) {
-        return null;
-    }
-
     /**
      * 上传到OSS服务器  如果同名文件会覆盖服务器上的
      *

@@ -81,6 +81,9 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public final class ImageUtils {
+    /**
+     * The constant FROM_CLIBOARD.
+     */
     public static final String FROM_CLIBOARD = "clipboard";
     /** 重命名文件的前缀 */
     private static final String PREFIX = "MIK-";
@@ -387,7 +390,25 @@ public final class ImageUtils {
                 .outputQuality(percent * 1.0 / 100)
                 .toFile(out);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.trace("", e);
+        }
+    }
+
+    /**
+     * Compress.
+     *
+     * @param in      the in
+     * @param out     the out
+     * @param percent the percent
+     */
+    public static void compress(InputStream in, File out, int percent) {
+        try {
+            Thumbnails.of(in)
+                .scale(1f)
+                .outputQuality(percent * 1.0 / 100)
+                .toFile(out);
+        } catch (IOException e) {
+            log.trace("", e);
         }
     }
 
@@ -430,6 +451,7 @@ public final class ImageUtils {
      * @return the file type
      * @throws IOException the io exception
      */
+    @Nullable
     public static FileType getFileType(InputStream is) throws IOException {
         byte[] src = new byte[28];
         is.read(src, 0, 28);
@@ -459,10 +481,10 @@ public final class ImageUtils {
      */
     public static String processFileName(String fileName) {
         ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
+        if(FROM_CLIBOARD.equals(fileName)){
+            fileName = CharacterUtils.getRandomString(6) + ".png";
+        }
         if (state.isRename()) {
-            if(FROM_CLIBOARD.equals(fileName)){
-                fileName = CharacterUtils.getRandomString(6) + ".png";
-            }
             // 处理文件名有空格导致上传 gif 变为静态图的问题
             fileName = fileName.replaceAll("\\s*", "");
             int sufixIndex = state.getSuffixIndex();
@@ -480,5 +502,17 @@ public final class ImageUtils {
             }
         }
         return fileName;
+    }
+
+    /**
+     * Build temp file file.
+     *
+     * @param fileName the file name
+     * @return the file
+     */
+    @NotNull
+    @Contract("_ -> new")
+    public static File buildTempFile(String fileName){
+        return new File(System.getProperty("java.io.tmpdir") + fileName);
     }
 }

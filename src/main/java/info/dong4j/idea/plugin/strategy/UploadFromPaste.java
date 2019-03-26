@@ -41,26 +41,17 @@ import java.io.*;
  */
 public class UploadFromPaste implements UploadWay {
     private OssClient client;
-    private InputStream inputStream;
-    private String fileName;
+    private File file;
 
-    /**
-     * Instantiates a new Upload from paste.
-     *
-     * @param client      the client
-     * @param inputStream the input stream
-     * @param fileName    the file name
-     */
-    @Contract("null, _, _ -> fail")
-    public UploadFromPaste(OssClient client, InputStream inputStream, String fileName) {
+    @Contract("null, _ -> fail")
+    public UploadFromPaste(OssClient client, File file) {
         assert client != null;
         this.client = client;
-        this.inputStream = inputStream;
-        this.fileName = fileName;
+        this.file = file;
     }
 
     @Override
     public String upload() {
-        return client.upload(inputStream, fileName);
+        return client.upload(file);
     }
 }

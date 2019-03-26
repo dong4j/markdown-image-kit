@@ -154,16 +154,16 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                 String fileName = ImageUtils.processFileName(file.getName());
                 // 先检查是否为图片类型
                 Image image;
-                File compressedFile = new File(System.getProperty("java.io.tmpdir") + fileName);
+                File temp = ImageUtils.buildTempFile(fileName);
                 try {
-                    // todo-dong4j : (2019年03月20日 04:29) [判断是否启动图片压缩]
-                    if (file.isFile() && file.getName().endsWith("jpg")) {
-                        ImageUtils.compress(file, compressedFile, state.getCompressBeforeUploadOfPercent() - 20);
+                    // gif 不压缩, 需要特殊处理
+                    if (file.isFile() && !file.getName().endsWith("gif") && state.isCompress()) {
+                        ImageUtils.compress(file, temp, state.getCompressBeforeUploadOfPercent());
                     } else {
-                        FileUtils.copyFile(file, compressedFile);
+                        FileUtils.copyFile(file, temp);
                     }
                     // 读到缓冲区, 如果抛异常, 则不是图片
-                    image = ImageIO.read(compressedFile);
+                    image = ImageIO.read(temp);
                 } catch (IOException ignored) {
                     // 如果抛异常, 则不是图片, 直接返回, 避免 OOM
                     imageMap.clear();
@@ -171,7 +171,7 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                 }
                 // 只要有一个文件不是 image, 就执行默认操作然后退出
                 if (image != null) {
-                    imageMap.put(fileName, compressedFile);
+                    imageMap.put(fileName, temp);
                 }
             }
         } else {
@@ -182,12 +182,16 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
             BufferedImage bufferedImage = ImageUtils.toBufferedImage(image);
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             assert bufferedImage != null;
-            File temp = new File(System.getProperty("java.io.tmpdir") + fileName);
+            File temp = ImageUtils.buildTempFile(fileName);
             try {
                 ImageIO.write(bufferedImage, "png", os);
                 InputStream is = new ByteArrayInputStream(os.toByteArray());
-                // 写入到临时文件
-                FileUtils.copyToFile(is, temp);
+                // 压缩写入临时文件
+                if(state.isCompress()){
+                    ImageUtils.compress(is, temp, state.getCompressBeforeUploadOfPercent());
+                } else {
+                    FileUtils.copyToFile(is, temp);
+                }
             } catch (IOException e) {
                 UploadNotification.notifyUploadFailure(new UploadException("文件转换失败"), project);
             }

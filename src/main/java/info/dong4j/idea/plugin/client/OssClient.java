@@ -74,15 +74,6 @@ public interface OssClient {
     String upload(File file);
 
     /**
-     * 通过文件上传
-     *
-     * @param file     the file
-     * @param fileName the file name
-     * @return the string
-     */
-    String upload(File file , String fileName);
-
-    /**
      * Upload string.
      *
      * @param inputStream the input stream

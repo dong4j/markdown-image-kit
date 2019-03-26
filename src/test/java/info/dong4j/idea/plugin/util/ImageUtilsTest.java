@@ -308,9 +308,9 @@ public class ImageUtilsTest {
     }
 
     @Test
-    public void test10() throws IOException {
-        ImageUtils.compress(new File("/Users/dong4j/Downloads/wade-meng-LgCj9qcrfhI.jpg"),
-                            new File("/Users/dong4j/Develop/test.jpg"), 60);
+    public void test10() {
+        ImageUtils.compress(new File("/Users/dong4j/Downloads/c.gif"),
+                            new File("/Users/dong4j/Downloads/d.gif"), 60);
 
     }
 
@@ -321,9 +321,7 @@ public class ImageUtilsTest {
 
     @Test
     public void test12() throws IOException {
-        /**
-         * outputFormat(图像格式)
-         */
+
         Thumbnails.of("/Users/dong4j/Downloads/wade-meng-LgCj9qcrfhI.jpg").size(1280, 1024).outputFormat("png").toFile("/Users/dong4j/Develop/test.png");
     }
 

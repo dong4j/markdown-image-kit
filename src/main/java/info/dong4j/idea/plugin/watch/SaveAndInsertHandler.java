@@ -95,6 +95,7 @@ public class SaveAndInsertHandler extends PasteActionHandler {
                     File imageDir = new File(curDocument.getParent(), savepath);
                     boolean checkDir = imageDir.exists() && imageDir.isDirectory();
                     if (checkDir || imageDir.mkdirs()) {
+                        // 保存的文件路径
                         File imageFile = new File(imageDir, imageName);
                         Runnable r = () -> {
                             try {

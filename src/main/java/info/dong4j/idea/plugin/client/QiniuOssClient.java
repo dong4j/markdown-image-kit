@@ -144,11 +144,6 @@ public class QiniuOssClient implements OssClient {
         return "";
     }
 
-    @Override
-    public String upload(File file, String fileName) {
-        return null;
-    }
-
     /**
      * Upload string.
      *

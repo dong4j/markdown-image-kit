@@ -89,27 +89,21 @@ public class UploadAndInsertHandler extends PasteActionHandler {
                 int totalCount = imageMap.size();
                 for (Map.Entry<String, File> imageEntry : imageMap.entrySet()) {
                     String imageName = imageEntry.getKey();
-                    try {
-                        InputStream inputStream = new FileInputStream(imageEntry.getValue());
-                        // 上传到默认图床
-                        int index = ImageManagerPersistenComponent.getInstance().getState().getCloudType();
-                        Optional<CloudEnum> cloudType = EnumsUtils.getEnumObject(CloudEnum.class, e -> e.getIndex() == index);
-                        Runnable r = () -> {
-                            OssClient client = ClientUtils.getInstance(cloudType.orElse(CloudEnum.WEIBO_CLOUD));
-                            indicator.setText2("Uploading " + imageName);
-                            String imageUrl = Uploader.getInstance().setUploadWay(new UploadFromPaste(client, inputStream, imageName)).upload();
+                    // 上传到默认图床
+                    int index = ImageManagerPersistenComponent.getInstance().getState().getCloudType();
+                    Optional<CloudEnum> cloudType = EnumsUtils.getEnumObject(CloudEnum.class, e -> e.getIndex() == index);
+                    Runnable r = () -> {
+                        OssClient client = ClientUtils.getInstance(cloudType.orElse(CloudEnum.WEIBO_CLOUD));
+                        indicator.setText2("Uploading " + imageName);
+                        String imageUrl = Uploader.getInstance().setUploadWay(new UploadFromPaste(client, imageEntry.getValue())).upload();
 
-                            if (StringUtils.isNotBlank(imageUrl)) {
-                                indicator.setText2("Replace " + imageUrl);
-                                String newLineText = UploadUtils.getFinalImageMark("", imageUrl, imageUrl, ImageContents.LINE_BREAK);
-                                EditorModificationUtil.insertStringAtCaret(editor, newLineText);
-                            }
-                        };
-                        WriteCommandAction.runWriteCommandAction(editor.getProject(), r);
-                    } catch (IOException e) {
-                        // todo-dong4j : (2019年03月17日 03:20) [添加通知]
-                        log.trace("", e);
-                    }
+                        if (StringUtils.isNotBlank(imageUrl)) {
+                            indicator.setText2("Replace " + imageUrl);
+                            String newLineText = UploadUtils.getFinalImageMark("", imageUrl, imageUrl, ImageContents.LINE_BREAK);
+                            EditorModificationUtil.insertStringAtCaret(editor, newLineText);
+                        }
+                    };
+                    WriteCommandAction.runWriteCommandAction(editor.getProject(), r);
 
                     indicator.setFraction(++totalProcessed * 1.0 / totalCount);
                 }
