@@ -25,6 +25,8 @@
 
 package info.dong4j.idea.plugin.chain;
 
+import info.dong4j.idea.plugin.entity.EventData;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -38,6 +40,11 @@ import java.util.List;
  */
 public class ActionManager {
     private List<IActionHandler> handlersChain = new LinkedList<>();
+    private EventData data;
+
+    public ActionManager(EventData data) {
+        this.data = data;
+    }
 
     public ActionManager addHandler(IActionHandler handler) {
         handlersChain.add(handler);
@@ -46,8 +53,8 @@ public class ActionManager {
 
     public void invoke() {
         for (IActionHandler handler : handlersChain) {
-            if (handler.isEnabled()) {
-                handler.execute();
+            if (handler.isEnabled(data)) {
+                handler.execute(data);
             }
         }
     }

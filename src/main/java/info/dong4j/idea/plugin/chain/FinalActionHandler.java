@@ -25,6 +25,8 @@
 
 package info.dong4j.idea.plugin.chain;
 
+import info.dong4j.idea.plugin.entity.EventData;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -38,12 +40,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FinalActionHandler extends BaseActionHandler {
     @Override
-    public boolean isEnabled() {
+    public boolean isEnabled(EventData data) {
         return true;
     }
 
     @Override
-    public boolean execute() {
+    public boolean execute(EventData data) {
         log.trace("上传操作");
         return false;
     }

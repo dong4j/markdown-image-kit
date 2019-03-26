@@ -25,6 +25,7 @@
 
 package info.dong4j.idea.plugin.chain;
 
+import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
 
@@ -37,19 +38,24 @@ import info.dong4j.idea.plugin.settings.ImageManagerState;
  * @since 2019 -03-22 18:35
  */
 public interface IActionHandler {
+    /**
+     * The constant STATE.
+     */
     ImageManagerState STATE = ImageManagerPersistenComponent.getInstance().getState();
 
     /**
      * 是否符合该处理类的处理范围
      *
-     * @return 是否符合
+     * @param data the data
+     * @return 是否符合 boolean
      */
-    boolean isEnabled();
+    boolean isEnabled(EventData data);
 
     /**
      * 执行具体的处理逻辑
      *
+     * @param data the data
      * @return 是否阻止系统的事件传递 boolean
      */
-    boolean execute();
+    boolean execute(EventData data);
 }

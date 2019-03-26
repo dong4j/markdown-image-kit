@@ -23,7 +23,16 @@
  *
  */
 
-package info.dong4j.idea.plugin.chain;
+package info.dong4j.idea.plugin.entity;
+
+import com.intellij.openapi.editor.Editor;
+
+import java.io.*;
+import java.util.List;
+import java.util.Map;
+
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
@@ -33,5 +42,14 @@ package info.dong4j.idea.plugin.chain;
  * @email sjdong3@iflytek.com
  * @since 2019-03-22 21:01
  */
-public class PasteData {
+@Data
+@Accessors(chain = true)
+public class EventData {
+    private Editor editor;
+    /** 从 clipboard 中解析的文件*/
+    private Map<String, File> imageMap;
+    /** save markdown image mark*/
+    private List<String> saveMarkList;
+    /** upload markdown image mark*/
+    private List<String> uploadedMarkList;
 }

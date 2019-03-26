@@ -41,9 +41,11 @@ import com.intellij.util.Producer;
 import com.intellij.util.containers.hash.HashMap;
 
 import info.dong4j.idea.plugin.chain.ActionManager;
-import info.dong4j.idea.plugin.chain.FinalActionHandler;
-import info.dong4j.idea.plugin.chain.SaveAndInsertHandler;
-import info.dong4j.idea.plugin.chain.UploadAndInsertHandler;
+import info.dong4j.idea.plugin.chain.paste.ImageCompressHandler;
+import info.dong4j.idea.plugin.chain.paste.ImageStorageHandler;
+import info.dong4j.idea.plugin.chain.paste.ImageUploadHandler;
+import info.dong4j.idea.plugin.chain.paste.LabelInsertHandler;
+import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.exception.UploadException;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
@@ -128,10 +130,12 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                     }
 
                     // todo-dong4j : (2019年03月25日 12:26) [通知一次]
-                    new ActionManager()
-                        .addHandler(new SaveAndInsertHandler(editor, imageMap))
-                        .addHandler(new UploadAndInsertHandler(editor, imageMap))
-                        .addHandler(new FinalActionHandler())
+                    EventData data = new EventData().setEditor(editor).setImageMap(imageMap);
+                    new ActionManager(data)
+                        .addHandler(new ImageCompressHandler())
+                        .addHandler(new ImageStorageHandler())
+                        .addHandler(new ImageUploadHandler())
+                        .addHandler(new LabelInsertHandler())
                         .invoke();
                     return;
                 }
@@ -140,63 +144,95 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
         defaultAction(editor, caret, dataContext);
     }
 
-    private Map<String, File> resolveClipboardData(ImageManagerState state, @NotNull Map.Entry<DataFlavor, Object> entry, Project project) {
+    /**
+     * 处理 clipboard 数据
+     *
+     * @param state   the state
+     * @param entry   the entry     List<File> 或者 Image 类型
+     * @param project the project
+     * @return the map              文件名-->File, File 有本地文件(resolveFromFile)和临时文件(resolveFromImage)
+     */
+    private Map<String, File> resolveClipboardData(ImageManagerState state,
+                                                   @NotNull Map.Entry<DataFlavor, Object> entry,
+                                                   Project project) {
         Map<String, File> imageMap = new HashMap<>(10);
         if (entry.getKey().equals(DataFlavor.javaFileListFlavor)) {
-            // 肯定是 List<File> 类型
-            @SuppressWarnings("unchecked") List<File> fileList = (List<File>) entry.getValue();
-
-            for (File file : fileList) {
-                // 第一步先初步排除非图片类型, 避免复制大量文件导致 OOM
-                if (StringUtils.isBlank(ImageUtils.getImageType(file.getName()))) {
-                    return imageMap;
-                }
-                // 先检查是否为图片类型
-                Image image;
-                File temp = ImageUtils.buildTempFile(file.getName());
-                try {
-                    // gif 不压缩, 需要特殊处理
-                    if (file.isFile() && !file.getName().endsWith("gif") && state.isCompress()) {
-                        ImageUtils.compress(file, temp, state.getCompressBeforeUploadOfPercent());
-                    } else {
-                        FileUtils.copyFile(file, temp);
-                    }
-                    // 读到缓冲区, 如果抛异常, 则不是图片
-                    image = ImageIO.read(temp);
-                } catch (IOException ignored) {
-                    // 如果抛异常, 则不是图片, 直接返回, 避免 OOM
-                    imageMap.clear();
-                    return imageMap;
-                }
-                // 只要有一个文件不是 image, 就执行默认操作然后退出
-                if (image != null) {
-                    imageMap.put(file.getName(), temp);
-                }
-            }
+            resolveFromFile(state, entry, imageMap);
         } else {
-            // image 类型统一重命名, 后缀为 png, 因为获取不到文件名
-            String fileName = CharacterUtils.getRandomString(6) + ".png";
-            // 如果是 image 类型, 则需要转换成 File
-            Image image = (Image) entry.getValue();
-            BufferedImage bufferedImage = ImageUtils.toBufferedImage(image);
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-            assert bufferedImage != null;
-            File temp = ImageUtils.buildTempFile(fileName);
-            try {
-                ImageIO.write(bufferedImage, "png", os);
-                InputStream is = new ByteArrayInputStream(os.toByteArray());
-                // 压缩写入临时文件
-                if(state.isCompress()){
-                    ImageUtils.compress(is, temp, state.getCompressBeforeUploadOfPercent());
-                } else {
-                    FileUtils.copyToFile(is, temp);
-                }
-            } catch (IOException e) {
-                UploadNotification.notifyUploadFailure(new UploadException("文件转换失败"), project);
-            }
-            imageMap.put(fileName, temp);
+            resolveFromImage(state, entry, project, imageMap);
         }
         return imageMap;
+    }
+
+    /**
+     * 处理 clipboard 中为 List<File> 类型的数据
+     *
+     * @param state    the state
+     * @param entry    the entry
+     * @param imageMap the image map
+     */
+    private void resolveFromFile(@NotNull ImageManagerState state,
+                                 @NotNull Map.Entry<DataFlavor, Object> entry,
+                                 Map<String, File> imageMap) {
+        @SuppressWarnings("unchecked") List<File> fileList = (List<File>) entry.getValue();
+        for (File file : fileList) {
+            // 第一步先初步排除非图片类型, 避免复制大量文件导致 OOM
+            if (StringUtils.isBlank(ImageUtils.getImageType(file.getName()))) {
+                break;
+            }
+            // 创建临时文件, 用于保存压缩后的图片
+            File temp = ImageUtils.buildTempFile(file.getName());
+            try {
+                // todo-dong4j : (2019年03月26日 12:02) [gif 不压缩, 需要特殊处理]
+                if (file.isFile() && !file.getName().endsWith("gif") && state.isCompress()) {
+                    ImageUtils.compress(file, temp, state.getCompressBeforeUploadOfPercent());
+                } else {
+                    FileUtils.copyFile(file, temp);
+                }
+                // 读到缓冲区, 如果抛异常, 则不是图片
+                ImageIO.read(temp);
+            } catch (IOException ignored) {
+                // 如果抛异常, 则不是图片, 清除所有数据, 使用默认处理程序处理 clipboard 数据
+                imageMap.clear();
+                break;
+            }
+            imageMap.put(file.getName(), temp);
+        }
+    }
+
+    /**
+     * 处理 clipboard 中为 Image 类型的数据
+     *
+     * @param state    the state
+     * @param entry    the entry
+     * @param project  the project
+     * @param imageMap the image map
+     */
+    private void resolveFromImage(@NotNull ImageManagerState state,
+                                  @NotNull Map.Entry<DataFlavor, Object> entry,
+                                  Project project,
+                                  Map<String, File> imageMap) {
+        // image 类型统一重命名, 后缀为 png, 因为获取不到文件名
+        String fileName = CharacterUtils.getRandomString(6) + ".png";
+        // 如果是 image 类型, 则需要转换成 File
+        Image image = (Image) entry.getValue();
+        BufferedImage bufferedImage = ImageUtils.toBufferedImage(image);
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        assert bufferedImage != null;
+        File temp = ImageUtils.buildTempFile(fileName);
+        try {
+            ImageIO.write(bufferedImage, "png", os);
+            InputStream is = new ByteArrayInputStream(os.toByteArray());
+            // 压缩写入临时文件
+            if (state.isCompress()) {
+                ImageUtils.compress(is, temp, state.getCompressBeforeUploadOfPercent());
+            } else {
+                FileUtils.copyToFile(is, temp);
+            }
+        } catch (IOException e) {
+            UploadNotification.notifyUploadFailure(new UploadException("文件转换失败"), project);
+        }
+        imageMap.put(fileName, temp);
     }
 
     /**

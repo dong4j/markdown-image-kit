@@ -25,6 +25,8 @@
 
 package info.dong4j.idea.plugin.chain;
 
+import info.dong4j.idea.plugin.entity.EventData;
+
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
  * <p>Description: </p>
@@ -35,12 +37,12 @@ package info.dong4j.idea.plugin.chain;
  */
 public class ImageRenameHandler extends BaseActionHandler {
     @Override
-    public boolean isEnabled() {
+    public boolean isEnabled(EventData data) {
         return false;
     }
 
     @Override
-    public boolean execute() {
+    public boolean execute(EventData data) {
         return false;
     }
 }

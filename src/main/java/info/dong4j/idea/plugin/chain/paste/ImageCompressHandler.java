@@ -23,50 +23,53 @@
  *
  */
 
-package info.dong4j.idea.plugin.chain;
+package info.dong4j.idea.plugin.chain.paste;
 
-import com.intellij.openapi.progress.ProgressIndicator;
-
+import info.dong4j.idea.plugin.chain.PasteActionHandler;
 import info.dong4j.idea.plugin.entity.EventData;
+import info.dong4j.idea.plugin.util.ImageUtils;
+
+import org.apache.commons.io.FileUtils;
+
+import java.io.*;
+import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: </p>
+ * <p>Description: 图片压缩 </p>
  *
  * @author dong4j
- * @email sjdong3 @iflytek.com
- * @since 2019 -03-22 18:38
+ * @email sjdong3@iflytek.com
+ * @since 2019-03-26 12:32
  */
-public abstract class PasteActionHandler extends BaseActionHandler {
+@Slf4j
+public class ImageCompressHandler extends PasteActionHandler {
+
     @Override
     public boolean isEnabled(EventData data) {
-        return false;
+        return STATE.isCopyToDir() && STATE.isCompress();
     }
 
     @Override
     public boolean execute(EventData data) {
+        for (Map.Entry<String, File> imageEntry : data.getImageMap().entrySet()) {
+            String fileName = imageEntry.getKey();
+            File willProcessedFile = imageEntry.getValue();
+            File temp = ImageUtils.buildTempFile(willProcessedFile.getName());
+            // gif 需要特殊处理, 这里暂时不处理
+            if (!willProcessedFile.getName().endsWith("gif")) {
+                ImageUtils.compress(willProcessedFile, temp, STATE.getCompressBeforeUploadOfPercent());
+            } else {
+                try {
+                    FileUtils.copyFile(willProcessedFile, temp);
+                } catch (IOException e) {
+                    log.trace("", e);
+                }
+            }
+            data.getImageMap().put(fileName, temp);
+        }
         return false;
-    }
-
-    /**
-     * Start backgroup task.
-     *
-     * @param indicator the indicator
-     */
-    protected void startBackgroupTask(ProgressIndicator indicator) {
-        indicator.setFraction(0.0);
-        indicator.pushState();
-        indicator.setIndeterminate(false);
-    }
-
-    /**
-     * End backgroup task.
-     *
-     * @param indicator the indicator
-     */
-    protected void endBackgroupTask(ProgressIndicator indicator) {
-        indicator.setFraction(1.0);
-        indicator.popState();
-        indicator.stop();
     }
 }
