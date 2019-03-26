@@ -81,11 +81,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public final class ImageUtils {
-    /**
-     * The constant FROM_CLIBOARD.
-     */
-    public static final String FROM_CLIBOARD = "clipboard";
-    /** 重命名文件的前缀 */
     private static final String PREFIX = "MIK-";
 
     /**
@@ -481,9 +476,6 @@ public final class ImageUtils {
      */
     public static String processFileName(String fileName) {
         ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
-        if(FROM_CLIBOARD.equals(fileName)){
-            fileName = CharacterUtils.getRandomString(6) + ".png";
-        }
         if (state.isRename()) {
             // 处理文件名有空格导致上传 gif 变为静态图的问题
             fileName = fileName.replaceAll("\\s*", "");

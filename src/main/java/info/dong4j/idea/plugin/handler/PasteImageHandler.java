@@ -43,6 +43,7 @@ import com.intellij.util.containers.hash.HashMap;
 import info.dong4j.idea.plugin.exception.UploadException;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
+import info.dong4j.idea.plugin.util.CharacterUtils;
 import info.dong4j.idea.plugin.util.ImageUtils;
 import info.dong4j.idea.plugin.util.MarkdownUtils;
 import info.dong4j.idea.plugin.util.UploadNotification;
@@ -150,11 +151,9 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                 if (StringUtils.isBlank(ImageUtils.getImageType(file.getName()))) {
                     return imageMap;
                 }
-                // 检查是否重命名文件
-                String fileName = ImageUtils.processFileName(file.getName());
                 // 先检查是否为图片类型
                 Image image;
-                File temp = ImageUtils.buildTempFile(fileName);
+                File temp = ImageUtils.buildTempFile(file.getName());
                 try {
                     // gif 不压缩, 需要特殊处理
                     if (file.isFile() && !file.getName().endsWith("gif") && state.isCompress()) {
@@ -171,12 +170,12 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                 }
                 // 只要有一个文件不是 image, 就执行默认操作然后退出
                 if (image != null) {
-                    imageMap.put(fileName, temp);
+                    imageMap.put(file.getName(), temp);
                 }
             }
         } else {
             // image 类型统一重命名, 后缀为 png, 因为获取不到文件名
-            String fileName = ImageUtils.processFileName(ImageUtils.FROM_CLIBOARD);
+            String fileName = CharacterUtils.getRandomString(6) + ".png";
             // 如果是 image 类型, 则需要转换成 File
             Image image = (Image) entry.getValue();
             BufferedImage bufferedImage = ImageUtils.toBufferedImage(image);
