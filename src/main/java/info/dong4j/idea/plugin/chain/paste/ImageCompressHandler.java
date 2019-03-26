@@ -70,6 +70,6 @@ public class ImageCompressHandler extends PasteActionHandler {
             }
             data.getImageMap().put(fileName, temp);
         }
-        return false;
+        return true;
     }
 }

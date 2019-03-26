@@ -27,8 +27,6 @@ package info.dong4j.idea.plugin.chain;
 
 import com.intellij.openapi.progress.ProgressIndicator;
 
-import info.dong4j.idea.plugin.entity.EventData;
-
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
  * <p>Description: </p>
@@ -38,16 +36,6 @@ import info.dong4j.idea.plugin.entity.EventData;
  * @since 2019 -03-22 18:38
  */
 public abstract class PasteActionHandler extends BaseActionHandler {
-    @Override
-    public boolean isEnabled(EventData data) {
-        return false;
-    }
-
-    @Override
-    public boolean execute(EventData data) {
-        return false;
-    }
-
     /**
      * Start backgroup task.
      *

@@ -160,6 +160,6 @@ public class ImageStorageHandler extends PasteActionHandler {
 
         task.queue();
 
-        return false;
+        return true;
     }
 }

@@ -35,26 +35,42 @@ import java.util.List;
  * <p>Description: </p>
  *
  * @author dong4j
- * @email sjdong3@iflytek.com
- * @since 2019-03-22 18:50
+ * @email sjdong3 @iflytek.com
+ * @since 2019 -03-22 18:50
  */
 public class ActionManager {
     private List<IActionHandler> handlersChain = new LinkedList<>();
     private EventData data;
 
+    /**
+     * Instantiates a new Action manager.
+     *
+     * @param data the data
+     */
     public ActionManager(EventData data) {
         this.data = data;
     }
 
+    /**
+     * Add handler action manager.
+     *
+     * @param handler the handler
+     * @return the action manager
+     */
     public ActionManager addHandler(IActionHandler handler) {
         handlersChain.add(handler);
         return this;
     }
 
+    /**
+     * Invoke.
+     */
     public void invoke() {
         for (IActionHandler handler : handlersChain) {
             if (handler.isEnabled(data)) {
-                handler.execute(data);
+                if (!handler.execute(data)) {
+                    break;
+                }
             }
         }
     }

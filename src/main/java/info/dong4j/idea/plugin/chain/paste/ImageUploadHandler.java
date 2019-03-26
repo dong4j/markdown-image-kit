@@ -150,6 +150,6 @@ public class ImageUploadHandler extends PasteActionHandler {
 
         task.queue();
 
-        return false;
+        return true;
     }
 }

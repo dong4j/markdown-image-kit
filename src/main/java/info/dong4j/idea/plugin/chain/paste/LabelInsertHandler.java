@@ -111,6 +111,6 @@ public class LabelInsertHandler extends PasteActionHandler {
             }
         }.queue();
 
-        return false;
+        return true;
     }
 }
