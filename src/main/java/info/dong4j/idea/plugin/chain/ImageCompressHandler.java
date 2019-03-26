@@ -23,9 +23,11 @@
  *
  */
 
-package info.dong4j.idea.plugin.chain.paste;
+package info.dong4j.idea.plugin.chain;
 
-import info.dong4j.idea.plugin.chain.PasteActionHandler;
+import com.intellij.openapi.progress.ProgressIndicator;
+
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.util.ImageUtils;
 
@@ -45,15 +47,22 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019-03-26 12:32
  */
 @Slf4j
-public class ImageCompressHandler extends PasteActionHandler {
+public class ImageCompressHandler extends BaseActionHandler {
 
     @Override
     public boolean isEnabled(EventData data) {
-        return STATE.isCopyToDir() && STATE.isCompress();
+        return STATE.isCompress();
     }
 
     @Override
     public boolean execute(EventData data) {
+        ProgressIndicator indicator = data.getIndicator();
+
+        int size = data.getSize();
+        indicator.setText2(MikBundle.message("mik.chain.compress.progress"));
+        int totalCount = data.getImageMap().size();
+        int totalProcessed = 0;
+
         for (Map.Entry<String, File> imageEntry : data.getImageMap().entrySet()) {
             String fileName = imageEntry.getKey();
             File willProcessedFile = imageEntry.getValue();
@@ -69,6 +78,7 @@ public class ImageCompressHandler extends PasteActionHandler {
                 }
             }
             data.getImageMap().put(fileName, temp);
+            indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
         }
         return true;
     }

@@ -25,6 +25,8 @@
 
 package info.dong4j.idea.plugin.chain;
 
+import com.intellij.openapi.progress.ProgressIndicator;
+
 import info.dong4j.idea.plugin.entity.EventData;
 
 import java.util.LinkedList;
@@ -58,20 +60,26 @@ public class ActionManager {
      * @return the action manager
      */
     public ActionManager addHandler(IActionHandler handler) {
-        handlersChain.add(handler);
+        this.handlersChain.add(handler);
         return this;
     }
 
     /**
      * Invoke.
      */
-    public void invoke() {
+    public void invoke(ProgressIndicator indicator) {
+        int totalProcessed = 0;
+        data.setIndicator(indicator);
+        data.setSize(handlersChain.size());
+        int index = 0;
         for (IActionHandler handler : handlersChain) {
+            data.setIndex(index++);
             if (handler.isEnabled(data)) {
                 if (!handler.execute(data)) {
                     break;
                 }
             }
+            indicator.setFraction(++totalProcessed * 1.0 / handlersChain.size());
         }
     }
 }

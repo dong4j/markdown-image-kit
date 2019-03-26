@@ -41,14 +41,17 @@ import com.intellij.util.Producer;
 import com.intellij.util.containers.hash.HashMap;
 
 import info.dong4j.idea.plugin.chain.ActionManager;
-import info.dong4j.idea.plugin.chain.paste.ImageCompressHandler;
+import info.dong4j.idea.plugin.chain.ImageCompressHandler;
+import info.dong4j.idea.plugin.chain.ImageLabelChangeHandler;
+import info.dong4j.idea.plugin.chain.ImageLabelInsertHandler;
 import info.dong4j.idea.plugin.chain.paste.ImageStorageHandler;
 import info.dong4j.idea.plugin.chain.paste.ImageUploadHandler;
-import info.dong4j.idea.plugin.chain.paste.LabelInsertHandler;
 import info.dong4j.idea.plugin.entity.EventData;
+import info.dong4j.idea.plugin.enums.InsertEnum;
 import info.dong4j.idea.plugin.exception.UploadException;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
+import info.dong4j.idea.plugin.task.ChainBackgroupTask;
 import info.dong4j.idea.plugin.util.CharacterUtils;
 import info.dong4j.idea.plugin.util.ImageUtils;
 import info.dong4j.idea.plugin.util.MarkdownUtils;
@@ -130,13 +133,21 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                     }
 
                     // todo-dong4j : (2019年03月25日 12:26) [通知一次]
-                    EventData data = new EventData().setEditor(editor).setImageMap(imageMap);
-                    new ActionManager(data)
+                    EventData data = new EventData()
+                        .setProject(editor.getProject())
+                        .setEditor(editor)
+                        .setImageMap(imageMap)
+                        .setInsertType(InsertEnum.DOCUMENT);
+
+                    ActionManager manager = new ActionManager(data)
                         .addHandler(new ImageCompressHandler())
                         .addHandler(new ImageStorageHandler())
                         .addHandler(new ImageUploadHandler())
-                        .addHandler(new LabelInsertHandler())
-                        .invoke();
+                        .addHandler(new ImageLabelChangeHandler())
+                        .addHandler(new ImageLabelInsertHandler());
+
+                    new ChainBackgroupTask(editor.getProject(), "Paste Task", manager).queue();
+
                     return;
                 }
             }

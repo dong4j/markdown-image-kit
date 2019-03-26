@@ -26,10 +26,10 @@
 package info.dong4j.idea.plugin.action;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.Presentation;
 
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Contract;
+
+import javax.swing.Icon;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,16 +44,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class ImageCompressAction extends AbstractImageAction {
 
+    @Contract(pure = true)
     @Override
-    public void update(@NotNull AnActionEvent event) {
-        final Presentation presentation = event.getPresentation();
-        presentation.setEnabled(false);
-        presentation.setVisible(true);
-        presentation.setIcon(AllIcons.Debugger.ShowCurrentFrame);
+    protected Icon getIcon() {
+        return AllIcons.Debugger.ShowCurrentFrame;
     }
 
-    @Override
-    public void actionPerformed(@NotNull AnActionEvent e) {
-
-    }
 }

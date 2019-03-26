@@ -127,6 +127,7 @@ public abstract class AbstractUploadCloudAction extends AnAction {
         // 如果不是空文件夹
         if (null != files) {
             for (VirtualFile file : files) {
+                // fixme-dong4j : (2019年03月26日 16:52 [逻辑有问题])
                 // 只要有一个是文件夹且不是 node_modules 文件夹 , 则可用
                 if (file.isDirectory() && !MarkdownContents.NODE_MODULES_FILE.equals(file.getName())) {
                     // 文件夹可用
@@ -174,11 +175,11 @@ public abstract class AbstractUploadCloudAction extends AnAction {
                 VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(documentFromEditor);
                 waitingForUploadImages.put(documentFromEditor, MarkdownUtils.getImageInfoFromFiles(virtualFile));
             }
-            // todo-dong4j : (2019年03月15日 09:41) [没有选中编辑器]
             else {
-                // 获取被选中的所有文件和目录
+                // 获取被选中的有文件和目录
                 final VirtualFile[] files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(dataContext);
                 if (null != files) {
+                    // fixme-dong4j : (2019年03月26日 16:52 [逻辑有问题])
                     for (VirtualFile file : files) {
                         if (MarkdownUtils.isMardownFile(file)) {
                             // 解析此文件中所有的图片标签

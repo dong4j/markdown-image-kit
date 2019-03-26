@@ -80,8 +80,8 @@ public class UploadBackgroundTask extends Task.Backgroundable {
      * @param ossClient              the oss client
      */
     public UploadBackgroundTask(@Nullable Project project,
-                                @Nls(capitalization = Nls.Capitalization.Title)
-                                @NotNull String title, boolean canBeCancelled,
+                                @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title,
+                                boolean canBeCancelled,
                                 Map<Document, List<MarkdownImage>> waitingForUploadImages,
                                 OssClient ossClient) {
         super(project, title, canBeCancelled);

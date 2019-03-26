@@ -37,6 +37,9 @@
         <action id="ImageCompressAction" class="info.dong4j.idea.plugin.action.ImageCompressAction"
                 popup="true" text="压缩图片">
         </action>
+        <action id="ImageUploadAction" class="info.dong4j.idea.plugin.action.ImageUploadAction"
+                popup="true" text="图片上传">
+        </action>
         <action id="MoveToOtherStorageAction" class="info.dong4j.idea.plugin.action.MoveToOtherStorageAction"
                 popup="true" text="图床迁移计划">
         </action>
@@ -49,6 +52,8 @@
             <reference ref="QiniuObjectStorageServiceAction"/>
             <separator/>
             <reference ref="ImageCompressAction"/>
+            <reference ref="ImageUploadAction"/>
+            <separator/>
             <reference ref="MoveToOtherStorageAction"/>
             <add-to-group group-id="ToolsMenu" anchor="last"/>
             <add-to-group group-id="MainToolBar" anchor="last"/>
@@ -62,6 +67,9 @@
             <reference ref="WeiboObjectStorageServiceAction"/>
             <reference ref="AliyunObjectStorageServiceAction"/>
             <reference ref="QiniuObjectStorageServiceAction"/>
+            <separator/>
+            <reference ref="ImageCompressAction"/>
+            <reference ref="ImageUploadAction"/>
             <separator/>
             <reference ref="MoveToOtherStorageAction"/>
             <add-to-group group-id="EditorPopupMenu" anchor="last"/>

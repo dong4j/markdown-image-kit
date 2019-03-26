@@ -25,6 +25,8 @@
 
 package info.dong4j.idea.plugin.chain;
 
+import com.intellij.openapi.progress.ProgressIndicator;
+
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
  * <p>Description: </p>
@@ -34,4 +36,25 @@ package info.dong4j.idea.plugin.chain;
  * @since 2019-03-22 18:37
  */
 public abstract class BaseActionHandler implements IActionHandler {
+    /**
+     * Start backgroup task.
+     *
+     * @param indicator the indicator
+     */
+    protected void startBackgroupTask(ProgressIndicator indicator) {
+        indicator.setFraction(0.0);
+        indicator.pushState();
+        indicator.setIndeterminate(false);
+    }
+
+    /**
+     * End backgroup task.
+     *
+     * @param indicator the indicator
+     */
+    protected void endBackgroupTask(ProgressIndicator indicator) {
+        indicator.setFraction(1.0);
+        indicator.popState();
+        indicator.stop();
+    }
 }

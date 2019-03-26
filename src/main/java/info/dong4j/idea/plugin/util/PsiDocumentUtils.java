@@ -27,6 +27,8 @@ package info.dong4j.idea.plugin.util;
 
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.EditorModificationUtil;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDocumentManager;
@@ -91,5 +93,16 @@ public final class PsiDocumentUtils {
                                document.getLineEndOffset(markdownImage.getLineNumber()),
                                newLineText));
         }
+    }
+
+    /**
+     * 一次性插入
+     *
+     * @param marks  the marks
+     * @param editor the editor
+     */
+    public static void insertDocument(String marks, Editor editor){
+        Runnable r = () -> EditorModificationUtil.insertStringAtCaret(editor, marks);
+        WriteCommandAction.runWriteCommandAction(editor.getProject(), r);
     }
 }

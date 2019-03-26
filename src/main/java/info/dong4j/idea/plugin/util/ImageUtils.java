@@ -25,11 +25,15 @@
 
 package info.dong4j.idea.plugin.util;
 
+import com.intellij.openapi.vfs.VfsUtilCore;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.JBColor;
 import com.intellij.util.containers.hash.HashMap;
 import com.intellij.util.ui.UIUtil;
 import com.siyeh.ig.portability.mediatype.ImageMediaType;
 
+import info.dong4j.idea.plugin.content.ImageContents;
+import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.enums.FileType;
 import info.dong4j.idea.plugin.enums.SuffixEnum;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
@@ -49,7 +53,9 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.geom.AffineTransform;
@@ -62,7 +68,9 @@ import java.awt.image.ImageProducer;
 import java.awt.image.RGBImageFilter;
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -132,6 +140,19 @@ public final class ImageUtils {
         return data;
     }
 
+    /**
+     * 把文本设置到剪贴板（复制）
+     *
+     * @param text the text
+     */
+    public static void setStringToClipboard(String text) {
+        // 获取系统剪贴板
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        // 封装文本内容
+        Transferable trans = new StringSelection(text);
+        // 把文本内容设置到系统剪贴板
+        clipboard.setContents(trans, null);
+    }
 
     /**
      * Scale image buffered image.
@@ -173,26 +194,6 @@ public final class ImageUtils {
         } catch (Throwable e) {
             System.out.println("Write error for " + file.getPath() + ": " + e.getMessage());
         }
-    }
-
-    /**
-     * Save string.
-     *
-     * @param image     the image
-     * @param preFix    the pre fix
-     * @param format    the format
-     * @param accessKey the access key
-     * @param secretKey the secret key
-     * @param upHost    the up host
-     * @return the string
-     * @throws IOException the io exception
-     */
-    public static String save(BufferedImage image, String preFix, String format, String accessKey, String secretKey, String upHost) throws IOException {
-
-        ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
-        ImageIO.write(image, format, byteOutputStream);
-        return QiniuUploadUtils.uploadImage(byteOutputStream.toByteArray(), preFix, accessKey, secretKey, upHost);
-
     }
 
     /**
@@ -504,7 +505,43 @@ public final class ImageUtils {
      */
     @NotNull
     @Contract("_ -> new")
-    public static File buildTempFile(String fileName){
+    public static File buildTempFile(String fileName) {
         return new File(System.getProperty("java.io.tmpdir") + fileName);
+    }
+
+    /**
+     * 递归遍历目录, 返回所有 Image 文件
+     *
+     * @param virtualFile the virtual file
+     */
+    public static List<VirtualFile> recursivelyImageFile(VirtualFile virtualFile) {
+        List<VirtualFile> imageFiles = new ArrayList<>();
+        /*
+         * 递归遍历子文件
+         *
+         * @param root     the root         父文件
+         * @param filter   the filter       过滤器
+         * @param iterator the iterator     处理方式
+         * @return the boolean
+         */
+        VfsUtilCore.iterateChildrenRecursively(virtualFile,
+                                               file -> {
+                                                   // todo-dong4j : (2019年03月15日 13:02) [从 .gitignore 中获取忽略的文件]
+                                                   boolean allowAccept = file.isDirectory() && !file.getName().equals(MarkdownContents.NODE_MODULES_FILE);
+                                                   if (allowAccept || ImageContents.IMAGE_TYPE_NAME.equals(file.getFileType().getName())) {
+                                                       log.trace("accept = {}", file.getPath());
+                                                       return true;
+                                                   }
+                                                   return false;
+                                               },
+                                               fileOrDir -> {
+                                                   // todo-dong4j : (2019年03月15日 13:04) [处理 markdown 逻辑实现]
+                                                   if (!fileOrDir.isDirectory()) {
+                                                       log.trace("processFile = {}", fileOrDir.getName());
+                                                       imageFiles.add(fileOrDir);
+                                                   }
+                                                   return true;
+                                               });
+        return imageFiles;
     }
 }

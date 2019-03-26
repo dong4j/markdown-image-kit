@@ -25,6 +25,12 @@
 
 package info.dong4j.idea.plugin.action;
 
+import com.intellij.icons.AllIcons;
+
+import org.jetbrains.annotations.Contract;
+
+import javax.swing.Icon;
+
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
  * <p>Description: 图片右键直接上传</p>
@@ -33,5 +39,10 @@ package info.dong4j.idea.plugin.action;
  * @email sjdong3@iflytek.com
  * @since 2019-03-26 15:36
  */
-public final class ImageUploadAction extends AbstractImageAction{
+public final class ImageUploadAction extends AbstractImageAction {
+    @Contract(pure = true)
+    @Override
+    protected Icon getIcon() {
+        return AllIcons.Debugger.Overhead;
+    }
 }

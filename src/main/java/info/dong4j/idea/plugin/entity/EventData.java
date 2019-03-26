@@ -26,8 +26,14 @@
 package info.dong4j.idea.plugin.entity;
 
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.project.Project;
+
+import info.dong4j.idea.plugin.enums.InsertEnum;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,15 +51,24 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class EventData {
+    /** 显示当前处理进度 */
+    private ProgressIndicator indicator;
+    /** chain size */
+    private int size;
+    /** 当前执行的节点 */
+    private int index;
+    private Project project;
     private Editor editor;
-    /** 从 clipboard 中解析的文件*/
-    private Map<String, File> imageMap;
-    /** save markdown image mark*/
-    private List<String> saveMarkList;
-    /** upload markdown image mark*/
-    private List<String> uploadedMarkList;
-    /** save image task status*/
-    private volatile boolean saveImageFinished;
-    /** upload image task status*/
-    private volatile boolean uploadImageFinished;
+    /** 从 clipboard 中解析的文件 */
+    private Map<String, File> imageMap = new HashMap<>(1);
+    /** save markdown image mark */
+    private List<String> saveMarkList = new ArrayList<>(1);
+    /** upload markdown image mark */
+    private List<String> uploadedMarkList = new ArrayList<>(1);
+    /** save image task status */
+    private volatile boolean saveImageFinished = false;
+    /** upload image task status */
+    private volatile boolean uploadImageFinished = false;
+    /** markdown image mark 插入的位置 */
+    private InsertEnum insertType = InsertEnum.DOCUMENT;
 }
