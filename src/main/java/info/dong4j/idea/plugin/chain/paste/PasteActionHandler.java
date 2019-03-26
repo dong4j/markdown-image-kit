@@ -23,9 +23,9 @@
  *
  */
 
-package info.dong4j.idea.plugin.chain;
+package info.dong4j.idea.plugin.chain.paste;
 
-import com.intellij.openapi.progress.ProgressIndicator;
+import info.dong4j.idea.plugin.chain.BaseActionHandler;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
@@ -36,25 +36,4 @@ import com.intellij.openapi.progress.ProgressIndicator;
  * @since 2019 -03-22 18:38
  */
 public abstract class PasteActionHandler extends BaseActionHandler {
-    /**
-     * Start backgroup task.
-     *
-     * @param indicator the indicator
-     */
-    protected void startBackgroupTask(ProgressIndicator indicator) {
-        indicator.setFraction(0.0);
-        indicator.pushState();
-        indicator.setIndeterminate(false);
-    }
-
-    /**
-     * End backgroup task.
-     *
-     * @param indicator the indicator
-     */
-    protected void endBackgroupTask(ProgressIndicator indicator) {
-        indicator.setFraction(1.0);
-        indicator.popState();
-        indicator.stop();
-    }
 }

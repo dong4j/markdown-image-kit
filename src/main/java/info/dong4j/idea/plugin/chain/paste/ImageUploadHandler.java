@@ -25,25 +25,20 @@
 
 package info.dong4j.idea.plugin.chain.paste;
 
-import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
 
 import info.dong4j.idea.plugin.MikBundle;
-import info.dong4j.idea.plugin.chain.PasteActionHandler;
 import info.dong4j.idea.plugin.client.OssClient;
-import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.enums.CloudEnum;
+import info.dong4j.idea.plugin.enums.InsertEnum;
 import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.strategy.UploadFromPaste;
 import info.dong4j.idea.plugin.strategy.Uploader;
 import info.dong4j.idea.plugin.util.ClientUtils;
 import info.dong4j.idea.plugin.util.UploadNotification;
-import info.dong4j.idea.plugin.util.UploadUtils;
 
 import org.apache.commons.lang.StringUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -70,86 +65,57 @@ public class ImageUploadHandler extends PasteActionHandler {
      */
     @Override
     public boolean isEnabled(EventData data) {
-        boolean isOpen = STATE.isUploadAndReplace() && STATE.isClipboardControl();
-        boolean isAvailable = OssState.getStatus(STATE.getCloudType());
-        if (isOpen && !isAvailable) {
-            UploadNotification.notifyConfigurableError(data.getEditor().getProject(), OssState.getCloudType(STATE.getCloudType()).title);
+        if (InsertEnum.DOCUMENT.equals(data.getInsertType())) {
+            boolean isOpen = STATE.isUploadAndReplace() && STATE.isClipboardControl();
+            boolean isAvailable = OssState.getStatus(STATE.getCloudType());
+            if (isOpen && !isAvailable) {
+                UploadNotification.notifyConfigurableError(data.getProject(), OssState.getCloudType(STATE.getCloudType()).title);
+            }
+            // todo-dong4j : (2019年03月20日 17:32) [使用如下代码获取]
+            //  http://www.jetbrains.org/intellij/sdk/docs/basics/persisting_state_of_components.html
+            //  "PropertiesComponent.getInstance().setValue("PI__LAST_DIR_PATTERN", dirPattern);"
+            return isOpen && isAvailable;
+        } else {
+            return InsertEnum.CLIPBOADR.equals(data.getInsertType());
         }
-        // todo-dong4j : (2019年03月20日 17:32) [使用如下代码获取]
-        //  http://www.jetbrains.org/intellij/sdk/docs/basics/persisting_state_of_components.html
-        //  "PropertiesComponent.getInstance().setValue("PI__LAST_DIR_PATTERN", dirPattern);"
-        return isOpen && isAvailable;
     }
 
     /**
-     * 将临时文件 copy 到用户设置的目录下, 返回处理后的 markdown image mark list
+     * 将临时文件 copy 到用户设置的目录下, 返回上传后的 markdown image mark list
      *
      * @return the boolean
      */
     @Override
     public boolean execute(EventData data) {
         log.trace("upload");
+        ProgressIndicator indicator = data.getIndicator();
 
-        Editor editor = data.getEditor();
+        Map<String, File> imageMap = data.getImageMap();
+        List<String> markList = new ArrayList<>(imageMap.size());
 
-        Task.Backgroundable task = new Task.Backgroundable(editor.getProject(),
-                                MikBundle.message("mik.paste.upload.progress"),
-                                true) {
-            @Override
-            public void run(@NotNull ProgressIndicator indicator) {
-                startBackgroupTask(indicator);
+        int size = data.getSize();
+        indicator.setText2(MikBundle.message("mik.paste.upload.progress"));
+        int totalProcessed = 0;
+        int totalCount = imageMap.size();
 
-                Map<String, File> imageMap = data.getImageMap();
-                List<String> markList = new ArrayList<>(imageMap.size());
-
-                int totalProcessed = 0;
-                int totalCount = imageMap.size();
-                try {
-                    for (Map.Entry<String, File> imageEntry : imageMap.entrySet()) {
-                        String imageName = imageEntry.getKey();
-                        // 上传到默认图床
-                        CloudEnum cloudEnum = OssState.getCloudType(STATE.getCloudType());
-                        OssClient client = ClientUtils.getInstance(cloudEnum);
-                        if (client != null) {
-                            indicator.setText2("Uploading " + imageName);
-                            String imageUrl = Uploader.getInstance().setUploadWay(new UploadFromPaste(client, imageEntry.getValue())).upload();
-
-                            if (StringUtils.isNotBlank(imageUrl)) {
-                                indicator.setText2("Save Mark: " + imageUrl);
-                                String newLineText = UploadUtils.getFinalImageMark("", imageUrl, imageUrl, ImageContents.LINE_BREAK);
-                                // 保存上传后 markdown image mark
-                                markList.add(newLineText);
-                            }
-                        } else {
-                            UploadNotification.notifyConfigurableError(editor.getProject(), cloudEnum.title);
-                        }
-                        indicator.setFraction(++totalProcessed * 1.0 / totalCount);
-                    }
-                    data.setUploadedMarkList(markList);
-                } finally {
-                    endBackgroupTask(indicator);
+        for (Map.Entry<String, File> imageEntry : imageMap.entrySet()) {
+            String imageName = imageEntry.getKey();
+            // 上传到默认图床
+            CloudEnum cloudEnum = OssState.getCloudType(STATE.getCloudType());
+            OssClient client = ClientUtils.getInstance(cloudEnum);
+            if (client != null) {
+                String imageUrl = Uploader.getInstance().setUploadWay(new UploadFromPaste(client, imageEntry.getValue())).upload();
+                indicator.setText2("Uploading " + imageName);
+                if (StringUtils.isNotBlank(imageUrl)) {
+                    // 只保存 url, 后面由 ImageLabelChangeHandler 处理
+                    markList.add(imageUrl);
                 }
+            } else {
+                UploadNotification.notifyConfigurableError(data.getProject(), cloudEnum.title);
             }
-
-            @Override
-            public void onCancel() {
-                log.trace("cancel callback");
-            }
-
-            @Override
-            public void onSuccess() {
-                log.trace("success callback");
-            }
-
-            @Override
-            public void onFinished() {
-                log.trace("finished callback");
-                data.setUploadImageFinished(true);
-            }
-        };
-
-        task.queue();
-
+            indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
+        }
+        data.setUploadedMarkList(markList);
         return true;
     }
 }
