@@ -45,7 +45,6 @@ import info.dong4j.idea.plugin.strategy.UploadFromTest;
 import info.dong4j.idea.plugin.strategy.Uploader;
 import info.dong4j.idea.plugin.util.ClientUtils;
 import info.dong4j.idea.plugin.util.DES;
-import info.dong4j.idea.plugin.util.EnumsUtils;
 import info.dong4j.idea.plugin.util.UploadNotification;
 
 import org.apache.commons.lang.StringUtils;
@@ -54,7 +53,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.util.Optional;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -424,24 +422,25 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         testButton.addActionListener(e -> {
             int index = authorizationTabbedPanel.getSelectedIndex();
             InputStream inputStream = this.getClass().getResourceAsStream("/" + TEST_FILE_NAME);
-            Optional<CloudEnum> cloudType = EnumsUtils.getEnumObject(CloudEnum.class, i -> i.getIndex() == index);
-
-            OssClient client = ClientUtils.getInstance(cloudType.orElse(CloudEnum.WEIBO_CLOUD));
-            String url = Uploader.getInstance().setUploadWay(new UploadFromTest(client,
-                                                                                inputStream,
-                                                                                TEST_FILE_NAME,
-                                                                                (JPanel) authorizationTabbedPanel.getComponentAt(index))).upload();
-            if (StringUtils.isNotBlank(url)) {
-                testMessage.setForeground(JBColor.GREEN);
-                testMessage.setText("Upload Succeed");
-                testButton.setText("Test Upload");
-                if (log.isTraceEnabled()) {
-                    BrowserUtil.browse(url);
+            CloudEnum cloudEnum = OssState.getCloudType(index);
+            OssClient client = ClientUtils.getInstance(cloudEnum);
+            if(client != null){
+                String url = Uploader.getInstance().setUploadWay(new UploadFromTest(client,
+                                                                                    inputStream,
+                                                                                    TEST_FILE_NAME,
+                                                                                    (JPanel) authorizationTabbedPanel.getComponentAt(index))).upload();
+                if (StringUtils.isNotBlank(url)) {
+                    testMessage.setForeground(JBColor.GREEN);
+                    testMessage.setText("Upload Succeed");
+                    testButton.setText("Test Upload");
+                    if (log.isTraceEnabled()) {
+                        BrowserUtil.browse(url);
+                    }
+                } else {
+                    testButton.setText("Try Again");
+                    testMessage.setForeground(JBColor.RED);
+                    testMessage.setText("Upload Failed, Please Check The Configuration");
                 }
-            } else {
-                testButton.setText("Try Again");
-                testMessage.setForeground(JBColor.RED);
-                testMessage.setText("Upload Failed, Please Check The Configuration");
             }
         });
 

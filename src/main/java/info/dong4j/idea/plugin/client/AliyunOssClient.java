@@ -273,11 +273,7 @@ public class AliyunOssClient implements OssClient {
         } catch (IOException e) {
             log.trace("", e);
         } finally {
-            try {
-                instream.close();
-            } catch (IOException e) {
-                log.trace("", e);
-            }
+            closeStream(instream);
         }
         return "";
     }

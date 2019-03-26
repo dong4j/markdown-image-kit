@@ -27,7 +27,6 @@ package info.dong4j.idea.plugin.util;
 
 import info.dong4j.idea.plugin.client.Client;
 import info.dong4j.idea.plugin.client.OssClient;
-import info.dong4j.idea.plugin.client.WeiboOssClient;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 
 import org.jetbrains.annotations.NotNull;
@@ -110,7 +109,6 @@ public final class ClientUtils {
      */
     @Nullable
     public static OssClient getInstance(@NotNull CloudEnum cloudEnum) {
-        OssClient uploader = OssClient.INSTANCES.get(cloudEnum);
-        return uploader == null ? WeiboOssClient.getInstance() : uploader;
+        return OssClient.INSTANCES.get(cloudEnum);
     }
 }

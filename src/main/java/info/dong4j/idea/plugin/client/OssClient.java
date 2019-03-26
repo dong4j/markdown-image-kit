@@ -110,4 +110,19 @@ public interface OssClient {
         }
         return fieldMap;
     }
+
+    /**
+     * Close stream.
+     *
+     * @param inputStream the input stream
+     * @throws IOException the io exception
+     */
+    default void closeStream(InputStream inputStream) {
+        if (inputStream != null) {
+            try {
+                inputStream.close();
+            } catch (IOException ignored) {
+            }
+        }
+    }
 }

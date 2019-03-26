@@ -27,6 +27,8 @@ package info.dong4j.idea.plugin.exception;
 
 import com.intellij.openapi.project.Project;
 
+import java.util.function.Supplier;
+
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
  * <p>Description: </p>
@@ -35,7 +37,7 @@ import com.intellij.openapi.project.Project;
  * @email sjdong3 @iflytek.com
  * @since 2019 -03-13 10:54
  */
-public class UploadException extends RuntimeException {
+public class UploadException extends RuntimeException implements Supplier<UploadException> {
     private static final long serialVersionUID = 4076461843028836262L;
     private Project project;
 
@@ -100,5 +102,10 @@ public class UploadException extends RuntimeException {
                               boolean enableSuppression,
                               boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+    @Override
+    public UploadException get() {
+        return this;
     }
 }

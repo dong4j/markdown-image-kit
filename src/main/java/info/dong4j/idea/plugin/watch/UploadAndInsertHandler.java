@@ -35,12 +35,12 @@ import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.enums.CloudEnum;
-import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
+import info.dong4j.idea.plugin.exception.UploadException;
 import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.strategy.UploadFromPaste;
 import info.dong4j.idea.plugin.strategy.Uploader;
 import info.dong4j.idea.plugin.util.ClientUtils;
-import info.dong4j.idea.plugin.util.EnumsUtils;
+import info.dong4j.idea.plugin.util.UploadNotification;
 import info.dong4j.idea.plugin.util.UploadUtils;
 
 import org.apache.commons.lang.StringUtils;
@@ -48,7 +48,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.Map;
-import java.util.Optional;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -68,10 +67,15 @@ public class UploadAndInsertHandler extends PasteActionHandler {
 
     @Override
     public boolean isEnabled() {
+        boolean isOpen = STATE.isUploadAndReplace() && STATE.isClipboardControl();
+        boolean isAvailable = OssState.getStatus(STATE.getCloudType());
+        if(isOpen && !isAvailable){
+            UploadNotification.notifyConfigurableError(editor.getProject(), OssState.getCloudType(STATE.getCloudType()).title);
+        }
         // todo-dong4j : (2019年03月20日 17:32) [使用如下代码获取]
         //  http://www.jetbrains.org/intellij/sdk/docs/basics/persisting_state_of_components.html
         //  "PropertiesComponent.getInstance().setValue("PI__LAST_DIR_PATTERN", dirPattern);"
-        return OssState.getStatus(STATE.getCloudType()) && STATE.isUploadAndReplace() && STATE.isClipboardControl();
+        return isOpen && isAvailable;
     }
 
     @Override
@@ -87,29 +91,37 @@ public class UploadAndInsertHandler extends PasteActionHandler {
 
                 int totalProcessed = 0;
                 int totalCount = imageMap.size();
-                for (Map.Entry<String, File> imageEntry : imageMap.entrySet()) {
-                    String imageName = imageEntry.getKey();
-                    // 上传到默认图床
-                    int index = ImageManagerPersistenComponent.getInstance().getState().getCloudType();
-                    Optional<CloudEnum> cloudType = EnumsUtils.getEnumObject(CloudEnum.class, e -> e.getIndex() == index);
-                    Runnable r = () -> {
-                        OssClient client = ClientUtils.getInstance(cloudType.orElse(CloudEnum.WEIBO_CLOUD));
-                        indicator.setText2("Uploading " + imageName);
-                        String imageUrl = Uploader.getInstance().setUploadWay(new UploadFromPaste(client, imageEntry.getValue())).upload();
+                try{
+                    for (Map.Entry<String, File> imageEntry : imageMap.entrySet()) {
+                        String imageName = imageEntry.getKey();
+                        // 上传到默认图床
+                        Runnable r = () -> {
+                            CloudEnum cloudEnum = OssState.getCloudType(STATE.getCloudType());
+                            OssClient client = ClientUtils.getInstance(cloudEnum);
+                            if (client != null) {
+                                indicator.setText2("Uploading " + imageName);
+                                String imageUrl = Uploader.getInstance().setUploadWay(new UploadFromPaste(client, imageEntry.getValue())).upload();
 
-                        if (StringUtils.isNotBlank(imageUrl)) {
-                            indicator.setText2("Replace " + imageUrl);
-                            String newLineText = UploadUtils.getFinalImageMark("", imageUrl, imageUrl, ImageContents.LINE_BREAK);
-                            EditorModificationUtil.insertStringAtCaret(editor, newLineText);
-                        }
-                    };
-                    WriteCommandAction.runWriteCommandAction(editor.getProject(), r);
+                                if (StringUtils.isNotBlank(imageUrl)) {
+                                    indicator.setText2("Replace " + imageUrl);
+                                    String newLineText = UploadUtils.getFinalImageMark("", imageUrl, imageUrl, ImageContents.LINE_BREAK);
+                                    EditorModificationUtil.insertStringAtCaret(editor, newLineText);
+                                }
+                            } else {
+                                UploadNotification.notifyConfigurableError(editor.getProject(), cloudEnum.title);
+                            }
+                        };
+                        WriteCommandAction.runWriteCommandAction(editor.getProject(), r);
 
-                    indicator.setFraction(++totalProcessed * 1.0 / totalCount);
+                        indicator.setFraction(++totalProcessed * 1.0 / totalCount);
+                    }
+                }catch (UploadException e){
+                    UploadNotification.notifyUploadFailure(e, editor.getProject());
+                } finally {
+                    indicator.setFraction(1.0);
+                    indicator.popState();
+                    indicator.stop();
                 }
-                indicator.setFraction(1.0);
-                indicator.popState();
-                indicator.stop();
             }
         }.queue();
         return false;

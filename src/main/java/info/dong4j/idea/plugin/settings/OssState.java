@@ -70,9 +70,18 @@ public abstract class OssState {
      */
     @Contract(pure = true)
     public static boolean getStatus(int cloudIndex) {
+        return getStatus(getCloudType(cloudIndex));
+    }
+
+    /**
+     * Get cloud type cloud enum.
+     *
+     * @param cloudIndex the cloud index
+     * @return the cloud enum
+     */
+    public static CloudEnum getCloudType(int cloudIndex){
         Optional<CloudEnum> cloudType = EnumsUtils.getEnumObject(CloudEnum.class, e -> e.getIndex() == cloudIndex);
-        CloudEnum cloudEnum = cloudType.orElse(null);
-        return getStatus(cloudEnum);
+        return cloudType.orElse(null);
     }
 
     /**
@@ -83,7 +92,7 @@ public abstract class OssState {
      * @return the boolean
      */
     @Contract(pure = true)
-    public static boolean getStatus(CloudEnum cloudEnum) {
+    private static boolean getStatus(CloudEnum cloudEnum) {
         ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
         if (cloudEnum == null) {
             return false;

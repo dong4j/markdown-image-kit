@@ -144,6 +144,7 @@ public class WeiboOssClient implements OssClient {
         File file = ImageUtils.buildTempFile(fileName);
         try {
             FileUtils.copyToFile(inputStream, file);
+            closeStream(inputStream);
             return upload(ossClient, file);
         } catch (IOException e) {
             log.trace("", e);
@@ -214,7 +215,7 @@ public class WeiboOssClient implements OssClient {
             .setAcount(username, password)
             .build();
         String url = weiboOssClient.upload(ossClient, inputStream, fileName);
-
+        closeStream(inputStream);
         if (StringUtils.isNotBlank(url)) {
             int hashcode = username.hashCode() + password.hashCode();
             OssState.saveStatus(weiboOssState, hashcode, ImageManagerState.OLD_HASH_KEY);

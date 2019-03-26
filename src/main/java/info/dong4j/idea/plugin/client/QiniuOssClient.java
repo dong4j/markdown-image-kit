@@ -287,6 +287,8 @@ public class QiniuOssClient implements OssClient {
             }
         } catch (MalformedURLException e) {
             log.trace("", e);
+        } finally {
+            closeStream(inputStream);
         }
         return "";
     }

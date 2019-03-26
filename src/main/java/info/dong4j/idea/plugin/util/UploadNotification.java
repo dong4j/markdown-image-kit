@@ -198,9 +198,9 @@ public class UploadNotification extends Notification {
      * @param actionName the action name
      */
     public static void notifyConfigurableError(Project project, String actionName) {
-        String content = "<p><a href=''>Configure " + actionName + " OSS</a></p>";
-        content = "<p>You may need to reset your account. Please be sure to <b>test</b> it after the setup is complete.</p>" + content;
-        content = content + "<p>Or you may need a little <a href='" + HELP_URL + "'>Help</a></p>";
+        String content = "<p><a href=''>Configure " + actionName + " OSS</a></p><br />";
+        content = "<p>You may need to set or reset your account. Please be sure to <b>test</b> it after the setup is complete.</p>" + content + "<br />";
+        content = content + "<p>Or you may need <a href='" + HELP_URL + "'>Help</a></p>";
         Notifications.Bus.notify(new Notification(UPLOAD_NOTIFICATION_GROUP,
                                                   "Configurable Error",
                                                   content,
