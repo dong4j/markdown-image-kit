@@ -52,6 +52,9 @@ import java.util.Map;
  * @since 2019-03-28 01:00
  */
 public class MoveImageHandler extends BaseActionHandler {
+    private static final int CONNECTION_TIMEOUT = 5 * 1000;
+    private static final int READ_TIMEOUT = 10 * 1000;
+
     public MoveImageHandler(String name) {
         handlerName = name;
     }
@@ -98,7 +101,7 @@ public class MoveImageHandler extends BaseActionHandler {
 
                 File file = ImageUtils.buildTempFile(markdownImage.getImageName());
                 try {
-                    FileUtils.copyURLToFile(new URL(url), file);
+                    FileUtils.copyURLToFile(new URL(url), file, CONNECTION_TIMEOUT, READ_TIMEOUT);
                 } catch (IOException e) {
                     continue;
                 }
