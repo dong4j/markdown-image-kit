@@ -29,11 +29,16 @@ import com.intellij.openapi.progress.ProgressIndicator;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.entity.EventData;
+import info.dong4j.idea.plugin.notify.MikNotification;
 import info.dong4j.idea.plugin.util.ImageUtils;
 
 import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.util.HashMap;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
@@ -63,9 +68,12 @@ public class ImageCompressHandler extends BaseActionHandler {
         int totalCount = data.getImageMap().size();
         int totalProcessed = 0;
 
+        Map<String, String> compressInfo = new HashMap<>(data.getImageMap().size());
         for (Map.Entry<String, File> imageEntry : data.getImageMap().entrySet()) {
             String fileName = imageEntry.getKey();
             File willProcessedFile = imageEntry.getValue();
+            long oldFile = willProcessedFile.length();
+            String oldFileSize = bytesToKb(oldFile);
             File temp = ImageUtils.buildTempFile(willProcessedFile.getName());
             // gif 需要特殊处理, 这里暂时不处理
             if (!willProcessedFile.getName().endsWith("gif")) {
@@ -77,9 +85,38 @@ public class ImageCompressHandler extends BaseActionHandler {
                     log.trace("", e);
                 }
             }
+            long tempFileLength = temp.length();
+            String tempFileSize = bytesToKb(tempFileLength);
+
+            DecimalFormat df = new DecimalFormat("0.00");
+            double percentDouble = tempFileLength * 1.0 / oldFile;
+            String percent = df.format((1 - percentDouble) * 100);
+
+            compressInfo.put(fileName, oldFileSize + " ---> " + tempFileSize + " --->  " + percent + "%");
             data.getImageMap().put(fileName, temp);
             indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
         }
+        MikNotification.notifyCompressInfo(data.getProject(), compressInfo);
         return true;
+    }
+
+    /**
+     * byte(字节)根据长度转成kb(千字节)和mb(兆字节)
+     *
+     * @param bytes
+     * @return
+     */
+    @NotNull
+    private static String bytesToKb(long bytes) {
+        BigDecimal filesize = new BigDecimal(bytes);
+        BigDecimal megabyte = new BigDecimal(1024 * 1024);
+        float returnValue = filesize.divide(megabyte, 2, BigDecimal.ROUND_UP)
+            .floatValue();
+        if (returnValue > 1) {
+            return (returnValue + "MB");
+        }
+        BigDecimal kilobyte = new BigDecimal(1024);
+        returnValue = filesize.divide(kilobyte, 2, BigDecimal.ROUND_UP).floatValue();
+        return (returnValue + "KB");
     }
 }

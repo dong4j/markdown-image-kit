@@ -42,10 +42,10 @@ import com.intellij.psi.util.PsiUtilBase;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
+import info.dong4j.idea.plugin.notify.UploadNotification;
 import info.dong4j.idea.plugin.strategy.UploadFromAction;
 import info.dong4j.idea.plugin.strategy.Uploader;
 import info.dong4j.idea.plugin.util.MarkdownUtils;
-import info.dong4j.idea.plugin.util.UploadNotification;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;

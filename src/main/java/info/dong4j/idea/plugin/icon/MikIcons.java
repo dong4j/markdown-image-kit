@@ -27,6 +27,8 @@ package info.dong4j.idea.plugin.icon;
 
 import com.intellij.openapi.util.IconLoader;
 
+import org.jetbrains.annotations.NotNull;
+
 import javax.swing.Icon;
 
 /**
@@ -43,7 +45,14 @@ public class MikIcons {
     public static final Icon WEIBO_OSS = IconLoader.getIcon("/icons/weibo.png");
     public static final Icon COMPRESS = IconLoader.getIcon("/icons/compress.png");
     public static final Icon MOVE = IconLoader.getIcon("/icons/move.png");
+    public static final Icon WANGYI = IconLoader.getIcon("/icons/wangyi.png");
+    public static final Icon BAIDU = IconLoader.getIcon("/icons/baidu.png");
+    public static final Icon IMGUR = IconLoader.getIcon("/icons/imgur.png");
+    public static final Icon SM_MS = IconLoader.getIcon("/icons/sm_ms.png");
+    public static final Icon YOUPAI = IconLoader.getIcon("/icons/youpai.png");
+    public static final Icon JINGDONG = IconLoader.getIcon("/icons/jingdong.png");
 
+    @NotNull
     private static Icon load(String path) {
         return IconLoader.getIcon(path, MikIcons.class);
     }

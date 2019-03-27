@@ -49,13 +49,13 @@ import info.dong4j.idea.plugin.chain.paste.ImageUploadHandler;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.enums.InsertEnum;
 import info.dong4j.idea.plugin.exception.UploadException;
+import info.dong4j.idea.plugin.notify.UploadNotification;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
 import info.dong4j.idea.plugin.task.ChainBackgroupTask;
 import info.dong4j.idea.plugin.util.CharacterUtils;
 import info.dong4j.idea.plugin.util.ImageUtils;
 import info.dong4j.idea.plugin.util.MarkdownUtils;
-import info.dong4j.idea.plugin.util.UploadNotification;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;

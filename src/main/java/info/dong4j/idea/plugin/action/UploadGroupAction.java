@@ -41,7 +41,7 @@ import org.jetbrains.annotations.NotNull;
  * @email sjdong3@iflytek.com
  * @since 2019-03-20 06:16
  */
-public class UploadGroupAction extends DefaultActionGroup {
+public final class UploadGroupAction extends DefaultActionGroup {
     @Override
     public void update(@NotNull AnActionEvent event) {
         event.getPresentation().setIcon(AllIcons.Gutter.Colors);
