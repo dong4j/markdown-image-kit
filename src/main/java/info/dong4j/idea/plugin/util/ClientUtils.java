@@ -142,9 +142,9 @@ public final class ClientUtils {
      * @param client the client
      * @return the boolean
      */
-    @Contract("null -> true")
+    @Contract("null -> false")
     public static boolean isEnable(OssClient client) {
-        return client == null || OssState.getStatus(client.getCloudType());
+        return client != null && OssState.getStatus(client.getCloudType());
     }
 
     /**
@@ -153,7 +153,7 @@ public final class ClientUtils {
      * @param client the client
      * @return the boolean
      */
-    @Contract("null -> false")
+    @Contract("null -> true")
     public static boolean isNotEnable(OssClient client) {
         return !isEnable(client);
     }

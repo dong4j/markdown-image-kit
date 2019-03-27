@@ -44,6 +44,7 @@ import info.dong4j.idea.plugin.enums.InsertEnum;
 import info.dong4j.idea.plugin.task.ChainBackgroupTask;
 import info.dong4j.idea.plugin.util.UploadUtils;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -69,46 +70,49 @@ public final class ImageLabelIntentionAction extends IntentionActionBase {
                        Editor editor,
                        @NotNull PsiElement element) throws IncorrectOperationException {
 
-        // 是本地的图片直接上传替换
-        if (ImageLocationEnum.LOCAL == matchImageMark.getLocation()) {
-            String imageName = matchImageMark.getImageName();
-            VirtualFile virtualFile = UploadUtils.searchVirtualFileByName(project, imageName);
+        String imageName = matchImageMark.getImageName();
+        VirtualFile virtualFile = UploadUtils.searchVirtualFileByName(project, imageName);
 
-            if (virtualFile == null) {
-                return;
-            }
-
-            if (!ImageContents.IMAGE_TYPE_NAME.equals(virtualFile.getFileType().getName())) {
-                return;
-            }
-
-            File file = new File(virtualFile.getPath());
-            Map<String, File> imageMap = new HashMap<String, File>(1) {
-                {
-                    put(virtualFile.getName(), file);
-                }
-            };
-
-            EventData data = new EventData()
-                .setProject(project)
-                .setEditor(editor)
-                .setImageMap(imageMap)
-                .setMarkdownImage(matchImageMark)
-                .setInsertType(InsertEnum.INTENTION);
-
-            ActionManager manager = new ActionManager(data)
-                .addHandler(new ImageCompressHandler())
-                .addHandler(new ImageUploadHandler())
-                .addHandler(new ImageLabelChangeHandler())
-                .addHandler(new ImageLabelInsertHandler());
-
-            new ChainBackgroupTask(editor.getProject(), "Intention Task: ", manager).queue();
+        if (virtualFile == null) {
+            return;
         }
+
+        if (!ImageContents.IMAGE_TYPE_NAME.equals(virtualFile.getFileType().getName())) {
+            return;
+        }
+
+        File file = new File(virtualFile.getPath());
+        Map<String, File> imageMap = new HashMap<String, File>(1) {
+            {
+                put(virtualFile.getName(), file);
+            }
+        };
+
+        EventData data = new EventData()
+            .setProject(project)
+            .setEditor(editor)
+            .setImageMap(imageMap)
+            .setMarkdownImage(matchImageMark)
+            .setInsertType(InsertEnum.INTENTION);
+
+        ActionManager manager = new ActionManager(data)
+            .addHandler(new ImageCompressHandler())
+            .addHandler(new ImageUploadHandler())
+            .addHandler(new ImageLabelChangeHandler())
+            .addHandler(new ImageLabelInsertHandler());
+
+        new ChainBackgroupTask(editor.getProject(), "Intention Task: ", manager).queue();
     }
 
     @NotNull
     @Override
     String getMessage(String clientName) {
         return MikBundle.message("mik.intention.upload.message", clientName);
+    }
+
+    @Contract(pure = true)
+    @Override
+    boolean show() {
+        return ImageLocationEnum.LOCAL == matchImageMark.getLocation();
     }
 }

@@ -34,13 +34,11 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 
-import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
-import info.dong4j.idea.plugin.util.ClientUtils;
 import info.dong4j.idea.plugin.util.MarkdownUtils;
 
 import org.jetbrains.annotations.Nls;
@@ -77,13 +75,19 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
      */
     abstract String getMessage(String clientName);
 
+    /**
+     * Show boolean.
+     *
+     * @return the boolean
+     */
+    abstract boolean show();
+
     @Nls
     @NotNull
     @Override
     public String getText() {
         CloudEnum cloudEnum = OssState.getCloudType(state.getCloudType());
-        OssClient client = ClientUtils.getInstance(cloudEnum);
-        return getMessage(client != null ? client.getName() : "OSS");
+        return getMessage(cloudEnum.title);
     }
 
     @Nls
@@ -119,6 +123,6 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
 
         matchImageMark = MarkdownUtils.matchImageMark(fileName, text, documentLine);
 
-        return matchImageMark != null;
+        return matchImageMark != null && show();
     }
 }

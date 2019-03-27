@@ -46,7 +46,7 @@ import java.util.Map;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: 将已上传的图片迁移到当前 OSS</p>
+ * <p>Description: 将已上传的图片迁移到当前 OSS 或者替换标签</p>
  *
  * @author dong4j
  * @email sjdong3@iflytek.com
@@ -55,24 +55,25 @@ import java.util.Map;
 public class ImageLabelMoveIntentionAction extends IntentionActionBase {
     @Override
     public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
-        // 是网络图片则执行迁移操作
-        if (ImageLocationEnum.NETWORK == matchImageMark.getLocation()) {
-            Map<Document, List<MarkdownImage>> waitingForMoveMap = new HashMap<Document, List<MarkdownImage>>(1) {
-                {
-                    put(editor.getDocument(), new ArrayList<MarkdownImage>(1) {
-                        {
-                            add(matchImageMark);
-                        }
-                    });
-                }
-            };
-            new IntentionBackgroupTask(project, "Move Image Plan: ", waitingForMoveMap, ClientUtils.getDeafultInstance()).queue();
-        }
+        Map<Document, List<MarkdownImage>> waitingForMoveMap = new HashMap<Document, List<MarkdownImage>>(1) {
+            {
+                put(editor.getDocument(), new ArrayList<MarkdownImage>(1) {
+                    {
+                        add(matchImageMark);
+                    }
+                });
+            }
+        };
+        new IntentionBackgroupTask(project, "Move Image Plan: ", waitingForMoveMap, ClientUtils.getDeafultInstance()).queue();
     }
-
 
     @Override
     String getMessage(String clientName) {
         return MikBundle.message("mik.intention.move.message", clientName);
+    }
+
+    @Override
+    boolean show() {
+        return ImageLocationEnum.NETWORK == matchImageMark.getLocation();
     }
 }
