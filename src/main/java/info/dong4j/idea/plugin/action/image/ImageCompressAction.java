@@ -77,6 +77,11 @@ public final class ImageCompressAction extends ImageActionBase {
             .addHandler(new ImageCompressHandler())
             .addHandler(new BaseActionHandler() {
                 @Override
+                public String getName() {
+                    return "替换原图";
+                }
+
+                @Override
                 public boolean isEnabled(EventData data) {
                     return true;
                 }

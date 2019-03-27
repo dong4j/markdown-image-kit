@@ -37,6 +37,11 @@ import info.dong4j.idea.plugin.entity.EventData;
  */
 public class ImageRenameHandler extends BaseActionHandler {
     @Override
+    public String getName() {
+        return null;
+    }
+
+    @Override
     public boolean isEnabled(EventData data) {
         return false;
     }

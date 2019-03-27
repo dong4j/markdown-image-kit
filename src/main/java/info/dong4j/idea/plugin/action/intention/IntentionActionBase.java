@@ -33,11 +33,13 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 
+import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
+import info.dong4j.idea.plugin.util.ClientUtils;
 import info.dong4j.idea.plugin.util.MarkdownUtils;
 
 import org.jetbrains.annotations.Nls;
@@ -48,6 +50,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
  * <p>Description: alt + enter </p>
+ * 使用设置后的默认 OSS 客户端
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
@@ -58,7 +61,7 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
     /**
      * The State.
      */
-    protected MikState state = MikPersistenComponent.getInstance().getState();
+    private static final MikState STATE = MikPersistenComponent.getInstance().getState();
     /**
      * The Match image mark.
      */
@@ -79,11 +82,38 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
      */
     abstract boolean show();
 
+    /**
+     * 使用设置的默认 client
+     *
+     * @return the oss client
+     */
+    protected OssClient getClient() {
+        return ClientUtils.getClient(getCloudType());
+    }
+
+    /**
+     * 获取设置的默认客户端名称
+     *
+     * @return the string
+     */
+    protected String getName() {
+        return getCloudType().title;
+    }
+
+    /**
+     * 获取设置的默认客户端类型
+     *
+     * @return the cloud enum
+     */
+    protected CloudEnum getCloudType() {
+        return OssState.getCloudType(STATE.getCloudType());
+    }
+
     @Nls
     @NotNull
     @Override
     public String getText() {
-        CloudEnum cloudEnum = OssState.getCloudType(state.getCloudType());
+        CloudEnum cloudEnum = OssState.getCloudType(STATE.getCloudType());
         return getMessage(cloudEnum.title);
     }
 
@@ -120,4 +150,5 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
 
         return matchImageMark != null && show();
     }
+
 }

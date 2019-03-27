@@ -73,7 +73,7 @@ public final class UploadAliyunCloudAction extends UploadActionBase {
 
     @Contract(pure = true)
     @Override
-    OssClient getOssClient() {
+    OssClient getClient() {
         return AliyunOssClient.getInstance();
     }
 }

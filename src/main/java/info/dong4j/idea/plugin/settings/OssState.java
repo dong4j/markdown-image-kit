@@ -74,7 +74,7 @@ public abstract class OssState {
     }
 
     /**
-     * Get cloud type cloud enum.
+     * 通过 index 获取枚举, 不会返回 null, 业务上控制了, 只会选择 CloudEnum 有的类型
      *
      * @param cloudIndex the cloud index
      * @return the cloud enum

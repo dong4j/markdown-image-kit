@@ -50,6 +50,11 @@ import lombok.extern.slf4j.Slf4j;
 public class ImageLabelInsertHandler extends BaseActionHandler {
 
     @Override
+    public String getName() {
+        return null;
+    }
+
+    @Override
     public boolean isEnabled(EventData data) {
         if (InsertEnum.DOCUMENT.equals(data.getInsertType())) {
             return STATE.isClipboardControl() && (STATE.isCopyToDir() || STATE.isUploadAndReplace());

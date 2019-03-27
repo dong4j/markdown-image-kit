@@ -274,7 +274,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             int index = authorizationTabbedPanel.getSelectedIndex();
             InputStream inputStream = this.getClass().getResourceAsStream("/" + TEST_FILE_NAME);
             CloudEnum cloudEnum = OssState.getCloudType(index);
-            OssClient client = ClientUtils.getInstance(cloudEnum);
+            OssClient client = ClientUtils.getClient(cloudEnum);
             if(client != null){
                 String url = Uploader.getInstance().setUploadWay(new UploadFromTest(client,
                                                                                     inputStream,

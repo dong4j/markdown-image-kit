@@ -38,27 +38,30 @@ import org.jetbrains.annotations.Contract;
  */
 public enum CloudEnum {
     /** @see info.dong4j.idea.plugin.client.WeiboOssClient */
-    WEIBO_CLOUD(0, "Weibo"),
+    WEIBO_CLOUD(0, "Weibo", "sinaimg"),
     /** @see info.dong4j.idea.plugin.client.AliyunOssClient */
-    ALIYUN_CLOUD(1, "Aliyun"),
+    ALIYUN_CLOUD(1, "Aliyun", "aliyun"),
     /** @see info.dong4j.idea.plugin.client.QiniuOssClient */
-    QINIU_CLOUD(2, "Qiniu"),
-    WANGYI_CLOUD(3, "网易云"),
-    BAIDU_CLOUD(4, "百度云"),
-    JINGDONG_CLOUD(5, "京东云"),
-    YOUPAI_CLOUD(6, "又拍云"),
-    SM_MS_CLOUD(7, "sm.ms"),
-    IMGUR_CLOUD(8, "Imgur"),
-    U_CLOUD(9, "Ucloud"),
-    QING_CLOUD(10, "QIngCloud"),
-    CUSTOMIZE(11, "自定义");
+    QINIU_CLOUD(2, "Qiniu", "qiniu"),
+    WANGYI_CLOUD(3, "网易云", ""),
+    BAIDU_CLOUD(4, "百度云", ""),
+    JINGDONG_CLOUD(5, "京东云", ""),
+    YOUPAI_CLOUD(6, "又拍云", ""),
+    SM_MS_CLOUD(7, "sm.ms", ""),
+    IMGUR_CLOUD(8, "Imgur", ""),
+    U_CLOUD(9, "Ucloud", ""),
+    QING_CLOUD(10, "QIngCloud", ""),
+    CUSTOMIZE(11, "自定义", "");
 
     public int index;
     public String title;
+    /** 图床特征*/
+    public String feature;
 
-    CloudEnum(int index, String title) {
+    CloudEnum(int index, String title, String feature) {
         this.index = index;
         this.title = title;
+        this.feature = feature;
     }
 
     @Contract(pure = true)
@@ -69,5 +72,10 @@ public enum CloudEnum {
     @Contract(pure = true)
     public String getTitle() {
         return title;
+    }
+
+    @Contract(pure = true)
+    public String getFeature() {
+        return feature;
     }
 }

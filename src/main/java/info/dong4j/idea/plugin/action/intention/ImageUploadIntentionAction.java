@@ -25,6 +25,7 @@
 
 package info.dong4j.idea.plugin.action.intention;
 
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -33,22 +34,23 @@ import com.intellij.util.IncorrectOperationException;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ActionManager;
-import info.dong4j.idea.plugin.chain.ImageCompressHandler;
-import info.dong4j.idea.plugin.chain.ImageLabelChangeHandler;
-import info.dong4j.idea.plugin.chain.ImageLabelInsertHandler;
-import info.dong4j.idea.plugin.chain.paste.ImageUploadHandler;
+import info.dong4j.idea.plugin.chain.OptionClientHandler;
+import info.dong4j.idea.plugin.chain.ResolveMarkdownFileHandler;
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.entity.EventData;
+import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.enums.InsertEnum;
+import info.dong4j.idea.plugin.task.ActionTask;
 import info.dong4j.idea.plugin.task.ChainBackgroupTask;
 import info.dong4j.idea.plugin.util.UploadUtils;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
@@ -93,26 +95,39 @@ public final class ImageUploadIntentionAction extends IntentionActionBase {
             return;
         }
 
-        File file = new File(virtualFile.getPath());
-        Map<String, File> imageMap = new HashMap<String, File>(1) {
+        Map<Document, List<MarkdownImage>> waitingForMoveMap = new HashMap<Document, List<MarkdownImage>>(1) {
             {
-                put(virtualFile.getName(), file);
+                put(editor.getDocument(), new ArrayList<MarkdownImage>(1) {
+                    {
+                        add(matchImageMark);
+                    }
+                });
             }
         };
 
         EventData data = new EventData()
             .setProject(project)
-            .setEditor(editor)
-            .setImageMap(imageMap)
-            .setMarkdownImage(matchImageMark)
+            .setClient(getClient())
+            .setClientName(getName())
+            .setWaitingProcessMap(waitingForMoveMap)
             .setInsertType(InsertEnum.INTENTION);
 
         ActionManager manager = new ActionManager(data)
-            .addHandler(new ImageCompressHandler())
-            .addHandler(new ImageUploadHandler())
-            .addHandler(new ImageLabelChangeHandler())
-            .addHandler(new ImageLabelInsertHandler());
+            // 解析 markdown 文件
+            .addHandler(new ResolveMarkdownFileHandler("解析 Markdown 文件"))
+            // 处理 client
+            .addHandler(new OptionClientHandler("验证 client"));
+
+
+        // ActionManager manager = new ActionManager(data)
+        //     .addHandler(new ImageCompressHandler())
+        //     .addHandler(new ImageUploadHandler())
+        //     .addHandler(new ImageLabelChangeHandler())
+        //     .addHandler(new ImageLabelInsertHandler());
 
         new ChainBackgroupTask(editor.getProject(), "Intention Task: ", manager).queue();
+
+        // 开启后台任务
+        new ActionTask(project, MikBundle.message("mik.action.upload.process", getName()), manager).queue();
     }
 }

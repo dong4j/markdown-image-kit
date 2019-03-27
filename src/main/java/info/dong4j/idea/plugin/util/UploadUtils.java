@@ -109,7 +109,7 @@ public class UploadUtils {
         AtomicReference<Collection<VirtualFile>> findedFiles = new AtomicReference<>();
         ApplicationManager.getApplication().runReadAction(() -> {
             // todo-dong4j : (2019年03月20日 17:46) [或者通过以下 API 精准查找]
-            //  "VirtualFile fileByPath = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(new File(imageName));"
+            //  "VirtualFile fileByPath = LocalFileSystem.getClient().refreshAndFindFileByIoFile(new File(imageName));"
             findedFiles.set(FilenameIndex.getVirtualFilesByName(project, name, GlobalSearchScope.allScope(project)));
         });
 

@@ -44,10 +44,17 @@ public interface IActionHandler {
     MikState STATE = MikPersistenComponent.getInstance().getState();
 
     /**
+     * Gets name.
+     *
+     * @return the name
+     */
+    String getName();
+
+    /**
      * 是否符合该处理类的处理范围
      *
      * @param data the data
-     * @return 是否符合 boolean
+     * @return 是否符合 boolean false 则当前 handler 不执行
      */
     boolean isEnabled(EventData data);
 
@@ -55,7 +62,7 @@ public interface IActionHandler {
      * 执行具体的处理逻辑
      *
      * @param data the data
-     * @return 是否阻止系统的事件传递 boolean
+     * @return 是否阻止系统的事件传递 boolean  为 false 时后一个 handler 不自信, 整个 chain 中断
      */
     boolean execute(EventData data);
 }

@@ -68,7 +68,7 @@ public final class UploadQiniuCloudAction extends UploadActionBase {
 
     @Contract(pure = true)
     @Override
-    OssClient getOssClient() {
+    OssClient getClient() {
         return QiniuOssClient.getInstance();
     }
 }

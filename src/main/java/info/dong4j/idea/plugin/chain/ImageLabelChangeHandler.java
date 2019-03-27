@@ -50,6 +50,11 @@ import lombok.extern.slf4j.Slf4j;
 public class ImageLabelChangeHandler extends BaseActionHandler {
 
     @Override
+    public String getName() {
+        return null;
+    }
+
+    @Override
     public boolean isEnabled(EventData data) {
         boolean isIntention = InsertEnum.INTENTION.equals(data.getInsertType());
         boolean isPasteUpload = (InsertEnum.DOCUMENT.equals(data.getInsertType()) && STATE.isUploadAndReplace());

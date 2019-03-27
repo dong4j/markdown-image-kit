@@ -58,6 +58,11 @@ import lombok.extern.slf4j.Slf4j;
 public class ImageStorageHandler extends PasteActionHandler {
 
     @Override
+    public String getName() {
+        return null;
+    }
+
+    @Override
     public boolean isEnabled(EventData data) {
         return STATE.isCopyToDir() && STATE.isClipboardControl();
     }

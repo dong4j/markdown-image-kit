@@ -109,30 +109,29 @@ public final class ClientUtils {
      * @return the instance
      */
     @Nullable
-    public static OssClient getDeafultInstance() {
-        return getInstance(MikPersistenComponent.getInstance().getState().getCloudType());
+    public static OssClient getDeafultClient() {
+        return getClient(MikPersistenComponent.getInstance().getState().getCloudType());
     }
 
     /**
      * Gets instance.
      *
      * @param cloudType the cloud type
-     * @return the instance
+     * @return the instance             有可能为 null
      */
     @Nullable
-    public static OssClient getInstance(int cloudType) {
+    public static OssClient getClient(int cloudType) {
         return OssClient.INSTANCES.get(OssState.getCloudType(cloudType));
     }
 
     /**
      * 通过枚举获取 client 实例, 如果没有会从 subClassMap 中获取对应的 sub class name
-     * todo-dong4j : (2019年03月22日 09:36) [考虑迁移到配置文件]
      *
      * @param cloudEnum the cloud enum
-     * @return the instance
+     * @return the instance             有可能返回 null
      */
     @Nullable
-    public static OssClient getInstance(@NotNull CloudEnum cloudEnum) {
+    public static OssClient getClient(@NotNull CloudEnum cloudEnum) {
         return OssClient.INSTANCES.get(cloudEnum);
     }
 

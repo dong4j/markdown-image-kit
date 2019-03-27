@@ -32,6 +32,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 
+import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.enums.InsertEnum;
 
 import java.io.*;
@@ -78,4 +79,8 @@ public class EventData {
     private MarkdownImage markdownImage;
     /** 待处理的数据*/
     private Map<Document, List<MarkdownImage>> waitingProcessMap;
+    /** 文件上传客户端*/
+    private OssClient client;
+    /** client name*/
+    private String clientName;
 }

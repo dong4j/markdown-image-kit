@@ -70,7 +70,7 @@ public final class UploadWeiboCloudAction extends UploadActionBase {
 
     @Contract(pure = true)
     @Override
-    OssClient getOssClient() {
+    OssClient getClient() {
         return WeiboOssClient.getInstance();
     }
 }

@@ -55,6 +55,11 @@ import lombok.extern.slf4j.Slf4j;
 public class ImageCompressHandler extends BaseActionHandler {
 
     @Override
+    public String getName() {
+        return null;
+    }
+
+    @Override
     public boolean isEnabled(EventData data) {
         return STATE.isCompress();
     }

@@ -33,12 +33,12 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ActionManager;
+import info.dong4j.idea.plugin.chain.OptionClientHandler;
 import info.dong4j.idea.plugin.chain.ResolveMarkdownFileHandler;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
-import info.dong4j.idea.plugin.notify.UploadNotification;
 import info.dong4j.idea.plugin.strategy.UploadFromAction;
 import info.dong4j.idea.plugin.strategy.Uploader;
 import info.dong4j.idea.plugin.task.ActionTask;
@@ -105,21 +105,25 @@ public abstract class UploadActionBase extends AnAction {
      */
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
+        // 先刷新一次, 避免才添加的文件未被添加的 VFS 中, 导致找不到文件的问题
+        VirtualFileManager.getInstance().syncRefresh();
 
         final Project project = event.getProject();
         if (project != null) {
-            // 如果账号未设置或者设置后未测试, 则给出提示
-            if (!isAvailable()) {
-                log.trace("No account set or setting error. action = {}", getName());
-                UploadNotification.notifyConfigurableError(project, getName());
-                return;
-            }
-
             EventData data = new EventData()
                 .setActionEvent(event)
-                .setProject(project);
+                .setProject(project)
+                // 使用子类的具体 client
+                .setClient(getClient())
+                .setClientName(getName());
 
-            ActionManager manager = new ActionManager(data).addHandler(new ResolveMarkdownFileHandler());
+            ActionManager manager = new ActionManager(data)
+                // 解析 markdown 文件
+                .addHandler(new ResolveMarkdownFileHandler("解析 Markdown 文件"))
+                // 处理 client
+                .addHandler(new OptionClientHandler("验证 client"));
+
+            // todo-dong4j : (2019年03月28日 01:24) [未完成]
 
             // 开启后台任务
             new ActionTask(project, MikBundle.message("mik.action.upload.process", getName()), manager).queue();
@@ -139,10 +143,8 @@ public abstract class UploadActionBase extends AnAction {
     @Contract(pure = true)
     private void execute(@NotNull AnActionEvent event, Map<Document, List<MarkdownImage>> waitingForUploadImages) {
         if (waitingForUploadImages.size() > 0) {
-            // 先刷新一次, 避免才添加的文件未被添加的 VFS 中, 导致找不到文件的问题
-            VirtualFileManager.getInstance().syncRefresh();
             // 获取对应的 client
-            OssClient ossClient = getOssClient();
+            OssClient ossClient = getClient();
             Uploader.getInstance()
                 .setUploadWay(new UploadFromAction(event.getProject(), ossClient, waitingForUploadImages))
                 .upload();
@@ -154,5 +156,5 @@ public abstract class UploadActionBase extends AnAction {
      *
      * @return the oss client
      */
-    abstract OssClient getOssClient();
+    abstract OssClient getClient();
 }

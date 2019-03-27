@@ -34,25 +34,54 @@ import info.dong4j.idea.plugin.util.MarkdownUtils;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Setter;
+
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
  * <p>Description: 解析 markdown 文件</p>
+ * 需要 AnActionEvent(不是必须的) 和 Project
  *
  * @author dong4j
- * @email sjdong3@iflytek.com
- * @since 2019-03-27 22:51
+ * @email sjdong3 @iflytek.com
+ * @since 2019 -03-27 22:51
  */
+@Setter
 public class ResolveMarkdownFileHandler extends BaseActionHandler {
+    private MarkdownFileFilter fileFilter;
+
+    public ResolveMarkdownFileHandler(String name){
+        handlerName = name;
+    }
+
+    @Override
+    public String getName() {
+        return handlerName;
+    }
+
     @Override
     public boolean isEnabled(EventData data) {
         return true;
     }
 
+    /**
+     * 优先使用 EventData 中的数据, 如果没有再解析
+     *
+     * @param data the data
+     * @return the boolean
+     */
     @Override
     public boolean execute(EventData data) {
-        // 解析当前文档或者选择的文件树中的所有 markdown 文件.
-        Map<Document, List<MarkdownImage>> waitingProcessMap = MarkdownUtils.getProcessMarkdownInfo(data.getActionEvent(), data.getProject());
-        data.setWaitingProcessMap(waitingProcessMap);
+        Map<Document, List<MarkdownImage>> waitingProcessMap = data.getWaitingProcessMap();
+        if (waitingProcessMap == null || waitingProcessMap.size() == 0) {
+            // 解析当前文档或者选择的文件树中的所有 markdown 文件.
+            waitingProcessMap = MarkdownUtils.getProcessMarkdownInfo(data.getActionEvent(), data.getProject());
+            data.setWaitingProcessMap(waitingProcessMap);
+        }
+
+        if (fileFilter != null) {
+            fileFilter.filter(waitingProcessMap);
+        }
+
         // 有数据才执行后面的 handler
         return waitingProcessMap.size() > 0;
     }

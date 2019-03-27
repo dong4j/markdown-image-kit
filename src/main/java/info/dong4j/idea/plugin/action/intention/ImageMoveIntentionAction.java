@@ -32,10 +32,14 @@ import com.intellij.psi.PsiElement;
 import com.intellij.util.IncorrectOperationException;
 
 import info.dong4j.idea.plugin.MikBundle;
+import info.dong4j.idea.plugin.chain.ActionManager;
+import info.dong4j.idea.plugin.chain.MoveImageHandler;
+import info.dong4j.idea.plugin.chain.OptionClientHandler;
+import info.dong4j.idea.plugin.chain.ResolveMarkdownFileHandler;
+import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
-import info.dong4j.idea.plugin.task.IntentionBackgroupTask;
-import info.dong4j.idea.plugin.util.ClientUtils;
+import info.dong4j.idea.plugin.task.ActionTask;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -54,6 +58,7 @@ import java.util.Map;
  */
 public final class ImageMoveIntentionAction extends IntentionActionBase {
 
+    @NotNull
     @Override
     String getMessage(String clientName) {
         return MikBundle.message("mik.intention.move.message", clientName);
@@ -75,6 +80,21 @@ public final class ImageMoveIntentionAction extends IntentionActionBase {
                 });
             }
         };
-        new IntentionBackgroupTask(project, "Move Image Plan: ", waitingForMoveMap, ClientUtils.getDeafultInstance()).queue();
+
+        EventData data = new EventData()
+            .setProject(project)
+            .setClient(getClient())
+            .setClientName(getName())
+            .setWaitingProcessMap(waitingForMoveMap);
+
+        ActionManager manager = new ActionManager(data)
+            // 解析 markdown 文件
+            .addHandler(new ResolveMarkdownFileHandler("解析 Markdown 文件"))
+            // 处理 client
+            .addHandler(new OptionClientHandler("验证 client"))
+            .addHandler(new MoveImageHandler("迁移图片"));
+
+        // 开启后台任务
+        new ActionTask(project, MikBundle.message("mik.action.move.process", getName()), manager).queue();
     }
 }

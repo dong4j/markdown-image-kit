@@ -58,6 +58,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ImageUploadHandler extends PasteActionHandler {
 
+    @Override
+    public String getName() {
+        return null;
+    }
+
     /**
      * 如果设置的默认图床不可用, 给出消息提示
      *
@@ -73,7 +78,7 @@ public class ImageUploadHandler extends PasteActionHandler {
             }
             // todo-dong4j : (2019年03月20日 17:32) [使用如下代码获取]
             //  http://www.jetbrains.org/intellij/sdk/docs/basics/persisting_state_of_components.html
-            //  "PropertiesComponent.getInstance().setValue("PI__LAST_DIR_PATTERN", dirPattern);"
+            //  "PropertiesComponent.getClient().setValue("PI__LAST_DIR_PATTERN", dirPattern);"
             return isOpen && isAvailable;
         } else {
             return InsertEnum.CLIPBOADR.equals(data.getInsertType()) || InsertEnum.INTENTION.equals(data.getInsertType());
@@ -102,7 +107,7 @@ public class ImageUploadHandler extends PasteActionHandler {
             String imageName = imageEntry.getKey();
             // 上传到默认图床
             CloudEnum cloudEnum = OssState.getCloudType(STATE.getCloudType());
-            OssClient client = ClientUtils.getInstance(cloudEnum);
+            OssClient client = ClientUtils.getClient(cloudEnum);
             if(ClientUtils.isNotEnable(client)){
                 UploadNotification.notifyConfigurableError(data.getProject(), cloudEnum.title);
                 // 退出 chain 执行

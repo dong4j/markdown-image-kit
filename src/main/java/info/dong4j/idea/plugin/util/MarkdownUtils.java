@@ -28,6 +28,7 @@ package info.dong4j.idea.plugin.util;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -54,6 +55,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -118,18 +120,23 @@ public final class MarkdownUtils {
      */
     private static List<MarkdownImage> getImageInfoFromFiles(VirtualFile virtualFile) {
         List<MarkdownImage> markdownImageList = new ArrayList<>();
-        Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
-        if (document != null) {
-            int lineCount = document.getLineCount();
+        AtomicReference<Document> document = new AtomicReference<>(null);
+
+        ApplicationManager.getApplication().runReadAction(() -> {
+            document.set(FileDocumentManager.getInstance().getDocument(virtualFile));
+        });
+
+        if (document.get() != null) {
+            int lineCount = document.get().getLineCount();
             // 解析每一行文本
             for (int line = 0; line < lineCount; line++) {
                 // 获取指定行的第一个字符在全文中的偏移量，行号的取值范围为：[0,getLineCount()-1]
-                int startOffset = document.getLineStartOffset(line);
+                int startOffset = document.get().getLineStartOffset(line);
                 // 获取指定行的最后一个字符在全文中的偏移量，行号的取值范围为：[0,getLineCount()-1]
-                int endOffset = document.getLineEndOffset(line);
+                int endOffset = document.get().getLineEndOffset(line);
                 TextRange currentLineTextRange = TextRange.create(startOffset, endOffset);
 
-                String originalLineText = document.getText(currentLineTextRange);
+                String originalLineText = document.get().getText(currentLineTextRange);
                 if (StringUtils.isNotBlank(originalLineText)) {
                     log.trace("originalLineText: {}", originalLineText);
                     MarkdownImage markdownImage;

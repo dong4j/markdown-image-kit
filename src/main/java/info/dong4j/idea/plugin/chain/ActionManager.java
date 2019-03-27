@@ -32,6 +32,8 @@ import info.dong4j.idea.plugin.entity.EventData;
 import java.util.LinkedList;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
  * <p>Description: </p>
@@ -40,6 +42,7 @@ import java.util.List;
  * @email sjdong3 @iflytek.com
  * @since 2019 -03-22 18:50
  */
+@Slf4j
 public class ActionManager {
     private List<IActionHandler> handlersChain = new LinkedList<>();
     private EventData data;
@@ -75,6 +78,8 @@ public class ActionManager {
         for (IActionHandler handler : handlersChain) {
             data.setIndex(index++);
             if (handler.isEnabled(data)) {
+                log.trace("invoke {}", handler.getName());
+                indicator.setText2(handler.getName());
                 if (!handler.execute(data)) {
                     break;
                 }

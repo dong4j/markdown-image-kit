@@ -37,17 +37,22 @@ import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.JBColor;
 
 import info.dong4j.idea.plugin.MikBundle;
+import info.dong4j.idea.plugin.chain.ActionManager;
+import info.dong4j.idea.plugin.chain.MoveImageHandler;
+import info.dong4j.idea.plugin.chain.OptionClientHandler;
+import info.dong4j.idea.plugin.chain.ResolveMarkdownFileHandler;
 import info.dong4j.idea.plugin.content.MarkdownContents;
+import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
+import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.settings.JTextFieldHintListener;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MoveToOtherOssSettingsDialog;
 import info.dong4j.idea.plugin.settings.OssState;
-import info.dong4j.idea.plugin.task.IntentionBackgroupTask;
+import info.dong4j.idea.plugin.task.ActionTask;
 import info.dong4j.idea.plugin.util.ActionUtils;
 import info.dong4j.idea.plugin.util.ClientUtils;
-import info.dong4j.idea.plugin.util.MarkdownUtils;
 
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -93,18 +98,40 @@ public final class MoveToOtherStorageAction extends AnAction {
             if (!OssState.getStatus(dialog.getCloudComboBox().getSelectedIndex())) {
                 return;
             }
-            Map<Document, List<MarkdownImage>> waitingForMoveMap = MarkdownUtils.getProcessMarkdownInfo(event,
-                                                                                                        project);
-            for (Map.Entry<Document, List<MarkdownImage>> entry : waitingForMoveMap.entrySet()) {
-                // 排除 LOCAL 和用户输入不匹配的标签
-                entry.getValue().removeIf(markdownImage -> markdownImage.getLocation().equals(ImageLocationEnum.LOCAL)
-                                                           || !markdownImage.getPath().contains(domain));
-            }
-            log.trace("waitingForMoveMap = {}", waitingForMoveMap);
-            new IntentionBackgroupTask(project,
-                                       "Move Image Plan: ",
-                                       waitingForMoveMap,
-                                       ClientUtils.getInstance(dialog.getCloudComboBox().getSelectedIndex())).queue();
+
+            int cloudIndex = dialog.getCloudComboBox().getSelectedIndex();
+            CloudEnum cloudEnum = OssState.getCloudType(cloudIndex);
+
+            EventData data = new EventData()
+                .setActionEvent(event)
+                .setProject(project)
+                .setClient(ClientUtils.getClient(cloudEnum))
+                // client 有可能为 null, 使用 cloudEnum 安全点
+                .setClientName(cloudEnum.title);
+
+            // 过滤掉 LOCAL 和用户输入不匹配的标签
+            ResolveMarkdownFileHandler resolveMarkdownFileHandler = new ResolveMarkdownFileHandler("解析 Markdown 文件");
+            resolveMarkdownFileHandler.setFileFilter(waitingProcessMap -> {
+                if (waitingProcessMap != null && waitingProcessMap.size() > 0) {
+                    for (Map.Entry<Document, List<MarkdownImage>> entry : waitingProcessMap.entrySet()) {
+                        log.trace("old waitingProcessMap = {}", waitingProcessMap);
+
+                        // 排除 LOCAL 和用户输入不匹配的标签
+                        entry.getValue().removeIf(markdownImage -> markdownImage.getLocation().equals(ImageLocationEnum.LOCAL)
+                                                                   || !markdownImage.getPath().contains(domain));
+                        log.trace("new waitingProcessMap = {}", waitingProcessMap);
+                    }
+                }
+            });
+
+            ActionManager manager = new ActionManager(data)
+                // 解析 markdown 文件
+                .addHandler(resolveMarkdownFileHandler)
+                // 处理 client
+                .addHandler(new OptionClientHandler("验证 client"))
+                .addHandler(new MoveImageHandler("迁移图片"));
+
+            new ActionTask(project, MikBundle.message("mik.action.move.process", cloudEnum.title), manager).queue();
         }
     }
 
