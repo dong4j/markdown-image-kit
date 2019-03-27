@@ -209,10 +209,13 @@ public final class MarkdownUtils {
         if (path.startsWith(ImageContents.IMAGE_LOCATION)) {
             markdownImage.setLocation(ImageLocationEnum.NETWORK);
             markdownImage.setPath(path);
+            markdownImage.setImageName(path.substring(path.lastIndexOf("/") + 1));
         } else {
-            // 本地文件只需要文件名
+            markdownImage.setLocation(ImageLocationEnum.LOCAL);
             String imageName = path.substring(path.lastIndexOf(File.separator) + 1);
-            markdownImage.setPath(imageName);
+            // 将相对路径修改为绝对路径
+            markdownImage.setPath(path);
+            markdownImage.setImageName(imageName);
         }
         return markdownImage;
     }

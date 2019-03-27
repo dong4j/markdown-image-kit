@@ -112,7 +112,7 @@ public class UploadBackgroundTask extends Task.Backgroundable {
                 for (MarkdownImage markdownImage : entry.getValue()) {
                     indicator.setText2("process file: " + markdownImage.getFileName() + " image path: " + markdownImage.getPath());
                     if (markdownImage.getLocation().equals(ImageLocationEnum.LOCAL)) {
-                        String imageName = markdownImage.getPath();
+                        String imageName = markdownImage.getImageName();
                         if (StringUtils.isNotBlank(imageName)) {
                             VirtualFile virtualFile = UploadUtils.searchVirtualFileByName(project, imageName);
 

@@ -27,8 +27,12 @@ public class ParserUtilsTest {
         }
 
         String filePath = "./imgs/1eefcf26.png";
-        String fileName = filePath.substring(filePath.lastIndexOf(File.pathSeparator) + 1);
+        String fileName = filePath.substring(filePath.lastIndexOf(File.separator) + 1);
         log.info(fileName);
+
+        String url = "http://qiniu.dong4j.info/2019-03-27-MwoAVW.png";
+        String imageName = url.substring(url.lastIndexOf("/") + 1);
+        log.info(imageName);
     }
 
     @Test

@@ -81,7 +81,7 @@ public final class ImageLabelIntentionAction extends IntentionActionBase {
 
         // 是本地的图片直接上传替换
         if (ImageLocationEnum.LOCAL == matchImageMark.getLocation()) {
-            String imageName = matchImageMark.getPath();
+            String imageName = matchImageMark.getImageName();
             VirtualFile virtualFile = UploadUtils.searchVirtualFileByName(project, imageName);
 
             if (virtualFile == null) {

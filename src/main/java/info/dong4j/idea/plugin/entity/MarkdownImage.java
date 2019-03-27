@@ -44,7 +44,10 @@ import lombok.Data;
 public class MarkdownImage implements Serializable {
     private static final long serialVersionUID = -533088989259774894L;
 
+    /** 对应的 document name */
     private String fileName;
+    /** 图片名 */
+    private String imageName;
     /** 原始文本 */
     private String originalLineText;
     /** 行数 */
@@ -55,7 +58,7 @@ public class MarkdownImage implements Serializable {
     private int lineEndOffset;
     /** 图片标题 */
     private String title;
-    /** 图片地址 (如果是本地, 就是 fileName, 如果是网络, 就是 http/https 地址) */
+    /** 图片地址 (本地全路径, 网路 http/https) */
     private String path;
     /** 图片位置 */
     private ImageLocationEnum location = ImageLocationEnum.LOCAL;

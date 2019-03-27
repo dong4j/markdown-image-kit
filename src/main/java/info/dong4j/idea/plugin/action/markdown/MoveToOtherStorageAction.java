@@ -36,6 +36,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.DocumentAdapter;
 
 import info.dong4j.idea.plugin.MikBundle;
+import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.CloudEnum;
@@ -45,13 +46,19 @@ import info.dong4j.idea.plugin.settings.JTextFieldHintListener;
 import info.dong4j.idea.plugin.settings.MoveToOtherOssSettingsDialog;
 import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.util.ActionUtils;
+import info.dong4j.idea.plugin.util.ClientUtils;
+import info.dong4j.idea.plugin.util.ImageUtils;
 import info.dong4j.idea.plugin.util.MarkdownUtils;
+import info.dong4j.idea.plugin.util.PsiDocumentUtils;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
+import java.io.*;
+import java.net.*;
 import java.util.List;
 import java.util.Map;
 
@@ -92,8 +99,6 @@ public final class MoveToOtherStorageAction extends AnAction {
                 return;
             }
 
-            CloudEnum cloudEnum = OssState.getCloudType(dialog.getCloudComboBox().getSelectedIndex());
-
             if (!OssState.getStatus(dialog.getCloudComboBox().getSelectedIndex())) {
                 return;
             }
@@ -109,11 +114,45 @@ public final class MoveToOtherStorageAction extends AnAction {
 
             log.trace("waitingForMoveMap = {}", waitingForMoveMap);
 
-            execute(waitingForMoveMap);
+            // 迁入的图床
+            CloudEnum cloudEnum = OssState.getCloudType(dialog.getCloudComboBox().getSelectedIndex());
+            execute(project, waitingForMoveMap, cloudEnum);
         }
     }
 
-    private void execute(Map<Document, List<MarkdownImage>> waitingForMoveMap) {
+    /**
+     * Execute.
+     *
+     * @param project           the project
+     * @param waitingForMoveMap the waiting for move map
+     * @param cloudEnum         the cloud enum
+     */
+    private void execute(Project project, Map<Document, List<MarkdownImage>> waitingForMoveMap, CloudEnum cloudEnum) {
+        OssClient client = ClientUtils.getInstance(cloudEnum);
+        if (client != null) {
+            for (Map.Entry<Document, List<MarkdownImage>> entry : waitingForMoveMap.entrySet()) {
+                Document document = entry.getKey();
+                for (MarkdownImage markdownImage : entry.getValue()) {
+                    String url = markdownImage.getPath();
+                    try {
+                        File file = ImageUtils.buildTempFile(markdownImage.getImageName());
+                        FileUtils.copyURLToFile(new URL(url), file);
+                        String uploadedUrl = client.upload(file);
+                        if (StringUtils.isBlank(uploadedUrl)) {
+                            continue;
+                        }
+                        file.deleteOnExit();
+                        markdownImage.setUploadedUrl(uploadedUrl);
+                        // 这里设置为 LOCAL, 是为了替换标签
+                        markdownImage.setLocation(ImageLocationEnum.LOCAL);
+                        PsiDocumentUtils.commitAndSaveDocument(project, document, markdownImage);
+                    } catch (IOException e) {
+                        log.trace("", e);
+                    }
+                }
+            }
+        }
+
         // 1. 通过 URL 上传图片
         // 2. 替换标签
         // 3. 插入到原来的位置
