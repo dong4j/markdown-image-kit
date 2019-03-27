@@ -121,18 +121,19 @@ public final class MarkdownUtils {
         Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
         if (document != null) {
             int lineCount = document.getLineCount();
+            // 解析每一行文本
             for (int line = 0; line < lineCount; line++) {
                 // 获取指定行的第一个字符在全文中的偏移量，行号的取值范围为：[0,getLineCount()-1]
                 int startOffset = document.getLineStartOffset(line);
                 // 获取指定行的最后一个字符在全文中的偏移量，行号的取值范围为：[0,getLineCount()-1]
                 int endOffset = document.getLineEndOffset(line);
                 TextRange currentLineTextRange = TextRange.create(startOffset, endOffset);
-                // 保存每一行字符串
+
                 String originalLineText = document.getText(currentLineTextRange);
                 if (StringUtils.isNotBlank(originalLineText)) {
                     log.trace("originalLineText: {}", originalLineText);
                     MarkdownImage markdownImage;
-                    if ((markdownImage = matchImageMark(virtualFile.getName(), originalLineText, line)) != null) {
+                    if ((markdownImage = matchImageMark(virtualFile, originalLineText, line)) != null) {
                         markdownImageList.add(markdownImage);
                     }
                 }
@@ -144,37 +145,44 @@ public final class MarkdownUtils {
     /**
      * 不使用正则, 因为需要记录偏移量
      *
-     * @param fileName the file name
-     * @param lineText the line text
-     * @param line     the line
+     * @param virtualFile the virtual file
+     * @param lineText    the line text    当前处理的文本行
+     * @param line        the line         在文本中的行数
      * @return the markdown image
      */
     @Nullable
-    public static MarkdownImage matchImageMark(String fileName, String lineText, int line) {
+    public static MarkdownImage matchImageMark(VirtualFile virtualFile, String lineText, int line) {
         lineText = StringUtils.trim(lineText);
         // 匹配 '![' 字符串
         int indexPrefix = lineText.indexOf(ImageContents.IMAGE_MARK_PREFIX);
         boolean hasImageTagPrefix = indexPrefix > -1;
-        if (hasImageTagPrefix) {
-            // 匹配 ']('
-            int indexMiddle = lineText.indexOf(ImageContents.IMAGE_MARK_MIDDLE, indexPrefix);
-            boolean hasImageTagMiddle = indexMiddle > -1;
-            if (hasImageTagMiddle) {
-                // 匹配 匹配 ')'
-                int indexSuffix = lineText.indexOf(ImageContents.IMAGE_MARK_SUFFIX, indexMiddle);
-                boolean hasImageTagSuffix = indexSuffix > -1;
-                if (hasImageTagSuffix) {
-                    log.trace("image text: {}", lineText);
-                    MarkdownImage markdownImage = new MarkdownImage();
-                    markdownImage.setFileName(fileName);
-                    markdownImage.setOriginalLineText(lineText);
-                    markdownImage.setLineNumber(line);
-                    markdownImage.setLineStartOffset(indexPrefix);
-                    markdownImage.setLineEndOffset(indexSuffix);
-                    // 解析 markdown 图片标签
-                    return resolveImageMark(markdownImage);
-                }
-            }
+        if (!hasImageTagPrefix) {
+            return null;
+        }
+        // 匹配 ']('
+        int indexMiddle = lineText.indexOf(ImageContents.IMAGE_MARK_MIDDLE, indexPrefix);
+        boolean hasImageTagMiddle = indexMiddle > -1;
+        if (!hasImageTagMiddle) {
+            return null;
+        }
+        // 匹配 匹配 ')'
+        int indexSuffix = lineText.indexOf(ImageContents.IMAGE_MARK_SUFFIX, indexMiddle);
+        boolean hasImageTagSuffix = indexSuffix > -1;
+        if (!hasImageTagSuffix) {
+            return null;
+        }
+        log.trace("image text: {}", lineText);
+        MarkdownImage markdownImage = new MarkdownImage();
+        markdownImage.setFileName(virtualFile.getName());
+        markdownImage.setOriginalLineText(lineText);
+        markdownImage.setLineNumber(line);
+        markdownImage.setLineStartOffset(indexPrefix);
+        markdownImage.setLineEndOffset(indexSuffix);
+        // 解析 markdown 图片标签
+        try {
+            return resolveImageMark(markdownImage, virtualFile);
+        } catch (IOException e) {
+            log.trace("", e);
         }
         return null;
     }
@@ -185,13 +193,14 @@ public final class MarkdownUtils {
      * @param markdownImage the markdown image
      * @return the markdown image
      */
-    @Contract("_ -> param1")
-    private static MarkdownImage resolveImageMark(@NotNull MarkdownImage markdownImage) {
+    @Contract("_, _ -> param1")
+    private static MarkdownImage resolveImageMark(@NotNull MarkdownImage markdownImage, VirtualFile virtualFile) throws IOException {
         // 如果以 `<a` 开始, 以 `a>` 结束, 需要修改偏移量
         String lineText = markdownImage.getOriginalLineText();
         if (lineText.startsWith(ImageContents.HTML_TAG_A_START) && lineText.endsWith(ImageContents.HTML_TAG_A_END)) {
             markdownImage.setLineStartOffset(0);
             markdownImage.setLineEndOffset(lineText.length());
+            // 解析标签类型
             if (lineText.contains(ImageContents.LARG_IMAGE_MARK_ID)) {
                 markdownImage.setImageMarkType(ImageMarkEnum.LARGE_PICTURE);
             } else if (lineText.contains(ImageContents.COMMON_IMAGE_MARK_ID)) {
@@ -199,23 +208,33 @@ public final class MarkdownUtils {
             } else {
                 markdownImage.setImageMarkType(ImageMarkEnum.CUSTOM);
             }
+        } else {
+            markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
         }
 
         String title = lineText.substring(lineText.indexOf(ImageContents.IMAGE_MARK_PREFIX) + ImageContents.IMAGE_MARK_PREFIX.length(),
-                                          lineText.indexOf(ImageContents.IMAGE_MARK_MIDDLE));
+                                          lineText.indexOf(ImageContents.IMAGE_MARK_MIDDLE)).trim();
+
         String path = lineText.substring(lineText.indexOf(ImageContents.IMAGE_MARK_MIDDLE) + ImageContents.IMAGE_MARK_MIDDLE.length(),
-                                         lineText.indexOf(ImageContents.IMAGE_MARK_SUFFIX));
+                                         lineText.indexOf(ImageContents.IMAGE_MARK_SUFFIX)).trim();
+
         markdownImage.setTitle(title);
+
+        // 设置图片位置类型
         if (path.startsWith(ImageContents.IMAGE_LOCATION)) {
             markdownImage.setLocation(ImageLocationEnum.NETWORK);
             markdownImage.setPath(path);
-            markdownImage.setImageName(path.substring(path.lastIndexOf("/") + 1));
+            // 解析图片名
+            String imageName = path.substring(path.lastIndexOf("/") + 1);
+            markdownImage.setImageName(imageName);
+            markdownImage.setExtension(ImageUtils.getFileExtension(imageName));
         } else {
             markdownImage.setLocation(ImageLocationEnum.LOCAL);
-            String imageName = path.substring(path.lastIndexOf(File.separator) + 1);
-            // 将相对路径修改为绝对路径
-            markdownImage.setPath(path);
-            markdownImage.setImageName(imageName);
+            // 图片文件的绝对路径
+            markdownImage.setPath(virtualFile.getPath());
+            markdownImage.setExtension(virtualFile.getExtension());
+            markdownImage.setInputStream(virtualFile.getInputStream());
+            markdownImage.setImageName(path.substring(path.lastIndexOf(File.separator) + 1));
         }
         return markdownImage;
     }
@@ -269,19 +288,18 @@ public final class MarkdownUtils {
     public static Map<Document, List<MarkdownImage>> getProcessMarkdownInfo(@NotNull AnActionEvent event,
                                                                             @NotNull Project project) {
 
-        Map<Document, List<MarkdownImage>> waitingForUploadImages = new HashMap<>(20);
+        Map<Document, List<MarkdownImage>> waitingProcessMap = new HashMap<>(20);
 
         log.trace("project's base path = {}", project.getBasePath());
         // 如果选中编辑器
         final DataContext dataContext = event.getDataContext();
 
         final Editor editor = PlatformDataKeys.EDITOR.getData(dataContext);
-        // todo-dong4j : (2019年03月15日 09:41) [如果光标选中了编辑器, upload()已经判断过是否为 markdown 文件, 此处不需再判断]
         if (null != editor) {
             // 解析此文件中所有的图片标签
             Document documentFromEditor = editor.getDocument();
             VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(documentFromEditor);
-            waitingForUploadImages.put(documentFromEditor, MarkdownUtils.getImageInfoFromFiles(virtualFile));
+            waitingProcessMap.put(documentFromEditor, MarkdownUtils.getImageInfoFromFiles(virtualFile));
         } else {
             // 获取被选中的有文件和目录
             final VirtualFile[] files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(dataContext);
@@ -290,20 +308,20 @@ public final class MarkdownUtils {
                     if (MarkdownUtils.isMardownFile(file)) {
                         // 解析此文件中所有的图片标签
                         Document documentFromVirtualFile = FileDocumentManager.getInstance().getDocument(file);
-                        waitingForUploadImages.put(documentFromVirtualFile, MarkdownUtils.getImageInfoFromFiles(file));
+                        waitingProcessMap.put(documentFromVirtualFile, MarkdownUtils.getImageInfoFromFiles(file));
                     }
                     // 如果是目录, 则递归获取所有 markdown 文件
                     if (file.isDirectory()) {
                         List<VirtualFile> markdownFiles = MarkdownUtils.recursivelyMarkdownFile(file);
                         for (VirtualFile virtualFile : markdownFiles) {
                             Document documentFromVirtualFile = FileDocumentManager.getInstance().getDocument(virtualFile);
-                            waitingForUploadImages.put(documentFromVirtualFile, MarkdownUtils.getImageInfoFromFiles(virtualFile));
+                            waitingProcessMap.put(documentFromVirtualFile, MarkdownUtils.getImageInfoFromFiles(virtualFile));
                         }
                     }
                 }
             }
         }
-        return waitingForUploadImages;
+        return waitingProcessMap;
     }
 
 }

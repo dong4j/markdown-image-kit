@@ -31,7 +31,6 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 
 import info.dong4j.idea.plugin.entity.MarkdownImage;
@@ -43,8 +42,6 @@ import info.dong4j.idea.plugin.util.MarkdownUtils;
 
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Objects;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -110,8 +107,6 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
             return false;
         }
 
-        String fileName = Objects.requireNonNull(PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument())).getName();
-
         int documentLine = editor.getDocument().getLineNumber(editor.getCaretModel().getOffset());
         int linestartoffset = editor.getDocument().getLineStartOffset(documentLine);
         int lineendoffset = editor.getDocument().getLineEndOffset(documentLine);
@@ -121,7 +116,7 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
         String text = editor.getDocument().getText(new TextRange(linestartoffset, lineendoffset));
         log.trace("text = {}", text);
 
-        matchImageMark = MarkdownUtils.matchImageMark(fileName, text, documentLine);
+        matchImageMark = MarkdownUtils.matchImageMark(virtualFile, text, documentLine);
 
         return matchImageMark != null && show();
     }

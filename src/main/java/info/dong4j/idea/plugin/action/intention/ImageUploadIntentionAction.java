@@ -65,6 +65,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class ImageUploadIntentionAction extends IntentionActionBase {
 
+    @NotNull
+    @Override
+    String getMessage(String clientName) {
+        return MikBundle.message("mik.intention.upload.message", clientName);
+    }
+
+    @Contract(pure = true)
+    @Override
+    boolean show() {
+        return ImageLocationEnum.LOCAL == matchImageMark.getLocation();
+    }
+
     @Override
     public void invoke(@NotNull Project project,
                        Editor editor,
@@ -102,17 +114,5 @@ public final class ImageUploadIntentionAction extends IntentionActionBase {
             .addHandler(new ImageLabelInsertHandler());
 
         new ChainBackgroupTask(editor.getProject(), "Intention Task: ", manager).queue();
-    }
-
-    @NotNull
-    @Override
-    String getMessage(String clientName) {
-        return MikBundle.message("mik.intention.upload.message", clientName);
-    }
-
-    @Contract(pure = true)
-    @Override
-    boolean show() {
-        return ImageLocationEnum.LOCAL == matchImageMark.getLocation();
     }
 }

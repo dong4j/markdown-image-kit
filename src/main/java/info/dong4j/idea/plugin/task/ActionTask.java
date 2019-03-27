@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2019 dong4j
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,9 +25,7 @@
 
 package info.dong4j.idea.plugin.task;
 
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFileManager;
 
 import info.dong4j.idea.plugin.chain.ActionManager;
 
@@ -39,27 +37,18 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: </p>
+ * <p>Description: 右键,toolbar 上传到指定 OSS</p>
  *
  * @author dong4j
  * @email sjdong3@iflytek.com
- * @since 2019-03-26 18:39
+ * @since 2019-03-27 22:56
  */
 @Slf4j
-public class ChainBackgroupTask extends MikTaskBase {
+public class ActionTask extends MikTaskBase {
 
-    public ChainBackgroupTask(@Nullable Project project,
-                              @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title,
-                              ActionManager actionManager) {
-        super(project, title, actionManager);
-    }
-
-    @Override
-    public void onFinished() {
-        log.trace("finished callback");
-        // 刷新 VFS, 避免新增的图片很久才显示出来
-        ApplicationManager.getApplication().runWriteAction(() -> {
-            VirtualFileManager.getInstance().syncRefresh();
-        });
+    public ActionTask(@Nullable Project project,
+                      @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title,
+                      ActionManager manager) {
+        super(project, title, manager);
     }
 }

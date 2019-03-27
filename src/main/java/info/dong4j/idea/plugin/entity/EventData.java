@@ -25,6 +25,8 @@
 
 package info.dong4j.idea.plugin.entity;
 
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
@@ -50,6 +52,7 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class EventData {
+    private AnActionEvent actionEvent;
     /** 显示当前处理进度 */
     private ProgressIndicator indicator;
     /** chain size */
@@ -73,4 +76,6 @@ public class EventData {
     private InsertEnum insertType = InsertEnum.DOCUMENT;
     /** Intention 需要使用到的数据*/
     private MarkdownImage markdownImage;
+    /** 待处理的数据*/
+    private Map<Document, List<MarkdownImage>> waitingProcessMap;
 }

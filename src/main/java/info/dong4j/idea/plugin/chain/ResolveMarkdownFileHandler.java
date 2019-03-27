@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2019 dong4j
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,43 +23,37 @@
  *
  */
 
-package info.dong4j.idea.plugin.task;
+package info.dong4j.idea.plugin.chain;
 
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.editor.Document;
 
-import info.dong4j.idea.plugin.chain.ActionManager;
+import info.dong4j.idea.plugin.entity.EventData;
+import info.dong4j.idea.plugin.entity.MarkdownImage;
+import info.dong4j.idea.plugin.util.MarkdownUtils;
 
-import org.jetbrains.annotations.Nls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: </p>
+ * <p>Description: 解析 markdown 文件</p>
  *
  * @author dong4j
  * @email sjdong3@iflytek.com
- * @since 2019-03-26 18:39
+ * @since 2019-03-27 22:51
  */
-@Slf4j
-public class ChainBackgroupTask extends MikTaskBase {
-
-    public ChainBackgroupTask(@Nullable Project project,
-                              @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title,
-                              ActionManager actionManager) {
-        super(project, title, actionManager);
+public class ResolveMarkdownFileHandler extends BaseActionHandler {
+    @Override
+    public boolean isEnabled(EventData data) {
+        return true;
     }
 
     @Override
-    public void onFinished() {
-        log.trace("finished callback");
-        // 刷新 VFS, 避免新增的图片很久才显示出来
-        ApplicationManager.getApplication().runWriteAction(() -> {
-            VirtualFileManager.getInstance().syncRefresh();
-        });
+    public boolean execute(EventData data) {
+        // 解析当前文档或者选择的文件树中的所有 markdown 文件.
+        Map<Document, List<MarkdownImage>> waitingProcessMap = MarkdownUtils.getProcessMarkdownInfo(data.getActionEvent(), data.getProject());
+        data.setWaitingProcessMap(waitingProcessMap);
+        // 有数据才执行后面的 handler
+        return waitingProcessMap.size() > 0;
     }
 }

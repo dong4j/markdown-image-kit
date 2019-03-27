@@ -53,6 +53,17 @@ import java.util.Map;
  * @since 2019-03-27 13:39
  */
 public final class ImageMoveIntentionAction extends IntentionActionBase {
+
+    @Override
+    String getMessage(String clientName) {
+        return MikBundle.message("mik.intention.move.message", clientName);
+    }
+
+    @Override
+    boolean show() {
+        return ImageLocationEnum.NETWORK == matchImageMark.getLocation();
+    }
+
     @Override
     public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
         Map<Document, List<MarkdownImage>> waitingForMoveMap = new HashMap<Document, List<MarkdownImage>>(1) {
@@ -65,15 +76,5 @@ public final class ImageMoveIntentionAction extends IntentionActionBase {
             }
         };
         new IntentionBackgroupTask(project, "Move Image Plan: ", waitingForMoveMap, ClientUtils.getDeafultInstance()).queue();
-    }
-
-    @Override
-    String getMessage(String clientName) {
-        return MikBundle.message("mik.intention.move.message", clientName);
-    }
-
-    @Override
-    boolean show() {
-        return ImageLocationEnum.NETWORK == matchImageMark.getLocation();
     }
 }

@@ -48,6 +48,8 @@ public class MarkdownImage implements Serializable {
     private String fileName;
     /** 图片名 */
     private String imageName;
+    /** 图片类型*/
+    private String extension;
     /** 原始文本 */
     private String originalLineText;
     /** 行数 */
@@ -61,9 +63,11 @@ public class MarkdownImage implements Serializable {
     /** 图片地址 (本地全路径, 网路 http/https) */
     private String path;
     /** 图片位置 */
-    private ImageLocationEnum location = ImageLocationEnum.LOCAL;
+    private ImageLocationEnum location;
     /** 上传后的 url */
     private String uploadedUrl;
     /** 原始文本标签类型 */
     private ImageMarkEnum imageMarkType = ImageMarkEnum.ORIGINAL;
+    /** 图片文件流*/
+    private InputStream inputStream;
 }

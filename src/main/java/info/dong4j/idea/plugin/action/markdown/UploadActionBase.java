@@ -31,14 +31,18 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFileManager;
 
+import info.dong4j.idea.plugin.MikBundle;
+import info.dong4j.idea.plugin.chain.ActionManager;
+import info.dong4j.idea.plugin.chain.ResolveMarkdownFileHandler;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.content.MarkdownContents;
+import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.notify.UploadNotification;
 import info.dong4j.idea.plugin.strategy.UploadFromAction;
 import info.dong4j.idea.plugin.strategy.Uploader;
+import info.dong4j.idea.plugin.task.ActionTask;
 import info.dong4j.idea.plugin.util.ActionUtils;
-import info.dong4j.idea.plugin.util.MarkdownUtils;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -111,10 +115,17 @@ public abstract class UploadActionBase extends AnAction {
                 return;
             }
 
-            Map<Document, List<MarkdownImage>> waitingForUploadImages = MarkdownUtils.getProcessMarkdownInfo(event,
-                                                                                                             project);
+            EventData data = new EventData()
+                .setActionEvent(event)
+                .setProject(project);
 
-            execute(event, waitingForUploadImages);
+            ActionManager manager = new ActionManager(data).addHandler(new ResolveMarkdownFileHandler());
+
+            // 开启后台任务
+            new ActionTask(project, MikBundle.message("mik.action.upload.process", getName()), manager).queue();
+
+
+            // execute(event, waitingForUploadImages);
         }
     }
 
