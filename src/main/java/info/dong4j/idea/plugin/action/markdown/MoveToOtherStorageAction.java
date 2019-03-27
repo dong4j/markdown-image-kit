@@ -64,8 +64,8 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: 图床迁移计划 这里是批量迁移处理, 处理对象为 markdown 或者 目录</p>
  *
  * @author dong4j
- * @email sjdong3@iflytek.com
- * @since 2019-03-15 20:41
+ * @email sjdong3 @iflytek.com
+ * @since 2019 -03-15 20:41
  */
 @Slf4j
 public final class MoveToOtherStorageAction extends AnAction {
@@ -108,9 +108,22 @@ public final class MoveToOtherStorageAction extends AnAction {
             }
 
             log.trace("waitingForMoveMap = {}", waitingForMoveMap);
+
+            execute(waitingForMoveMap);
         }
     }
 
+    private void execute(Map<Document, List<MarkdownImage>> waitingForMoveMap) {
+        // 1. 通过 URL 上传图片
+        // 2. 替换标签
+        // 3. 插入到原来的位置
+    }
+
+    /**
+     * 初始化 dialog
+     *
+     * @return the move to other oss settings dialog
+     */
     @Nullable
     private static MoveToOtherOssSettingsDialog showDialog() {
         DialogBuilder builder = new DialogBuilder();
@@ -160,6 +173,13 @@ public final class MoveToOtherStorageAction extends AnAction {
         return dialog;
     }
 
+    /**
+     * 初始化 message 监听更新 ok 按钮可用状态
+     *
+     * @param builder the builder
+     * @param dialog  the dialog
+     * @param index   the index
+     */
     private static void showMessage(DialogBuilder builder, MoveToOtherOssSettingsDialog dialog, int index) {
         if (!OssState.getStatus(index)) {
             dialog.getMessage().setForeground(Color.RED);

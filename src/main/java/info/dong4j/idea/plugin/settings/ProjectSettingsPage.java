@@ -154,55 +154,10 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         }
     }
 
-    private void resetAliyunConfigs(@NotNull ImageManagerState state) {
-        AliyunOssState aliyunOssState = state.getAliyunOssState();
-        this.aliyunOssBucketNameTextField.setText(aliyunOssState.getBucketName());
-        this.aliyunOssAccessKeyTextField.setText(aliyunOssState.getAccessKey());
-        String aliyunOssAccessSecreKey = aliyunOssState.getAccessSecretKey();
-        this.aliyunOssAccessSecretKeyTextField.setText(DES.decrypt(aliyunOssAccessSecreKey, ImageManagerState.ALIYUN));
-        this.aliyunOssEndpointTextField.setText(aliyunOssState.getEndpoint());
-        this.aliyunOssFileDirTextField.setText(aliyunOssState.getFiledir());
-    }
-
-    private void resetQiniuunConfigs(ImageManagerState state) {
-        QiniuOssState qiniuOssState = state.getQiniuOssState();
-        this.qiniuOssBucketNameTextField.setText(qiniuOssState.getBucketName());
-        this.qiniuOssAccessKeyTextField.setText(qiniuOssState.getAccessKey());
-        String accessSecretKey = qiniuOssState.getAccessSecretKey();
-        this.qiniuOssAccessSecretKeyTextField.setText(DES.decrypt(accessSecretKey, ImageManagerState.QINIU));
-        this.qiniuOssUpHostTextField.setText(qiniuOssState.getEndpoint());
-        this.zoneIndexTextFiled.setText(String.valueOf(qiniuOssState.getZoneIndex()));
-    }
-
-    private void resetWeiboConfigs(@NotNull ImageManagerState state) {
-        WeiboOssState weiboOssState = state.getWeiboOssState();
-        this.weiboUserNameTextField.setText(weiboOssState.getUserName());
-        this.weiboPasswordField.setText(DES.decrypt(weiboOssState.getPassword(), ImageManagerState.WEIBOKEY));
-    }
-
-    private void resetGeneralCOnfigs(ImageManagerState state) {
-        this.changeToHtmlTagCheckBox.setSelected(state.isChangeToHtmlTag());
-        this.largePictureRadioButton.setSelected(state.getTagType().equals(ImageMarkEnum.LARGE_PICTURE.text));
-        this.commonRadioButton.setSelected(state.getTagType().equals(ImageMarkEnum.CUSTOM.text));
-        this.customRadioButton.setSelected(state.getTagType().equals(ImageMarkEnum.CUSTOM.text));
-        this.customHtmlTypeTextField.setText(state.getTagTypeCode());
-        this.compressCheckBox.setSelected(state.isCompress());
-        this.compressBeforeUploadCheckBox.setSelected(state.isCompressBeforeUpload());
-        this.compressAtLookupCheckBox.setSelected(state.isCompressAtLookup());
-        this.compressSlider.setValue(state.getCompressBeforeUploadOfPercent());
-        this.compressLabel.setText(String.valueOf(compressSlider.getValue()));
-        this.styleNameTextField.setText(state.getStyleName());
-        this.transportCheckBox.setSelected(state.isTransport());
-        this.renameCheckBox.setSelected(state.isRename());
-        this.fileNameSuffixBoxField.setSelectedIndex(state.getSuffixIndex());
-    }
-
-    private void resetClipboardConfigs(ImageManagerState state) {
-        this.clipboardControlCheckBox.setSelected(state.isClipboardControl());
-        this.copyToDirCheckBox.setSelected(state.isCopyToDir());
-        this.whereToCopyTextField.setText(state.getImageSavePath());
-        this.uploadAndReplaceCheckBox.setSelected(state.isUploadAndReplace());
-        this.defaultCloudComboBox.setSelectedIndex(state.getCloudType());
+    @Override
+    public JComponent createComponent() {
+        initFromSettings();
+        return myMainPanel;
     }
 
     @NotNull
@@ -215,12 +170,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     @Override
     public String getDisplayName() {
         return "Markdown Image Kit";
-    }
-
-    @Override
-    public JComponent createComponent() {
-        initFromSettings();
-        return myMainPanel;
     }
 
     /**
@@ -282,69 +231,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     /**
-     * 初始化 upload 配置组
-     */
-    private void initGlobalPanel(@NotNull ImageManagerState state) {
-        initChangeToHtmlGroup();
-        initCompressGroup();
-        initExpandGroup();
-
-        // 初始化上传图片的后缀
-        renameCheckBox.setSelected(config.getState().isRename());
-        fileNameSuffixBoxField.setSelectedIndex(state.getSuffixIndex());
-        fileNameSuffixBoxField.setEnabled(config.getState().isRename());
-        renameCheckBox.addChangeListener(e -> {
-            JCheckBox checkBox = (JCheckBox) e.getSource();
-            fileNameSuffixBoxField.setEnabled(checkBox.isSelected());
-        });
-    }
-
-    /**
-     * 初始化 clipboard group
-     */
-    private void initClipboardControl() {
-        // 设置是否勾选
-        boolean isClipboardControl = config.getState().isClipboardControl();
-        boolean isCopyToDir = config.getState().isCopyToDir();
-        boolean isUploadAndReplace = config.getState().isUploadAndReplace();
-        this.clipboardControlCheckBox.setSelected(isClipboardControl);
-        this.copyToDirCheckBox.setSelected(isCopyToDir);
-        this.uploadAndReplaceCheckBox.setSelected(isUploadAndReplace);
-
-        // 设置是否可用
-        this.copyToDirCheckBox.setEnabled(isClipboardControl);
-        this.uploadAndReplaceCheckBox.setEnabled(isClipboardControl);
-        // 设置 copy 位置
-        this.whereToCopyTextField.setText(config.getState().getImageSavePath());
-        this.whereToCopyTextField.setEnabled(isClipboardControl && isCopyToDir);
-        // 默认上传图床
-        this.defaultCloudComboBox.setEnabled(isUploadAndReplace && isClipboardControl);
-        this.defaultCloudComboBox.setSelectedIndex(config.getState().getCloudType());
-
-        // 设置 clipboardControlCheckBox 监听
-        clipboardControlCheckBox.addChangeListener(e -> {
-            JCheckBox checkBox = (JCheckBox) e.getSource();
-            copyToDirCheckBox.setEnabled(checkBox.isSelected());
-            uploadAndReplaceCheckBox.setEnabled(checkBox.isSelected());
-            // 如果都被选中才设置为可用
-            whereToCopyTextField.setEnabled(copyToDirCheckBox.isSelected() && checkBox.isSelected());
-            defaultCloudComboBox.setEnabled(uploadAndReplaceCheckBox.isSelected() && checkBox.isSelected());
-        });
-
-        // 设置 copyToDirCheckBox 监听
-        copyToDirCheckBox.addChangeListener(e -> {
-            JCheckBox checkBox = (JCheckBox) e.getSource();
-            whereToCopyTextField.setEnabled(checkBox.isSelected());
-        });
-
-        // 设置 uploadAndReplaceCheckBox 监听
-        uploadAndReplaceCheckBox.addChangeListener(e -> {
-            JCheckBox checkBox = (JCheckBox) e.getSource();
-            defaultCloudComboBox.setEnabled(checkBox.isSelected());
-        });
-    }
-
-    /**
      * 初始化 aliyun oss 认证相关设置
      */
     private void initAliyunOssAuthenticationPanel() {
@@ -377,39 +263,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                 setExampleText();
             }
         });
-    }
-
-    /**
-     * 初始化 weibo oss 认证相关设置
-     */
-    private void initWeiboOssAuthenticationPanel() {
-        weiboUserNameTextField.setText(config.getState().getWeiboOssState().getUserName());
-        weiboPasswordField.setText(DES.decrypt(config.getState().getWeiboOssState().getPassword(), ImageManagerState.WEIBOKEY));
-    }
-
-    /**
-     * 初始化 qiniu oss 认证相关设置
-     */
-    private void initQiniuOssAuthenticationPanel(ImageManagerState state) {
-        QiniuOssState qiniuOssState = state.getQiniuOssState();
-        qiniuOssAccessSecretKeyTextField.setText(DES.decrypt(qiniuOssState.getAccessSecretKey(), ImageManagerState.QINIU));
-
-        qiniuOssUpHostTextField.addFocusListener(new JTextFieldHintListener(qiniuOssUpHostTextField, "http(s)://domain/"));
-
-        ButtonGroup group = new ButtonGroup();
-        qiniuOssEastChinaRadioButton.setMnemonic(ZoneEnum.EAST_CHINA.index);
-        qiniuOssNortChinaRadioButton.setMnemonic(ZoneEnum.NORT_CHINA.index);
-        qiniuOssSouthChinaRadioButton.setMnemonic(ZoneEnum.SOUTH_CHINA.index);
-        qiniuOssNorthAmeriaRadioButton.setMnemonic(ZoneEnum.NORTH_AMERIA.index);
-        addZoneRadioButton(group, qiniuOssEastChinaRadioButton);
-        addZoneRadioButton(group, qiniuOssNortChinaRadioButton);
-        addZoneRadioButton(group, qiniuOssSouthChinaRadioButton);
-        addZoneRadioButton(group, qiniuOssNorthAmeriaRadioButton);
-
-        qiniuOssEastChinaRadioButton.setSelected(qiniuOssState.getZoneIndex() == qiniuOssEastChinaRadioButton.getMnemonic());
-        qiniuOssNortChinaRadioButton.setSelected(qiniuOssState.getZoneIndex() == qiniuOssNortChinaRadioButton.getMnemonic());
-        qiniuOssSouthChinaRadioButton.setSelected(qiniuOssState.getZoneIndex() == qiniuOssSouthChinaRadioButton.getMnemonic());
-        qiniuOssNorthAmeriaRadioButton.setSelected(qiniuOssState.getZoneIndex() == qiniuOssNorthAmeriaRadioButton.getMnemonic());
     }
 
     /**
@@ -447,6 +300,88 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             // 打开浏览器到帮助页面
             String url = MikNotification.helpUrl(HelpType.SETTING.where);
             BrowserUtil.browse(url);
+        });
+    }
+
+    /**
+     * 实时更新此字段
+     */
+    private void setExampleText() {
+        String fileDir = StringUtils.isBlank(aliyunOssFileDirTextField.getText().trim()) ? "" : "/" + aliyunOssFileDirTextField.getText().trim();
+        String endpoint = aliyunOssEndpointTextField.getText().trim();
+        String backetName = aliyunOssBucketNameTextField.getText().trim();
+        String url = AliyunOssClient.URL_PROTOCOL_HTTPS + "://" + backetName + "." + endpoint;
+        exampleTextField.setText(url + fileDir + "/" + TEST_FILE_NAME);
+    }
+
+    /**
+     * 初始化 weibo oss 认证相关设置
+     */
+    private void initWeiboOssAuthenticationPanel() {
+        weiboUserNameTextField.setText(config.getState().getWeiboOssState().getUserName());
+        weiboPasswordField.setText(DES.decrypt(config.getState().getWeiboOssState().getPassword(), ImageManagerState.WEIBOKEY));
+    }
+
+    /**
+     * 初始化 qiniu oss 认证相关设置
+     */
+    private void initQiniuOssAuthenticationPanel(ImageManagerState state) {
+        QiniuOssState qiniuOssState = state.getQiniuOssState();
+        qiniuOssAccessSecretKeyTextField.setText(DES.decrypt(qiniuOssState.getAccessSecretKey(), ImageManagerState.QINIU));
+
+        qiniuOssUpHostTextField.addFocusListener(new JTextFieldHintListener(qiniuOssUpHostTextField, "http(s)://domain/"));
+
+        ButtonGroup group = new ButtonGroup();
+        qiniuOssEastChinaRadioButton.setMnemonic(ZoneEnum.EAST_CHINA.index);
+        qiniuOssNortChinaRadioButton.setMnemonic(ZoneEnum.NORT_CHINA.index);
+        qiniuOssSouthChinaRadioButton.setMnemonic(ZoneEnum.SOUTH_CHINA.index);
+        qiniuOssNorthAmeriaRadioButton.setMnemonic(ZoneEnum.NORTH_AMERIA.index);
+        addZoneRadioButton(group, qiniuOssEastChinaRadioButton);
+        addZoneRadioButton(group, qiniuOssNortChinaRadioButton);
+        addZoneRadioButton(group, qiniuOssSouthChinaRadioButton);
+        addZoneRadioButton(group, qiniuOssNorthAmeriaRadioButton);
+
+        qiniuOssEastChinaRadioButton.setSelected(qiniuOssState.getZoneIndex() == qiniuOssEastChinaRadioButton.getMnemonic());
+        qiniuOssNortChinaRadioButton.setSelected(qiniuOssState.getZoneIndex() == qiniuOssNortChinaRadioButton.getMnemonic());
+        qiniuOssSouthChinaRadioButton.setSelected(qiniuOssState.getZoneIndex() == qiniuOssSouthChinaRadioButton.getMnemonic());
+        qiniuOssNorthAmeriaRadioButton.setSelected(qiniuOssState.getZoneIndex() == qiniuOssNorthAmeriaRadioButton.getMnemonic());
+    }
+
+    /**
+     * 处理被选中的 zone 单选框
+     *
+     * @param group  the group
+     * @param button the button
+     */
+    private void addZoneRadioButton(@NotNull ButtonGroup group, JRadioButton button) {
+        group.add(button);
+        ActionListener actionListener = e -> {
+            Object sourceObject = e.getSource();
+            if (sourceObject instanceof JRadioButton) {
+                JRadioButton sourceButton = (JRadioButton) sourceObject;
+                zoneIndexTextFiled.setText(String.valueOf(sourceButton.getMnemonic()));
+                testMessage.setText("");
+                testButton.setText("Test Upload");
+            }
+        };
+        button.addActionListener(actionListener);
+    }
+
+    /**
+     * 初始化 upload 配置组
+     */
+    private void initGlobalPanel(@NotNull ImageManagerState state) {
+        initChangeToHtmlGroup();
+        initCompressGroup();
+        initExpandGroup();
+
+        // 初始化上传图片的后缀
+        renameCheckBox.setSelected(config.getState().isRename());
+        fileNameSuffixBoxField.setSelectedIndex(state.getSuffixIndex());
+        fileNameSuffixBoxField.setEnabled(config.getState().isRename());
+        renameCheckBox.addChangeListener(e -> {
+            JCheckBox checkBox = (JCheckBox) e.getSource();
+            fileNameSuffixBoxField.setEnabled(checkBox.isSelected());
         });
     }
 
@@ -491,9 +426,32 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             }
         });
         ButtonGroup group = new ButtonGroup();
-        addRadioButton(group, largePictureRadioButton);
-        addRadioButton(group, commonRadioButton);
-        addRadioButton(group, customRadioButton);
+        addChangeTagRadioButton(group, largePictureRadioButton);
+        addChangeTagRadioButton(group, commonRadioButton);
+        addChangeTagRadioButton(group, customRadioButton);
+    }
+
+    /**
+     * 处理被选中的单选框
+     *
+     * @param group  the group
+     * @param button the button
+     */
+    private void addChangeTagRadioButton(@NotNull ButtonGroup group, JRadioButton button) {
+        group.add(button);
+        // 构造一个监听器，响应checkBox事件
+        ActionListener actionListener = e -> {
+            Object sourceObject = e.getSource();
+            if (sourceObject instanceof JRadioButton) {
+                JRadioButton sourceButton = (JRadioButton) sourceObject;
+                if (ImageMarkEnum.CUSTOM.text.equals(sourceButton.getText())) {
+                    customHtmlTypeTextField.setEnabled(true);
+                } else {
+                    customHtmlTypeTextField.setEnabled(false);
+                }
+            }
+        };
+        button.addActionListener(actionListener);
     }
 
     /**
@@ -560,57 +518,48 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     /**
-     * 实时更新此字段
+     * 初始化 clipboard group
      */
-    private void setExampleText() {
-        String fileDir = StringUtils.isBlank(aliyunOssFileDirTextField.getText().trim()) ? "" : "/" + aliyunOssFileDirTextField.getText().trim();
-        String endpoint = aliyunOssEndpointTextField.getText().trim();
-        String backetName = aliyunOssBucketNameTextField.getText().trim();
-        String url = AliyunOssClient.URL_PROTOCOL_HTTPS + "://" + backetName + "." + endpoint;
-        exampleTextField.setText(url + fileDir + "/" + TEST_FILE_NAME);
-    }
+    private void initClipboardControl() {
+        // 设置是否勾选
+        boolean isClipboardControl = config.getState().isClipboardControl();
+        boolean isCopyToDir = config.getState().isCopyToDir();
+        boolean isUploadAndReplace = config.getState().isUploadAndReplace();
+        this.clipboardControlCheckBox.setSelected(isClipboardControl);
+        this.copyToDirCheckBox.setSelected(isCopyToDir);
+        this.uploadAndReplaceCheckBox.setSelected(isUploadAndReplace);
 
-    /**
-     * 处理被选中的 zone 单选框
-     *
-     * @param group  the group
-     * @param button the button
-     */
-    private void addZoneRadioButton(ButtonGroup group, JRadioButton button) {
-        group.add(button);
-        ActionListener actionListener = e -> {
-            Object sourceObject = e.getSource();
-            if (sourceObject instanceof JRadioButton) {
-                JRadioButton sourceButton = (JRadioButton) sourceObject;
-                zoneIndexTextFiled.setText(String.valueOf(sourceButton.getMnemonic()));
-                testMessage.setText("");
-                testButton.setText("Test Upload");
-            }
-        };
-        button.addActionListener(actionListener);
-    }
+        // 设置是否可用
+        this.copyToDirCheckBox.setEnabled(isClipboardControl);
+        this.uploadAndReplaceCheckBox.setEnabled(isClipboardControl);
+        // 设置 copy 位置
+        this.whereToCopyTextField.setText(config.getState().getImageSavePath());
+        this.whereToCopyTextField.setEnabled(isClipboardControl && isCopyToDir);
+        // 默认上传图床
+        this.defaultCloudComboBox.setEnabled(isUploadAndReplace && isClipboardControl);
+        this.defaultCloudComboBox.setSelectedIndex(config.getState().getCloudType());
 
-    /**
-     * 处理被选中的单选框
-     *
-     * @param group  the group
-     * @param button the button
-     */
-    private void addRadioButton(ButtonGroup group, JRadioButton button) {
-        group.add(button);
-        // 构造一个监听器，响应checkBox事件
-        ActionListener actionListener = e -> {
-            Object sourceObject = e.getSource();
-            if (sourceObject instanceof JRadioButton) {
-                JRadioButton sourceButton = (JRadioButton) sourceObject;
-                if (ImageMarkEnum.CUSTOM.text.equals(sourceButton.getText())) {
-                    customHtmlTypeTextField.setEnabled(true);
-                } else {
-                    customHtmlTypeTextField.setEnabled(false);
-                }
-            }
-        };
-        button.addActionListener(actionListener);
+        // 设置 clipboardControlCheckBox 监听
+        clipboardControlCheckBox.addChangeListener(e -> {
+            JCheckBox checkBox = (JCheckBox) e.getSource();
+            copyToDirCheckBox.setEnabled(checkBox.isSelected());
+            uploadAndReplaceCheckBox.setEnabled(checkBox.isSelected());
+            // 如果都被选中才设置为可用
+            whereToCopyTextField.setEnabled(copyToDirCheckBox.isSelected() && checkBox.isSelected());
+            defaultCloudComboBox.setEnabled(uploadAndReplaceCheckBox.isSelected() && checkBox.isSelected());
+        });
+
+        // 设置 copyToDirCheckBox 监听
+        copyToDirCheckBox.addChangeListener(e -> {
+            JCheckBox checkBox = (JCheckBox) e.getSource();
+            whereToCopyTextField.setEnabled(checkBox.isSelected());
+        });
+
+        // 设置 uploadAndReplaceCheckBox 监听
+        uploadAndReplaceCheckBox.addChangeListener(e -> {
+            JCheckBox checkBox = (JCheckBox) e.getSource();
+            defaultCloudComboBox.setEnabled(checkBox.isSelected());
+        });
     }
 
     /**
@@ -883,5 +832,56 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         resetWeiboConfigs(state);
         resetGeneralCOnfigs(state);
         resetClipboardConfigs(state);
+    }
+
+    private void resetAliyunConfigs(@NotNull ImageManagerState state) {
+        AliyunOssState aliyunOssState = state.getAliyunOssState();
+        this.aliyunOssBucketNameTextField.setText(aliyunOssState.getBucketName());
+        this.aliyunOssAccessKeyTextField.setText(aliyunOssState.getAccessKey());
+        String aliyunOssAccessSecreKey = aliyunOssState.getAccessSecretKey();
+        this.aliyunOssAccessSecretKeyTextField.setText(DES.decrypt(aliyunOssAccessSecreKey, ImageManagerState.ALIYUN));
+        this.aliyunOssEndpointTextField.setText(aliyunOssState.getEndpoint());
+        this.aliyunOssFileDirTextField.setText(aliyunOssState.getFiledir());
+    }
+
+    private void resetQiniuunConfigs(ImageManagerState state) {
+        QiniuOssState qiniuOssState = state.getQiniuOssState();
+        this.qiniuOssBucketNameTextField.setText(qiniuOssState.getBucketName());
+        this.qiniuOssAccessKeyTextField.setText(qiniuOssState.getAccessKey());
+        String accessSecretKey = qiniuOssState.getAccessSecretKey();
+        this.qiniuOssAccessSecretKeyTextField.setText(DES.decrypt(accessSecretKey, ImageManagerState.QINIU));
+        this.qiniuOssUpHostTextField.setText(qiniuOssState.getEndpoint());
+        this.zoneIndexTextFiled.setText(String.valueOf(qiniuOssState.getZoneIndex()));
+    }
+
+    private void resetWeiboConfigs(@NotNull ImageManagerState state) {
+        WeiboOssState weiboOssState = state.getWeiboOssState();
+        this.weiboUserNameTextField.setText(weiboOssState.getUserName());
+        this.weiboPasswordField.setText(DES.decrypt(weiboOssState.getPassword(), ImageManagerState.WEIBOKEY));
+    }
+
+    private void resetGeneralCOnfigs(ImageManagerState state) {
+        this.changeToHtmlTagCheckBox.setSelected(state.isChangeToHtmlTag());
+        this.largePictureRadioButton.setSelected(state.getTagType().equals(ImageMarkEnum.LARGE_PICTURE.text));
+        this.commonRadioButton.setSelected(state.getTagType().equals(ImageMarkEnum.CUSTOM.text));
+        this.customRadioButton.setSelected(state.getTagType().equals(ImageMarkEnum.CUSTOM.text));
+        this.customHtmlTypeTextField.setText(state.getTagTypeCode());
+        this.compressCheckBox.setSelected(state.isCompress());
+        this.compressBeforeUploadCheckBox.setSelected(state.isCompressBeforeUpload());
+        this.compressAtLookupCheckBox.setSelected(state.isCompressAtLookup());
+        this.compressSlider.setValue(state.getCompressBeforeUploadOfPercent());
+        this.compressLabel.setText(String.valueOf(compressSlider.getValue()));
+        this.styleNameTextField.setText(state.getStyleName());
+        this.transportCheckBox.setSelected(state.isTransport());
+        this.renameCheckBox.setSelected(state.isRename());
+        this.fileNameSuffixBoxField.setSelectedIndex(state.getSuffixIndex());
+    }
+
+    private void resetClipboardConfigs(ImageManagerState state) {
+        this.clipboardControlCheckBox.setSelected(state.isClipboardControl());
+        this.copyToDirCheckBox.setSelected(state.isCopyToDir());
+        this.whereToCopyTextField.setText(state.getImageSavePath());
+        this.uploadAndReplaceCheckBox.setSelected(state.isUploadAndReplace());
+        this.defaultCloudComboBox.setSelectedIndex(state.getCloudType());
     }
 }
