@@ -30,6 +30,8 @@ import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogBuilder;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -128,34 +130,35 @@ public final class MoveToOtherStorageAction extends AnAction {
      * @param cloudEnum         the cloud enum
      */
     private void execute(Project project, Map<Document, List<MarkdownImage>> waitingForMoveMap, CloudEnum cloudEnum) {
-        OssClient client = ClientUtils.getInstance(cloudEnum);
-        if (client != null) {
-            for (Map.Entry<Document, List<MarkdownImage>> entry : waitingForMoveMap.entrySet()) {
-                Document document = entry.getKey();
-                for (MarkdownImage markdownImage : entry.getValue()) {
-                    String url = markdownImage.getPath();
-                    try {
-                        File file = ImageUtils.buildTempFile(markdownImage.getImageName());
-                        FileUtils.copyURLToFile(new URL(url), file);
-                        String uploadedUrl = client.upload(file);
-                        if (StringUtils.isBlank(uploadedUrl)) {
-                            continue;
+        new Task.Backgroundable(project, "Move Image Plan: ") {
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
+                OssClient client = ClientUtils.getInstance(cloudEnum);
+                if (client != null) {
+                    for (Map.Entry<Document, List<MarkdownImage>> entry : waitingForMoveMap.entrySet()) {
+                        Document document = entry.getKey();
+                        for (MarkdownImage markdownImage : entry.getValue()) {
+                            String url = markdownImage.getPath();
+                            try {
+                                File file = ImageUtils.buildTempFile(markdownImage.getImageName());
+                                FileUtils.copyURLToFile(new URL(url), file);
+                                String uploadedUrl = client.upload(file);
+                                if (StringUtils.isBlank(uploadedUrl)) {
+                                    continue;
+                                }
+                                file.deleteOnExit();
+                                markdownImage.setUploadedUrl(uploadedUrl);
+                                // 这里设置为 LOCAL, 是为了替换标签
+                                markdownImage.setLocation(ImageLocationEnum.LOCAL);
+                                PsiDocumentUtils.commitAndSaveDocument(project, document, markdownImage);
+                            } catch (IOException e) {
+                                log.trace("", e);
+                            }
                         }
-                        file.deleteOnExit();
-                        markdownImage.setUploadedUrl(uploadedUrl);
-                        // 这里设置为 LOCAL, 是为了替换标签
-                        markdownImage.setLocation(ImageLocationEnum.LOCAL);
-                        PsiDocumentUtils.commitAndSaveDocument(project, document, markdownImage);
-                    } catch (IOException e) {
-                        log.trace("", e);
                     }
                 }
             }
-        }
-
-        // 1. 通过 URL 上传图片
-        // 2. 替换标签
-        // 3. 插入到原来的位置
+        }.queue();
     }
 
     /**

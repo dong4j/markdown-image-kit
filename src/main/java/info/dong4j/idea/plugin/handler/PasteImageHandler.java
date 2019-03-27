@@ -146,7 +146,7 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                         .addHandler(new ImageLabelChangeHandler())
                         .addHandler(new ImageLabelInsertHandler());
 
-                    new ChainBackgroupTask(editor.getProject(), "Paste Task", manager).queue();
+                    new ChainBackgroupTask(editor.getProject(), "Paste Task: ", manager).queue();
 
                     return;
                 }

@@ -112,7 +112,7 @@ public final class ImageLabelIntentionAction extends IntentionActionBase {
                 .addHandler(new ImageLabelChangeHandler())
                 .addHandler(new ImageLabelInsertHandler());
 
-            new ChainBackgroupTask(editor.getProject(), "Intention Task", manager).queue();
+            new ChainBackgroupTask(editor.getProject(), "Intention Task: ", manager).queue();
         } else {
             // todo-dong4j : (2019年03月27日 10:43) [是网络图片则判断是否添加标签或者图床迁移]
         }
