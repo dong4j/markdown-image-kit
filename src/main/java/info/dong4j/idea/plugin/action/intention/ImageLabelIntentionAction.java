@@ -43,12 +43,9 @@ import info.dong4j.idea.plugin.chain.paste.ImageUploadHandler;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.entity.EventData;
-import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.enums.InsertEnum;
-import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
-import info.dong4j.idea.plugin.settings.ImageManagerState;
 import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.task.ChainBackgroupTask;
 import info.dong4j.idea.plugin.util.ClientUtils;
@@ -76,8 +73,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public final class ImageLabelIntentionAction extends IntentionActionBase {
-    private ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
-    private MarkdownImage matchImageMark;
 
     @Override
     public void invoke(@NotNull Project project,

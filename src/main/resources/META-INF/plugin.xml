@@ -13,6 +13,7 @@
          on how to target different products -->
 
     <extensions defaultExtensionNs="com.intellij">
+        <!-- clipboard -->
         <editorActionHandler action="EditorPaste"
                              implementationClass="info.dong4j.idea.plugin.handler.PasteImageHandler"
                              order="first"/>
@@ -21,8 +22,12 @@
         <!-- 持久化 -->
         <applicationService serviceInterface="info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent"
                             serviceImplementation="info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent"/>
+        <!-- alt + enter -->
         <intentionAction>
             <className>info.dong4j.idea.plugin.action.intention.ImageLabelIntentionAction</className>
+        </intentionAction>
+        <intentionAction>
+            <className>info.dong4j.idea.plugin.action.intention.ImageLabelMoveIntentionAction</className>
         </intentionAction>
 
     </extensions>
@@ -43,7 +48,7 @@
         <action id="ImageUploadAction" class="info.dong4j.idea.plugin.action.image.ImageUploadAction"
                 popup="true" text="图片上传">
         </action>
-        <action id="MoveToOtherStorageAction" class="info.dong4j.idea.plugin.action.MoveToOtherStorageAction"
+        <action id="MoveToOtherStorageAction" class="info.dong4j.idea.plugin.action.markdown.MoveToOtherStorageAction"
                 popup="true" text="图床迁移计划">
         </action>
 

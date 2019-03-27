@@ -25,8 +25,13 @@
 
 package info.dong4j.idea.plugin.util;
 
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -46,7 +51,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -70,7 +77,7 @@ public final class MarkdownUtils {
      */
     @Contract("null -> false")
     public static boolean isValidForFile(PsiFile file) {
-        if(file == null){
+        if (file == null) {
             return false;
         }
 
@@ -246,4 +253,54 @@ public final class MarkdownUtils {
                                                });
         return markdownFiles;
     }
+
+    /**
+     * 获取需要处理的 markdown 信息
+     * Document --> 需要处理的文档
+     * List<MarkdownImage> --> 文档中解析后的 markdown image 信息
+     *
+     * @param event   the event
+     * @param project the project
+     * @return the process markdown info    markdown image 信息
+     */
+    public static Map<Document, List<MarkdownImage>> getProcessMarkdownInfo(@NotNull AnActionEvent event,
+                                                                            @NotNull Project project) {
+
+        Map<Document, List<MarkdownImage>> waitingForUploadImages = new HashMap<>(20);
+
+        log.trace("project's base path = {}", project.getBasePath());
+        // 如果选中编辑器
+        final DataContext dataContext = event.getDataContext();
+
+        final Editor editor = PlatformDataKeys.EDITOR.getData(dataContext);
+        // todo-dong4j : (2019年03月15日 09:41) [如果光标选中了编辑器, upload()已经判断过是否为 markdown 文件, 此处不需再判断]
+        if (null != editor) {
+            // 解析此文件中所有的图片标签
+            Document documentFromEditor = editor.getDocument();
+            VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(documentFromEditor);
+            waitingForUploadImages.put(documentFromEditor, MarkdownUtils.getImageInfoFromFiles(virtualFile));
+        } else {
+            // 获取被选中的有文件和目录
+            final VirtualFile[] files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(dataContext);
+            if (null != files) {
+                for (VirtualFile file : files) {
+                    if (MarkdownUtils.isMardownFile(file)) {
+                        // 解析此文件中所有的图片标签
+                        Document documentFromVirtualFile = FileDocumentManager.getInstance().getDocument(file);
+                        waitingForUploadImages.put(documentFromVirtualFile, MarkdownUtils.getImageInfoFromFiles(file));
+                    }
+                    // 如果是目录, 则递归获取所有 markdown 文件
+                    if (file.isDirectory()) {
+                        List<VirtualFile> markdownFiles = MarkdownUtils.recursivelyMarkdownFile(file);
+                        for (VirtualFile virtualFile : markdownFiles) {
+                            Document documentFromVirtualFile = FileDocumentManager.getInstance().getDocument(virtualFile);
+                            waitingForUploadImages.put(documentFromVirtualFile, MarkdownUtils.getImageInfoFromFiles(virtualFile));
+                        }
+                    }
+                }
+            }
+        }
+        return waitingForUploadImages;
+    }
+
 }

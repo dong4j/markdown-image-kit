@@ -44,7 +44,7 @@ public class JTextFieldHintListener implements FocusListener {
     private String hintText;
     private JTextField textField;
 
-    JTextFieldHintListener(JTextField jTextField, String hintText) {
+    public JTextFieldHintListener(JTextField jTextField, String hintText) {
         this.textField = jTextField;
         this.hintText = hintText;
         // 默认直接显示

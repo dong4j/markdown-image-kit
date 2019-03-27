@@ -27,13 +27,8 @@ package info.dong4j.idea.plugin.action.markdown;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 
 import info.dong4j.idea.plugin.client.OssClient;
@@ -48,7 +43,6 @@ import info.dong4j.idea.plugin.util.MarkdownUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -107,11 +101,9 @@ public abstract class UploadActionBase extends AnAction {
      */
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
-        Map<Document, List<MarkdownImage>> waitingForUploadImages = new HashMap<>(20);
 
         final Project project = event.getProject();
         if (project != null) {
-
             // 如果账号未设置或者设置后未测试, 则给出提示
             if (!isAvailable()) {
                 log.trace("No account set or setting error. action = {}", getName());
@@ -119,39 +111,9 @@ public abstract class UploadActionBase extends AnAction {
                 return;
             }
 
-            log.trace("project's base path = {}", project.getBasePath());
-            // 如果选中编辑器
-            final DataContext dataContext = event.getDataContext();
+            Map<Document, List<MarkdownImage>> waitingForUploadImages = MarkdownUtils.getProcessMarkdownInfo(event,
+                                                                                                             project);
 
-            final Editor editor = PlatformDataKeys.EDITOR.getData(dataContext);
-            // todo-dong4j : (2019年03月15日 09:41) [如果光标选中了编辑器, upload()已经判断过是否为 markdown 文件, 此处不需再判断]
-            if (null != editor) {
-                // 解析此文件中所有的图片标签
-                Document documentFromEditor = editor.getDocument();
-                VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(documentFromEditor);
-                waitingForUploadImages.put(documentFromEditor, MarkdownUtils.getImageInfoFromFiles(virtualFile));
-            } else {
-                // 获取被选中的有文件和目录
-                final VirtualFile[] files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(dataContext);
-                if (null != files) {
-                    // fixme-dong4j : (2019年03月26日 16:52 [逻辑有问题])
-                    for (VirtualFile file : files) {
-                        if (MarkdownUtils.isMardownFile(file)) {
-                            // 解析此文件中所有的图片标签
-                            Document documentFromVirtualFile = FileDocumentManager.getInstance().getDocument(file);
-                            waitingForUploadImages.put(documentFromVirtualFile, MarkdownUtils.getImageInfoFromFiles(file));
-                        }
-                        // 如果是目录, 则递归获取所有 markdown 文件
-                        if (file.isDirectory()) {
-                            List<VirtualFile> markdownFiles = MarkdownUtils.recursivelyMarkdownFile(file);
-                            for (VirtualFile virtualFile : markdownFiles) {
-                                Document documentFromVirtualFile = FileDocumentManager.getInstance().getDocument(virtualFile);
-                                waitingForUploadImages.put(documentFromVirtualFile, MarkdownUtils.getImageInfoFromFiles(virtualFile));
-                            }
-                        }
-                    }
-                }
-            }
             execute(event, waitingForUploadImages);
         }
     }
@@ -165,17 +127,14 @@ public abstract class UploadActionBase extends AnAction {
      */
     @Contract(pure = true)
     private void execute(@NotNull AnActionEvent event, Map<Document, List<MarkdownImage>> waitingForUploadImages) {
-        final Project project = event.getProject();
-        if (project != null) {
-            if (waitingForUploadImages.size() > 0) {
-                // 先刷新一次, 避免才添加的文件未被添加的 VFS 中, 导致找不到文件的问题
-                VirtualFileManager.getInstance().syncRefresh();
-                // 获取对应的 client
-                OssClient ossClient = getOssClient();
-                Uploader.getInstance()
-                    .setUploadWay(new UploadFromAction(project, ossClient, waitingForUploadImages))
-                    .upload();
-            }
+        if (waitingForUploadImages.size() > 0) {
+            // 先刷新一次, 避免才添加的文件未被添加的 VFS 中, 导致找不到文件的问题
+            VirtualFileManager.getInstance().syncRefresh();
+            // 获取对应的 client
+            OssClient ossClient = getOssClient();
+            Uploader.getInstance()
+                .setUploadWay(new UploadFromAction(event.getProject(), ossClient, waitingForUploadImages))
+                .upload();
         }
     }
 

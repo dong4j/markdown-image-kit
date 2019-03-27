@@ -27,6 +27,10 @@ package info.dong4j.idea.plugin.action.intention;
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction;
 
+import info.dong4j.idea.plugin.entity.MarkdownImage;
+import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
+import info.dong4j.idea.plugin.settings.ImageManagerState;
+
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
  * <p>Description: alt + enter </p>
@@ -36,4 +40,6 @@ import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction;
  * @since 2019-03-27 13:28
  */
 public abstract class IntentionActionBase extends PsiElementBaseIntentionAction {
+    protected ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
+    protected MarkdownImage matchImageMark;
 }
