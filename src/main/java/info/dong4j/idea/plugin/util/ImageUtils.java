@@ -398,6 +398,24 @@ public final class ImageUtils {
      * @param out     the out
      * @param percent the percent
      */
+    public static void compress(InputStream in, OutputStream out, int percent) {
+        try {
+            Thumbnails.of(in)
+                .scale(1f)
+                .outputQuality(percent * 1.0 / 100)
+                .toOutputStream(out);
+        } catch (IOException e) {
+            log.trace("", e);
+        }
+    }
+
+    /**
+     * Compress.
+     *
+     * @param in      the in
+     * @param out     the out
+     * @param percent the percent
+     */
     public static void compress(InputStream in, File out, int percent) {
         try {
             Thumbnails.of(in)

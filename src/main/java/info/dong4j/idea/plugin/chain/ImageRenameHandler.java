@@ -25,6 +25,8 @@
 
 package info.dong4j.idea.plugin.chain;
 
+import info.dong4j.idea.plugin.entity.EventData;
+
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
  * <p>Description: 图片文件重命名</p>
@@ -33,5 +35,14 @@ package info.dong4j.idea.plugin.chain;
  * @email sjdong3@iflytek.com
  * @since 2019-03-27 21:24
  */
-public class ImageRenameHandler {
+public class ImageRenameHandler extends BaseActionHandler {
+    @Override
+    public boolean isEnabled(EventData data) {
+        return false;
+    }
+
+    @Override
+    public boolean execute(EventData data) {
+        return false;
+    }
 }
