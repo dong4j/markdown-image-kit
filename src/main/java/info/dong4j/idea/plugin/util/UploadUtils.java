@@ -25,11 +25,23 @@
 
 package info.dong4j.idea.plugin.util;
 
+import com.google.common.collect.Iterables;
+
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.search.FilenameIndex;
+import com.intellij.psi.search.GlobalSearchScope;
+
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
 import info.dong4j.idea.plugin.settings.ImageManagerState;
 
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Collection;
+import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -66,6 +78,7 @@ public class UploadUtils {
      * @param endString the end string
      * @return the final image mark
      */
+    @NotNull
     public static String getFinalImageMark(String title, String imageUrl, String original, String endString) {
         boolean isChangeToHtmlTag = ImageManagerPersistenComponent.getInstance().getState().isChangeToHtmlTag();
         // 处理 imageUrl 为空的情况
@@ -82,5 +95,25 @@ public class UploadUtils {
                                              imageUrl);
         }
         return newLineText + endString;
+    }
+
+    /**
+     * Search virtual file by name virtual file.
+     *
+     * @param project the project
+     * @param name    the name
+     * @return the virtual file
+     */
+    public static VirtualFile searchVirtualFileByName(Project project, String name){
+        // Read access is allowed from event dispatch thread or inside read-action only (see com.intellij.openapi.application.Application.runReadAction())
+        AtomicReference<Collection<VirtualFile>> findedFiles = new AtomicReference<>();
+        ApplicationManager.getApplication().runReadAction(() -> {
+            // todo-dong4j : (2019年03月20日 17:46) [或者通过以下 API 精准查找]
+            //  "VirtualFile fileByPath = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(new File(imageName));"
+            findedFiles.set(FilenameIndex.getVirtualFilesByName(project, name, GlobalSearchScope.allScope(project)));
+        });
+
+        // 只取第一个图片
+        return Iterables.getFirst(findedFiles.get(), null);
     }
 }

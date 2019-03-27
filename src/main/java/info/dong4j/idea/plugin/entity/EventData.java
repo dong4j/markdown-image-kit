@@ -71,4 +71,6 @@ public class EventData {
     private volatile boolean uploadImageFinished = false;
     /** markdown image mark 插入的位置 */
     private InsertEnum insertType = InsertEnum.DOCUMENT;
+    /** Intention 需要使用到的数据*/
+    private MarkdownImage markdownImage;
 }

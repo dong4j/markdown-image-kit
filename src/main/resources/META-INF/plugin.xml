@@ -21,6 +21,9 @@
         <!-- 持久化 -->
         <applicationService serviceInterface="info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent"
                             serviceImplementation="info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent"/>
+        <intentionAction>
+            <className>info.dong4j.idea.plugin.action.ImageIntentionAction</className>
+        </intentionAction>
 
     </extensions>
 

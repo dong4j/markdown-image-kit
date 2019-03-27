@@ -76,7 +76,7 @@ public class ImageUploadHandler extends PasteActionHandler {
             //  "PropertiesComponent.getInstance().setValue("PI__LAST_DIR_PATTERN", dirPattern);"
             return isOpen && isAvailable;
         } else {
-            return InsertEnum.CLIPBOADR.equals(data.getInsertType());
+            return InsertEnum.CLIPBOADR.equals(data.getInsertType()) || InsertEnum.INTENTION.equals(data.getInsertType());
         }
     }
 

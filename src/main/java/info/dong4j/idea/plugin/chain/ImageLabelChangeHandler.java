@@ -51,8 +51,10 @@ public class ImageLabelChangeHandler extends BaseActionHandler {
 
     @Override
     public boolean isEnabled(EventData data) {
-        // 不管是否勾选替换标签,都执行, 在 getFinalImageMark 处理
-        return true;
+        boolean isIntention = InsertEnum.INTENTION.equals(data.getInsertType());
+        boolean isPasteUpload = (InsertEnum.DOCUMENT.equals(data.getInsertType()) && STATE.isUploadAndReplace());
+        boolean isClipboard = InsertEnum.CLIPBOADR.equals(data.getInsertType());
+        return isPasteUpload || isClipboard;
     }
 
     /**
@@ -68,20 +70,17 @@ public class ImageLabelChangeHandler extends BaseActionHandler {
         int size = data.getSize();
         indicator.setText2(MikBundle.message("mik.paste.change.progress"));
 
-        boolean isPasteUpload = (InsertEnum.DOCUMENT.equals(data.getInsertType()) && STATE.isUploadAndReplace());
-        if (isPasteUpload || InsertEnum.CLIPBOADR.equals(data.getInsertType())) {
-            int totalProcessed = 0;
-            List<String> oldMarks = data.getUploadedMarkList();
-            int totalCount = oldMarks.size();
+        int totalProcessed = 0;
+        List<String> oldMarks = data.getUploadedMarkList();
+        int totalCount = oldMarks.size();
 
-            List<String> changedMarks = new ArrayList<>(oldMarks.size());
-            for (String mark : oldMarks) {
-                String newLineText = UploadUtils.getFinalImageMark("", mark, mark, ImageContents.LINE_BREAK);
-                changedMarks.add(newLineText);
-                indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
-            }
-            data.setUploadedMarkList(changedMarks);
+        List<String> changedMarks = new ArrayList<>(oldMarks.size());
+        for (String mark : oldMarks) {
+            String newLineText = UploadUtils.getFinalImageMark("", mark, mark, ImageContents.LINE_BREAK);
+            changedMarks.add(newLineText);
+            indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
         }
+        data.setUploadedMarkList(changedMarks);
         return true;
     }
 }

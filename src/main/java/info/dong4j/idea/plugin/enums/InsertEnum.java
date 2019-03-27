@@ -37,5 +37,7 @@ public enum InsertEnum {
     /** 右键图片直接上传后插入到 clipboard*/
     CLIPBOADR,
     /** paste 操作时*/
-    DOCUMENT
+    DOCUMENT,
+    /** quickfix alt + enter*/
+    INTENTION
 }

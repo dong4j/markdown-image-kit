@@ -25,17 +25,12 @@
 
 package info.dong4j.idea.plugin.task;
 
-import com.google.common.collect.Iterables;
-
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.search.FilenameIndex;
-import com.intellij.psi.search.GlobalSearchScope;
 
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.content.ImageContents;
@@ -43,6 +38,7 @@ import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.util.PsiDocumentUtils;
 import info.dong4j.idea.plugin.util.UploadNotification;
+import info.dong4j.idea.plugin.util.UploadUtils;
 
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Nls;
@@ -51,11 +47,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
@@ -120,23 +114,13 @@ public class UploadBackgroundTask extends Task.Backgroundable {
                     if (markdownImage.getLocation().equals(ImageLocationEnum.LOCAL)) {
                         String imageName = markdownImage.getPath();
                         if (StringUtils.isNotBlank(imageName)) {
-                            // Read access is allowed from event dispatch thread or inside read-action only (see com.intellij.openapi.application.Application.runReadAction())
-                            AtomicReference<Collection<VirtualFile>> findedFiles = new AtomicReference<>();
-                            ApplicationManager.getApplication().runReadAction(() -> {
-                                // todo-dong4j : (2019年03月20日 17:46) [或者通过以下 API 精准查找]
-                                //  "VirtualFile fileByPath = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(new File(imageName));"
-                                findedFiles.set(FilenameIndex.getVirtualFilesByName(project, imageName, GlobalSearchScope.allScope(project)));
-                            });
+                            VirtualFile virtualFile = UploadUtils.searchVirtualFileByName(project, imageName);
 
-                            // 没有对应的图片, 则忽略
-                            if (findedFiles.get().size() <= 0) {
+                            if(virtualFile == null){
                                 notFoundImages.add(imageName);
                                 continue;
                             }
 
-                            // 只取第一个图片
-                            VirtualFile virtualFile = Iterables.getFirst(findedFiles.get(), null);
-                            assert virtualFile != null;
                             String fileType = virtualFile.getFileType().getName();
                             if (ImageContents.IMAGE_TYPE_NAME.equals(fileType)) {
                                 File file = new File(virtualFile.getPath());

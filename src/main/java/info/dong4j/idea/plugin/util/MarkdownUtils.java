@@ -119,7 +119,7 @@ public final class MarkdownUtils {
                 if (StringUtils.isNotBlank(originalLineText)) {
                     log.trace("originalLineText: {}", originalLineText);
                     MarkdownImage markdownImage;
-                    if ((markdownImage = matchImageMark(virtualFile, originalLineText, line)) != null) {
+                    if ((markdownImage = matchImageMark(virtualFile.getName(), originalLineText, line)) != null) {
                         markdownImageList.add(markdownImage);
                     }
                 }
@@ -131,13 +131,13 @@ public final class MarkdownUtils {
     /**
      * 不使用正则, 因为需要记录偏移量
      *
-     * @param virtualFile the virtual file
-     * @param lineText    the line text
-     * @param line        the line
+     * @param fileName the file name
+     * @param lineText the line text
+     * @param line     the line
      * @return the markdown image
      */
     @Nullable
-    private static MarkdownImage matchImageMark(VirtualFile virtualFile, String lineText, int line) {
+    public static MarkdownImage matchImageMark(String fileName, String lineText, int line) {
         lineText = StringUtils.trim(lineText);
         // 匹配 '![' 字符串
         int indexPrefix = lineText.indexOf(ImageContents.IMAGE_MARK_PREFIX);
@@ -153,7 +153,7 @@ public final class MarkdownUtils {
                 if (hasImageTagSuffix) {
                     log.trace("image text: {}", lineText);
                     MarkdownImage markdownImage = new MarkdownImage();
-                    markdownImage.setFileName(virtualFile.getName());
+                    markdownImage.setFileName(fileName);
                     markdownImage.setOriginalLineText(lineText);
                     markdownImage.setLineNumber(line);
                     markdownImage.setLineStartOffset(indexPrefix);
@@ -208,6 +208,7 @@ public final class MarkdownUtils {
      * 递归遍历目录, 返回所有 markdown 文件
      *
      * @param virtualFile the virtual file
+     * @return the list
      */
     public static List<VirtualFile> recursivelyMarkdownFile(VirtualFile virtualFile) {
         List<VirtualFile> markdownFiles = new ArrayList<>();

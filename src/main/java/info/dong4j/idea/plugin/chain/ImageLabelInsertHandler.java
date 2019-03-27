@@ -29,6 +29,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.entity.EventData;
+import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.InsertEnum;
 import info.dong4j.idea.plugin.util.ImageUtils;
 import info.dong4j.idea.plugin.util.PsiDocumentUtils;
@@ -53,7 +54,7 @@ public class ImageLabelInsertHandler extends BaseActionHandler {
         if (InsertEnum.DOCUMENT.equals(data.getInsertType())) {
             return STATE.isClipboardControl() && (STATE.isCopyToDir() || STATE.isUploadAndReplace());
         } else {
-            return InsertEnum.CLIPBOADR.equals(data.getInsertType());
+            return InsertEnum.CLIPBOADR.equals(data.getInsertType()) || InsertEnum.INTENTION.equals(data.getInsertType());
         }
     }
 
@@ -72,9 +73,11 @@ public class ImageLabelInsertHandler extends BaseActionHandler {
         int totalProcessed = 0;
 
         List<String> markList;
-        // 以 isUploadAndReplace 优先
+
         boolean isPasteUpload = (InsertEnum.DOCUMENT.equals(data.getInsertType()) && STATE.isUploadAndReplace());
-        if (isPasteUpload || InsertEnum.CLIPBOADR.equals(data.getInsertType())) {
+        boolean isIntention = InsertEnum.INTENTION.equals(data.getInsertType());
+        boolean isClipboard = InsertEnum.CLIPBOADR.equals(data.getInsertType());
+        if (isPasteUpload || isIntention || isClipboard) {
             markList = data.getUploadedMarkList();
         } else {
             markList = data.getSaveMarkList();
@@ -91,8 +94,13 @@ public class ImageLabelInsertHandler extends BaseActionHandler {
         String marks = stringBuilder.toString();
         if (InsertEnum.DOCUMENT.equals(data.getInsertType())) {
             PsiDocumentUtils.insertDocument(marks, data.getEditor());
-        } else if (InsertEnum.CLIPBOADR.equals(data.getInsertType())) {
+        } else if (isClipboard) {
             ImageUtils.setStringToClipboard(marks);
+        } else if(isIntention){
+            MarkdownImage markdownImage = data.getMarkdownImage();
+            // quickfix 只会有一个 url
+            markdownImage.setUploadedUrl(markList.get(0));
+            PsiDocumentUtils.commitAndSaveDocument(data.getProject(), data.getEditor().getDocument(), data.getMarkdownImage());
         }
         return true;
     }

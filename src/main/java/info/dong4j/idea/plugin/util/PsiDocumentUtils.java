@@ -50,7 +50,7 @@ public final class PsiDocumentUtils {
     private static ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
 
     /**
-     * Commit and save document.
+     * 全文替换
      *
      * @param project  the project
      * @param document the document
@@ -69,7 +69,7 @@ public final class PsiDocumentUtils {
     }
 
     /**
-     * Commit and save document.
+     * 只替换特定字符串
      *
      * @param project       the project
      * @param document      the document
@@ -96,7 +96,7 @@ public final class PsiDocumentUtils {
     }
 
     /**
-     * 一次性插入
+     * 将字符串插入到光标位置
      *
      * @param marks  the marks
      * @param editor the editor
