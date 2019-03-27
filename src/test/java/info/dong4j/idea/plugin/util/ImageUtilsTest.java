@@ -378,5 +378,12 @@ public class ImageUtilsTest {
         System.out.println("临时文件已创建:");
         out.close();
     }
+
+    @Test
+    public void test17(){
+        // 获取不同系统的换行符
+        String lineSeparator = System.lineSeparator();
+        System.out.println(lineSeparator);
+    }
 }
 
