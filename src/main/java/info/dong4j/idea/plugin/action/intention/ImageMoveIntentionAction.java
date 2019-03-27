@@ -52,7 +52,7 @@ import java.util.Map;
  * @email sjdong3@iflytek.com
  * @since 2019-03-27 13:39
  */
-public class ImageLabelMoveIntentionAction extends IntentionActionBase {
+public final class ImageMoveIntentionAction extends IntentionActionBase {
     @Override
     public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
         Map<Document, List<MarkdownImage>> waitingForMoveMap = new HashMap<Document, List<MarkdownImage>>(1) {

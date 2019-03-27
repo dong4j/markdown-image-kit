@@ -24,10 +24,10 @@
                             serviceImplementation="info.dong4j.idea.plugin.settings.MikPersistenComponent"/>
         <!-- alt + enter -->
         <intentionAction>
-            <className>info.dong4j.idea.plugin.action.intention.ImageLabelIntentionAction</className>
+            <className>info.dong4j.idea.plugin.action.intention.ImageUploadIntentionAction</className>
         </intentionAction>
         <intentionAction>
-            <className>info.dong4j.idea.plugin.action.intention.ImageLabelMoveIntentionAction</className>
+            <className>info.dong4j.idea.plugin.action.intention.ImageMoveIntentionAction</className>
         </intentionAction>
 
     </extensions>

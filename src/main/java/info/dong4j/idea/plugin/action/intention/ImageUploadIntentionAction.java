@@ -63,7 +63,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019 -03-27 09:34
  */
 @Slf4j
-public final class ImageLabelIntentionAction extends IntentionActionBase {
+public final class ImageUploadIntentionAction extends IntentionActionBase {
 
     @Override
     public void invoke(@NotNull Project project,

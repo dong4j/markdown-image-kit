@@ -34,6 +34,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogBuilder;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.DocumentAdapter;
+import com.intellij.ui.JBColor;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.content.MarkdownContents;
@@ -52,7 +53,6 @@ import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.Color;
 import java.util.List;
 import java.util.Map;
 
@@ -171,7 +171,7 @@ public final class MoveToOtherStorageAction extends AnAction {
         boolean isValidInput = StringUtils.isNotBlank(dialog.getDomain().getText()) && !DOMAIN_DEFAULT_MESSAGE.equals(dialog.getDomain().getText());
 
         dialog.getMessage().setText(isClientEnable ? "" : "当前 OSS 不可用");
-        dialog.getMessage().setForeground(isClientEnable ? Color.WHITE : Color.RED);
+        dialog.getMessage().setForeground(isClientEnable ? JBColor.WHITE : JBColor.RED);
         builder.setOkActionEnabled(isClientEnable && isValidInput);
     }
 }
