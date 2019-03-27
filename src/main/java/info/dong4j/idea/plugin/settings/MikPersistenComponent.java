@@ -43,28 +43,28 @@ import lombok.extern.slf4j.Slf4j;
  * @email sjdong3 @iflytek.com
  */
 @Slf4j
-@State(name = "ImageManagerSetting", storages = @Storage(value = Storage.NOT_ROAMABLE_FILE, file = "$APP_CONFIG$/image.manager.configs.xml"))
-public class ImageManagerPersistenComponent implements PersistentStateComponent<ImageManagerState> {
+@State(name = "MikSettings", storages = @Storage(value = Storage.NOT_ROAMABLE_FILE, file = "$APP_CONFIG$/markdown.image.kit.configs.xml"))
+public class MikPersistenComponent implements PersistentStateComponent<MikState> {
 
-    private ImageManagerState myState = new ImageManagerState();
+    private MikState myState = new MikState();
 
     /**
      * Get the instance of this service.
      *
-     * @return the unique {@link ImageManagerPersistenComponent} instance.
+     * @return the unique {@link MikPersistenComponent} instance.
      */
-    public static ImageManagerPersistenComponent getInstance() {
-        return ServiceManager.getService(ImageManagerPersistenComponent.class);
+    public static MikPersistenComponent getInstance() {
+        return ServiceManager.getService(MikPersistenComponent.class);
     }
 
     @NotNull
     @Override
-    public ImageManagerState getState() {
+    public MikState getState() {
         return this.myState;
     }
 
     @Override
-    public void loadState(@NotNull ImageManagerState state) {
+    public void loadState(@NotNull MikState state) {
         this.myState = state;
     }
 }

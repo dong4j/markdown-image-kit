@@ -31,8 +31,8 @@ import com.aliyun.oss.model.ObjectMetadata;
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.AliyunOssState;
-import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
-import info.dong4j.idea.plugin.settings.ImageManagerState;
+import info.dong4j.idea.plugin.settings.MikPersistenComponent;
+import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.util.DES;
 import info.dong4j.idea.plugin.util.ImageUtils;
@@ -67,7 +67,7 @@ public class AliyunOssClient implements OssClient {
     private static String bucketName;
     private static String filedir;
     private static OSS ossClient = null;
-    private AliyunOssState aliyunOssState = ImageManagerPersistenComponent.getInstance().getState().getAliyunOssState();
+    private AliyunOssState aliyunOssState = MikPersistenComponent.getInstance().getState().getAliyunOssState();
 
     private AliyunOssClient() {
         checkClient();
@@ -88,10 +88,10 @@ public class AliyunOssClient implements OssClient {
      * 如果是第一次使用, ossClient == null
      */
     private static void init() {
-        AliyunOssState aliyunOssState = ImageManagerPersistenComponent.getInstance().getState().getAliyunOssState();
+        AliyunOssState aliyunOssState = MikPersistenComponent.getInstance().getState().getAliyunOssState();
         bucketName = aliyunOssState.getBucketName();
         String accessKey = aliyunOssState.getAccessKey();
-        String accessSecretKey = DES.decrypt(aliyunOssState.getAccessSecretKey(), ImageManagerState.ALIYUN);
+        String accessSecretKey = DES.decrypt(aliyunOssState.getAccessSecretKey(), MikState.ALIYUN);
         String endpoint = aliyunOssState.getEndpoint();
         String tempFileDir = aliyunOssState.getFiledir();
         filedir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";
@@ -200,7 +200,7 @@ public class AliyunOssClient implements OssClient {
                            accessKey.hashCode() +
                            accessSecretKey.hashCode() +
                            endpoint.hashCode();
-            OssState.saveStatus(aliyunOssState, hashcode, ImageManagerState.OLD_HASH_KEY);
+            OssState.saveStatus(aliyunOssState, hashcode, MikState.OLD_HASH_KEY);
             aliyunOssClient.setOssClient(ossClient);
         }
         return url;

@@ -20,8 +20,8 @@
         <!-- 设置面板 -->
         <applicationConfigurable groupId="tools" instance="info.dong4j.idea.plugin.settings.ProjectSettingsPage"/>
         <!-- 持久化 -->
-        <applicationService serviceInterface="info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent"
-                            serviceImplementation="info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent"/>
+        <applicationService serviceInterface="info.dong4j.idea.plugin.settings.MikPersistenComponent"
+                            serviceImplementation="info.dong4j.idea.plugin.settings.MikPersistenComponent"/>
         <!-- alt + enter -->
         <intentionAction>
             <className>info.dong4j.idea.plugin.action.intention.ImageLabelIntentionAction</className>

@@ -28,7 +28,10 @@ package info.dong4j.idea.plugin.util;
 import info.dong4j.idea.plugin.client.Client;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.enums.CloudEnum;
+import info.dong4j.idea.plugin.settings.MikPersistenComponent;
+import info.dong4j.idea.plugin.settings.OssState;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -101,6 +104,27 @@ public final class ClientUtils {
     }
 
     /**
+     * Gets instance.
+     *
+     * @return the instance
+     */
+    @Nullable
+    public static OssClient getDeafultInstance() {
+        return getInstance(MikPersistenComponent.getInstance().getState().getCloudType());
+    }
+
+    /**
+     * Gets instance.
+     *
+     * @param cloudType the cloud type
+     * @return the instance
+     */
+    @Nullable
+    public static OssClient getInstance(int cloudType) {
+        return OssClient.INSTANCES.get(OssState.getCloudType(cloudType));
+    }
+
+    /**
      * 通过枚举获取 client 实例, 如果没有会从 subClassMap 中获取对应的 sub class name
      * todo-dong4j : (2019年03月22日 09:36) [考虑迁移到配置文件]
      *
@@ -110,5 +134,27 @@ public final class ClientUtils {
     @Nullable
     public static OssClient getInstance(@NotNull CloudEnum cloudEnum) {
         return OssClient.INSTANCES.get(cloudEnum);
+    }
+
+    /**
+     * Is enable boolean.
+     *
+     * @param client the client
+     * @return the boolean
+     */
+    @Contract("null -> true")
+    public static boolean isEnable(OssClient client) {
+        return client == null || OssState.getStatus(client.getCloudType());
+    }
+
+    /**
+     * Is enable boolean.
+     *
+     * @param client the client
+     * @return the boolean
+     */
+    @Contract("null -> false")
+    public static boolean isNotEnable(OssClient client) {
+        return !isEnable(client);
     }
 }

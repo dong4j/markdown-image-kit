@@ -26,8 +26,8 @@
 package info.dong4j.idea.plugin.chain;
 
 import info.dong4j.idea.plugin.entity.EventData;
-import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
-import info.dong4j.idea.plugin.settings.ImageManagerState;
+import info.dong4j.idea.plugin.settings.MikPersistenComponent;
+import info.dong4j.idea.plugin.settings.MikState;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
@@ -41,7 +41,7 @@ public interface IActionHandler {
     /**
      * The constant STATE.
      */
-    ImageManagerState STATE = ImageManagerPersistenComponent.getInstance().getState();
+    MikState STATE = MikPersistenComponent.getInstance().getState();
 
     /**
      * 是否符合该处理类的处理范围

@@ -51,7 +51,7 @@ public abstract class OssState {
     private Map<String, String> oldAndNewAuthInfo = new HashMap<>(2);
 
     /**
-     * 保存按钮是否可用
+     * 通过2个状态判断客户端是否可用
      *
      * @param state    the state
      * @param hashcode the hashcode
@@ -79,9 +79,33 @@ public abstract class OssState {
      * @param cloudIndex the cloud index
      * @return the cloud enum
      */
-    public static CloudEnum getCloudType(int cloudIndex){
+    public static CloudEnum getCloudType(int cloudIndex) {
         Optional<CloudEnum> cloudType = EnumsUtils.getEnumObject(CloudEnum.class, e -> e.getIndex() == cloudIndex);
         return cloudType.orElse(null);
+    }
+
+    /**
+     * Get default cloud cloud enum.
+     *
+     * @return the cloud enum
+     */
+    public static CloudEnum getDefaultCloud() {
+        Optional<CloudEnum> cloudType = EnumsUtils.getEnumObject(CloudEnum.class, e -> e.getIndex() == MikPersistenComponent.getInstance().getState().getCloudType());
+        return cloudType.orElse(null);
+    }
+
+    /**
+     * 根据 state 获取当前可用状态
+     *
+     * @param state the state
+     * @return the boolean
+     */
+    public static boolean getStatus(OssState state) {
+        boolean isPassedTest = state.isPassedTest();
+        Map<String, String> oldAndNewAuth = state.getOldAndNewAuthInfo();
+        return isPassedTest
+               && StringUtils.isNotEmpty(oldAndNewAuth.get(MikState.OLD_HASH_KEY))
+               && oldAndNewAuth.get(MikState.OLD_HASH_KEY).equals(oldAndNewAuth.get(MikState.NEW_HASH_KEY));
     }
 
     /**
@@ -92,8 +116,8 @@ public abstract class OssState {
      * @return the boolean
      */
     @Contract(pure = true)
-    private static boolean getStatus(CloudEnum cloudEnum) {
-        ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
+    public static boolean getStatus(CloudEnum cloudEnum) {
+        MikState state = MikPersistenComponent.getInstance().getState();
         if (cloudEnum == null) {
             return false;
         }
@@ -125,19 +149,5 @@ public abstract class OssState {
             default:
                 return false;
         }
-    }
-
-    /**
-     * 根据 state 获取当前可用状态
-     *
-     * @param state the state
-     * @return the boolean
-     */
-    public static boolean getStatus(OssState state) {
-        boolean isPassedTest = state.isPassedTest();
-        Map<String, String> oldAndNewAuth = state.getOldAndNewAuthInfo();
-        return isPassedTest
-               && StringUtils.isNotEmpty(oldAndNewAuth.get(ImageManagerState.OLD_HASH_KEY))
-               && oldAndNewAuth.get(ImageManagerState.OLD_HASH_KEY).equals(oldAndNewAuth.get(ImageManagerState.NEW_HASH_KEY));
     }
 }

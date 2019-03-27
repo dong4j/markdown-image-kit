@@ -76,7 +76,7 @@ public final class MarkdownUtils {
      * @return the boolean
      */
     @Contract("null -> false")
-    public static boolean isValidForFile(PsiFile file) {
+    static boolean isValidForFile(PsiFile file) {
         if (file == null) {
             return false;
         }
@@ -116,7 +116,7 @@ public final class MarkdownUtils {
      * @param virtualFile the virtual file
      * @return the list
      */
-    public static List<MarkdownImage> getImageInfoFromFiles(VirtualFile virtualFile) {
+    private static List<MarkdownImage> getImageInfoFromFiles(VirtualFile virtualFile) {
         List<MarkdownImage> markdownImageList = new ArrayList<>();
         Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
         if (document != null) {
@@ -226,7 +226,7 @@ public final class MarkdownUtils {
      * @param virtualFile the virtual file
      * @return the list
      */
-    public static List<VirtualFile> recursivelyMarkdownFile(VirtualFile virtualFile) {
+    private static List<VirtualFile> recursivelyMarkdownFile(VirtualFile virtualFile) {
         List<VirtualFile> markdownFiles = new ArrayList<>();
         /*
          * 递归遍历子文件

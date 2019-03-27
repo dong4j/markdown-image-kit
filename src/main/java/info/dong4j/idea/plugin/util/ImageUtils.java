@@ -37,8 +37,8 @@ import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.content.MikContents;
 import info.dong4j.idea.plugin.enums.FileType;
 import info.dong4j.idea.plugin.enums.SuffixEnum;
-import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
-import info.dong4j.idea.plugin.settings.ImageManagerState;
+import info.dong4j.idea.plugin.settings.MikPersistenComponent;
+import info.dong4j.idea.plugin.settings.MikState;
 
 import net.coobird.thumbnailator.Thumbnails;
 
@@ -477,7 +477,7 @@ public final class ImageUtils {
      * @return the string
      */
     public static String processFileName(String fileName) {
-        ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
+        MikState state = MikPersistenComponent.getInstance().getState();
         if (state.isRename()) {
             // 处理文件名有空格导致上传 gif 变为静态图的问题
             fileName = fileName.replaceAll("\\s*", "");

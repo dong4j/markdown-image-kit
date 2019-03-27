@@ -26,8 +26,8 @@
 package info.dong4j.idea.plugin.client;
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
-import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
-import info.dong4j.idea.plugin.settings.ImageManagerState;
+import info.dong4j.idea.plugin.settings.MikPersistenComponent;
+import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.settings.WeiboOssState;
 import info.dong4j.idea.plugin.util.DES;
@@ -62,7 +62,7 @@ import lombok.extern.slf4j.Slf4j;
 public class WeiboOssClient implements OssClient {
     private static final Object LOCK = new Object();
     private static WbpUploadRequest ossClient = null;
-    private WeiboOssState weiboOssState = ImageManagerPersistenComponent.getInstance().getState().getWeiboOssState();
+    private WeiboOssState weiboOssState = MikPersistenComponent.getInstance().getState().getWeiboOssState();
 
     private WeiboOssClient() {
         // 反射调用时判断是否初始化
@@ -84,9 +84,9 @@ public class WeiboOssClient implements OssClient {
      * 如果是第一次使用, ossClient == null
      */
     private static void init() {
-        WeiboOssState weiboOssState = ImageManagerPersistenComponent.getInstance().getState().getWeiboOssState();
+        WeiboOssState weiboOssState = MikPersistenComponent.getInstance().getState().getWeiboOssState();
         String username = weiboOssState.getUserName();
-        String password = DES.decrypt(weiboOssState.getPassword(), ImageManagerState.WEIBOKEY);
+        String password = DES.decrypt(weiboOssState.getPassword(), MikState.WEIBOKEY);
 
         try {
             ossClient = new UploadRequestBuilder()
@@ -218,7 +218,7 @@ public class WeiboOssClient implements OssClient {
         closeStream(inputStream);
         if (StringUtils.isNotBlank(url)) {
             int hashcode = username.hashCode() + password.hashCode();
-            OssState.saveStatus(weiboOssState, hashcode, ImageManagerState.OLD_HASH_KEY);
+            OssState.saveStatus(weiboOssState, hashcode, MikState.OLD_HASH_KEY);
             weiboOssClient.setOssClient(ossClient);
         }
         return url;

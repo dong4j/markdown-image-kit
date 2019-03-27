@@ -33,8 +33,8 @@ import com.qiniu.util.Auth;
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.ZoneEnum;
-import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
-import info.dong4j.idea.plugin.settings.ImageManagerState;
+import info.dong4j.idea.plugin.settings.MikPersistenComponent;
+import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.settings.QiniuOssState;
 import info.dong4j.idea.plugin.util.DES;
@@ -70,7 +70,7 @@ public class QiniuOssClient implements OssClient {
     private static String token;
     private static UploadManager ossClient = null;
     private static String domain;
-    private QiniuOssState qiniuOssState = ImageManagerPersistenComponent.getInstance().getState().getQiniuOssState();
+    private QiniuOssState qiniuOssState = MikPersistenComponent.getInstance().getState().getQiniuOssState();
 
     private QiniuOssClient() {
         checkClient();
@@ -91,10 +91,10 @@ public class QiniuOssClient implements OssClient {
      * 如果是第一次使用, ossClient == null
      */
     private static void init() {
-        QiniuOssState qiniuOssState = ImageManagerPersistenComponent.getInstance().getState().getQiniuOssState();
+        QiniuOssState qiniuOssState = MikPersistenComponent.getInstance().getState().getQiniuOssState();
         domain = qiniuOssState.getEndpoint();
         String accessKey = qiniuOssState.getAccessKey();
-        String secretKey = DES.decrypt(qiniuOssState.getAccessSecretKey(), ImageManagerState.QINIU);
+        String secretKey = DES.decrypt(qiniuOssState.getAccessSecretKey(), MikState.QINIU);
         String bucketName = qiniuOssState.getBucketName();
 
         Optional<ZoneEnum> zone = EnumsUtils.getEnumObject(ZoneEnum.class, e -> e.getIndex() == qiniuOssState.getZoneIndex());
@@ -223,7 +223,7 @@ public class QiniuOssClient implements OssClient {
                            secretKey.hashCode() +
                            endpoint.hashCode() +
                            zoneIndex;
-            OssState.saveStatus(qiniuOssState, hashcode, ImageManagerState.OLD_HASH_KEY);
+            OssState.saveStatus(qiniuOssState, hashcode, MikState.OLD_HASH_KEY);
             qiniuOssClient.setOssClient(ossClient);
         }
         return url;

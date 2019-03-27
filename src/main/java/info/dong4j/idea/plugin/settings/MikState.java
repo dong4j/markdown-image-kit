@@ -39,7 +39,7 @@ import lombok.Data;
  * @since 2019-03-13 14:21
  */
 @Data
-public class ImageManagerState {
+public class MikState {
     public static final String WEIBOKEY = "ekjgbpiq!g34o@erberb.erbmkv.c;,ergw_.";
     public static final String ALIYUN = "awj7@piq!g3jo@er_erb.erbsrxhc!,wr.w_1";
     public static final String QINIU = "gerb2.erhgds'5yf@4ybtree!43h34hbd4_";
@@ -82,7 +82,7 @@ public class ImageManagerState {
     private boolean rename = false;
     /** 文件名后缀 */
     private int suffixIndex = SuffixEnum.FILE_NAME.index;
-    public ImageManagerState() {
+    public MikState() {
         this.aliyunOssState = new AliyunOssState();
         this.qiniuOssState = new QiniuOssState();
         this.weiboOssState = new WeiboOssState();

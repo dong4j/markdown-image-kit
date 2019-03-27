@@ -25,19 +25,24 @@
 
 package info.dong4j.idea.plugin.action.intention;
 
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.IncorrectOperationException;
 
 import info.dong4j.idea.plugin.MikBundle;
-import info.dong4j.idea.plugin.client.OssClient;
-import info.dong4j.idea.plugin.enums.CloudEnum;
-import info.dong4j.idea.plugin.settings.OssState;
+import info.dong4j.idea.plugin.entity.MarkdownImage;
+import info.dong4j.idea.plugin.enums.ImageLocationEnum;
+import info.dong4j.idea.plugin.task.IntentionBackgroupTask;
 import info.dong4j.idea.plugin.util.ClientUtils;
 
-import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
@@ -50,35 +55,24 @@ import org.jetbrains.annotations.NotNull;
 public class ImageLabelMoveIntentionAction extends IntentionActionBase {
     @Override
     public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
-        // 1. 获取 Map<Document, List<MarkdownImage>> waitingForUploadImages = new HashMap<>(1); 单个标签
-        // 2. 排除 LOCAL 的 MarkdownImage
-        // 3. 替换标签
-    }
-
-    @Override
-    public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement element) {
-        return false;
-    }
-
-    @Nls
-    @NotNull
-    @Override
-    public String getText() {
-        String clientName;
-        CloudEnum cloudEnum = OssState.getCloudType(state.getCloudType());
-        OssClient client = ClientUtils.getInstance(cloudEnum);
-        if (client != null) {
-            clientName = client.getName();
-        } else {
-            clientName = "OSS";
+        // 是网络图片则执行迁移操作
+        if (ImageLocationEnum.NETWORK == matchImageMark.getLocation()) {
+            Map<Document, List<MarkdownImage>> waitingForMoveMap = new HashMap<Document, List<MarkdownImage>>(1) {
+                {
+                    put(editor.getDocument(), new ArrayList<MarkdownImage>(1) {
+                        {
+                            add(matchImageMark);
+                        }
+                    });
+                }
+            };
+            new IntentionBackgroupTask(project, "Move Image Plan: ", waitingForMoveMap, ClientUtils.getDeafultInstance()).queue();
         }
-        return MikBundle.message("mik.intention.move.message", clientName);
     }
 
-    @Nls
-    @NotNull
+
     @Override
-    public String getFamilyName() {
-        return getText();
+    String getMessage(String clientName) {
+        return MikBundle.message("mik.intention.move.message", clientName);
     }
 }

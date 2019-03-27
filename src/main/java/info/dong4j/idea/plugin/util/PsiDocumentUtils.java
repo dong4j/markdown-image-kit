@@ -35,8 +35,8 @@ import com.intellij.psi.PsiDocumentManager;
 
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
-import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
-import info.dong4j.idea.plugin.settings.ImageManagerState;
+import info.dong4j.idea.plugin.settings.MikPersistenComponent;
+import info.dong4j.idea.plugin.settings.MikState;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
@@ -47,7 +47,7 @@ import info.dong4j.idea.plugin.settings.ImageManagerState;
  * @email sjdong3 @iflytek.com
  */
 public final class PsiDocumentUtils {
-    private static ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
+    private static MikState state = MikPersistenComponent.getInstance().getState();
 
     /**
      * 全文替换

@@ -48,7 +48,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019-03-26 18:39
  */
 @Slf4j
-public class ChainBackgroupTask extends Task.Backgroundable{
+public class ChainBackgroupTask extends Task.Backgroundable {
     private ActionManager actionManager;
 
     public ChainBackgroupTask(@Nullable Project project,
@@ -62,10 +62,10 @@ public class ChainBackgroupTask extends Task.Backgroundable{
     public void run(@NotNull ProgressIndicator indicator) {
         indicator.pushState();
         indicator.setIndeterminate(false);
-        try{
+        try {
             indicator.setFraction(0.0);
             actionManager.invoke(indicator);
-        }finally {
+        } finally {
             indicator.setFraction(1.0);
             indicator.popState();
         }

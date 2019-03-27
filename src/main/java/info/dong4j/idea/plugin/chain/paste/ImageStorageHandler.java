@@ -34,8 +34,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.entity.EventData;
-import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
-import info.dong4j.idea.plugin.settings.ImageManagerState;
+import info.dong4j.idea.plugin.settings.MikPersistenComponent;
+import info.dong4j.idea.plugin.settings.MikState;
 
 import org.apache.commons.io.FileUtils;
 
@@ -85,7 +85,7 @@ public class ImageStorageHandler extends PasteActionHandler {
             String fileName = imageEntry.getKey();
             File willProcessedFile = imageEntry.getValue();
 
-            ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
+            MikState state = MikPersistenComponent.getInstance().getState();
             Document document = editor.getDocument();
             VirtualFile currentFile = FileDocumentManager.getInstance().getFile(document);
             assert currentFile != null;

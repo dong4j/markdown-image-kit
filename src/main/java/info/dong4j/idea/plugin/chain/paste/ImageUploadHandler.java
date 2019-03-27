@@ -103,15 +103,16 @@ public class ImageUploadHandler extends PasteActionHandler {
             // 上传到默认图床
             CloudEnum cloudEnum = OssState.getCloudType(STATE.getCloudType());
             OssClient client = ClientUtils.getInstance(cloudEnum);
-            if (client != null) {
-                String imageUrl = Uploader.getInstance().setUploadWay(new UploadFromPaste(client, imageEntry.getValue())).upload();
-                indicator.setText2("Uploading " + imageName);
-                if (StringUtils.isNotBlank(imageUrl)) {
-                    // 只保存 url, 后面由 ImageLabelChangeHandler 处理
-                    markList.add(imageUrl);
-                }
-            } else {
+            if(ClientUtils.isNotEnable(client)){
                 UploadNotification.notifyConfigurableError(data.getProject(), cloudEnum.title);
+                // 退出 chain 执行
+                return false;
+            }
+            String imageUrl = Uploader.getInstance().setUploadWay(new UploadFromPaste(client, imageEntry.getValue())).upload();
+            indicator.setText2("Uploading " + imageName);
+            if (StringUtils.isNotBlank(imageUrl)) {
+                // 只保存 url, 后面由 ImageLabelChangeHandler 处理
+                markList.add(imageUrl);
             }
             indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
         }

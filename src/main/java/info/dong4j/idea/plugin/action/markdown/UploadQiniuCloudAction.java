@@ -29,7 +29,7 @@ import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.client.QiniuOssClient;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.icon.MikIcons;
-import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
+import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.OssState;
 
 import org.jetbrains.annotations.Contract;
@@ -56,7 +56,7 @@ public final class UploadQiniuCloudAction extends UploadActionBase {
     @Contract(pure = true)
     @Override
     boolean isAvailable() {
-        return OssState.getStatus(ImageManagerPersistenComponent.getInstance().getState().getQiniuOssState());
+        return OssState.getStatus(MikPersistenComponent.getInstance().getState().getQiniuOssState());
     }
 
     @Nullable

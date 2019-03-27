@@ -50,8 +50,8 @@ import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.enums.InsertEnum;
 import info.dong4j.idea.plugin.exception.UploadException;
 import info.dong4j.idea.plugin.notify.UploadNotification;
-import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
-import info.dong4j.idea.plugin.settings.ImageManagerState;
+import info.dong4j.idea.plugin.settings.MikPersistenComponent;
+import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.task.ChainBackgroupTask;
 import info.dong4j.idea.plugin.util.CharacterUtils;
 import info.dong4j.idea.plugin.util.ImageUtils;
@@ -116,7 +116,7 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
         VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
 
         if (virtualFile != null && MarkdownUtils.isMardownFile(virtualFile)) {
-            ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
+            MikState state = MikPersistenComponent.getInstance().getState();
             boolean isClipboardControl = state.isClipboardControl();
 
             if (isClipboardControl) {
@@ -163,7 +163,7 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
      * @param project the project
      * @return the map              文件名-->File, File 有本地文件(resolveFromFile)和临时文件(resolveFromImage)
      */
-    private Map<String, File> resolveClipboardData(ImageManagerState state,
+    private Map<String, File> resolveClipboardData(MikState state,
                                                    @NotNull Map.Entry<DataFlavor, Object> entry,
                                                    Project project) {
         Map<String, File> imageMap = new HashMap<>(10);
@@ -182,7 +182,7 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
      * @param entry    the entry
      * @param imageMap the image map
      */
-    private void resolveFromFile(@NotNull ImageManagerState state,
+    private void resolveFromFile(@NotNull MikState state,
                                  @NotNull Map.Entry<DataFlavor, Object> entry,
                                  Map<String, File> imageMap) {
         @SuppressWarnings("unchecked") List<File> fileList = (List<File>) entry.getValue();
@@ -219,7 +219,7 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
      * @param project  the project
      * @param imageMap the image map
      */
-    private void resolveFromImage(@NotNull ImageManagerState state,
+    private void resolveFromImage(@NotNull MikState state,
                                   @NotNull Map.Entry<DataFlavor, Object> entry,
                                   Project project,
                                   Map<String, File> imageMap) {

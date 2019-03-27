@@ -34,8 +34,8 @@ import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 
 import info.dong4j.idea.plugin.content.ImageContents;
-import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
-import info.dong4j.idea.plugin.settings.ImageManagerState;
+import info.dong4j.idea.plugin.settings.MikPersistenComponent;
+import info.dong4j.idea.plugin.settings.MikState;
 
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -55,7 +55,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class UploadUtils {
-    private static ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
+    private static MikState state = MikPersistenComponent.getInstance().getState();
 
     /**
      * 根据是否替换标签替换为最终的标签
@@ -80,7 +80,7 @@ public class UploadUtils {
      */
     @NotNull
     public static String getFinalImageMark(String title, String imageUrl, String original, String endString) {
-        boolean isChangeToHtmlTag = ImageManagerPersistenComponent.getInstance().getState().isChangeToHtmlTag();
+        boolean isChangeToHtmlTag = MikPersistenComponent.getInstance().getState().isChangeToHtmlTag();
         // 处理 imageUrl 为空的情况
         imageUrl = StringUtils.isBlank(imageUrl) ? original : imageUrl;
         // 默认标签格式
