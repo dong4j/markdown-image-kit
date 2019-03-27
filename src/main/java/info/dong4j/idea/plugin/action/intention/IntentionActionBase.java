@@ -81,15 +81,9 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
     @NotNull
     @Override
     public String getText() {
-        String clientName;
         CloudEnum cloudEnum = OssState.getCloudType(state.getCloudType());
         OssClient client = ClientUtils.getInstance(cloudEnum);
-        if (client != null) {
-            clientName = client.getName();
-        } else {
-            clientName = "OSS";
-        }
-        return getMessage(clientName);
+        return getMessage(client != null ? client.getName() : "OSS");
     }
 
     @Nls

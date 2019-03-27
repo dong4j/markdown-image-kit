@@ -27,8 +27,6 @@ package info.dong4j.idea.plugin.strategy;
 
 import info.dong4j.idea.plugin.client.OssClient;
 
-import org.jetbrains.annotations.Contract;
-
 import java.io.*;
 
 /**
@@ -43,9 +41,13 @@ public class UploadFromPaste implements UploadWay {
     private OssClient client;
     private File file;
 
-    @Contract("null, _ -> fail")
+    /**
+     * Instantiates a new Upload from paste.
+     *
+     * @param client the client
+     * @param file   the file
+     */
     public UploadFromPaste(OssClient client, File file) {
-        assert client != null;
         this.client = client;
         this.file = file;
     }

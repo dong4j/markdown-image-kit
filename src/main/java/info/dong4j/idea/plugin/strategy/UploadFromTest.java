@@ -27,8 +27,6 @@ package info.dong4j.idea.plugin.strategy;
 
 import info.dong4j.idea.plugin.client.OssClient;
 
-import org.jetbrains.annotations.Contract;
-
 import java.io.*;
 
 import javax.swing.JPanel;
@@ -55,9 +53,7 @@ public class UploadFromTest implements UploadWay {
      * @param fileName    the file name
      * @param jPanel      the j panel
      */
-    @Contract("null, _, _, _ -> fail")
     public UploadFromTest(OssClient client, InputStream inputStream, String fileName, JPanel jPanel) {
-        assert client != null;
         this.client = client;
         this.inputStream = inputStream;
         this.fileName = fileName;
