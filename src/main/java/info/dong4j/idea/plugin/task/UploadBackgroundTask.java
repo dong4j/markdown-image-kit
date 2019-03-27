@@ -36,8 +36,8 @@ import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
+import info.dong4j.idea.plugin.notify.UploadNotification;
 import info.dong4j.idea.plugin.util.PsiDocumentUtils;
-import info.dong4j.idea.plugin.util.UploadNotification;
 import info.dong4j.idea.plugin.util.UploadUtils;
 
 import org.apache.commons.lang.StringUtils;
