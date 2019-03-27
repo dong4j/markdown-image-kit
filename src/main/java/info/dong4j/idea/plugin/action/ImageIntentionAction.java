@@ -27,6 +27,7 @@ package info.dong4j.idea.plugin.action;
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -76,28 +77,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ImageIntentionAction extends PsiElementBaseIntentionAction {
     private ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
+    private MarkdownImage matchImageMark;
 
     @Override
     public void invoke(@NotNull Project project,
                        Editor editor,
                        @NotNull PsiElement element) throws IncorrectOperationException {
-
-        String fileName = Objects.requireNonNull(PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument())).getName();
-
-        int documentLine = editor.getDocument().getLineNumber(editor.getCaretModel().getOffset());
-        int linestartoffset = editor.getDocument().getLineStartOffset(documentLine);
-        int lineendoffset = editor.getDocument().getLineEndOffset(documentLine);
-
-        log.trace("documentLine = {}, linestartoffset = {}, lineendoffset = {}", documentLine, linestartoffset, lineendoffset);
-
-        String text = editor.getDocument().getText(new TextRange(linestartoffset, lineendoffset));
-        log.trace("text = {}", text);
-
-        MarkdownImage matchImageMark = MarkdownUtils.matchImageMark(fileName, text, documentLine);
-
-        if (matchImageMark == null) {
-            return;
-        }
 
         // 是本地的图片直接上传替换
         if (ImageLocationEnum.LOCAL == matchImageMark.getLocation()) {
@@ -143,8 +128,29 @@ public class ImageIntentionAction extends PsiElementBaseIntentionAction {
     public boolean isAvailable(@NotNull Project project, Editor editor,
                                @NotNull PsiElement element) {
 
-        // todo-dong4j : (2019年03月27日 10:23) [是 markdwon 文件且是有效 image 标签才生效]
-        return true;
+        VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
+        if (virtualFile == null) {
+            return false;
+        }
+
+        if (!MarkdownUtils.isMardownFile(virtualFile)) {
+            return false;
+        }
+
+        String fileName = Objects.requireNonNull(PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument())).getName();
+
+        int documentLine = editor.getDocument().getLineNumber(editor.getCaretModel().getOffset());
+        int linestartoffset = editor.getDocument().getLineStartOffset(documentLine);
+        int lineendoffset = editor.getDocument().getLineEndOffset(documentLine);
+
+        log.trace("documentLine = {}, linestartoffset = {}, lineendoffset = {}", documentLine, linestartoffset, lineendoffset);
+
+        String text = editor.getDocument().getText(new TextRange(linestartoffset, lineendoffset));
+        log.trace("text = {}", text);
+
+        matchImageMark = MarkdownUtils.matchImageMark(fileName, text, documentLine);
+
+        return matchImageMark != null;
     }
 
     @Nls
