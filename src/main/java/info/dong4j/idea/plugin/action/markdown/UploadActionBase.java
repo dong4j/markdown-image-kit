@@ -23,7 +23,7 @@
  *
  */
 
-package info.dong4j.idea.plugin.action;
+package info.dong4j.idea.plugin.action.markdown;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -58,7 +58,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: ${description}</p>
+ * <p>Description: 右键上传到 OSS </p>
  *
  * @author dong4j
  * @date 2019 -03-14 17:15

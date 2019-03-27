@@ -23,9 +23,8 @@
  *
  */
 
-package info.dong4j.idea.plugin.action;
+package info.dong4j.idea.plugin.action.intention;
 
-import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
@@ -68,7 +67,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: alt + enter 处理单个标签 </p>
+ * <p>Description: alt + enter 处理单个标签上传 </p>
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
@@ -76,7 +75,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019 -03-27 09:34
  */
 @Slf4j
-public final class ImageIntentionAction extends PsiElementBaseIntentionAction {
+public final class ImageLabelIntentionAction extends IntentionActionBase {
     private ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
     private MarkdownImage matchImageMark;
 

@@ -23,28 +23,17 @@
  *
  */
 
-package info.dong4j.idea.plugin.action;
+package info.dong4j.idea.plugin.action.intention;
 
-import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
-
-import org.jetbrains.annotations.NotNull;
+import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: 通过代码的方式添加 Group</p>
- * http://www.jetbrains.org/intellij/sdk/docs/tutorials/action_system/grouping_action.html
- * Providing specific behaviour for the group
- * Registering a variable action group
+ * <p>Description: alt + enter </p>
  *
  * @author dong4j
  * @email sjdong3@iflytek.com
- * @since 2019-03-20 06:16
+ * @since 2019-03-27 13:28
  */
-public final class UploadGroupAction extends DefaultActionGroup {
-    @Override
-    public void update(@NotNull AnActionEvent event) {
-        event.getPresentation().setIcon(AllIcons.Gutter.Colors);
-    }
+public abstract class IntentionActionBase extends PsiElementBaseIntentionAction {
 }

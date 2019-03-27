@@ -25,55 +25,26 @@
 
 package info.dong4j.idea.plugin.action;
 
-import info.dong4j.idea.plugin.client.AliyunOssClient;
-import info.dong4j.idea.plugin.client.OssClient;
-import info.dong4j.idea.plugin.enums.CloudEnum;
-import info.dong4j.idea.plugin.icon.MikIcons;
-import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
-import info.dong4j.idea.plugin.settings.OssState;
+import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import javax.swing.Icon;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: 上传到阿里 OSS 事件</p>
+ * <p>Description: 通过代码的方式添加 Group</p>
+ * http://www.jetbrains.org/intellij/sdk/docs/tutorials/action_system/grouping_action.html
+ * Providing specific behaviour for the group
+ * Registering a variable action group
  *
  * @author dong4j
- * @email sjdong3 @iflytek.com
- * @since 2019 -03-12 17:20
+ * @email sjdong3@iflytek.com
+ * @since 2019-03-20 06:16
  */
-@Slf4j
-public final class UploadAliyunCloudAction extends UploadActionBase {
-
-    @NotNull
-    @Contract(pure = true)
+public final class MikGroupAction extends DefaultActionGroup {
     @Override
-    protected Icon getIcon() {
-        return MikIcons.ALIYUN_OSS;
-    }
-
-    @Contract(pure = true)
-    @Override
-    boolean isAvailable() {
-        return OssState.getStatus(ImageManagerPersistenComponent.getInstance().getState().getAliyunOssState());
-    }
-
-    @Nullable
-    @Contract(pure = true)
-    @Override
-    String getName() {
-        return CloudEnum.ALIYUN_CLOUD.title;
-    }
-
-    @Contract(pure = true)
-    @Override
-    OssClient getOssClient() {
-        return AliyunOssClient.getInstance();
+    public void update(@NotNull AnActionEvent event) {
+        event.getPresentation().setIcon(AllIcons.Gutter.Colors);
     }
 }

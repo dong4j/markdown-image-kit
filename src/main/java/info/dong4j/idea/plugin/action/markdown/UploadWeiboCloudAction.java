@@ -23,10 +23,10 @@
  *
  */
 
-package info.dong4j.idea.plugin.action;
+package info.dong4j.idea.plugin.action.markdown;
 
 import info.dong4j.idea.plugin.client.OssClient;
-import info.dong4j.idea.plugin.client.QiniuOssClient;
+import info.dong4j.idea.plugin.client.WeiboOssClient;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.icon.MikIcons;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
@@ -37,38 +37,40 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: 上传到七牛云 OSS 事件</p>
+ * <p>Description: 上传到微博 OSS 事件</p>
  *
  * @author dong4j
  * @email sjdong3@iflytek.com
- * @since 2019-03-14 17:09
+ * @since 2019-03-14 16:39
  */
-public final class UploadQiniuCloudAction extends UploadActionBase {
-
+@Slf4j
+public final class UploadWeiboCloudAction extends UploadActionBase {
     @Contract(pure = true)
     @Override
     protected Icon getIcon() {
-        return MikIcons.QINIU_OSS;
+        return MikIcons.WEIBO_OSS;
     }
 
     @Contract(pure = true)
     @Override
     boolean isAvailable() {
-        return OssState.getStatus(ImageManagerPersistenComponent.getInstance().getState().getQiniuOssState());
+        return OssState.getStatus(ImageManagerPersistenComponent.getInstance().getState().getWeiboOssState());
     }
 
     @Nullable
     @Contract(pure = true)
     @Override
     String getName() {
-        return CloudEnum.QINIU_CLOUD.title;
+        return CloudEnum.WEIBO_CLOUD.title;
     }
 
     @Contract(pure = true)
     @Override
     OssClient getOssClient() {
-        return QiniuOssClient.getInstance();
+        return WeiboOssClient.getInstance();
     }
 }

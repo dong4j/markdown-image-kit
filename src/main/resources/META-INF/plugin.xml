@@ -22,25 +22,25 @@
         <applicationService serviceInterface="info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent"
                             serviceImplementation="info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent"/>
         <intentionAction>
-            <className>info.dong4j.idea.plugin.action.ImageIntentionAction</className>
+            <className>info.dong4j.idea.plugin.action.intention.ImageLabelIntentionAction</className>
         </intentionAction>
 
     </extensions>
 
     <actions>
-        <action id="AliyunObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.UploadAliyunCloudAction"
+        <action id="AliyunObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadAliyunCloudAction"
                 popup="true" text="上传到阿里云">
         </action>
-        <action id="WeiboObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.UploadWeiboCloudAction"
+        <action id="WeiboObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadWeiboCloudAction"
                 popup="true" text="上传到微博">
         </action>
-        <action id="QiniuObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.UploadQiniuCloudAction"
+        <action id="QiniuObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadQiniuCloudAction"
                 popup="true" text="上传到七牛云">
         </action>
-        <action id="ImageCompressAction" class="info.dong4j.idea.plugin.action.ImageCompressAction"
+        <action id="ImageCompressAction" class="info.dong4j.idea.plugin.action.image.ImageCompressAction"
                 popup="true" text="图片压缩">
         </action>
-        <action id="ImageUploadAction" class="info.dong4j.idea.plugin.action.ImageUploadAction"
+        <action id="ImageUploadAction" class="info.dong4j.idea.plugin.action.image.ImageUploadAction"
                 popup="true" text="图片上传">
         </action>
         <action id="MoveToOtherStorageAction" class="info.dong4j.idea.plugin.action.MoveToOtherStorageAction"
@@ -48,7 +48,7 @@
         </action>
 
         <group popup="true" id="info.dong4j.idea.plugin.markdown.image.kit"
-               class="info.dong4j.idea.plugin.action.UploadGroupAction"
+               class="info.dong4j.idea.plugin.action.MikGroupAction"
                text="Markdown Image Kit">
             <reference ref="WeiboObjectStorageServiceAction"/>
             <reference ref="AliyunObjectStorageServiceAction"/>

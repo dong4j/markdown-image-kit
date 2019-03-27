@@ -23,22 +23,21 @@
  *
  */
 
-package info.dong4j.idea.plugin.action;
+package info.dong4j.idea.plugin.action.image;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 
-import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ActionManager;
-import info.dong4j.idea.plugin.chain.BaseActionHandler;
 import info.dong4j.idea.plugin.chain.ImageCompressHandler;
+import info.dong4j.idea.plugin.chain.ImageLabelChangeHandler;
+import info.dong4j.idea.plugin.chain.ImageLabelInsertHandler;
+import info.dong4j.idea.plugin.chain.paste.ImageUploadHandler;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.enums.InsertEnum;
 import info.dong4j.idea.plugin.task.ChainBackgroupTask;
 
-import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Contract;
 
 import java.io.*;
@@ -46,23 +45,19 @@ import java.util.Map;
 
 import javax.swing.Icon;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: 图像压缩 </p>
+ * <p>Description: 图片右键直接上传</p>
  *
  * @author dong4j
  * @email sjdong3@iflytek.com
- * @since 2019-03-15 20:43
+ * @since 2019-03-26 15:36
  */
-@Slf4j
-public final class ImageCompressAction extends ImageActionBase {
-
+public final class ImageUploadAction extends ImageActionBase {
     @Contract(pure = true)
     @Override
     protected Icon getIcon() {
-        return AllIcons.Debugger.ShowCurrentFrame;
+        return AllIcons.Debugger.Overhead;
     }
 
     @Override
@@ -70,44 +65,16 @@ public final class ImageCompressAction extends ImageActionBase {
         EventData data = new EventData()
             .setProject(project)
             .setImageMap(imageMap)
-            .setVirtualFileMap(virtualFileMap)
             .setInsertType(InsertEnum.CLIPBOADR);
 
         ActionManager manager = new ActionManager(data)
             .addHandler(new ImageCompressHandler())
-            .addHandler(new BaseActionHandler() {
-                @Override
-                public boolean isEnabled(EventData data) {
-                    return true;
-                }
-
-                @Override
-                public boolean execute(EventData data) {
-                    int size = data.getSize();
-                    ProgressIndicator indicator = data.getIndicator();
-                    indicator.setText2(MikBundle.message("mik.chain.compress.progress"));
-                    int totalCount = data.getImageMap().size();
-                    int totalProcessed = 0;
-
-                    // todo-dong4j : (2019年03月26日 19:40) [覆盖原文件]
-                    Map<String, File> imageMap = data.getImageMap();
-                    Map<String, VirtualFile> virtualFileMap = data.getVirtualFileMap();
-
-                    for (Map.Entry<String, File> entry : imageMap.entrySet()) {
-                        try {
-                            FileUtils.copyFile(entry.getValue(), new File(virtualFileMap.get(entry.getKey()).getPath()));
-                        } catch (IOException e) {
-                            log.trace("", e);
-                        }
-                        indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
-                    }
-                    return true;
-                }
-            });
+            .addHandler(new ImageUploadHandler())
+            .addHandler(new ImageLabelChangeHandler())
+            .addHandler(new ImageLabelInsertHandler());
 
         new ChainBackgroupTask(project,
-                               "Image Compress Task",
+                               "Image Upload Task",
                                manager).queue();
     }
-
 }
