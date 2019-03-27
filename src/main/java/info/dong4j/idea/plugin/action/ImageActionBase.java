@@ -29,15 +29,12 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.util.PsiUtilBase;
 
 import info.dong4j.idea.plugin.content.ImageContents;
-import info.dong4j.idea.plugin.content.MarkdownContents;
+import info.dong4j.idea.plugin.util.ActionUtils;
 import info.dong4j.idea.plugin.util.ImageUtils;
 
 import org.apache.commons.io.FileUtils;
@@ -54,14 +51,14 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: 图片处理</p>
+ * <p>Description: 图片 压缩, 直接上传后将 url 写入到 clipboard </p>
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
  * @since 2019 -03-26 15:32
  */
 @Slf4j
-public abstract class AbstractImageAction extends AnAction {
+public abstract class ImageActionBase extends AnAction {
     /**
      * Gets icon.
      *
@@ -71,6 +68,10 @@ public abstract class AbstractImageAction extends AnAction {
 
     /**
      * Execute.
+     *
+     * @param imageMap       the image map
+     * @param virtualFileMap the virtual file map
+     * @param project        the project
      */
     abstract protected void execute(Map<String, File> imageMap,
                                     Map<String, VirtualFile> virtualFileMap,
@@ -78,48 +79,7 @@ public abstract class AbstractImageAction extends AnAction {
 
     @Override
     public void update(@NotNull AnActionEvent event) {
-        final Presentation presentation = event.getPresentation();
-        final DataContext dataContext = event.getDataContext();
-        presentation.setVisible(true);
-        presentation.setIcon(getIcon());
-
-        // 未打开 project 时, 不可用
-        final Project project = event.getProject();
-        if (project == null) {
-            presentation.setEnabled(false);
-            return;
-        }
-
-        // 如果光标选中了编辑器
-        final Editor editor = PlatformDataKeys.EDITOR.getData(dataContext);
-        if (null != editor) {
-            final PsiFile file = PsiUtilBase.getPsiFileInEditor(editor, project);
-            // 是 图片 时可用
-            presentation.setEnabled(file != null && ImageContents.IMAGE_TYPE_NAME.equals(file.getFileType().getName()));
-            return;
-        }
-
-        // 没有选中编辑器时, 如果是文件夹
-        boolean isValid = false;
-        // 如果光标选择了文件树(可多选)
-        final VirtualFile[] files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(dataContext);
-        // 如果不是空文件夹
-        if (null != files) {
-            for (VirtualFile file : files) {
-                // 只要有一个是文件夹且不是 node_modules 文件夹 , 则可用
-                if (file.isDirectory() && !MarkdownContents.NODE_MODULES_FILE.equals(file.getName())) {
-                    // 文件夹可用
-                    isValid = true;
-                    break;
-                }
-                // 只要其中一个是 markdown 文件, 则可用
-                if (ImageContents.IMAGE_TYPE_NAME.equals(file.getFileType().getName())) {
-                    isValid = true;
-                    break;
-                }
-            }
-        }
-        presentation.setEnabled(isValid);
+        ActionUtils.isAvailable(event, getIcon(), ImageContents.IMAGE_TYPE_NAME);
     }
 
     @Override

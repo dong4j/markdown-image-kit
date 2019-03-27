@@ -48,7 +48,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019-03-14 16:39
  */
 @Slf4j
-public final class UploadWeiboCloudAction extends AbstractUploadCloudAction {
+public final class UploadWeiboCloudAction extends UploadActionBase {
     @Contract(pure = true)
     @Override
     protected Icon getIcon() {

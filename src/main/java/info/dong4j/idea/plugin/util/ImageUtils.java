@@ -27,13 +27,14 @@ package info.dong4j.idea.plugin.util;
 
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiFile;
 import com.intellij.ui.JBColor;
 import com.intellij.util.containers.hash.HashMap;
 import com.intellij.util.ui.UIUtil;
 import com.siyeh.ig.portability.mediatype.ImageMediaType;
 
 import info.dong4j.idea.plugin.content.ImageContents;
-import info.dong4j.idea.plugin.content.MarkdownContents;
+import info.dong4j.idea.plugin.content.MikContents;
 import info.dong4j.idea.plugin.enums.FileType;
 import info.dong4j.idea.plugin.enums.SuffixEnum;
 import info.dong4j.idea.plugin.settings.ImageManagerPersistenComponent;
@@ -513,6 +514,7 @@ public final class ImageUtils {
      * 递归遍历目录, 返回所有 Image 文件
      *
      * @param virtualFile the virtual file
+     * @return the list
      */
     public static List<VirtualFile> recursivelyImageFile(VirtualFile virtualFile) {
         List<VirtualFile> imageFiles = new ArrayList<>();
@@ -527,7 +529,7 @@ public final class ImageUtils {
         VfsUtilCore.iterateChildrenRecursively(virtualFile,
                                                file -> {
                                                    // todo-dong4j : (2019年03月15日 13:02) [从 .gitignore 中获取忽略的文件]
-                                                   boolean allowAccept = file.isDirectory() && !file.getName().equals(MarkdownContents.NODE_MODULES_FILE);
+                                                   boolean allowAccept = file.isDirectory() && !file.getName().equals(MikContents.NODE_MODULES_FILE);
                                                    if (allowAccept || ImageContents.IMAGE_TYPE_NAME.equals(file.getFileType().getName())) {
                                                        log.trace("accept = {}", file.getPath());
                                                        return true;
@@ -543,5 +545,42 @@ public final class ImageUtils {
                                                    return true;
                                                });
         return imageFiles;
+    }
+
+    /**
+     * Is valid for file boolean.
+     *
+     * @param file the file
+     * @return the boolean
+     */
+    public static boolean isValidForFile(PsiFile file){
+        if(file == null){
+            return false;
+        }
+        if (!isImageFile(file)) {
+            return false;
+        }
+        // 不可写时按钮不可用
+        return file.isWritable();
+    }
+
+    /**
+     * Is image file boolean.
+     *
+     * @param file the file
+     * @return the boolean
+     */
+    private static boolean isImageFile(PsiFile file) {
+        return ImageContents.IMAGE_TYPE_NAME.equals(file.getFileType().getName());
+    }
+
+    /**
+     * Is image file boolean.
+     *
+     * @param file the file
+     * @return the boolean
+     */
+    public static boolean isImageFile(VirtualFile file) {
+        return ImageContents.IMAGE_TYPE_NAME.equals(file.getFileType().getName());
     }
 }

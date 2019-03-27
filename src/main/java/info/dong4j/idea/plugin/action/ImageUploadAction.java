@@ -53,7 +53,7 @@ import javax.swing.Icon;
  * @email sjdong3@iflytek.com
  * @since 2019-03-26 15:36
  */
-public final class ImageUploadAction extends AbstractImageAction {
+public final class ImageUploadAction extends ImageActionBase {
     @Contract(pure = true)
     @Override
     protected Icon getIcon() {

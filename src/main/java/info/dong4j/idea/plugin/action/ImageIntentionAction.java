@@ -72,10 +72,11 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
+ * @see com.intellij.testIntegration.createTest.CreateTestAction
  * @since 2019 -03-27 09:34
  */
 @Slf4j
-public class ImageIntentionAction extends PsiElementBaseIntentionAction {
+public final class ImageIntentionAction extends PsiElementBaseIntentionAction {
     private ImageManagerState state = ImageManagerPersistenComponent.getInstance().getState();
     private MarkdownImage matchImageMark;
 
@@ -165,14 +166,13 @@ public class ImageIntentionAction extends PsiElementBaseIntentionAction {
         } else {
             clientName = "OSS";
         }
-        return MikBundle.message("mik.upload.image.quickfix.message", clientName);
+        return MikBundle.message("mik.intention.upload.message", clientName);
     }
-
 
     @Nls
     @NotNull
     @Override
     public String getFamilyName() {
-        return MikBundle.message("mik.upload.image.quickfix.message.family.name");
+        return getText();
     }
 }

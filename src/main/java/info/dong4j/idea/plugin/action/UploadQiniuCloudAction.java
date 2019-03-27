@@ -45,7 +45,7 @@ import javax.swing.Icon;
  * @email sjdong3@iflytek.com
  * @since 2019-03-14 17:09
  */
-public final class UploadQiniuCloudAction extends AbstractUploadCloudAction {
+public final class UploadQiniuCloudAction extends UploadActionBase {
 
     @Contract(pure = true)
     @Override

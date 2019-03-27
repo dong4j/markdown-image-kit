@@ -49,7 +49,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019 -03-12 17:20
  */
 @Slf4j
-public final class UploadAliyunCloudAction extends AbstractUploadCloudAction {
+public final class UploadAliyunCloudAction extends UploadActionBase {
 
     @NotNull
     @Contract(pure = true)

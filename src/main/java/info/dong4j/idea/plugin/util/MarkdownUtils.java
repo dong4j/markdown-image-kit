@@ -34,6 +34,7 @@ import com.intellij.psi.PsiFile;
 
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.content.MarkdownContents;
+import info.dong4j.idea.plugin.content.MikContents;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
@@ -67,7 +68,12 @@ public final class MarkdownUtils {
      * @param file the file
      * @return the boolean
      */
-    public static boolean isValidForFile(@NotNull PsiFile file) {
+    @Contract("null -> false")
+    public static boolean isValidForFile(PsiFile file) {
+        if(file == null){
+            return false;
+        }
+
         if (!isMardownFile(file)) {
             return false;
         }
@@ -82,7 +88,7 @@ public final class MarkdownUtils {
      * @return the boolean
      */
     private static boolean isMardownFile(PsiFile file) {
-        return file.getFileType().getName().equals(MarkdownContents.MARKDOWN_FILE_TYPE)
+        return file.getFileType().getName().equals(MarkdownContents.MARKDOWN_TYPE_NAME)
                || file.getName().endsWith(MarkdownContents.MARKDOWN_FILE_SUFIX);
     }
 
@@ -93,7 +99,7 @@ public final class MarkdownUtils {
      * @return the boolean
      */
     public static boolean isMardownFile(VirtualFile file) {
-        return file.getFileType().getName().equals(MarkdownContents.MARKDOWN_FILE_TYPE)
+        return file.getFileType().getName().equals(MarkdownContents.MARKDOWN_TYPE_NAME)
                || file.getName().endsWith(MarkdownContents.MARKDOWN_FILE_SUFIX);
     }
 
@@ -223,7 +229,7 @@ public final class MarkdownUtils {
         VfsUtilCore.iterateChildrenRecursively(virtualFile,
                                                file -> {
                                                    // todo-dong4j : (2019年03月15日 13:02) [从 .gitignore 中获取忽略的文件]
-                                                   boolean allowAccept = file.isDirectory() && !file.getName().equals(MarkdownContents.NODE_MODULES_FILE);
+                                                   boolean allowAccept = file.isDirectory() && !file.getName().equals(MikContents.NODE_MODULES_FILE);
                                                    if (allowAccept || file.getName().endsWith(MarkdownContents.MARKDOWN_FILE_SUFIX)) {
                                                        log.trace("accept = {}", file.getPath());
                                                        return true;

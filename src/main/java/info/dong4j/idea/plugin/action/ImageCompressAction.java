@@ -57,7 +57,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019-03-15 20:43
  */
 @Slf4j
-public final class ImageCompressAction extends AbstractImageAction {
+public final class ImageCompressAction extends ImageActionBase {
 
     @Contract(pure = true)
     @Override

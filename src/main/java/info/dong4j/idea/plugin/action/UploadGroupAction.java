@@ -33,9 +33,10 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: </p>
- * http://www.jetbrains.org/intellij/sdk/docs/tutorials/action_system/grouping_action.html #Providing specific behaviour for the group
- * # Registering a variable action group
+ * <p>Description: 通过代码的方式添加 Group</p>
+ * http://www.jetbrains.org/intellij/sdk/docs/tutorials/action_system/grouping_action.html
+ * Providing specific behaviour for the group
+ * Registering a variable action group
  *
  * @author dong4j
  * @email sjdong3@iflytek.com

@@ -29,15 +29,12 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.util.PsiUtilBase;
 
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.content.MarkdownContents;
@@ -45,6 +42,7 @@ import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.notify.UploadNotification;
 import info.dong4j.idea.plugin.strategy.UploadFromAction;
 import info.dong4j.idea.plugin.strategy.Uploader;
+import info.dong4j.idea.plugin.util.ActionUtils;
 import info.dong4j.idea.plugin.util.MarkdownUtils;
 
 import org.jetbrains.annotations.Contract;
@@ -67,7 +65,7 @@ import lombok.extern.slf4j.Slf4j;
  * @email sjdong3 @iflytek.com
  */
 @Slf4j
-public abstract class AbstractUploadCloudAction extends AnAction {
+public abstract class UploadActionBase extends AnAction {
     /**
      * Gets icon.
      *
@@ -99,49 +97,7 @@ public abstract class AbstractUploadCloudAction extends AnAction {
      */
     @Override
     public void update(@NotNull AnActionEvent event) {
-        final Presentation presentation = event.getPresentation();
-        final DataContext dataContext = event.getDataContext();
-        presentation.setVisible(true);
-        presentation.setIcon(getIcon());
-
-        // 未打开 project 时, 不可用
-        final Project project = event.getProject();
-        if (project == null) {
-            presentation.setEnabled(false);
-            return;
-        }
-
-        // 如果光标选中了编辑器
-        final Editor editor = PlatformDataKeys.EDITOR.getData(dataContext);
-        if (null != editor) {
-            final PsiFile file = PsiUtilBase.getPsiFileInEditor(editor, project);
-            // 是 markdown 文件时可用
-            presentation.setEnabled(file != null && MarkdownUtils.isValidForFile(file));
-            return;
-        }
-
-        // 没有选中编辑器时, 如果是文件夹
-        boolean isValid = false;
-        // 如果光标选择了文件树(可多选)
-        final VirtualFile[] files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(dataContext);
-        // 如果不是空文件夹
-        if (null != files) {
-            for (VirtualFile file : files) {
-                // fixme-dong4j : (2019年03月26日 16:52 [逻辑有问题])
-                // 只要有一个是文件夹且不是 node_modules 文件夹 , 则可用
-                if (file.isDirectory() && !MarkdownContents.NODE_MODULES_FILE.equals(file.getName())) {
-                    // 文件夹可用
-                    isValid = true;
-                    break;
-                }
-                // 只要其中一个是 markdown 文件, 则可用
-                if (MarkdownUtils.isMardownFile(file)) {
-                    isValid = true;
-                    break;
-                }
-            }
-        }
-        presentation.setEnabled(isValid);
+        ActionUtils.isAvailable(event, getIcon(), MarkdownContents.MARKDOWN_TYPE_NAME);
     }
 
     /**
@@ -157,7 +113,7 @@ public abstract class AbstractUploadCloudAction extends AnAction {
         if (project != null) {
 
             // 如果账号未设置或者设置后未测试, 则给出提示
-            if(!isAvailable()){
+            if (!isAvailable()) {
                 log.trace("No account set or setting error. action = {}", getName());
                 UploadNotification.notifyConfigurableError(project, getName());
                 return;
@@ -174,8 +130,7 @@ public abstract class AbstractUploadCloudAction extends AnAction {
                 Document documentFromEditor = editor.getDocument();
                 VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(documentFromEditor);
                 waitingForUploadImages.put(documentFromEditor, MarkdownUtils.getImageInfoFromFiles(virtualFile));
-            }
-            else {
+            } else {
                 // 获取被选中的有文件和目录
                 final VirtualFile[] files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(dataContext);
                 if (null != files) {
