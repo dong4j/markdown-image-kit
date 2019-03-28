@@ -25,6 +25,7 @@
 
 package info.dong4j.idea.plugin.task;
 
+import com.intellij.openapi.externalSystem.task.TaskCallback;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -86,6 +87,9 @@ public abstract class MikTaskBase extends Task.Backgroundable{
     @Override
     public void onSuccess() {
         log.trace("success callback");
+        for(TaskCallback callback : manager.getCallbacks()){
+            callback.onSuccess();
+        }
     }
 
     @Override

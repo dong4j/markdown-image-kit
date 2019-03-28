@@ -56,7 +56,7 @@ public class ImageCompressHandler extends BaseActionHandler {
 
     @Override
     public String getName() {
-        return null;
+        return "";
     }
 
     @Override

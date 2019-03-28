@@ -230,6 +230,7 @@ public final class MarkdownUtils {
         // 设置图片位置类型
         if (path.startsWith(ImageContents.IMAGE_LOCATION)) {
             markdownImage.setLocation(ImageLocationEnum.NETWORK);
+            // 图片 url
             markdownImage.setPath(path);
             // 解析图片名
             String imageName = path.substring(path.lastIndexOf("/") + 1);
@@ -237,7 +238,7 @@ public final class MarkdownUtils {
             markdownImage.setExtension(ImageUtils.getFileExtension(imageName));
         } else {
             markdownImage.setLocation(ImageLocationEnum.LOCAL);
-            // 图片文件的绝对路径
+            // 图片文件的相对路径
             markdownImage.setPath(virtualFile.getPath());
             markdownImage.setExtension(virtualFile.getExtension());
             markdownImage.setInputStream(virtualFile.getInputStream());

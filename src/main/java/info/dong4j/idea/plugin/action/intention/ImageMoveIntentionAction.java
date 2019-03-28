@@ -33,8 +33,11 @@ import com.intellij.util.IncorrectOperationException;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ActionManager;
-import info.dong4j.idea.plugin.chain.MoveImageHandler;
+import info.dong4j.idea.plugin.chain.ImageLabelChangeHandler;
+import info.dong4j.idea.plugin.chain.ImageLabelJoinHandler;
+import info.dong4j.idea.plugin.chain.ImageUploadHandler;
 import info.dong4j.idea.plugin.chain.OptionClientHandler;
+import info.dong4j.idea.plugin.chain.ReplaceToDocument;
 import info.dong4j.idea.plugin.chain.ResolveMarkdownFileHandler;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
@@ -89,10 +92,17 @@ public final class ImageMoveIntentionAction extends IntentionActionBase {
 
         ActionManager manager = new ActionManager(data)
             // 解析 markdown 文件
-            .addHandler(new ResolveMarkdownFileHandler("解析 Markdown 文件"))
+            .addHandler(new ResolveMarkdownFileHandler())
             // 处理 client
-            .addHandler(new OptionClientHandler("验证 client"))
-            .addHandler(new MoveImageHandler("迁移图片"));
+            .addHandler(new OptionClientHandler())
+            // 图片上传
+            .addHandler(new ImageUploadHandler())
+            // 拼接标签
+            .addHandler(new ImageLabelJoinHandler())
+            // 标签转换
+            .addHandler(new ImageLabelChangeHandler())
+            // 写入标签
+            .addHandler(new ReplaceToDocument());
 
         // 开启后台任务
         new ActionTask(project, MikBundle.message("mik.action.move.process", getName()), manager).queue();

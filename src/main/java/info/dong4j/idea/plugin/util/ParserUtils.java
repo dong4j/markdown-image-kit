@@ -143,6 +143,18 @@ public final class ParserUtils {
     }
 
     /**
+     * Parse 2 string.
+     *
+     * @param text  the text
+     * @param title the title
+     * @param path  the path
+     * @return the string
+     */
+    public static String parse2(String text, String title, String path) {
+        return text.replaceAll("\\$\\{title}", title).replaceAll("\\$\\{path}", path);
+    }
+
+    /**
      * 解析 ![xxx](yyy)
      *
      * @param text the text

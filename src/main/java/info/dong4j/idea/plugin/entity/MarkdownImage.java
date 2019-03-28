@@ -64,10 +64,10 @@ public class MarkdownImage implements Serializable {
     private String path;
     /** 图片位置 */
     private ImageLocationEnum location;
-    /** 上传后的 url */
-    private String uploadedUrl;
-    /** 原始文本标签类型 */
-    private ImageMarkEnum imageMarkType = ImageMarkEnum.ORIGINAL;
+    /** 文本标签类型 */
+    private ImageMarkEnum imageMarkType;
     /** 图片文件流*/
     private InputStream inputStream;
+    /** 最终需要插入到文本的标签*/
+    private String finalMark;
 }

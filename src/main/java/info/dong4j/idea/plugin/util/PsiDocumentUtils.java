@@ -84,7 +84,7 @@ public final class PsiDocumentUtils {
                                 && state.isChangeToHtmlTag();
         if (isLocal || changeHtmlTag) {
             String newLineText = UploadUtils.getFinalImageMark(markdownImage.getTitle(),
-                                                               markdownImage.getUploadedUrl(),
+                                                               markdownImage.getPath(),
                                                                markdownImage.getPath(),
                                                                "");
 

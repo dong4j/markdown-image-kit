@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
  * @email sjdong3@iflytek.com
  */
 @Slf4j
-public class PasteImageHandlerTest {
+public class PasteImageActionTest {
     @Test
     public void test() throws IOException, UnsupportedFlavorException {
         Clipboard clipboard = java.awt.Toolkit.getDefaultToolkit().getSystemClipboard();

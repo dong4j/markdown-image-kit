@@ -30,8 +30,12 @@ import com.intellij.openapi.progress.ProgressIndicator;
 
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
+import info.dong4j.idea.plugin.notify.MikNotification;
+import info.dong4j.idea.plugin.util.ConvertUtil;
 import info.dong4j.idea.plugin.util.ImageUtils;
 
+import java.io.*;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,26 +43,26 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: 图片文件重命名</p>
+ * <p>Description: 图片压缩处理, 将 MarkdownImage 的文件修改 InputStream </p>
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
- * @since 2019 -03-27 21:24
+ * @since 2019 -03-28 09:23
  */
 @Slf4j
-public class ImageRenameHandler extends BaseActionHandler {
+public class ImageCompressionHandler extends BaseActionHandler {
     @Override
     public String getName() {
-        return "图片重命名";
+        return "图片压缩";
     }
 
     @Override
     public boolean isEnabled(EventData data) {
-        return STATE.isRename();
+        return STATE.isCompress();
     }
 
     /**
-     * 根据配置重新设置 imageName
+     * 通过 InputStream 压缩, 处理后替换原来的 InputStream
      *
      * @param data the data
      * @return the boolean
@@ -66,18 +70,41 @@ public class ImageRenameHandler extends BaseActionHandler {
     @Override
     public boolean execute(EventData data) {
         ProgressIndicator indicator = data.getIndicator();
+
         int size = data.getSize();
+
         int totalProcessed = 0;
+
+        Map<String, String> compressInfo = new HashMap<>(data.getImageMap().size());
 
         for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
             int totalCount = imageEntry.getValue().size();
             for (MarkdownImage markdownImage : imageEntry.getValue()) {
                 indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
+                if (markdownImage.getInputStream() == null) {
+                    continue;
+                }
+                indicator.setText2("process " + imageEntry.getValue());
+
                 String imageName = markdownImage.getImageName();
-                indicator.setText2("Processing " + imageName);
-                markdownImage.setImageName(ImageUtils.processFileName(imageName));
+                if (imageName.endsWith("gif")) {
+                    continue;
+                }
+
+                InputStream inputStream = markdownImage.getInputStream();
+                File temp = ImageUtils.buildTempFile(imageName);
+                try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(temp))) {
+                    ImageUtils.compress(inputStream, outputStream, STATE.getCompressBeforeUploadOfPercent());
+                    markdownImage.setInputStream(ConvertUtil.parse(outputStream));
+                } catch (Exception e) {
+                    log.trace("", e);
+                } finally {
+                    temp.deleteOnExit();
+                }
             }
         }
+
+        MikNotification.notifyCompressInfo(data.getProject(), compressInfo);
         return true;
     }
 }

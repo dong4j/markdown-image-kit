@@ -25,36 +25,13 @@
 
 package info.dong4j.idea.plugin.chain;
 
-import info.dong4j.idea.plugin.entity.EventData;
-
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
  * <p>Description: </p>
  *
  * @author dong4j
- * @email sjdong3 @iflytek.com
- * @since 2019 -03-22 18:37
+ * @email sjdong3@iflytek.com
+ * @since 2019-03-28 17:33
  */
-public abstract class BaseActionHandler implements IActionHandler {
-    /**
-     * 是否符合该处理类的处理范围
-     *
-     * @param data the data
-     * @return 是否符合 boolean
-     */
-    @Override
-    public boolean isEnabled(EventData data){
-        return true;
-    }
-
-    /**
-     * 执行具体的处理逻辑
-     *
-     * @param data the data
-     * @return 是否阻止系统的事件传递 boolean
-     */
-    @Override
-    public boolean execute(EventData data){
-        return true;
-    }
+public class FinalChainHandler {
 }

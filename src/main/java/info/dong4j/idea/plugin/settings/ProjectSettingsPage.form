@@ -1227,7 +1227,7 @@
             </constraints>
             <properties>
               <enabled value="false"/>
-              <text value="Pattern: &quot;&lt;a title='${}' href='${}' &gt;![${}](${})&lt;/a&gt;&quot;"/>
+              <text value="Pattern: &quot;&lt;a title='${title}' href='${path}' &gt;![${title}](${path})&lt;/a&gt;&quot;"/>
             </properties>
           </component>
           <component id="89cf6" class="javax.swing.JLabel" binding="customLabel">
@@ -1236,7 +1236,7 @@
             </constraints>
             <properties>
               <enabled value="false"/>
-              <text value="Pattern: &quot;&lt;a data-fancybox title='${}' href='${}' &gt;![${}](${})&lt;/a&gt;&quot;. If use vuepress, you may also need to modify 'config.js'"/>
+              <text value="Pattern: &quot;&lt;a data-fancybox title='${title}' href='${path}' &gt;![${title}](${path})&lt;/a&gt;&quot;. If use vuepress, you may also need to modify 'config.js'"/>
             </properties>
           </component>
           <component id="7c591" class="javax.swing.JLabel">

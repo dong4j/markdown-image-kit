@@ -130,7 +130,7 @@ public class UploadBackgroundTask extends Task.Backgroundable {
                                     uploadFailured.add(file.getPath());
                                     indicator.setText2("image path: " + markdownImage.getPath() + " upload failed");
                                 }
-                                markdownImage.setUploadedUrl(uploadedUrl);
+                                markdownImage.setPath(uploadedUrl);
                             }
                         }
                     }

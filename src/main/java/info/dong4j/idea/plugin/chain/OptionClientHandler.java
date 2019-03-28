@@ -43,24 +43,10 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class OptionClientHandler extends BaseActionHandler {
-    public OptionClientHandler(String name) {
-        handlerName = name;
-    }
 
     @Override
     public String getName() {
-        return handlerName;
-    }
-
-    /**
-     * 指定的 client 不能为 null 且可用
-     *
-     * @param data the data
-     * @return the boolean
-     */
-    @Override
-    public boolean isEnabled(EventData data) {
-        return true;
+        return "验证 client";
     }
 
     /**

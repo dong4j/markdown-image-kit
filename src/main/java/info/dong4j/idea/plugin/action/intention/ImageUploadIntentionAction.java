@@ -34,15 +34,19 @@ import com.intellij.util.IncorrectOperationException;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ActionManager;
+import info.dong4j.idea.plugin.chain.ImageCompressionHandler;
+import info.dong4j.idea.plugin.chain.ImageLabelChangeHandler;
+import info.dong4j.idea.plugin.chain.ImageLabelJoinHandler;
+import info.dong4j.idea.plugin.chain.ImageRenameHandler;
+import info.dong4j.idea.plugin.chain.ImageUploadHandler;
+import info.dong4j.idea.plugin.chain.InsertToClipboardHandler;
 import info.dong4j.idea.plugin.chain.OptionClientHandler;
-import info.dong4j.idea.plugin.chain.ResolveMarkdownFileHandler;
+import info.dong4j.idea.plugin.chain.ResolveImageFileHandler;
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
-import info.dong4j.idea.plugin.enums.InsertEnum;
 import info.dong4j.idea.plugin.task.ActionTask;
-import info.dong4j.idea.plugin.task.ChainBackgroupTask;
 import info.dong4j.idea.plugin.util.UploadUtils;
 
 import org.jetbrains.annotations.Contract;
@@ -107,25 +111,27 @@ public final class ImageUploadIntentionAction extends IntentionActionBase {
 
         EventData data = new EventData()
             .setProject(project)
-            .setClient(getClient())
             .setClientName(getName())
-            .setWaitingProcessMap(waitingForMoveMap)
-            .setInsertType(InsertEnum.INTENTION);
+            .setClient(getClient())
+            .setWaitingProcessMap(waitingForMoveMap);
 
         ActionManager manager = new ActionManager(data)
-            // 解析 markdown 文件
-            .addHandler(new ResolveMarkdownFileHandler("解析 Markdown 文件"))
+            // 解析 image 文件
+            .addHandler(new ResolveImageFileHandler())
             // 处理 client
-            .addHandler(new OptionClientHandler("验证 client"));
-
-
-        // ActionManager manager = new ActionManager(data)
-        //     .addHandler(new ImageCompressHandler())
-        //     .addHandler(new ImageUploadHandler())
-        //     .addHandler(new ImageLabelChangeHandler())
-        //     .addHandler(new ImageLabelInsertHandler());
-
-        new ChainBackgroupTask(editor.getProject(), "Intention Task: ", manager).queue();
+            .addHandler(new OptionClientHandler())
+            // 图片压缩
+            .addHandler(new ImageCompressionHandler())
+            // 图片重命名
+            .addHandler(new ImageRenameHandler())
+            // 图片上传
+            .addHandler(new ImageUploadHandler())
+            // 拼接标签
+            .addHandler(new ImageLabelJoinHandler())
+            // 标签转换
+            .addHandler(new ImageLabelChangeHandler())
+            // 写到 clipboard
+            .addHandler(new InsertToClipboardHandler());
 
         // 开启后台任务
         new ActionTask(project, MikBundle.message("mik.action.upload.process", getName()), manager).queue();

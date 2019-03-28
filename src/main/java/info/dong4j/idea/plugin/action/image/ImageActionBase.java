@@ -34,6 +34,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 
 import info.dong4j.idea.plugin.content.ImageContents;
+import info.dong4j.idea.plugin.settings.MikPersistenComponent;
+import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.util.ActionUtils;
 import info.dong4j.idea.plugin.util.ImageUtils;
 
@@ -59,23 +61,14 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public abstract class ImageActionBase extends AnAction {
+    protected static final MikState STATE = MikPersistenComponent.getInstance().getState();
+
     /**
      * Gets icon.
      *
      * @return the icon
      */
     abstract protected Icon getIcon();
-
-    /**
-     * Execute.
-     *
-     * @param imageMap       the image map
-     * @param virtualFileMap the virtual file map
-     * @param project        the project
-     */
-    abstract protected void execute(Map<String, File> imageMap,
-                                    Map<String, VirtualFile> virtualFileMap,
-                                    Project project);
 
     @Override
     public void update(@NotNull AnActionEvent event) {
@@ -117,10 +110,6 @@ public abstract class ImageActionBase extends AnAction {
                         }
                     }
                 }
-            }
-
-            if (imageMap.size() > 0) {
-                execute(imageMap, virtualFileMap, project);
             }
         }
     }

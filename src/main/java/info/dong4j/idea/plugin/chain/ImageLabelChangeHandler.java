@@ -25,22 +25,25 @@
 
 package info.dong4j.idea.plugin.chain;
 
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.progress.ProgressIndicator;
 
-import info.dong4j.idea.plugin.MikBundle;
-import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.entity.EventData;
-import info.dong4j.idea.plugin.enums.InsertEnum;
-import info.dong4j.idea.plugin.util.UploadUtils;
+import info.dong4j.idea.plugin.entity.MarkdownImage;
+import info.dong4j.idea.plugin.enums.ImageLocationEnum;
+import info.dong4j.idea.plugin.enums.ImageMarkEnum;
+import info.dong4j.idea.plugin.util.ParserUtils;
 
-import java.util.ArrayList;
+import org.apache.commons.lang.StringUtils;
+
 import java.util.List;
+import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: image mark 转换 </p>
+ * <p>Description: 替换已上传的图片标签 </p>
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
@@ -51,41 +54,41 @@ public class ImageLabelChangeHandler extends BaseActionHandler {
 
     @Override
     public String getName() {
-        return null;
+        return "标签替换";
     }
 
     @Override
     public boolean isEnabled(EventData data) {
-        boolean isIntention = InsertEnum.INTENTION.equals(data.getInsertType());
-        boolean isPasteUpload = (InsertEnum.DOCUMENT.equals(data.getInsertType()) && STATE.isUploadAndReplace());
-        boolean isClipboard = InsertEnum.CLIPBOADR.equals(data.getInsertType());
-        return isPasteUpload || isClipboard;
+        return STATE.isChangeToHtmlTag();
     }
 
-    /**
-     * 需要等待上传完成后才能执行这步操作
-     *
-     * @param data the data
-     * @return the boolean
-     */
     @Override
     public boolean execute(EventData data) {
         ProgressIndicator indicator = data.getIndicator();
-
         int size = data.getSize();
-        indicator.setText2(MikBundle.message("mik.paste.change.progress"));
-
         int totalProcessed = 0;
-        List<String> oldMarks = data.getUploadedMarkList();
-        int totalCount = oldMarks.size();
 
-        List<String> changedMarks = new ArrayList<>(oldMarks.size());
-        for (String mark : oldMarks) {
-            String newLineText = UploadUtils.getFinalImageMark("", mark, mark, ImageContents.LINE_BREAK);
-            changedMarks.add(newLineText);
-            indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
+        for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
+            int totalCount = imageEntry.getValue().size();
+            for (MarkdownImage markdownImage : imageEntry.getValue()) {
+                indicator.setText2("Processing " + markdownImage.getImageName());
+                indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
+
+                if (markdownImage.getLocation().equals(ImageLocationEnum.LOCAL)) {
+                    continue;
+                }
+                ImageMarkEnum currentMarkType = markdownImage.getImageMarkType();
+                if (STATE.getTagType().equals(currentMarkType.text)) {
+                    continue;
+                }
+                String typeCode = STATE.getTagTypeCode();
+                typeCode = StringUtils.isBlank(typeCode) ? ImageMarkEnum.ORIGINAL.code : typeCode;
+                String finalMark = ParserUtils.parse2(typeCode,
+                                                    markdownImage.getTitle(),
+                                                    markdownImage.getPath());
+                markdownImage.setFinalMark(finalMark);
+            }
         }
-        data.setUploadedMarkList(changedMarks);
         return true;
     }
 }

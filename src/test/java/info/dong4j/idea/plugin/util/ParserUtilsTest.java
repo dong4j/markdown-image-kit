@@ -1,6 +1,7 @@
 package info.dong4j.idea.plugin.util;
 
 import info.dong4j.idea.plugin.content.ImageContents;
+import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 
 import org.junit.Test;
 
@@ -55,5 +56,12 @@ public class ParserUtilsTest {
     @Test
     public void test3(){
         log.info(System.getProperty("java.io.tmpdir"));
+    }
+
+    @Test
+    public void test4(){
+        String title = "aaa";
+        String path = "./imgs/xxx.png";
+        log.trace("{}", ParserUtils.parse2(ImageMarkEnum.LARGE_PICTURE.code, title, path));
     }
 }

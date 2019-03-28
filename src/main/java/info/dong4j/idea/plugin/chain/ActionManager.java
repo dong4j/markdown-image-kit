@@ -25,10 +25,12 @@
 
 package info.dong4j.idea.plugin.chain;
 
+import com.intellij.openapi.externalSystem.task.TaskCallback;
 import com.intellij.openapi.progress.ProgressIndicator;
 
 import info.dong4j.idea.plugin.entity.EventData;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -45,6 +47,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ActionManager {
     private List<IActionHandler> handlersChain = new LinkedList<>();
+    private List<TaskCallback> callbacks = new ArrayList<>();
+
     private EventData data;
 
     /**
@@ -68,7 +72,29 @@ public class ActionManager {
     }
 
     /**
+     * Get callbacks list.
+     *
+     * @return the list
+     */
+    public List<TaskCallback> getCallbacks(){
+        return callbacks;
+    }
+
+    /**
+     * Add callback action manager.
+     *
+     * @param callback the callback
+     * @return the action manager
+     */
+    public ActionManager addCallback(TaskCallback callback) {
+        this.callbacks.add(callback);
+        return this;
+    }
+
+    /**
      * Invoke.
+     *
+     * @param indicator the indicator
      */
     public void invoke(ProgressIndicator indicator) {
         int totalProcessed = 0;

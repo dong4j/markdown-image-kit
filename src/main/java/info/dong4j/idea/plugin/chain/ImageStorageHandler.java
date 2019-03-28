@@ -26,12 +26,18 @@
 package info.dong4j.idea.plugin.chain;
 
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.vfs.VirtualFile;
 
+import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
-import info.dong4j.idea.plugin.util.ImageUtils;
+import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 
+import org.apache.commons.io.FileUtils;
+
+import java.io.*;
 import java.util.List;
 import java.util.Map;
 
@@ -39,30 +45,25 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: 图片文件重命名</p>
+ * <p>Description: 保存图片操作 </p>
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
- * @since 2019 -03-27 21:24
+ * @since 2019 -03-26 12:35
  */
 @Slf4j
-public class ImageRenameHandler extends BaseActionHandler {
+public class ImageStorageHandler extends BaseActionHandler {
+
     @Override
     public String getName() {
-        return "图片重命名";
+        return "保存图片";
     }
 
     @Override
     public boolean isEnabled(EventData data) {
-        return STATE.isRename();
+        return STATE.isCopyToDir() && STATE.isClipboardControl();
     }
 
-    /**
-     * 根据配置重新设置 imageName
-     *
-     * @param data the data
-     * @return the boolean
-     */
     @Override
     public boolean execute(EventData data) {
         ProgressIndicator indicator = data.getIndicator();
@@ -71,11 +72,46 @@ public class ImageRenameHandler extends BaseActionHandler {
 
         for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
             int totalCount = imageEntry.getValue().size();
+            Document document = imageEntry.getKey();
+            VirtualFile currentFile = FileDocumentManager.getInstance().getFile(document);
+            if (currentFile == null) {
+                continue;
+            }
+
+            File curDocument = new File(currentFile.getPath());
+            String savepath = STATE.getImageSavePath();
+
             for (MarkdownImage markdownImage : imageEntry.getValue()) {
-                indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
                 String imageName = markdownImage.getImageName();
+                indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
                 indicator.setText2("Processing " + imageName);
-                markdownImage.setImageName(ImageUtils.processFileName(imageName));
+                // 将 inputstream 转成 file
+                File saveFile = null;
+                File imageDir = new File(curDocument.getParent(), savepath);
+                boolean checkDir = imageDir.exists() && imageDir.isDirectory();
+                if (checkDir || imageDir.mkdirs()) {
+                    // 保存的文件路径
+                    saveFile = new File(imageDir, imageName);
+                }
+                if (saveFile == null) {
+                    continue;
+                }
+
+                try {
+                    FileUtils.copyToFile(markdownImage.getInputStream(), saveFile);
+                } catch (IOException e) {
+                    log.trace("", e);
+                    continue;
+                }
+
+                // 保存标签
+                File imageFileRelativizePath = curDocument.getParentFile().toPath().relativize(saveFile.toPath()).toFile();
+                String relImagePath = imageFileRelativizePath.toString().replace('\\', '/');
+                markdownImage.setTitle("");
+                markdownImage.setPath(relImagePath);
+                String mark = "![](" + relImagePath + ")" + ImageContents.LINE_BREAK;
+                markdownImage.setOriginalLineText(mark);
+                markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
             }
         }
         return true;

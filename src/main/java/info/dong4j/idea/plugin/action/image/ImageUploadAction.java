@@ -26,24 +26,32 @@
 package info.dong4j.idea.plugin.action.image;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ActionManager;
-import info.dong4j.idea.plugin.chain.ImageCompressHandler;
+import info.dong4j.idea.plugin.chain.ImageCompressionHandler;
 import info.dong4j.idea.plugin.chain.ImageLabelChangeHandler;
-import info.dong4j.idea.plugin.chain.ImageLabelInsertHandler;
-import info.dong4j.idea.plugin.chain.paste.ImageUploadHandler;
+import info.dong4j.idea.plugin.chain.ImageLabelJoinHandler;
+import info.dong4j.idea.plugin.chain.ImageRenameHandler;
+import info.dong4j.idea.plugin.chain.ImageUploadHandler;
+import info.dong4j.idea.plugin.chain.InsertToClipboardHandler;
+import info.dong4j.idea.plugin.chain.OptionClientHandler;
+import info.dong4j.idea.plugin.chain.ResolveImageFileHandler;
+import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.entity.EventData;
-import info.dong4j.idea.plugin.enums.InsertEnum;
-import info.dong4j.idea.plugin.task.ChainBackgroupTask;
+import info.dong4j.idea.plugin.enums.CloudEnum;
+import info.dong4j.idea.plugin.settings.OssState;
+import info.dong4j.idea.plugin.task.ActionTask;
+import info.dong4j.idea.plugin.util.ClientUtils;
 
 import org.jetbrains.annotations.Contract;
-
-import java.io.*;
-import java.util.Map;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
@@ -53,6 +61,7 @@ import javax.swing.Icon;
  * @email sjdong3@iflytek.com
  * @since 2019-03-26 15:36
  */
+@Slf4j
 public final class ImageUploadAction extends ImageActionBase {
     @Contract(pure = true)
     @Override
@@ -61,20 +70,39 @@ public final class ImageUploadAction extends ImageActionBase {
     }
 
     @Override
-    protected void execute(Map<String, File> imageMap, Map<String, VirtualFile> virtualFileMap, Project project) {
-        EventData data = new EventData()
-            .setProject(project)
-            .setImageMap(imageMap)
-            .setInsertType(InsertEnum.CLIPBOADR);
+    public void actionPerformed(@NotNull AnActionEvent event) {
+        Project project = event.getProject();
+        if (project != null) {
+            // 使用默认 client
+            CloudEnum cloudEnum = OssState.getCloudType(STATE.getCloudType());
+            OssClient client = ClientUtils.getClient(cloudEnum);
 
-        ActionManager manager = new ActionManager(data)
-            .addHandler(new ImageCompressHandler())
-            .addHandler(new ImageUploadHandler())
-            .addHandler(new ImageLabelChangeHandler())
-            .addHandler(new ImageLabelInsertHandler());
+            EventData data = new EventData()
+                .setActionEvent(event)
+                .setProject(event.getProject())
+                .setClient(client)
+                .setClientName(cloudEnum.title);
 
-        new ChainBackgroupTask(project,
-                               "Image Upload Task",
-                               manager).queue();
+            ActionManager manager = new ActionManager(data)
+                // 解析 image 文件
+                .addHandler(new ResolveImageFileHandler())
+                // 处理 client
+                .addHandler(new OptionClientHandler())
+                // 图片压缩
+                .addHandler(new ImageCompressionHandler())
+                // 图片重命名
+                .addHandler(new ImageRenameHandler())
+                // 图片上传
+                .addHandler(new ImageUploadHandler())
+                // 拼接标签
+                .addHandler(new ImageLabelJoinHandler())
+                // 标签转换
+                .addHandler(new ImageLabelChangeHandler())
+                // 写到 clipboard
+                .addHandler(new InsertToClipboardHandler());
+
+            // 开启后台任务
+            new ActionTask(event.getProject(), MikBundle.message("mik.action.upload.process", cloudEnum.title), manager).queue();
+        }
     }
 }

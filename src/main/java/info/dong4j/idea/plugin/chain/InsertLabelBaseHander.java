@@ -25,44 +25,28 @@
 
 package info.dong4j.idea.plugin.chain;
 
+import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.progress.ProgressIndicator;
 
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
-import info.dong4j.idea.plugin.util.ImageUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: 图片文件重命名</p>
+ * <p>Description: </p>
  *
  * @author dong4j
- * @email sjdong3 @iflytek.com
- * @since 2019 -03-27 21:24
+ * @email sjdong3@iflytek.com
+ * @since 2019-03-28 13:55
  */
-@Slf4j
-public class ImageRenameHandler extends BaseActionHandler {
-    @Override
-    public String getName() {
-        return "图片重命名";
-    }
+public abstract class InsertLabelBaseHander extends BaseActionHandler {
+    private List<Runnable> runnables = new ArrayList<>();
 
-    @Override
-    public boolean isEnabled(EventData data) {
-        return STATE.isRename();
-    }
-
-    /**
-     * 根据配置重新设置 imageName
-     *
-     * @param data the data
-     * @return the boolean
-     */
     @Override
     public boolean execute(EventData data) {
         ProgressIndicator indicator = data.getIndicator();
@@ -70,14 +54,31 @@ public class ImageRenameHandler extends BaseActionHandler {
         int totalProcessed = 0;
 
         for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
+            Document document = imageEntry.getKey();
+            data.setDocument(document);
             int totalCount = imageEntry.getValue().size();
+
             for (MarkdownImage markdownImage : imageEntry.getValue()) {
                 indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
                 String imageName = markdownImage.getImageName();
                 indicator.setText2("Processing " + imageName);
-                markdownImage.setImageName(ImageUtils.processFileName(imageName));
+
+                runnables.add(task(data, markdownImage));
             }
         }
+        invoke(data);
         return true;
+    }
+
+    protected Runnable task(EventData data, MarkdownImage markdownImage) {
+        return null;
+    }
+
+    protected void invoke(EventData data) {
+        for (Runnable task : runnables) {
+            if (task != null) {
+                WriteCommandAction.runWriteCommandAction(data.getProject(), task);
+            }
+        }
     }
 }

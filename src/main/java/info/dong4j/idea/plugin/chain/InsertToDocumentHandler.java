@@ -25,14 +25,28 @@
 
 package info.dong4j.idea.plugin.chain;
 
+import com.intellij.openapi.editor.EditorModificationUtil;
+
+import info.dong4j.idea.plugin.entity.EventData;
+import info.dong4j.idea.plugin.entity.MarkdownImage;
+
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: </p>
+ * <p>Description: 写入到 markdown 文件</p>
  *
  * @author dong4j
  * @email sjdong3@iflytek.com
- * @since 2019-03-22 18:39
+ * @since 2019-03-28 13:35
  */
-public abstract class MenuActionHandler extends BaseActionHandler {
+public class InsertToDocumentHandler extends InsertLabelBaseHander {
 
+    @Override
+    public String getName() {
+        return "写入到 document";
+    }
+
+    @Override
+    public Runnable task(EventData data, MarkdownImage markdownImage) {
+        return () -> EditorModificationUtil.insertStringAtCaret(data.getEditor(), markdownImage.getFinalMark());
+    }
 }

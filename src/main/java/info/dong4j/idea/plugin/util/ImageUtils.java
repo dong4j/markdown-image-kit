@@ -496,24 +496,21 @@ public final class ImageUtils {
      */
     public static String processFileName(String fileName) {
         MikState state = MikPersistenComponent.getInstance().getState();
-        if (state.isRename()) {
-            // 处理文件名有空格导致上传 gif 变为静态图的问题
-            fileName = fileName.replaceAll("\\s*", "");
-            int sufixIndex = state.getSuffixIndex();
-            Optional<SuffixEnum> sufix = EnumsUtils.getEnumObject(SuffixEnum.class, e -> e.getIndex() == sufixIndex);
-            SuffixEnum suffixEnum = sufix.orElse(SuffixEnum.FILE_NAME);
-            switch (suffixEnum) {
-                case FILE_NAME:
-                    return fileName;
-                case DATE_FILE_NAME:
-                    return DateFormatUtils.format(new Date(), "yyyy-MM-dd-") + fileName;
-                case RANDOM:
-                    return PREFIX + CharacterUtils.getRandomString(6) + ImageUtils.getFileExtension(fileName);
-                default:
-                    return fileName;
-            }
+        // 处理文件名有空格导致上传 gif 变为静态图的问题
+        fileName = fileName.replaceAll("\\s*", "");
+        int sufixIndex = state.getSuffixIndex();
+        Optional<SuffixEnum> sufix = EnumsUtils.getEnumObject(SuffixEnum.class, e -> e.getIndex() == sufixIndex);
+        SuffixEnum suffixEnum = sufix.orElse(SuffixEnum.FILE_NAME);
+        switch (suffixEnum) {
+            case FILE_NAME:
+                return fileName;
+            case DATE_FILE_NAME:
+                return DateFormatUtils.format(new Date(), "yyyy-MM-dd-") + fileName;
+            case RANDOM:
+                return PREFIX + CharacterUtils.getRandomString(6) + ImageUtils.getFileExtension(fileName);
+            default:
+                return fileName;
         }
-        return fileName;
     }
 
     /**

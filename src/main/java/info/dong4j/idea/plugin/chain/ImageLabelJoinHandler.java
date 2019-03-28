@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 dong4j
+ * Copyright (c) 2019 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,54 +26,50 @@
 package info.dong4j.idea.plugin.chain;
 
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.progress.ProgressIndicator;
 
+import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
-import info.dong4j.idea.plugin.util.MarkdownUtils;
+import info.dong4j.idea.plugin.util.ParserUtils;
 
 import java.util.List;
 import java.util.Map;
 
-import lombok.Setter;
-
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: 解析 markdown 文件</p>
- * 需要 AnActionEvent(不是必须的) 和 Project
+ * <p>Description: 标签拼接处理</p>
  *
  * @author dong4j
- * @email sjdong3 @iflytek.com
- * @since 2019 -03-27 22:51
+ * @email sjdong3@iflytek.com
+ * @since 2019-03-28 12:59
  */
-@Setter
-public class ResolveMarkdownFileHandler extends BaseActionHandler {
-    private MarkdownFileFilter fileFilter;
-
+public class ImageLabelJoinHandler extends BaseActionHandler {
     @Override
     public String getName() {
-        return "解析 Markdown 文件";
+        return "标签拼接";
     }
 
-    /**
-     * 优先使用 EventData 中的数据, 如果没有再解析
-     *
-     * @param data the data
-     * @return the boolean
-     */
     @Override
     public boolean execute(EventData data) {
-        Map<Document, List<MarkdownImage>> waitingProcessMap = data.getWaitingProcessMap();
-        if (waitingProcessMap == null || waitingProcessMap.size() == 0) {
-            // 解析当前文档或者选择的文件树中的所有 markdown 文件.
-            waitingProcessMap = MarkdownUtils.getProcessMarkdownInfo(data.getActionEvent(), data.getProject());
-            data.setWaitingProcessMap(waitingProcessMap);
-        }
+        ProgressIndicator indicator = data.getIndicator();
+        int size = data.getSize();
+        int totalProcessed = 0;
 
-        if (fileFilter != null) {
-            fileFilter.filter(waitingProcessMap);
-        }
+        for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
+            int totalCount = imageEntry.getValue().size();
+            for (MarkdownImage markdownImage : imageEntry.getValue()) {
+                String imageName = markdownImage.getImageName();
+                indicator.setText2("Processing " + imageName);
+                indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
 
-        // 有数据才执行后面的 handler
-        return waitingProcessMap.size() > 0;
+                // 拼接成一个合法的图片标签
+                String finalMark = ParserUtils.parse2(ImageContents.DEFAULT_IMAGE_MARK,
+                                                      markdownImage.getTitle(),
+                                                      markdownImage.getPath());
+                markdownImage.setFinalMark(finalMark);
+            }
+        }
+        return true;
     }
 }

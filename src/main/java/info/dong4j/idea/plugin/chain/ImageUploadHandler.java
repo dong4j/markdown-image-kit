@@ -30,7 +30,9 @@ import com.intellij.openapi.progress.ProgressIndicator;
 
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
-import info.dong4j.idea.plugin.util.ImageUtils;
+import info.dong4j.idea.plugin.enums.ImageLocationEnum;
+
+import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -39,26 +41,22 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: 图片文件重命名</p>
+ * <p>Description: 图片上传操作</p>
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
- * @since 2019 -03-27 21:24
+ * @since 2019 -03-26 12:38
  */
 @Slf4j
-public class ImageRenameHandler extends BaseActionHandler {
-    @Override
-    public String getName() {
-        return "图片重命名";
-    }
+public class ImageUploadHandler extends BaseActionHandler {
 
     @Override
-    public boolean isEnabled(EventData data) {
-        return STATE.isRename();
+    public String getName() {
+        return "图片上传";
     }
 
     /**
-     * 根据配置重新设置 imageName
+     * 只上传 location = NETWORK 的数据
      *
      * @param data the data
      * @return the boolean
@@ -73,9 +71,18 @@ public class ImageRenameHandler extends BaseActionHandler {
             int totalCount = imageEntry.getValue().size();
             for (MarkdownImage markdownImage : imageEntry.getValue()) {
                 indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
+                indicator.setText2("Processing " + markdownImage.getImageName());
+                if (markdownImage.getLocation().equals(ImageLocationEnum.NETWORK)) {
+                    continue;
+                }
                 String imageName = markdownImage.getImageName();
-                indicator.setText2("Processing " + imageName);
-                markdownImage.setImageName(ImageUtils.processFileName(imageName));
+                String imageUrl = data.getClient().upload(markdownImage.getInputStream(), markdownImage.getImageName());
+                indicator.setText2("Uploading " + imageName);
+                if (StringUtils.isNotBlank(imageUrl)) {
+                    // 只保存 url, 后面由 ImageLabelChangeHandler 处理
+                    markdownImage.setPath(imageUrl);
+                    markdownImage.setLocation(ImageLocationEnum.NETWORK);
+                }
             }
         }
         return true;

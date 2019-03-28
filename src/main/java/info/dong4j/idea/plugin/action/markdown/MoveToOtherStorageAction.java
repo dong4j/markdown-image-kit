@@ -38,9 +38,13 @@ import com.intellij.ui.JBColor;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ActionManager;
-import info.dong4j.idea.plugin.chain.MoveImageHandler;
+import info.dong4j.idea.plugin.chain.ImageLabelChangeHandler;
+import info.dong4j.idea.plugin.chain.ImageLabelJoinHandler;
+import info.dong4j.idea.plugin.chain.ImageUploadHandler;
 import info.dong4j.idea.plugin.chain.OptionClientHandler;
+import info.dong4j.idea.plugin.chain.ReplaceToDocument;
 import info.dong4j.idea.plugin.chain.ResolveMarkdownFileHandler;
+import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
@@ -53,11 +57,17 @@ import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.task.ActionTask;
 import info.dong4j.idea.plugin.util.ActionUtils;
 import info.dong4j.idea.plugin.util.ClientUtils;
+import info.dong4j.idea.plugin.util.ConvertUtil;
+import info.dong4j.idea.plugin.util.ImageUtils;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.*;
+import java.net.*;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -76,6 +86,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class MoveToOtherStorageAction extends AnAction {
     private static final String DOMAIN_DEFAULT_MESSAGE = MikBundle.message("mik.panel.message.domain-field");
+    private static final int CONNECTION_TIMEOUT = 5 * 1000;
+    private static final int READ_TIMEOUT = 10 * 1000;
 
     @Override
     public void update(@NotNull AnActionEvent event) {
@@ -110,15 +122,43 @@ public final class MoveToOtherStorageAction extends AnAction {
                 .setClientName(cloudEnum.title);
 
             // 过滤掉 LOCAL 和用户输入不匹配的标签
-            ResolveMarkdownFileHandler resolveMarkdownFileHandler = new ResolveMarkdownFileHandler("解析 Markdown 文件");
+            ResolveMarkdownFileHandler resolveMarkdownFileHandler = new ResolveMarkdownFileHandler();
             resolveMarkdownFileHandler.setFileFilter(waitingProcessMap -> {
                 if (waitingProcessMap != null && waitingProcessMap.size() > 0) {
                     for (Map.Entry<Document, List<MarkdownImage>> entry : waitingProcessMap.entrySet()) {
                         log.trace("old waitingProcessMap = {}", waitingProcessMap);
 
-                        // 排除 LOCAL 和用户输入不匹配的标签
-                        entry.getValue().removeIf(markdownImage -> markdownImage.getLocation().equals(ImageLocationEnum.LOCAL)
-                                                                   || !markdownImage.getPath().contains(domain));
+                        Iterator<MarkdownImage> iterator = entry.getValue().iterator();
+                        while (iterator.hasNext()) {
+                            MarkdownImage markdownImage = iterator.next();
+                            OssClient client = data.getClient();
+                            // 排除 LOCAL 和用户输入不匹配的标签和
+                            if (markdownImage.getLocation().equals(ImageLocationEnum.LOCAL)
+                                || !markdownImage.getPath().contains(domain)
+                                || markdownImage.getPath().contains(client.getCloudType().feature)) {
+
+                                iterator.remove();
+                            } else {
+                                // 将 URL 图片转成 inputstream
+                                File temp = ImageUtils.buildTempFile(markdownImage.getImageName());
+                                try {
+                                    FileUtils.copyURLToFile(new URL(markdownImage.getPath()), temp, CONNECTION_TIMEOUT, READ_TIMEOUT);
+                                } catch (IOException e) {
+                                    log.trace("", e);
+                                    iterator.remove();
+                                    temp.deleteOnExit();
+                                    continue;
+                                }
+
+                                try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(temp))) {
+                                    markdownImage.setInputStream(ConvertUtil.parse(outputStream));
+                                } catch (Exception e) {
+                                    log.trace("", e);
+                                } finally {
+                                    temp.deleteOnExit();
+                                }
+                            }
+                        }
                         log.trace("new waitingProcessMap = {}", waitingProcessMap);
                     }
                 }
@@ -128,8 +168,15 @@ public final class MoveToOtherStorageAction extends AnAction {
                 // 解析 markdown 文件
                 .addHandler(resolveMarkdownFileHandler)
                 // 处理 client
-                .addHandler(new OptionClientHandler("验证 client"))
-                .addHandler(new MoveImageHandler("迁移图片"));
+                .addHandler(new OptionClientHandler())
+                // 图片上传
+                .addHandler(new ImageUploadHandler())
+                // 拼接标签
+                .addHandler(new ImageLabelJoinHandler())
+                // 标签转换
+                .addHandler(new ImageLabelChangeHandler())
+                // 写入标签
+                .addHandler(new ReplaceToDocument());
 
             new ActionTask(project, MikBundle.message("mik.action.move.process", cloudEnum.title), manager).queue();
         }

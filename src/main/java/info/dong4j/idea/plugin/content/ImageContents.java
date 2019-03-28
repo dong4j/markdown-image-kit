@@ -43,11 +43,11 @@ public interface ImageContents {
     String IMAGE_LOCATION = "http";
     String LINE_BREAK = System.lineSeparator();
     /** 默认的 image 标签替换类型 */
-    String DEFAULT_IMAGE_MARK = "![${}](${})";
+    String DEFAULT_IMAGE_MARK = "![${title}](${path})";
     /** 点击查看大图, 需要添加 js 支持 */
-    String LARG_IMAGE_MARK = "<a data-fancybox title='${}' href='${}' >" + DEFAULT_IMAGE_MARK + "</a>";
+    String LARG_IMAGE_MARK = "<a data-fancybox title='${title}' href='${path}' >" + DEFAULT_IMAGE_MARK + "</a>";
     String LARG_IMAGE_MARK_ID = LARG_IMAGE_MARK.substring(1, 23);
     /** 就一个 a 标签, 点击能在新页面查看图片 */
-    String COMMON_IMAGE_MARK = "<a title='${}' href='${}' >" + DEFAULT_IMAGE_MARK + "</a>";
+    String COMMON_IMAGE_MARK = "<a title='${title}' href='${path}' >" + DEFAULT_IMAGE_MARK + "</a>";
     String COMMON_IMAGE_MARK_ID = COMMON_IMAGE_MARK.substring(1, 9);
 }

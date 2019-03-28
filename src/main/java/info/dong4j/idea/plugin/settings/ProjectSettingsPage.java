@@ -42,8 +42,6 @@ import info.dong4j.idea.plugin.enums.HelpType;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.enums.ZoneEnum;
 import info.dong4j.idea.plugin.notify.MikNotification;
-import info.dong4j.idea.plugin.strategy.UploadFromTest;
-import info.dong4j.idea.plugin.strategy.Uploader;
 import info.dong4j.idea.plugin.util.ClientUtils;
 import info.dong4j.idea.plugin.util.DES;
 
@@ -276,10 +274,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             CloudEnum cloudEnum = OssState.getCloudType(index);
             OssClient client = ClientUtils.getClient(cloudEnum);
             if(client != null){
-                String url = Uploader.getInstance().setUploadWay(new UploadFromTest(client,
-                                                                                    inputStream,
-                                                                                    TEST_FILE_NAME,
-                                                                                    (JPanel) authorizationTabbedPanel.getComponentAt(index))).upload();
+                String url = client.upload(inputStream, TEST_FILE_NAME, (JPanel) authorizationTabbedPanel.getComponentAt(index));
                 if (StringUtils.isNotBlank(url)) {
                     testMessage.setForeground(JBColor.GREEN);
                     testMessage.setText("Upload Succeed");

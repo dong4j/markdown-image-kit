@@ -27,34 +27,33 @@ package info.dong4j.idea.plugin.chain;
 
 import info.dong4j.idea.plugin.entity.EventData;
 
+import lombok.Setter;
+
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: </p>
+ * <p>Description: 解析 image 文件</p>
+ * 需要 AnActionEvent(不是必须的) 和 Project
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
- * @since 2019 -03-22 18:37
+ * @since 2019 -03-27 22:51
  */
-public abstract class BaseActionHandler implements IActionHandler {
-    /**
-     * 是否符合该处理类的处理范围
-     *
-     * @param data the data
-     * @return 是否符合 boolean
-     */
+@Setter
+public class ResolveImageFileHandler extends BaseActionHandler {
     @Override
-    public boolean isEnabled(EventData data){
-        return true;
+    public String getName() {
+        return "解析 Markdown 文件";
     }
 
     /**
-     * 执行具体的处理逻辑
+     * 优先使用 EventData 中的数据, 如果没有再解析
      *
      * @param data the data
-     * @return 是否阻止系统的事件传递 boolean
+     * @return the boolean
      */
     @Override
-    public boolean execute(EventData data){
-        return true;
+    public boolean execute(EventData data) {
+
+        return false;
     }
 }

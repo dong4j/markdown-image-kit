@@ -15,7 +15,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <!-- clipboard -->
         <editorActionHandler action="EditorPaste"
-                             implementationClass="info.dong4j.idea.plugin.handler.PasteImageHandler"
+                             implementationClass="info.dong4j.idea.plugin.action.paste.PasteImageAction"
                              order="first"/>
         <!-- 设置面板 -->
         <applicationConfigurable groupId="tools" instance="info.dong4j.idea.plugin.settings.ProjectSettingsPage"/>

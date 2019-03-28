@@ -26,20 +26,26 @@
 package info.dong4j.idea.plugin.action.image;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.externalSystem.task.TaskCallbackAdapter;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ActionManager;
 import info.dong4j.idea.plugin.chain.BaseActionHandler;
-import info.dong4j.idea.plugin.chain.ImageCompressHandler;
+import info.dong4j.idea.plugin.chain.ImageCompressionHandler;
+import info.dong4j.idea.plugin.chain.ImageRenameHandler;
+import info.dong4j.idea.plugin.chain.ResolveImageFileHandler;
 import info.dong4j.idea.plugin.entity.EventData;
-import info.dong4j.idea.plugin.enums.InsertEnum;
-import info.dong4j.idea.plugin.task.ChainBackgroupTask;
+import info.dong4j.idea.plugin.task.ActionTask;
 
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.Map;
@@ -66,53 +72,63 @@ public final class ImageCompressAction extends ImageActionBase {
     }
 
     @Override
-    protected void execute(Map<String, File> imageMap, Map<String, VirtualFile> virtualFileMap, Project project) {
-        EventData data = new EventData()
-            .setProject(project)
-            .setImageMap(imageMap)
-            .setVirtualFileMap(virtualFileMap)
-            .setInsertType(InsertEnum.CLIPBOADR);
+    public void actionPerformed(@NotNull AnActionEvent event) {
+        Project project = event.getProject();
+        if (project != null) {
+            EventData data = new EventData()
+                .setActionEvent(event)
+                .setProject(event.getProject());
 
-        ActionManager manager = new ActionManager(data)
-            .addHandler(new ImageCompressHandler())
-            .addHandler(new BaseActionHandler() {
-                @Override
-                public String getName() {
-                    return "替换原图";
-                }
-
-                @Override
-                public boolean isEnabled(EventData data) {
-                    return true;
-                }
-
-                @Override
-                public boolean execute(EventData data) {
-                    int size = data.getSize();
-                    ProgressIndicator indicator = data.getIndicator();
-                    indicator.setText2(MikBundle.message("mik.chain.compress.progress"));
-                    int totalCount = data.getImageMap().size();
-                    int totalProcessed = 0;
-
-                    // todo-dong4j : (2019年03月26日 19:40) [覆盖原文件]
-                    Map<String, File> imageMap = data.getImageMap();
-                    Map<String, VirtualFile> virtualFileMap = data.getVirtualFileMap();
-
-                    for (Map.Entry<String, File> entry : imageMap.entrySet()) {
-                        try {
-                            FileUtils.copyFile(entry.getValue(), new File(virtualFileMap.get(entry.getKey()).getPath()));
-                        } catch (IOException e) {
-                            log.trace("", e);
-                        }
-                        indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
+            ActionManager manager = new ActionManager(data)
+                // 解析 image 文件
+                .addHandler(new ResolveImageFileHandler())
+                // 图片压缩
+                .addHandler(new ImageCompressionHandler())
+                // 图片重命名
+                .addHandler(new ImageRenameHandler())
+                // 替换
+                .addHandler(new BaseActionHandler() {
+                    @Override
+                    public String getName() {
+                        return "替换原图";
                     }
-                    return true;
-                }
-            });
 
-        new ChainBackgroupTask(project,
-                               "Image Compress Task",
-                               manager).queue();
+                    @Override
+                    public boolean execute(EventData data) {
+                        int size = data.getSize();
+                        ProgressIndicator indicator = data.getIndicator();
+                        indicator.setText2(MikBundle.message("mik.chain.compress.progress"));
+                        int totalCount = data.getImageMap().size();
+                        int totalProcessed = 0;
+
+                        Map<String, File> imageMap = data.getImageMap();
+                        Map<String, VirtualFile> virtualFileMap = data.getVirtualFileMap();
+
+                        for (Map.Entry<String, File> entry : imageMap.entrySet()) {
+                            try {
+                                FileUtils.copyFile(entry.getValue(), new File(virtualFileMap.get(entry.getKey()).getPath()));
+                            } catch (IOException e) {
+                                log.trace("", e);
+                            }
+                            indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
+                        }
+                        return true;
+                    }
+                })
+                // 处理完成后刷新 VFS
+                .addCallback(new TaskCallbackAdapter(){
+                    @Override
+                    public void onSuccess() {
+                        log.trace("Success callback");
+                        // 刷新 VFS, 避免新增的图片很久才显示出来
+                        ApplicationManager.getApplication().runWriteAction(() -> {
+                            VirtualFileManager.getInstance().syncRefresh();
+                        });
+                    }
+                });
+
+            // 开启后台任务
+            new ActionTask(event.getProject(), MikBundle.message("mik.action.compress.progress"), manager).queue();
+        }
     }
-
 }

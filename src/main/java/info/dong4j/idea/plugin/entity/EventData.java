@@ -62,6 +62,7 @@ public class EventData {
     private int index;
     private Project project;
     private Editor editor;
+    private Document document;
     /** 从 clipboard 中解析的文件 */
     private Map<String, File> imageMap;
     private Map<String, VirtualFile> virtualFileMap;

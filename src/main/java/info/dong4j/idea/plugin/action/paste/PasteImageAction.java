@@ -23,42 +23,49 @@
  *
  */
 
-package info.dong4j.idea.plugin.handler;
+package info.dong4j.idea.plugin.action.paste;
 
 import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.editor.actionSystem.EditorTextInsertHandler;
+import com.intellij.openapi.externalSystem.task.TaskCallbackAdapter;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.AbstractVcs;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.Producer;
 import com.intellij.util.containers.hash.HashMap;
 
 import info.dong4j.idea.plugin.chain.ActionManager;
-import info.dong4j.idea.plugin.chain.ImageCompressHandler;
+import info.dong4j.idea.plugin.chain.ImageCompressionHandler;
 import info.dong4j.idea.plugin.chain.ImageLabelChangeHandler;
-import info.dong4j.idea.plugin.chain.ImageLabelInsertHandler;
-import info.dong4j.idea.plugin.chain.paste.ImageStorageHandler;
-import info.dong4j.idea.plugin.chain.paste.ImageUploadHandler;
+import info.dong4j.idea.plugin.chain.ImageLabelJoinHandler;
+import info.dong4j.idea.plugin.chain.ImageRenameHandler;
+import info.dong4j.idea.plugin.chain.ImageStorageHandler;
+import info.dong4j.idea.plugin.chain.ImageUploadHandler;
+import info.dong4j.idea.plugin.chain.InsertToDocumentHandler;
+import info.dong4j.idea.plugin.chain.OptionClientHandler;
+import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.entity.EventData;
-import info.dong4j.idea.plugin.enums.InsertEnum;
-import info.dong4j.idea.plugin.exception.UploadException;
-import info.dong4j.idea.plugin.notify.UploadNotification;
+import info.dong4j.idea.plugin.entity.MarkdownImage;
+import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
-import info.dong4j.idea.plugin.task.ChainBackgroupTask;
+import info.dong4j.idea.plugin.settings.OssState;
+import info.dong4j.idea.plugin.task.ActionTask;
 import info.dong4j.idea.plugin.util.CharacterUtils;
+import info.dong4j.idea.plugin.util.ClientUtils;
 import info.dong4j.idea.plugin.util.ImageUtils;
 import info.dong4j.idea.plugin.util.MarkdownUtils;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -67,6 +74,7 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -87,15 +95,16 @@ import lombok.extern.slf4j.Slf4j;
  * @email sjdong3 @iflytek.com
  */
 @Slf4j
-public class PasteImageHandler extends EditorActionHandler implements EditorTextInsertHandler {
+public class PasteImageAction extends EditorActionHandler implements EditorTextInsertHandler {
     private final EditorActionHandler editorActionHandler;
+    private static final MikState STATE = MikPersistenComponent.getInstance().getState();
 
     /**
      * Instantiates a new Paste image handler.
      *
      * @param originalAction the original action
      */
-    public PasteImageHandler(EditorActionHandler originalAction) {
+    public PasteImageAction(EditorActionHandler originalAction) {
         editorActionHandler = originalAction;
     }
 
@@ -125,29 +134,52 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
                     Iterator<Map.Entry<DataFlavor, Object>> iterator = clipboardData.entrySet().iterator();
                     Map.Entry<DataFlavor, Object> entry = iterator.next();
 
-                    Map<String, File> imageMap = resolveClipboardData(state, entry, editor.getProject());
+                    Map<Document, List<MarkdownImage>> waitingProcessMap = buildWaitingProcessMap(entry, editor);
 
-                    if (imageMap.size() == 0) {
+                    if (waitingProcessMap.size() == 0) {
                         defaultAction(editor, caret, dataContext);
                         return;
                     }
 
-                    // todo-dong4j : (2019年03月25日 12:26) [通知一次]
+                    // 使用默认 client
+                    CloudEnum cloudEnum = OssState.getCloudType(STATE.getCloudType());
+                    OssClient client = ClientUtils.getClient(cloudEnum);
+
                     EventData data = new EventData()
                         .setProject(editor.getProject())
-                        .setEditor(editor)
-                        .setImageMap(imageMap)
-                        .setInsertType(InsertEnum.DOCUMENT);
+                        .setClient(client)
+                        .setClientName(cloudEnum.title)
+                        .setWaitingProcessMap(waitingProcessMap);
 
                     ActionManager manager = new ActionManager(data)
-                        .addHandler(new ImageCompressHandler())
+                        // 处理 client
+                        .addHandler(new OptionClientHandler())
+                        // 图片压缩
+                        .addHandler(new ImageCompressionHandler())
+                        // 图片重命名
+                        .addHandler(new ImageRenameHandler())
+                        // 图片保存
                         .addHandler(new ImageStorageHandler())
+                        // 图片上传
                         .addHandler(new ImageUploadHandler())
+                        // 拼接标签
+                        .addHandler(new ImageLabelJoinHandler())
+                        // 标签转换
                         .addHandler(new ImageLabelChangeHandler())
-                        .addHandler(new ImageLabelInsertHandler());
+                        // 写入标签
+                        .addHandler(new InsertToDocumentHandler())
+                        .addCallback(new TaskCallbackAdapter() {
+                            @Override
+                            public void onSuccess() {
+                                log.trace("Success callback");
+                                // 刷新 VFS, 避免新增的图片很久才显示出来
+                                ApplicationManager.getApplication().runWriteAction(() -> {
+                                    VirtualFileManager.getInstance().syncRefresh();
+                                });
+                            }
+                        });
 
-                    new ChainBackgroupTask(editor.getProject(), "Paste Task: ", manager).queue();
-
+                    new ActionTask(editor.getProject(), "Paste Task: ", manager).queue();
                     return;
                 }
             }
@@ -155,22 +187,33 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
         defaultAction(editor, caret, dataContext);
     }
 
+    @Contract(pure = true)
+    private Map<Document, List<MarkdownImage>> buildWaitingProcessMap(@NotNull Map.Entry<DataFlavor, Object> entry,
+                                                                      Editor editor) {
+        Map<Document, List<MarkdownImage>> waitingProcessMap = new HashMap<>(10);
+        List<MarkdownImage> markdownImages = new ArrayList<>(10);
+        waitingProcessMap.put(editor.getDocument(), markdownImages);
+        for(Map.Entry<String, InputStream> inputStreamMap : resolveClipboardData(entry).entrySet()){
+            MarkdownImage markdownImage = new MarkdownImage();
+            markdownImage.setImageName(inputStreamMap.getKey());
+            markdownImage.setInputStream(inputStreamMap.getValue());
+        }
+
+        return waitingProcessMap;
+    }
+
     /**
      * 处理 clipboard 数据
      *
-     * @param state   the state
      * @param entry   the entry     List<File> 或者 Image 类型
-     * @param project the project
      * @return the map              文件名-->File, File 有本地文件(resolveFromFile)和临时文件(resolveFromImage)
      */
-    private Map<String, File> resolveClipboardData(MikState state,
-                                                   @NotNull Map.Entry<DataFlavor, Object> entry,
-                                                   Project project) {
-        Map<String, File> imageMap = new HashMap<>(10);
+    private Map<String, InputStream> resolveClipboardData(@NotNull Map.Entry<DataFlavor, Object> entry) {
+        Map<String, InputStream> imageMap = new HashMap<>(10);
         if (entry.getKey().equals(DataFlavor.javaFileListFlavor)) {
-            resolveFromFile(state, entry, imageMap);
+            resolveFromFile(entry, imageMap);
         } else {
-            resolveFromImage(state, entry, project, imageMap);
+            resolveFromImage(entry, imageMap);
         }
         return imageMap;
     }
@@ -178,72 +221,50 @@ public class PasteImageHandler extends EditorActionHandler implements EditorText
     /**
      * 处理 clipboard 中为 List<File> 类型的数据
      *
-     * @param state    the state
      * @param entry    the entry
      * @param imageMap the image map
      */
-    private void resolveFromFile(@NotNull MikState state,
-                                 @NotNull Map.Entry<DataFlavor, Object> entry,
-                                 Map<String, File> imageMap) {
+    private void resolveFromFile(@NotNull Map.Entry<DataFlavor, Object> entry,
+                                 Map<String, InputStream> imageMap) {
         @SuppressWarnings("unchecked") List<File> fileList = (List<File>) entry.getValue();
         for (File file : fileList) {
             // 第一步先初步排除非图片类型, 避免复制大量文件导致 OOM
             if (StringUtils.isBlank(ImageUtils.getImageType(file.getName()))) {
                 break;
             }
-            // 创建临时文件, 用于保存压缩后的图片
-            File temp = ImageUtils.buildTempFile(file.getName());
             try {
-                // todo-dong4j : (2019年03月26日 12:02) [gif 不压缩, 需要特殊处理]
-                if (file.isFile() && !file.getName().endsWith("gif") && state.isCompress()) {
-                    ImageUtils.compress(file, temp, state.getCompressBeforeUploadOfPercent());
-                } else {
-                    FileUtils.copyFile(file, temp);
-                }
                 // 读到缓冲区, 如果抛异常, 则不是图片
-                ImageIO.read(temp);
+                ImageIO.read(file);
+                imageMap.put(file.getName(), new FileInputStream(file));
             } catch (IOException ignored) {
                 // 如果抛异常, 则不是图片, 清除所有数据, 使用默认处理程序处理 clipboard 数据
                 imageMap.clear();
                 break;
             }
-            imageMap.put(file.getName(), temp);
         }
     }
 
     /**
      * 处理 clipboard 中为 Image 类型的数据
      *
-     * @param state    the state
      * @param entry    the entry
-     * @param project  the project
      * @param imageMap the image map
      */
-    private void resolveFromImage(@NotNull MikState state,
-                                  @NotNull Map.Entry<DataFlavor, Object> entry,
-                                  Project project,
-                                  Map<String, File> imageMap) {
+    private void resolveFromImage(@NotNull Map.Entry<DataFlavor, Object> entry,
+                                  Map<String, InputStream> imageMap) {
         // image 类型统一重命名, 后缀为 png, 因为获取不到文件名
         String fileName = CharacterUtils.getRandomString(6) + ".png";
-        // 如果是 image 类型, 则需要转换成 File
+        // 如果是 image 类型, 转换成 inputstream
         Image image = (Image) entry.getValue();
         BufferedImage bufferedImage = ImageUtils.toBufferedImage(image);
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         assert bufferedImage != null;
-        File temp = ImageUtils.buildTempFile(fileName);
         try {
             ImageIO.write(bufferedImage, "png", os);
             InputStream is = new ByteArrayInputStream(os.toByteArray());
-            // 压缩写入临时文件
-            if (state.isCompress()) {
-                ImageUtils.compress(is, temp, state.getCompressBeforeUploadOfPercent());
-            } else {
-                FileUtils.copyToFile(is, temp);
-            }
-        } catch (IOException e) {
-            UploadNotification.notifyUploadFailure(new UploadException("文件转换失败"), project);
+            imageMap.put(fileName, is);
+        } catch (IOException ignored) {
         }
-        imageMap.put(fileName, temp);
     }
 
     /**
