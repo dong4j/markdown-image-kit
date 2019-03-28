@@ -25,12 +25,12 @@
 
 package info.dong4j.idea.plugin.chain;
 
+import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.progress.ProgressIndicator;
 
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
-import info.dong4j.idea.plugin.util.PsiDocumentUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -59,14 +59,15 @@ public class ReplaceToDocument extends BaseActionHandler {
             Document document = imageEntry.getKey();
             data.setDocument(document);
             int totalCount = imageEntry.getValue().size();
-            String text = document.getText();
             for (MarkdownImage markdownImage : imageEntry.getValue()) {
                 indicator.setText2("Processing " + markdownImage.getImageName());
                 indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
 
-                text = text.replace(markdownImage.getOriginalMark(), markdownImage.getFinalMark());
+                WriteCommandAction.runWriteCommandAction(data.getProject(), () -> document
+                    .replaceString(document.getLineStartOffset(markdownImage.getLineNumber()),
+                                   document.getLineEndOffset(markdownImage.getLineNumber()),
+                                   markdownImage.getFinalMark()));
             }
-            PsiDocumentUtils.commitAndSaveDocument(data.getProject(), data.getDocument(), text);
         }
         return true;
     }
