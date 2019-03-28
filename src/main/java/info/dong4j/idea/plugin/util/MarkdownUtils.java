@@ -28,7 +28,6 @@ package info.dong4j.idea.plugin.util;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -55,7 +54,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -118,25 +116,20 @@ public final class MarkdownUtils {
      * @param virtualFile the virtual file
      * @return the list
      */
-    private static List<MarkdownImage> getImageInfoFromFiles(VirtualFile virtualFile) {
+    private static List<MarkdownImage> getImageInfoFromFiles(Document document, VirtualFile virtualFile) {
         List<MarkdownImage> markdownImageList = new ArrayList<>();
-        AtomicReference<Document> document = new AtomicReference<>(null);
 
-        ApplicationManager.getApplication().runReadAction(() -> {
-            document.set(FileDocumentManager.getInstance().getDocument(virtualFile));
-        });
-
-        if (document.get() != null) {
-            int lineCount = document.get().getLineCount();
+        if (document != null) {
+            int lineCount = document.getLineCount();
             // 解析每一行文本
             for (int line = 0; line < lineCount; line++) {
                 // 获取指定行的第一个字符在全文中的偏移量，行号的取值范围为：[0,getLineCount()-1]
-                int startOffset = document.get().getLineStartOffset(line);
+                int startOffset = document.getLineStartOffset(line);
                 // 获取指定行的最后一个字符在全文中的偏移量，行号的取值范围为：[0,getLineCount()-1]
-                int endOffset = document.get().getLineEndOffset(line);
+                int endOffset = document.getLineEndOffset(line);
                 TextRange currentLineTextRange = TextRange.create(startOffset, endOffset);
 
-                String originalLineText = document.get().getText(currentLineTextRange);
+                String originalLineText = document.getText(currentLineTextRange);
                 if (StringUtils.isNotBlank(originalLineText)) {
                     log.trace("originalLineText: {}", originalLineText);
                     MarkdownImage markdownImage;
@@ -152,13 +145,40 @@ public final class MarkdownUtils {
     /**
      * 不使用正则, 因为需要记录偏移量
      *
-     * @param virtualFile the virtual file
+     * @param virtualFile the virtual file 当前处理的文件
      * @param lineText    the line text    当前处理的文本行
      * @param line        the line         在文本中的行数
      * @return the markdown image
      */
     @Nullable
     public static MarkdownImage matchImageMark(VirtualFile virtualFile, String lineText, int line) {
+        int[] offset = resolveText(lineText);
+        if (offset == null) {
+            return null;
+        }
+        MarkdownImage markdownImage = new MarkdownImage();
+        markdownImage.setFileName(virtualFile.getName());
+        markdownImage.setOriginalLineText(lineText);
+        markdownImage.setLineNumber(line);
+        markdownImage.setLineStartOffset(offset[0]);
+        markdownImage.setLineEndOffset(offset[1]);
+        // 解析 markdown 图片标签
+        try {
+            return resolveImageMark(markdownImage, virtualFile);
+        } catch (IOException e) {
+            log.trace("", e);
+        }
+        return null;
+    }
+
+    /**
+     * Resolve text int [ ].
+     *
+     * @param lineText the line text
+     * @return the int [ ]
+     */
+    public static int[] resolveText(String lineText) {
+        int[] offset = new int[2];
         lineText = StringUtils.trim(lineText);
         // 匹配 '![' 字符串
         int indexPrefix = lineText.indexOf(ImageContents.IMAGE_MARK_PREFIX);
@@ -179,19 +199,10 @@ public final class MarkdownUtils {
             return null;
         }
         log.trace("image text: {}", lineText);
-        MarkdownImage markdownImage = new MarkdownImage();
-        markdownImage.setFileName(virtualFile.getName());
-        markdownImage.setOriginalLineText(lineText);
-        markdownImage.setLineNumber(line);
-        markdownImage.setLineStartOffset(indexPrefix);
-        markdownImage.setLineEndOffset(indexSuffix + 1);
-        // 解析 markdown 图片标签
-        try {
-            return resolveImageMark(markdownImage, virtualFile);
-        } catch (IOException e) {
-            log.trace("", e);
-        }
-        return null;
+
+        offset[0] = indexPrefix;
+        offset[1] = indexSuffix + 1;
+        return offset;
     }
 
     /**
@@ -247,6 +258,31 @@ public final class MarkdownUtils {
             markdownImage.setImageName(path.substring(path.lastIndexOf(File.separator) + 1));
         }
         return markdownImage;
+    }
+
+    /**
+     * 是否为有效的 markdown image 标签
+     * ![](xxxx) () 内不能为空
+     * ![](yyyy) () 内必须是图片
+     * ![](zzz.png) () 内图片必须存在
+     *
+     * @return the boolean
+     */
+    @Contract(pure = true)
+    public static boolean isImageMark(String mark){
+        return false;
+    }
+
+    /**
+     * 从 mark 中获取图片名称
+     *
+     * @param mark the mark
+     * @return the string
+     */
+    @NotNull
+    @Contract(pure = true)
+    public static String getImageNameFromMark(String mark){
+        return "";
     }
 
     /**
@@ -309,7 +345,7 @@ public final class MarkdownUtils {
             // 解析此文件中所有的图片标签
             Document documentFromEditor = editor.getDocument();
             VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(documentFromEditor);
-            waitingProcessMap.put(documentFromEditor, MarkdownUtils.getImageInfoFromFiles(virtualFile));
+            waitingProcessMap.put(documentFromEditor, MarkdownUtils.getImageInfoFromFiles(documentFromEditor, virtualFile));
         } else {
             // 获取被选中的有文件和目录
             final VirtualFile[] files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(dataContext);
@@ -318,14 +354,14 @@ public final class MarkdownUtils {
                     if (MarkdownUtils.isMardownFile(file)) {
                         // 解析此文件中所有的图片标签
                         Document documentFromVirtualFile = FileDocumentManager.getInstance().getDocument(file);
-                        waitingProcessMap.put(documentFromVirtualFile, MarkdownUtils.getImageInfoFromFiles(file));
+                        waitingProcessMap.put(documentFromVirtualFile, MarkdownUtils.getImageInfoFromFiles(documentFromVirtualFile, file));
                     }
                     // 如果是目录, 则递归获取所有 markdown 文件
                     if (file.isDirectory()) {
                         List<VirtualFile> markdownFiles = MarkdownUtils.recursivelyMarkdownFile(file);
                         for (VirtualFile virtualFile : markdownFiles) {
                             Document documentFromVirtualFile = FileDocumentManager.getInstance().getDocument(virtualFile);
-                            waitingProcessMap.put(documentFromVirtualFile, MarkdownUtils.getImageInfoFromFiles(virtualFile));
+                            waitingProcessMap.put(documentFromVirtualFile, MarkdownUtils.getImageInfoFromFiles(documentFromVirtualFile, virtualFile));
                         }
                     }
                 }

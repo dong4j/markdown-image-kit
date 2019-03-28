@@ -35,6 +35,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.JBColor;
 
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.client.AliyunOssClient;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.enums.CloudEnum;
@@ -382,7 +383,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      * 初始化替换标签设置组
      */
     private void initChangeToHtmlGroup() {
-        customHtmlTypeTextField.addFocusListener(new JTextFieldHintListener(customHtmlTypeTextField, "格式: <a title='${}' href='${}' >![${}](${})</a>"));
+        customHtmlTypeTextField.addFocusListener(new JTextFieldHintListener(customHtmlTypeTextField,
+                                                                            MikBundle.message("mik.change.mark.message")));
 
         // 初始化 changeToHtmlTagCheckBox 选中状态
         // 设置被选中

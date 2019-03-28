@@ -35,7 +35,6 @@ import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ActionManager;
 import info.dong4j.idea.plugin.chain.ImageCompressionHandler;
 import info.dong4j.idea.plugin.chain.ImageLabelChangeHandler;
-import info.dong4j.idea.plugin.chain.ImageLabelJoinHandler;
 import info.dong4j.idea.plugin.chain.ImageRenameHandler;
 import info.dong4j.idea.plugin.chain.ImageUploadHandler;
 import info.dong4j.idea.plugin.chain.OptionClientHandler;
@@ -133,7 +132,7 @@ public abstract class UploadActionBase extends AnAction {
                 // 图片上传
                 .addHandler(new ImageUploadHandler())
                 // 拼接标签
-                .addHandler(new ImageLabelJoinHandler())
+                // .addHandler(new ImageLabelJoinHandler())
                 // 标签转换
                 .addHandler(new ImageLabelChangeHandler())
                 // 写入标签

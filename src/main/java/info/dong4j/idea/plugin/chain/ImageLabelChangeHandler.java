@@ -28,13 +28,12 @@ package info.dong4j.idea.plugin.chain;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.progress.ProgressIndicator;
 
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.util.ParserUtils;
-
-import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -74,19 +73,29 @@ public class ImageLabelChangeHandler extends BaseActionHandler {
                 indicator.setText2("Processing " + markdownImage.getImageName());
                 indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
 
+                // 如果是本地类型, 则不替换
                 if (markdownImage.getLocation().equals(ImageLocationEnum.LOCAL)) {
                     continue;
                 }
+
+                // 如果标签已经与配置的类型一致, 则不替换
                 ImageMarkEnum currentMarkType = markdownImage.getImageMarkType();
                 if (STATE.getTagType().equals(currentMarkType.text)) {
                     continue;
                 }
+
+                String finalMark;
+                // 最后替换与配置不一致的标签
                 String typeCode = STATE.getTagTypeCode();
-                typeCode = StringUtils.isBlank(typeCode) ? ImageMarkEnum.ORIGINAL.code : typeCode;
-                String finalMark = ParserUtils.parse2(typeCode,
-                                                    markdownImage.getTitle(),
-                                                    markdownImage.getPath());
+                if (MikBundle.message("mik.change.mark.message").equals(typeCode)) {
+                    finalMark = "自定义标签格式设置错误, 请重新设置";
+                } else {
+                    finalMark = ParserUtils.parse2(typeCode,
+                                                   markdownImage.getTitle(),
+                                                   markdownImage.getPath());
+                }
                 markdownImage.setFinalMark(finalMark);
+
             }
         }
         return true;

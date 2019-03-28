@@ -128,6 +128,19 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
     public boolean isAvailable(@NotNull Project project, Editor editor,
                                @NotNull PsiElement element) {
 
+        int documentLine = editor.getDocument().getLineNumber(editor.getCaretModel().getOffset());
+        int linestartoffset = editor.getDocument().getLineStartOffset(documentLine);
+        int lineendoffset = editor.getDocument().getLineEndOffset(documentLine);
+
+        log.trace("documentLine = {}, linestartoffset = {}, lineendoffset = {}", documentLine, linestartoffset, lineendoffset);
+
+        String text = editor.getDocument().getText(new TextRange(linestartoffset, lineendoffset));
+        log.trace("text = {}", text);
+
+        if(!MarkdownUtils.isImageMark(text)){
+            return false;
+        }
+
         VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
         if (virtualFile == null) {
             return false;
@@ -137,14 +150,6 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
             return false;
         }
 
-        int documentLine = editor.getDocument().getLineNumber(editor.getCaretModel().getOffset());
-        int linestartoffset = editor.getDocument().getLineStartOffset(documentLine);
-        int lineendoffset = editor.getDocument().getLineEndOffset(documentLine);
-
-        log.trace("documentLine = {}, linestartoffset = {}, lineendoffset = {}", documentLine, linestartoffset, lineendoffset);
-
-        String text = editor.getDocument().getText(new TextRange(linestartoffset, lineendoffset));
-        log.trace("text = {}", text);
 
         matchImageMark = MarkdownUtils.matchImageMark(virtualFile, text, documentLine);
 

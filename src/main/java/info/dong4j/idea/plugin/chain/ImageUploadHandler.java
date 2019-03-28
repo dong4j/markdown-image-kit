@@ -31,9 +31,11 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
+import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 
 import org.apache.commons.lang.StringUtils;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -75,20 +77,34 @@ public class ImageUploadHandler extends BaseActionHandler {
 
         for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
             int totalCount = imageEntry.getValue().size();
-            for (MarkdownImage markdownImage : imageEntry.getValue()) {
+            Iterator<MarkdownImage> imageIterator = imageEntry.getValue().iterator();
+            while (imageIterator.hasNext()) {
+                MarkdownImage markdownImage = imageIterator.next();
                 indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
                 indicator.setText2("Processing " + markdownImage.getImageName());
                 if (ImageLocationEnum.NETWORK.equals(markdownImage.getLocation())) {
                     continue;
                 }
                 String imageName = markdownImage.getImageName();
+
+                if(StringUtils.isBlank(imageName) || markdownImage.getInputStream() == null){
+                    imageIterator.remove();
+                    continue;
+                }
+
                 String imageUrl = data.getClient().upload(markdownImage.getInputStream(), markdownImage.getImageName());
                 indicator.setText2("Uploading " + imageName);
-                if (StringUtils.isNotBlank(imageUrl)) {
-                    // 只保存 url, 后面由 ImageLabelChangeHandler 处理
-                    markdownImage.setPath(imageUrl);
-                    markdownImage.setLocation(ImageLocationEnum.NETWORK);
+                if (StringUtils.isBlank(imageUrl)) {
+                    imageUrl = "upload error";
+                    markdownImage.setLocation(ImageLocationEnum.LOCAL);
                 }
+                String mark = "![](" + imageUrl + ")";
+                markdownImage.setOriginalLineText(mark);
+                markdownImage.setOriginalMark(mark);
+                markdownImage.setFinalMark(mark);
+                markdownImage.setPath(imageUrl);
+                markdownImage.setLocation(ImageLocationEnum.NETWORK);
+                markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
             }
         }
         return true;

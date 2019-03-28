@@ -94,6 +94,9 @@ public class ImageStorageHandler extends BaseActionHandler {
                     saveFile = new File(imageDir, imageName);
                 }
                 if (saveFile == null) {
+                    markdownImage.setFinalMark("copy error");
+                    markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
+                    markdownImage.setLocation(ImageLocationEnum.LOCAL);
                     continue;
                 }
 
@@ -101,6 +104,9 @@ public class ImageStorageHandler extends BaseActionHandler {
                     FileUtils.copyToFile(markdownImage.getInputStream(), saveFile);
                 } catch (IOException e) {
                     log.trace("", e);
+                    markdownImage.setFinalMark("copy error");
+                    markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
+                    markdownImage.setLocation(ImageLocationEnum.LOCAL);
                     continue;
                 }
 
@@ -116,6 +122,8 @@ public class ImageStorageHandler extends BaseActionHandler {
                 }
                 String mark = "![](" + relImagePath + ")";
                 markdownImage.setOriginalLineText(mark);
+                markdownImage.setOriginalMark(mark);
+                markdownImage.setFinalMark(mark);
                 markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
                 markdownImage.setLocation(ImageLocationEnum.LOCAL);
             }

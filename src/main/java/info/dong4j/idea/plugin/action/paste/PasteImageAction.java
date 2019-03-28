@@ -46,7 +46,6 @@ import info.dong4j.idea.plugin.chain.ActionManager;
 import info.dong4j.idea.plugin.chain.FinalChainHandler;
 import info.dong4j.idea.plugin.chain.ImageCompressionHandler;
 import info.dong4j.idea.plugin.chain.ImageLabelChangeHandler;
-import info.dong4j.idea.plugin.chain.ImageLabelJoinHandler;
 import info.dong4j.idea.plugin.chain.ImageRenameHandler;
 import info.dong4j.idea.plugin.chain.ImageStorageHandler;
 import info.dong4j.idea.plugin.chain.ImageUploadHandler;
@@ -170,7 +169,8 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
                     }
 
                     // 拼接标签
-                    manager.addHandler(new ImageLabelJoinHandler())
+                    manager
+                        // .addHandler(new ImageLabelJoinHandler())
                         // 标签转换
                         .addHandler(new ImageLabelChangeHandler())
                         // 写入标签
