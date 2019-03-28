@@ -55,6 +55,8 @@ import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.CloudEnum;
+import info.dong4j.idea.plugin.enums.ImageLocationEnum;
+import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
@@ -126,9 +128,8 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
 
         if (virtualFile != null && MarkdownUtils.isMardownFile(virtualFile)) {
             MikState state = MikPersistenComponent.getInstance().getState();
-            boolean isClipboardControl = state.isClipboardControl();
 
-            if (isClipboardControl) {
+            if (state.isUploadAndReplace() || state.isCopyToDir()) {
                 Map<DataFlavor, Object> clipboardData = ImageUtils.getDataFromClipboard();
                 if (clipboardData != null) {
                     Iterator<Map.Entry<DataFlavor, Object>> iterator = clipboardData.entrySet().iterator();
@@ -147,6 +148,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
 
                     EventData data = new EventData()
                         .setProject(editor.getProject())
+                        .setEditor(editor)
                         .setClient(client)
                         .setClientName(cloudEnum.title)
                         .setWaitingProcessMap(waitingProcessMap);
@@ -157,13 +159,17 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
                         // 图片压缩
                         .addHandler(new ImageCompressionHandler())
                         // 图片重命名
-                        .addHandler(new ImageRenameHandler())
+                        .addHandler(new ImageRenameHandler());
+                    if (STATE.isCopyToDir()) {
                         // 图片保存
-                        .addHandler(new ImageStorageHandler())
-                        // 图片上传
-                        .addHandler(new ImageUploadHandler())
-                        // 拼接标签
-                        .addHandler(new ImageLabelJoinHandler())
+                        manager.addHandler(new ImageStorageHandler());
+                    }
+                    if (STATE.isUploadAndReplace()) {
+                        manager.addHandler(new ImageUploadHandler());
+                    }
+
+                    // 拼接标签
+                    manager.addHandler(new ImageLabelJoinHandler())
                         // 标签转换
                         .addHandler(new ImageLabelChangeHandler())
                         // 写入标签
@@ -192,20 +198,34 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
                                                                       Editor editor) {
         Map<Document, List<MarkdownImage>> waitingProcessMap = new HashMap<>(10);
         List<MarkdownImage> markdownImages = new ArrayList<>(10);
-        waitingProcessMap.put(editor.getDocument(), markdownImages);
-        for(Map.Entry<String, InputStream> inputStreamMap : resolveClipboardData(entry).entrySet()){
+        for (Map.Entry<String, InputStream> inputStreamMap : resolveClipboardData(entry).entrySet()) {
             MarkdownImage markdownImage = new MarkdownImage();
+            markdownImage.setFileName("");
             markdownImage.setImageName(inputStreamMap.getKey());
+            markdownImage.setExtension("");
+            markdownImage.setOriginalLineText("");
+            markdownImage.setLineNumber(0);
+            markdownImage.setLineStartOffset(0);
+            markdownImage.setLineEndOffset(0);
+            markdownImage.setTitle("");
+            markdownImage.setPath("");
+            markdownImage.setLocation(ImageLocationEnum.LOCAL);
+            markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
             markdownImage.setInputStream(inputStreamMap.getValue());
-        }
+            markdownImage.setFinalMark("");
 
+            markdownImages.add(markdownImage);
+        }
+        if(markdownImages.size() > 0){
+            waitingProcessMap.put(editor.getDocument(), markdownImages);
+        }
         return waitingProcessMap;
     }
 
     /**
      * 处理 clipboard 数据
      *
-     * @param entry   the entry     List<File> 或者 Image 类型
+     * @param entry the entry     List<File> 或者 Image 类型
      * @return the map              文件名-->File, File 有本地文件(resolveFromFile)和临时文件(resolveFromImage)
      */
     private Map<String, InputStream> resolveClipboardData(@NotNull Map.Entry<DataFlavor, Object> entry) {
@@ -229,7 +249,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
         @SuppressWarnings("unchecked") List<File> fileList = (List<File>) entry.getValue();
         for (File file : fileList) {
             // 第一步先初步排除非图片类型, 避免复制大量文件导致 OOM
-            if (StringUtils.isBlank(ImageUtils.getImageType(file.getName()))) {
+            if (file.isDirectory() || StringUtils.isBlank(ImageUtils.getImageType(file.getName()))) {
                 break;
             }
             try {

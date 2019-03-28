@@ -55,8 +55,14 @@ public class ImageUploadHandler extends BaseActionHandler {
         return "图片上传";
     }
 
+    @Override
+    public boolean isEnabled(EventData data){
+        // 如果开启
+        return true;
+    }
+
     /**
-     * 只上传 location = NETWORK 的数据
+     * 只上传 location = LOCAL 的数据
      *
      * @param data the data
      * @return the boolean
@@ -72,7 +78,7 @@ public class ImageUploadHandler extends BaseActionHandler {
             for (MarkdownImage markdownImage : imageEntry.getValue()) {
                 indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
                 indicator.setText2("Processing " + markdownImage.getImageName());
-                if (markdownImage.getLocation().equals(ImageLocationEnum.NETWORK)) {
+                if (ImageLocationEnum.NETWORK.equals(markdownImage.getLocation())) {
                     continue;
                 }
                 String imageName = markdownImage.getImageName();

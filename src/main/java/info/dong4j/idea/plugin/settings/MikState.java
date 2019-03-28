@@ -68,8 +68,6 @@ public class MikState {
     private boolean transport = false;
     /** 图片备份 */
     private boolean backup = false;
-    /** clipboard 监听 */
-    private boolean clipboardControl = false;
     /** 拷贝图片到目录 */
     private boolean copyToDir = false;
     /** 上传图片并替换 */

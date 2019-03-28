@@ -27,6 +27,7 @@ package info.dong4j.idea.plugin.chain;
 
 import com.intellij.openapi.editor.EditorModificationUtil;
 
+import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 
@@ -47,6 +48,6 @@ public class InsertToDocumentHandler extends InsertLabelBaseHander {
 
     @Override
     public Runnable task(EventData data, MarkdownImage markdownImage) {
-        return () -> EditorModificationUtil.insertStringAtCaret(data.getEditor(), markdownImage.getFinalMark());
+        return () -> EditorModificationUtil.insertStringAtCaret(data.getEditor(), markdownImage.getFinalMark() + ImageContents.LINE_BREAK);
     }
 }

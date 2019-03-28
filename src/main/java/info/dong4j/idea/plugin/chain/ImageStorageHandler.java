@@ -30,9 +30,9 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.vfs.VirtualFile;
 
-import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
+import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 
 import org.apache.commons.io.FileUtils;
@@ -61,7 +61,7 @@ public class ImageStorageHandler extends BaseActionHandler {
 
     @Override
     public boolean isEnabled(EventData data) {
-        return STATE.isCopyToDir() && STATE.isClipboardControl();
+        return STATE.isCopyToDir();
     }
 
     @Override
@@ -109,9 +109,10 @@ public class ImageStorageHandler extends BaseActionHandler {
                 String relImagePath = imageFileRelativizePath.toString().replace('\\', '/');
                 markdownImage.setTitle("");
                 markdownImage.setPath(relImagePath);
-                String mark = "![](" + relImagePath + ")" + ImageContents.LINE_BREAK;
+                String mark = "![](" + relImagePath + ")";
                 markdownImage.setOriginalLineText(mark);
                 markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
+                markdownImage.setLocation(ImageLocationEnum.LOCAL);
             }
         }
         return true;

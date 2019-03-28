@@ -134,8 +134,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JButton helpButton;
 
     private JPanel clipboardPanel;
-    /** clipboard group */
-    private JCheckBox clipboardControlCheckBox;
     private JCheckBox copyToDirCheckBox;
     private JTextField whereToCopyTextField;
     private JCheckBox uploadAndReplaceCheckBox;
@@ -517,32 +515,17 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      */
     private void initClipboardControl() {
         // 设置是否勾选
-        boolean isClipboardControl = config.getState().isClipboardControl();
         boolean isCopyToDir = config.getState().isCopyToDir();
         boolean isUploadAndReplace = config.getState().isUploadAndReplace();
-        this.clipboardControlCheckBox.setSelected(isClipboardControl);
         this.copyToDirCheckBox.setSelected(isCopyToDir);
         this.uploadAndReplaceCheckBox.setSelected(isUploadAndReplace);
 
-        // 设置是否可用
-        this.copyToDirCheckBox.setEnabled(isClipboardControl);
-        this.uploadAndReplaceCheckBox.setEnabled(isClipboardControl);
         // 设置 copy 位置
         this.whereToCopyTextField.setText(config.getState().getImageSavePath());
-        this.whereToCopyTextField.setEnabled(isClipboardControl && isCopyToDir);
+        this.whereToCopyTextField.setEnabled(isCopyToDir);
         // 默认上传图床
-        this.defaultCloudComboBox.setEnabled(isUploadAndReplace && isClipboardControl);
+        this.defaultCloudComboBox.setEnabled(isUploadAndReplace);
         this.defaultCloudComboBox.setSelectedIndex(config.getState().getCloudType());
-
-        // 设置 clipboardControlCheckBox 监听
-        clipboardControlCheckBox.addChangeListener(e -> {
-            JCheckBox checkBox = (JCheckBox) e.getSource();
-            copyToDirCheckBox.setEnabled(checkBox.isSelected());
-            uploadAndReplaceCheckBox.setEnabled(checkBox.isSelected());
-            // 如果都被选中才设置为可用
-            whereToCopyTextField.setEnabled(copyToDirCheckBox.isSelected() && checkBox.isSelected());
-            defaultCloudComboBox.setEnabled(uploadAndReplaceCheckBox.isSelected() && checkBox.isSelected());
-        });
 
         // 设置 copyToDirCheckBox 监听
         copyToDirCheckBox.addChangeListener(e -> {
@@ -683,13 +666,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     private boolean isClipboardModified(@NotNull MikState state) {
-        boolean clipboardControl = clipboardControlCheckBox.isSelected();
         boolean copyToDir = copyToDirCheckBox.isSelected();
         boolean uploadAndReplace = uploadAndReplaceCheckBox.isSelected();
         String whereToCopy = whereToCopyTextField.getText().trim();
 
-        return clipboardControl == state.isClipboardControl()
-               && copyToDir == state.isCopyToDir()
+        return copyToDir == state.isCopyToDir()
                && uploadAndReplace == state.isUploadAndReplace()
                && whereToCopy.equals(state.getImageSavePath())
                && defaultCloudComboBox.getSelectedIndex() == state.getCloudType();
@@ -791,7 +772,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     private void applyClipboardConfigs(MikState state) {
-        state.setClipboardControl(this.clipboardControlCheckBox.isSelected());
         state.setCopyToDir(this.copyToDirCheckBox.isSelected());
         state.setUploadAndReplace(this.uploadAndReplaceCheckBox.isSelected());
         state.setImageSavePath(this.whereToCopyTextField.getText().trim());
@@ -873,7 +853,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     private void resetClipboardConfigs(MikState state) {
-        this.clipboardControlCheckBox.setSelected(state.isClipboardControl());
         this.copyToDirCheckBox.setSelected(state.isCopyToDir());
         this.whereToCopyTextField.setText(state.getImageSavePath());
         this.uploadAndReplaceCheckBox.setSelected(state.isUploadAndReplace());
