@@ -42,7 +42,7 @@ import java.util.Map;
  */
 public interface MarkdownFileFilter {
     /**
-     * Filter.
+     * 按要求排除不需要的 MarkdownImage
      *
      * @param waitingProcessMap the waiting process map
      */

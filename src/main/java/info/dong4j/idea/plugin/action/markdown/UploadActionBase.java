@@ -122,14 +122,15 @@ public abstract class UploadActionBase extends AnAction {
                 .addHandler(new ResolveMarkdownFileHandler("解析 Markdown 文件"))
                 // 处理 client
                 .addHandler(new OptionClientHandler("验证 client"));
-
-            // todo-dong4j : (2019年03月28日 01:24) [未完成]
+            // todo-dong4j : (2019年03月28日 08:26) [图片压缩]
+            // todo-dong4j : (2019年03月28日 08:26) [图片重命名]
+            // todo-dong4j : (2019年03月28日 08:26) [图片保存]
+            // todo-dong4j : (2019年03月28日 08:26) [图片上传]
+            // todo-dong4j : (2019年03月28日 08:26) [标签转换]
+            // todo-dong4j : (2019年03月28日 08:26) [写入]
 
             // 开启后台任务
             new ActionTask(project, MikBundle.message("mik.action.upload.process", getName()), manager).queue();
-
-
-            // execute(event, waitingForUploadImages);
         }
     }
 
