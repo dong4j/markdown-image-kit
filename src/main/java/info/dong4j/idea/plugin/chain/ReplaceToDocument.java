@@ -63,10 +63,16 @@ public class ReplaceToDocument extends BaseActionHandler {
                 indicator.setText2("Processing " + markdownImage.getImageName());
                 indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
 
+                String newLineText = markdownImage.getOriginalLineText().replace(markdownImage.getOriginalMark(),
+                                                                                 markdownImage.getFinalMark());
+
                 WriteCommandAction.runWriteCommandAction(data.getProject(), () -> document
                     .replaceString(document.getLineStartOffset(markdownImage.getLineNumber()),
                                    document.getLineEndOffset(markdownImage.getLineNumber()),
-                                   markdownImage.getFinalMark()));
+                                   newLineText));
+
+
+
             }
         }
         return true;
