@@ -211,7 +211,6 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
             markdownImage.setLineEndOffset(0);
             markdownImage.setTitle("");
             markdownImage.setPath("");
-            markdownImage.setAbsolutePath("");
             markdownImage.setLocation(ImageLocationEnum.LOCAL);
             markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
             markdownImage.setInputStream(inputStreamMap.getValue());

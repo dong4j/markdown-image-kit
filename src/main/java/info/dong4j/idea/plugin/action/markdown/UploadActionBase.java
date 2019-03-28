@@ -37,7 +37,6 @@ import info.dong4j.idea.plugin.chain.ImageCompressionHandler;
 import info.dong4j.idea.plugin.chain.ImageLabelChangeHandler;
 import info.dong4j.idea.plugin.chain.ImageLabelJoinHandler;
 import info.dong4j.idea.plugin.chain.ImageRenameHandler;
-import info.dong4j.idea.plugin.chain.ImageStorageHandler;
 import info.dong4j.idea.plugin.chain.ImageUploadHandler;
 import info.dong4j.idea.plugin.chain.OptionClientHandler;
 import info.dong4j.idea.plugin.chain.ReplaceToDocument;
@@ -131,8 +130,6 @@ public abstract class UploadActionBase extends AnAction {
                 .addHandler(new ImageCompressionHandler())
                 // 图片重命名
                 .addHandler(new ImageRenameHandler())
-                // 图片保存
-                .addHandler(new ImageStorageHandler())
                 // 图片上传
                 .addHandler(new ImageUploadHandler())
                 // 拼接标签

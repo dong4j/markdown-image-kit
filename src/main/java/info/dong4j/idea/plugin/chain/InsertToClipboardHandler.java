@@ -25,10 +25,16 @@
 
 package info.dong4j.idea.plugin.chain;
 
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.progress.ProgressIndicator;
+
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.util.ImageUtils;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
@@ -38,8 +44,7 @@ import info.dong4j.idea.plugin.util.ImageUtils;
  * @email sjdong3@iflytek.com
  * @since 2019-03-28 13:34
  */
-public class InsertToClipboardHandler extends InsertLabelBaseHander {
-    private StringBuilder marks = new StringBuilder();
+public class InsertToClipboardHandler extends BaseActionHandler {
 
     @Override
     public String getName() {
@@ -47,13 +52,24 @@ public class InsertToClipboardHandler extends InsertLabelBaseHander {
     }
 
     @Override
-    public Runnable task(EventData data, MarkdownImage markdownImage) {
-        marks.append(markdownImage.getFinalMark()).append(ImageContents.LINE_BREAK);
-        return null;
-    }
+    public boolean execute(EventData data) {
+        ProgressIndicator indicator = data.getIndicator();
+        int size = data.getSize();
+        int totalProcessed = 0;
+        StringBuilder marks = new StringBuilder();
+        for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
+            Document document = imageEntry.getKey();
+            data.setDocument(document);
+            int totalCount = imageEntry.getValue().size();
 
-    @Override
-    protected void invoke(EventData data) {
+            for (MarkdownImage markdownImage : imageEntry.getValue()) {
+                indicator.setText2("Processing " + markdownImage.getImageName());
+                indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
+
+                marks.append(markdownImage.getFinalMark()).append(ImageContents.LINE_BREAK);
+            }
+        }
         ImageUtils.setStringToClipboard(marks.toString());
+        return true;
     }
 }

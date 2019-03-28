@@ -50,8 +50,10 @@ public class MarkdownImage implements Serializable {
     private String imageName;
     /** 图片类型*/
     private String extension;
-    /** 原始文本 */
+    /** 原始行文本 */
     private String originalLineText;
+    /** markdown image mark*/
+    private String originalMark;
     /** 行数 */
     private int lineNumber;
     /** 行第一个字符偏移量 */
@@ -62,8 +64,6 @@ public class MarkdownImage implements Serializable {
     private String title;
     /** 图片地址 (本地全路径, 网路 http/https) */
     private String path;
-    /** 文件绝对路径*/
-    private String absolutePath;
     /** 图片位置 */
     private ImageLocationEnum location;
     /** 文本标签类型 */

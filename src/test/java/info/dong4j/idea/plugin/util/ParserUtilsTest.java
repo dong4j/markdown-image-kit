@@ -44,6 +44,9 @@ public class ParserUtilsTest {
                                                         str.indexOf(ImageContents.IMAGE_MARK_MIDDLE)),
                  str.substring(str.indexOf(ImageContents.IMAGE_MARK_MIDDLE) + ImageContents.IMAGE_MARK_MIDDLE.length(),
                                str.indexOf(ImageContents.IMAGE_MARK_SUFFIX)));
+
+        log.info("{}", str.indexOf(ImageContents.HTML_TAG_A_START));
+        log.info("{}", str.indexOf(ImageContents.HTML_TAG_A_END) + 2);
     }
 
     @Test

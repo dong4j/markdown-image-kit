@@ -26,9 +26,14 @@
 package info.dong4j.idea.plugin.chain;
 
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.progress.ProgressIndicator;
 
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
+import info.dong4j.idea.plugin.util.PsiDocumentUtils;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
@@ -38,19 +43,31 @@ import info.dong4j.idea.plugin.entity.MarkdownImage;
  * @email sjdong3@iflytek.com
  * @since 2019-03-28 13:49
  */
-public class ReplaceToDocument extends InsertLabelBaseHander {
-
+public class ReplaceToDocument extends BaseActionHandler {
     @Override
     public String getName() {
         return "替换原有标签";
     }
 
     @Override
-    public Runnable task(EventData data, MarkdownImage markdownImage) {
-        Document document = data.getDocument();
-        int startOffset = document.getLineStartOffset(markdownImage.getLineNumber());
-        int endOffset = document.getLineEndOffset(markdownImage.getLineNumber());
+    public boolean execute(EventData data) {
+        ProgressIndicator indicator = data.getIndicator();
+        int size = data.getSize();
+        int totalProcessed = 0;
 
-        return () -> document.replaceString(startOffset, endOffset, markdownImage.getFinalMark());
+        for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
+            Document document = imageEntry.getKey();
+            data.setDocument(document);
+            int totalCount = imageEntry.getValue().size();
+            String text = document.getText();
+            for (MarkdownImage markdownImage : imageEntry.getValue()) {
+                indicator.setText2("Processing " + markdownImage.getImageName());
+                indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
+
+                text = text.replace(markdownImage.getOriginalMark(), markdownImage.getFinalMark());
+            }
+            PsiDocumentUtils.commitAndSaveDocument(data.getProject(), data.getDocument(), text);
+        }
+        return true;
     }
 }

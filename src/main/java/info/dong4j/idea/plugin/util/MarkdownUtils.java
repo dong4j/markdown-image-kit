@@ -184,7 +184,7 @@ public final class MarkdownUtils {
         markdownImage.setOriginalLineText(lineText);
         markdownImage.setLineNumber(line);
         markdownImage.setLineStartOffset(indexPrefix);
-        markdownImage.setLineEndOffset(indexSuffix);
+        markdownImage.setLineEndOffset(indexSuffix + 1);
         // 解析 markdown 图片标签
         try {
             return resolveImageMark(markdownImage, virtualFile);
@@ -204,9 +204,9 @@ public final class MarkdownUtils {
     private static MarkdownImage resolveImageMark(@NotNull MarkdownImage markdownImage, VirtualFile virtualFile) throws IOException {
         // 如果以 `<a` 开始, 以 `a>` 结束, 需要修改偏移量
         String lineText = markdownImage.getOriginalLineText();
-        if (lineText.startsWith(ImageContents.HTML_TAG_A_START) && lineText.endsWith(ImageContents.HTML_TAG_A_END)) {
-            markdownImage.setLineStartOffset(0);
-            markdownImage.setLineEndOffset(lineText.length());
+        if (lineText.contains(ImageContents.HTML_TAG_A_START) && lineText.contains(ImageContents.HTML_TAG_A_END)) {
+            markdownImage.setLineStartOffset(lineText.indexOf(ImageContents.HTML_TAG_A_START));
+            markdownImage.setLineEndOffset(lineText.indexOf(ImageContents.HTML_TAG_A_END) + 2);
             // 解析标签类型
             if (lineText.contains(ImageContents.LARG_IMAGE_MARK_ID)) {
                 markdownImage.setImageMarkType(ImageMarkEnum.LARGE_PICTURE);
@@ -218,6 +218,8 @@ public final class MarkdownUtils {
         } else {
             markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
         }
+        // 截取 markdown image 标签
+        markdownImage.setOriginalMark(lineText.substring(markdownImage.getLineStartOffset(), markdownImage.getLineEndOffset()));
 
         String title = lineText.substring(lineText.indexOf(ImageContents.IMAGE_MARK_PREFIX) + ImageContents.IMAGE_MARK_PREFIX.length(),
                                           lineText.indexOf(ImageContents.IMAGE_MARK_MIDDLE)).trim();
@@ -240,7 +242,6 @@ public final class MarkdownUtils {
             markdownImage.setLocation(ImageLocationEnum.LOCAL);
             // 图片文件的相对路径
             markdownImage.setPath(path);
-            markdownImage.setAbsolutePath(virtualFile.getPath());
             markdownImage.setExtension(virtualFile.getExtension());
             markdownImage.setInputStream(virtualFile.getInputStream());
             markdownImage.setImageName(path.substring(path.lastIndexOf(File.separator) + 1));
