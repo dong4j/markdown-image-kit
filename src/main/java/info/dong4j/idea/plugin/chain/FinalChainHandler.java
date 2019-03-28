@@ -25,6 +25,16 @@
 
 package info.dong4j.idea.plugin.chain;
 
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.progress.ProgressIndicator;
+
+import info.dong4j.idea.plugin.entity.EventData;
+import info.dong4j.idea.plugin.entity.MarkdownImage;
+
+import java.io.*;
+import java.util.List;
+import java.util.Map;
+
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
  * <p>Description: </p>
@@ -33,5 +43,43 @@ package info.dong4j.idea.plugin.chain;
  * @email sjdong3@iflytek.com
  * @since 2019-03-28 17:33
  */
-public class FinalChainHandler {
+public class FinalChainHandler extends BaseActionHandler {
+    @Override
+    public String getName() {
+        return "扫尾工作";
+    }
+
+    @Override
+    public boolean isEnabled(EventData data) {
+        return STATE.isRename();
+    }
+
+    /**
+     * 根据配置重新设置 imageName
+     *
+     * @param data the data
+     * @return the boolean
+     */
+    @Override
+    public boolean execute(EventData data) {
+        ProgressIndicator indicator = data.getIndicator();
+        int size = data.getSize();
+        int totalProcessed = 0;
+
+        for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
+            int totalCount = imageEntry.getValue().size();
+            for (MarkdownImage markdownImage : imageEntry.getValue()) {
+                indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
+                String imageName = markdownImage.getImageName();
+                indicator.setText2("Processing " + imageName);
+                if(markdownImage.getInputStream() != null){
+                    try {
+                        markdownImage.getInputStream().close();
+                    } catch (IOException ignored) {
+                    }
+                }
+            }
+        }
+        return true;
+    }
 }

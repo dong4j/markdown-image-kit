@@ -43,6 +43,7 @@ import com.intellij.util.Producer;
 import com.intellij.util.containers.hash.HashMap;
 
 import info.dong4j.idea.plugin.chain.ActionManager;
+import info.dong4j.idea.plugin.chain.FinalChainHandler;
 import info.dong4j.idea.plugin.chain.ImageCompressionHandler;
 import info.dong4j.idea.plugin.chain.ImageLabelChangeHandler;
 import info.dong4j.idea.plugin.chain.ImageLabelJoinHandler;
@@ -174,6 +175,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
                         .addHandler(new ImageLabelChangeHandler())
                         // 写入标签
                         .addHandler(new InsertToDocumentHandler())
+                        .addHandler(new FinalChainHandler())
                         .addCallback(new TaskCallbackAdapter() {
                             @Override
                             public void onSuccess() {
@@ -209,6 +211,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
             markdownImage.setLineEndOffset(0);
             markdownImage.setTitle("");
             markdownImage.setPath("");
+            markdownImage.setAbsolutePath("");
             markdownImage.setLocation(ImageLocationEnum.LOCAL);
             markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
             markdownImage.setInputStream(inputStreamMap.getValue());

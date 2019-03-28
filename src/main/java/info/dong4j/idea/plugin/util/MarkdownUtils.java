@@ -239,7 +239,8 @@ public final class MarkdownUtils {
         } else {
             markdownImage.setLocation(ImageLocationEnum.LOCAL);
             // 图片文件的相对路径
-            markdownImage.setPath(virtualFile.getPath());
+            markdownImage.setPath(path);
+            markdownImage.setAbsolutePath(virtualFile.getPath());
             markdownImage.setExtension(virtualFile.getExtension());
             markdownImage.setInputStream(virtualFile.getInputStream());
             markdownImage.setImageName(path.substring(path.lastIndexOf(File.separator) + 1));
