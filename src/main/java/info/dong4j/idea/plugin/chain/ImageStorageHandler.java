@@ -109,6 +109,11 @@ public class ImageStorageHandler extends BaseActionHandler {
                 String relImagePath = imageFileRelativizePath.toString().replace('\\', '/');
                 markdownImage.setTitle("");
                 markdownImage.setPath(relImagePath);
+                try {
+                    markdownImage.setInputStream(new FileInputStream(saveFile));
+                } catch (FileNotFoundException e) {
+                    log.trace("", e);
+                }
                 String mark = "![](" + relImagePath + ")";
                 markdownImage.setOriginalLineText(mark);
                 markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
