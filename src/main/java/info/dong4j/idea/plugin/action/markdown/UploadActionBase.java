@@ -33,14 +33,6 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ActionManager;
-import info.dong4j.idea.plugin.chain.FinalChainHandler;
-import info.dong4j.idea.plugin.chain.ImageCompressionHandler;
-import info.dong4j.idea.plugin.chain.ImageLabelChangeHandler;
-import info.dong4j.idea.plugin.chain.ImageRenameHandler;
-import info.dong4j.idea.plugin.chain.ImageUploadHandler;
-import info.dong4j.idea.plugin.chain.OptionClientHandler;
-import info.dong4j.idea.plugin.chain.ReplaceToDocument;
-import info.dong4j.idea.plugin.chain.ResolveMarkdownFileHandler;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.entity.EventData;
@@ -121,27 +113,8 @@ public abstract class UploadActionBase extends AnAction {
                 .setClient(getClient())
                 .setClientName(getName());
 
-            ActionManager manager = new ActionManager(data)
-                // 解析 markdown 文件
-                .addHandler(new ResolveMarkdownFileHandler())
-                // 处理 client
-                .addHandler(new OptionClientHandler())
-                // 图片压缩
-                .addHandler(new ImageCompressionHandler())
-                // 图片重命名
-                .addHandler(new ImageRenameHandler())
-                // 图片上传
-                .addHandler(new ImageUploadHandler())
-                // 拼接标签
-                // .addHandler(new ImageLabelJoinHandler())
-                // 标签转换
-                .addHandler(new ImageLabelChangeHandler())
-                // 写入标签
-                .addHandler(new ReplaceToDocument())
-                .addHandler(new FinalChainHandler());
-
             // 开启后台任务
-            new ActionTask(project, MikBundle.message("mik.action.upload.process", getName()), manager).queue();
+            new ActionTask(project, MikBundle.message("mik.action.upload.process", getName()), ActionManager.buildUploadChain(data)).queue();
         }
     }
 

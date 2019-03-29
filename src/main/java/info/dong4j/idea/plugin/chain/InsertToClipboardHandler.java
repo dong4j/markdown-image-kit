@@ -38,7 +38,7 @@ import java.util.Map;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: </p>
+ * <p>Description: 将直接上传 image 后的 url 写入到 clipboard</p>
  *
  * @author dong4j
  * @email sjdong3@iflytek.com

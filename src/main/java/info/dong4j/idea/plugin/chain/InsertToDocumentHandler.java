@@ -39,7 +39,7 @@ import java.util.Map;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: 写入到 markdown 文件</p>
+ * <p>Description: 插入新的文本行</p>
  *
  * @author dong4j
  * @email sjdong3@iflytek.com

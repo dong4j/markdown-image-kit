@@ -25,14 +25,24 @@
 
 package info.dong4j.idea.plugin.chain;
 
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.externalSystem.task.TaskCallback;
 import com.intellij.openapi.progress.ProgressIndicator;
 
+import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.entity.EventData;
+import info.dong4j.idea.plugin.entity.MarkdownImage;
+import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 
+import org.apache.commons.io.IOUtils;
+
+import java.io.*;
+import java.net.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -76,7 +86,7 @@ public class ActionManager {
      *
      * @return the list
      */
-    public List<TaskCallback> getCallbacks(){
+    public List<TaskCallback> getCallbacks() {
         return callbacks;
     }
 
@@ -112,5 +122,88 @@ public class ActionManager {
             }
             indicator.setFraction(++totalProcessed * 1.0 / handlersChain.size());
         }
+    }
+
+    /**
+     * Build upload chain action manager.
+     *
+     * @param data the data
+     * @return the action manager
+     */
+    public static ActionManager buildUploadChain(EventData data) {
+        return new ActionManager(data)
+            // 解析 markdown 文件
+            .addHandler(new ResolveMarkdownFileHandler())
+            // 处理 client
+            .addHandler(new OptionClientHandler())
+            // 图片压缩
+            .addHandler(new ImageCompressionHandler())
+            // 图片重命名
+            .addHandler(new ImageRenameHandler())
+            // 图片上传
+            .addHandler(new ImageUploadHandler())
+            // 标签转换
+            .addHandler(new ImageLabelChangeHandler())
+            // 写入标签
+            .addHandler(new ReplaceToDocument())
+            .addHandler(new FinalChainHandler());
+    }
+
+    /**
+     * 生成图床迁移任务
+     * 右键批量迁移和意图迁移需要的解析不同的数据
+     * 右键批量迁移是直接解析当前文件中的图片标签, 只需要处理用户指定的标签,其他全部过滤点
+     * 意图迁移只需要解析光标所在行的标签, 当标签所在图床与设置图床一致则不处理
+     *
+     * @param data    the data
+     * @return the action manager
+     */
+    public static ActionManager buildMoveImageChain(EventData data) {
+        // 过滤掉 LOCAL 和用户输入不匹配的标签
+        ResolveMarkdownFileHandler resolveMarkdownFileHandler = new ResolveMarkdownFileHandler();
+        resolveMarkdownFileHandler.setFileFilter((waitingProcessMap, filterString) -> {
+            if (waitingProcessMap != null && waitingProcessMap.size() > 0) {
+                for (Map.Entry<Document, List<MarkdownImage>> entry : waitingProcessMap.entrySet()) {
+                    log.trace("old waitingProcessMap = {}", waitingProcessMap);
+
+                    Iterator<MarkdownImage> iterator = entry.getValue().iterator();
+                    while (iterator.hasNext()) {
+                        MarkdownImage markdownImage = iterator.next();
+                        OssClient client = data.getClient();
+                        // 排除 LOCAL 和用户输入不匹配的标签和
+                        if (markdownImage.getLocation().name().equals(ImageLocationEnum.LOCAL.name())
+                            || !markdownImage.getPath().contains(filterString)
+                            || markdownImage.getPath().contains(client.getCloudType().feature)) {
+
+                            iterator.remove();
+                        } else {
+                            // 将 URL 图片转成 inputstream
+                            try {
+                                byte[] temp = IOUtils.toByteArray(new URL(markdownImage.getPath()));
+                                InputStream inputStream = new ByteArrayInputStream(temp);
+                                markdownImage.setInputStream(inputStream);
+                                // 这里设置为本地图片, 才会在 uploadhandler 中上传
+                                markdownImage.setLocation(ImageLocationEnum.LOCAL);
+                            } catch (IOException e) {
+                                log.trace("", e);
+                                iterator.remove();
+                            }
+                        }
+                    }
+                    log.trace("new waitingProcessMap = {}", waitingProcessMap);
+                }
+            }
+        });
+        return new ActionManager(data)
+            .addHandler(resolveMarkdownFileHandler)
+            // 处理 client
+            .addHandler(new OptionClientHandler())
+            // 图片上传
+            .addHandler(new ImageUploadHandler())
+            // 标签转换
+            .addHandler(new ImageLabelChangeHandler())
+            // 写入标签
+            .addHandler(new ReplaceToDocument())
+            .addHandler(new FinalChainHandler());
     }
 }

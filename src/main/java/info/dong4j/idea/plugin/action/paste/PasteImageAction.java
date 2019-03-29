@@ -168,11 +168,8 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
                         manager.addHandler(new ImageUploadHandler());
                     }
 
-                    // 拼接标签
-                    manager
-                        // .addHandler(new ImageLabelJoinHandler())
-                        // 标签转换
-                        .addHandler(new ImageLabelChangeHandler())
+                    // 标签转换
+                    manager.addHandler(new ImageLabelChangeHandler())
                         // 写入标签
                         .addHandler(new InsertToDocumentHandler())
                         .addHandler(new FinalChainHandler())

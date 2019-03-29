@@ -25,6 +25,9 @@
 
 package info.dong4j.idea.plugin.util;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+
 import java.io.*;
 
 /**
@@ -38,88 +41,14 @@ import java.io.*;
 public class ConvertUtil {
 
     /**
-     * inputStream 转 outputStream
-     *
-     * @param in the in
-     * @return the byte array output stream
-     * @throws Exception the exception
-     */
-    public static ByteArrayOutputStream parse(InputStream in) throws Exception {
-        ByteArrayOutputStream swapStream = new ByteArrayOutputStream();
-        int ch;
-        while ((ch = in.read()) != -1) {
-            swapStream.write(ch);
-        }
-        return swapStream;
-    }
-
-
-    /**
      * outputStream 转 inputStream
      *
      * @param out the out
      * @return the byte array input stream
-     * @throws Exception the exception
      */
-    public static ByteArrayInputStream parse(OutputStream out) throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        baos = (ByteArrayOutputStream) out;
-        return new ByteArrayInputStream(baos.toByteArray());
-    }
-
-    /**
-     * inputStream转String
-     *
-     * @param in the in
-     * @return the string
-     * @throws Exception the exception
-     */
-    public String parse_String(InputStream in) throws Exception {
-        ByteArrayOutputStream swapStream = new ByteArrayOutputStream();
-        int ch;
-        while ((ch = in.read()) != -1) {
-            swapStream.write(ch);
-        }
-        return swapStream.toString();
-    }
-
-    /**
-     * Parse string string.
-     *
-     * @param out the out
-     * @return the string
-     * @throws Exception the exception
-     */
-    //OutputStream 转String
-    public String parse_String(OutputStream out) throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        baos = (ByteArrayOutputStream) out;
-        ByteArrayInputStream swapStream = new ByteArrayInputStream(baos.toByteArray());
-        return swapStream.toString();
-    }
-
-    /**
-     * Parse input stream byte array input stream.
-     *
-     * @param in the in
-     * @return the byte array input stream
-     * @throws Exception the exception
-     */
-    //String转inputStream
-    public ByteArrayInputStream parse_inputStream(String in) throws Exception {
-        ByteArrayInputStream input = new ByteArrayInputStream(in.getBytes());
-        return input;
-    }
-
-    /**
-     * Parse output stream byte array output stream.
-     *
-     * @param in the in
-     * @return the byte array output stream
-     * @throws Exception the exception
-     */
-    //String 转outputStream
-    public ByteArrayOutputStream parse_outputStream(String in) throws Exception {
-        return parse(parse_inputStream(in));
+    @NotNull
+    @Contract("_ -> new")
+    public static InputStream parse(OutputStream out) {
+        return new ByteArrayInputStream(((ByteArrayOutputStream) out).toByteArray());
     }
 }

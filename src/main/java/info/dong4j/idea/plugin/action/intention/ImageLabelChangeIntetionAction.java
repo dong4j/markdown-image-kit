@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 dong4j
+ * Copyright (c) 2019 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,30 +23,15 @@
  *
  */
 
-package info.dong4j.idea.plugin.chain;
-
-import com.intellij.openapi.editor.Document;
-
-import info.dong4j.idea.plugin.entity.MarkdownImage;
-
-import java.util.List;
-import java.util.Map;
+package info.dong4j.idea.plugin.action.intention;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: </p>
+ * <p>Description: 替换标签意图</p>
  *
  * @author dong4j
- * @email sjdong3 @iflytek.com
- * @since 2019 -03-27 23:55
+ * @email sjdong3@iflytek.com
+ * @since 2019-03-29 12:44
  */
-public interface MarkdownFileFilter {
-    String FILTER_KEY = "filter_key";
-    /**
-     * 按要求排除不需要的 MarkdownImage
-     *
-     * @param waitingProcessMap the waiting process map
-     * @param filterString      the filter string
-     */
-    void filter(Map<Document, List<MarkdownImage>> waitingProcessMap, String filterString);
+public class ImageLabelChangeIntetionAction {
 }

@@ -33,15 +33,6 @@ import com.intellij.util.IncorrectOperationException;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ActionManager;
-import info.dong4j.idea.plugin.chain.FinalChainHandler;
-import info.dong4j.idea.plugin.chain.ImageCompressionHandler;
-import info.dong4j.idea.plugin.chain.ImageLabelChangeHandler;
-import info.dong4j.idea.plugin.chain.ImageLabelJoinHandler;
-import info.dong4j.idea.plugin.chain.ImageRenameHandler;
-import info.dong4j.idea.plugin.chain.ImageUploadHandler;
-import info.dong4j.idea.plugin.chain.InsertToClipboardHandler;
-import info.dong4j.idea.plugin.chain.OptionClientHandler;
-import info.dong4j.idea.plugin.chain.ResolveImageFileHandler;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
@@ -58,7 +49,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: alt + enter 处理单个标签上传 </p>
+ * <p>Description: alt + enter 处理单个标签上传, 完成后替换原有标签 </p>
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
@@ -84,7 +75,7 @@ public final class ImageUploadIntentionAction extends IntentionActionBase {
             return;
         }
 
-        if (ImageLocationEnum.LOCAL != matchImageMark.getLocation()) {
+        if (ImageLocationEnum.NETWORK.name().equals(matchImageMark.getLocation().name())) {
             return;
         }
 
@@ -104,26 +95,7 @@ public final class ImageUploadIntentionAction extends IntentionActionBase {
             .setClient(getClient())
             .setWaitingProcessMap(waitingForMoveMap);
 
-        ActionManager manager = new ActionManager(data)
-            // 解析 image 文件
-            .addHandler(new ResolveImageFileHandler())
-            // 处理 client
-            .addHandler(new OptionClientHandler())
-            // 图片压缩
-            .addHandler(new ImageCompressionHandler())
-            // 图片重命名
-            .addHandler(new ImageRenameHandler())
-            // 图片上传
-            .addHandler(new ImageUploadHandler())
-            // 拼接标签
-            .addHandler(new ImageLabelJoinHandler())
-            // 标签转换
-            .addHandler(new ImageLabelChangeHandler())
-            // 写到 clipboard
-            .addHandler(new InsertToClipboardHandler())
-            .addHandler(new FinalChainHandler());
-
         // 开启后台任务
-        new ActionTask(project, MikBundle.message("mik.action.upload.process", getName()), manager).queue();
+        new ActionTask(project, MikBundle.message("mik.action.upload.process", getName()), ActionManager.buildUploadChain(data)).queue();
     }
 }

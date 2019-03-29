@@ -37,6 +37,7 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ActionManager;
 import info.dong4j.idea.plugin.chain.BaseActionHandler;
+import info.dong4j.idea.plugin.chain.FinalChainHandler;
 import info.dong4j.idea.plugin.chain.ImageCompressionHandler;
 import info.dong4j.idea.plugin.chain.ImageRenameHandler;
 import info.dong4j.idea.plugin.chain.ResolveImageFileHandler;
@@ -115,6 +116,7 @@ public final class ImageCompressAction extends ImageActionBase {
                         return true;
                     }
                 })
+                .addHandler(new FinalChainHandler())
                 // 处理完成后刷新 VFS
                 .addCallback(new TaskCallbackAdapter(){
                     @Override

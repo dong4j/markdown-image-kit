@@ -25,6 +25,7 @@
 
 package info.dong4j.idea.plugin.action.intention;
 
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
@@ -33,13 +34,8 @@ import com.intellij.util.IncorrectOperationException;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ActionManager;
-import info.dong4j.idea.plugin.chain.FinalChainHandler;
-import info.dong4j.idea.plugin.chain.ImageLabelChangeHandler;
-import info.dong4j.idea.plugin.chain.ImageLabelJoinHandler;
-import info.dong4j.idea.plugin.chain.ImageUploadHandler;
-import info.dong4j.idea.plugin.chain.OptionClientHandler;
-import info.dong4j.idea.plugin.chain.ReplaceToDocument;
-import info.dong4j.idea.plugin.chain.ResolveMarkdownFileHandler;
+import info.dong4j.idea.plugin.chain.MarkdownFileFilter;
+import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
@@ -52,6 +48,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
  * <p>Description: 将已上传的图片迁移到当前 OSS 或者替换标签</p>
@@ -60,6 +58,7 @@ import java.util.Map;
  * @email sjdong3@iflytek.com
  * @since 2019-03-27 13:39
  */
+@Slf4j
 public final class ImageMoveIntentionAction extends IntentionActionBase {
 
     @NotNull
@@ -70,12 +69,15 @@ public final class ImageMoveIntentionAction extends IntentionActionBase {
 
     @Override
     public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
-        MarkdownImage matchImageMark = getMarkdownImage(editor);
-        if (matchImageMark == null) {
+        MarkdownImage markdownImage = getMarkdownImage(editor);
+        if (markdownImage == null) {
             return;
         }
 
-        if (ImageLocationEnum.NETWORK != matchImageMark.getLocation()) {
+        OssClient client = getClient();
+        if (markdownImage.getLocation().name().equals(ImageLocationEnum.LOCAL.name())
+            // 如果当前标签所在的图床与设置的图床一样则不处理
+            || markdownImage.getPath().contains(client.getCloudType().feature)) {
             return;
         }
 
@@ -83,7 +85,7 @@ public final class ImageMoveIntentionAction extends IntentionActionBase {
             {
                 put(editor.getDocument(), new ArrayList<MarkdownImage>(1) {
                     {
-                        add(matchImageMark);
+                        add(markdownImage);
                     }
                 });
             }
@@ -91,26 +93,16 @@ public final class ImageMoveIntentionAction extends IntentionActionBase {
 
         EventData data = new EventData()
             .setProject(project)
-            .setClient(getClient())
+            .setClient(client)
             .setClientName(getName())
             .setWaitingProcessMap(waitingForMoveMap);
 
-        ActionManager manager = new ActionManager(data)
-            // 解析 markdown 文件
-            .addHandler(new ResolveMarkdownFileHandler())
-            // 处理 client
-            .addHandler(new OptionClientHandler())
-            // 图片上传
-            .addHandler(new ImageUploadHandler())
-            // 拼接标签
-            .addHandler(new ImageLabelJoinHandler())
-            // 标签转换
-            .addHandler(new ImageLabelChangeHandler())
-            // 写入标签
-            .addHandler(new ReplaceToDocument())
-            .addHandler(new FinalChainHandler());
+        // http://www.jetbrains.org/intellij/sdk/docs/basics/persisting_state_of_components.html
+        PropertiesComponent propComp = PropertiesComponent.getInstance();
+        propComp.setValue(MarkdownFileFilter.FILTER_KEY, "");
 
         // 开启后台任务
-        new ActionTask(project, MikBundle.message("mik.action.move.process", getName()), manager).queue();
+        new ActionTask(project, MikBundle.message("mik.action.move.process", getName()),
+                       ActionManager.buildMoveImageChain(data)).queue();
     }
 }

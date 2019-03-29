@@ -93,8 +93,10 @@ public class ImageCompressionHandler extends BaseActionHandler {
 
                 InputStream inputStream = markdownImage.getInputStream();
                 File temp = ImageUtils.buildTempFile(imageName);
-                try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(temp))) {
+                try (OutputStream outputStream = new ByteArrayOutputStream()) {
                     ImageUtils.compress(inputStream, outputStream, STATE.getCompressBeforeUploadOfPercent());
+
+
                     markdownImage.setInputStream(ConvertUtil.parse(outputStream));
                 } catch (Exception e) {
                     log.trace("", e);

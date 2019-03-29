@@ -25,6 +25,7 @@
 
 package info.dong4j.idea.plugin.chain;
 
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.editor.Document;
 
 import info.dong4j.idea.plugin.entity.EventData;
@@ -62,6 +63,7 @@ public class ResolveMarkdownFileHandler extends BaseActionHandler {
      */
     @Override
     public boolean execute(EventData data) {
+        // 优先处理设置的数据, 用于 ImageMoveIntentionAction 和 ImageUploadIntentionAction
         Map<Document, List<MarkdownImage>> waitingProcessMap = data.getWaitingProcessMap();
         if (waitingProcessMap == null || waitingProcessMap.size() == 0) {
             // 解析当前文档或者选择的文件树中的所有 markdown 文件.
@@ -70,7 +72,8 @@ public class ResolveMarkdownFileHandler extends BaseActionHandler {
         }
 
         if (fileFilter != null) {
-            fileFilter.filter(waitingProcessMap);
+            PropertiesComponent propComp = PropertiesComponent.getInstance();
+            fileFilter.filter(waitingProcessMap, propComp.getValue(MarkdownFileFilter.FILTER_KEY));
         }
 
         // 有数据才执行后面的 handler

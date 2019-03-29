@@ -31,9 +31,9 @@ import com.intellij.openapi.project.Project;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ActionManager;
+import info.dong4j.idea.plugin.chain.FinalChainHandler;
 import info.dong4j.idea.plugin.chain.ImageCompressionHandler;
 import info.dong4j.idea.plugin.chain.ImageLabelChangeHandler;
-import info.dong4j.idea.plugin.chain.ImageLabelJoinHandler;
 import info.dong4j.idea.plugin.chain.ImageRenameHandler;
 import info.dong4j.idea.plugin.chain.ImageUploadHandler;
 import info.dong4j.idea.plugin.chain.InsertToClipboardHandler;
@@ -94,12 +94,11 @@ public final class ImageUploadAction extends ImageActionBase {
                 .addHandler(new ImageRenameHandler())
                 // 图片上传
                 .addHandler(new ImageUploadHandler())
-                // 拼接标签
-                .addHandler(new ImageLabelJoinHandler())
                 // 标签转换
                 .addHandler(new ImageLabelChangeHandler())
                 // 写到 clipboard
-                .addHandler(new InsertToClipboardHandler());
+                .addHandler(new InsertToClipboardHandler())
+                .addHandler(new FinalChainHandler());
 
             // 开启后台任务
             new ActionTask(event.getProject(), MikBundle.message("mik.action.upload.process", cloudEnum.title), manager).queue();
