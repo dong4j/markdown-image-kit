@@ -1268,10 +1268,10 @@
           </hspacer>
           <component id="b4c1f" class="javax.swing.JLabel" binding="defaultCloudLabel">
             <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="设置全局默认图床"/>
+              <text value="* 设置全局默认图床"/>
             </properties>
           </component>
           <component id="64c59" class="javax.swing.JComboBox" binding="defaultCloudComboBox">
@@ -1295,6 +1295,15 @@
                 <item value="QingCloud"/>
                 <item value="自定义"/>
               </model>
+            </properties>
+          </component>
+          <component id="72d53" class="javax.swing.JLabel" binding="message">
+            <constraints>
+              <grid row="0" column="3" row-span="1" col-span="7" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <enabled value="false"/>
+              <text value="   "/>
             </properties>
           </component>
         </children>

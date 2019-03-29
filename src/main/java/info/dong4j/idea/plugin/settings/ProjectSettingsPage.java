@@ -109,6 +109,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     /** globalUploadPanel group */
     private JPanel globalUploadPanel;
     private JComboBox defaultCloudComboBox;
+    private JLabel defaultCloudLabel;
+    private JLabel message;
+
     private JCheckBox changeToHtmlTagCheckBox;
     private JRadioButton largePictureRadioButton;
     private JRadioButton commonRadioButton;
@@ -131,7 +134,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JCheckBox copyToDirCheckBox;
     private JTextField whereToCopyTextField;
     private JCheckBox uploadAndReplaceCheckBox;
-    private JLabel defaultCloudLabel;
+
 
     /** todo-dong4j : (2019年03月20日 13:25) [测试输入验证用] */
     private JTextField myPort;
@@ -265,7 +268,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             InputStream inputStream = this.getClass().getResourceAsStream("/" + TEST_FILE_NAME);
             CloudEnum cloudEnum = OssState.getCloudType(index);
             OssClient client = ClientUtils.getClient(cloudEnum);
-            if(client != null){
+            if (client != null) {
                 String url = client.upload(inputStream, TEST_FILE_NAME, (JPanel) authorizationTabbedPanel.getComponentAt(index));
                 if (StringUtils.isNotBlank(url)) {
                     testMessage.setForeground(JBColor.GREEN);
@@ -359,6 +362,13 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      */
     private void initGlobalPanel(@NotNull MikState state) {
         this.defaultCloudComboBox.setSelectedIndex(config.getState().getCloudType());
+
+        showSelectCloudMessage(config.getState().getCloudType());
+
+        this.defaultCloudComboBox.addActionListener(e -> {
+            showSelectCloudMessage(this.defaultCloudComboBox.getSelectedIndex());
+        });
+
         initChangeToHtmlGroup();
         initCompressGroup();
 
@@ -370,6 +380,12 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             JCheckBox checkBox = (JCheckBox) e.getSource();
             fileNameSuffixBoxField.setEnabled(checkBox.isSelected());
         });
+    }
+
+    private void showSelectCloudMessage(int cloudType) {
+        boolean isClientEnable = OssState.getStatus(cloudType);
+        this.message.setText(isClientEnable ? "" : "当前 OSS 不可用");
+        this.message.setForeground(isClientEnable ? JBColor.WHITE : JBColor.RED);
     }
 
     /**
