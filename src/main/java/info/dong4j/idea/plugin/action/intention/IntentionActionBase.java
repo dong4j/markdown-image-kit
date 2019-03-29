@@ -120,7 +120,7 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
                                @NotNull PsiElement element) {
 
 
-        if (!MarkdownUtils.isImageMark(project, getLineText(editor))) {
+        if (MarkdownUtils.illegalImageMark(project, getLineText(editor))) {
             return false;
         }
 

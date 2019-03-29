@@ -133,7 +133,7 @@ public final class MarkdownUtils {
                 TextRange currentLineTextRange = TextRange.create(startOffset, endOffset);
                 String originalLineText = document.getText(currentLineTextRange);
 
-                if (!isImageMark(project, originalLineText)) {
+                if (illegalImageMark(project, originalLineText)) {
                     continue;
                 }
                 log.trace("originalLineText: {}", originalLineText);
@@ -233,38 +233,38 @@ public final class MarkdownUtils {
      * @param mark    the mark
      * @return the boolean
      */
-    public static boolean isImageMark(Project project, String mark) {
+    public static boolean illegalImageMark(Project project, String mark) {
         // 整行数据是否有 markdown 标签
         int[] offset = resolveText(mark);
         if (offset == null) {
-            return false;
+            return true;
         }
 
         // ![]() path 不能为空
         String path = getImagePath(mark);
         if(StringUtils.isBlank(path)){
-            return false;
+            return true;
         }
 
         // 图片名不能为空
         String imageName = getImageName(mark);
         if (StringUtils.isBlank(imageName)) {
-            return false;
+            return true;
         }
 
         // 如果是 url, 则不在本地查询文件
         if(path.startsWith(ImageContents.IMAGE_LOCATION)){
-            return true;
+            return false;
         }
 
         // 严格验证图片文件是否存在
         VirtualFile virtualFiles = UploadUtils.searchVirtualFileByName(project, imageName);
         if (virtualFiles == null) {
-            return false;
+            return true;
         }
 
         // 文件不是图片
-        return ImageContents.IMAGE_TYPE_NAME.equals(virtualFiles.getFileType().getName());
+        return !ImageContents.IMAGE_TYPE_NAME.equals(virtualFiles.getFileType().getName());
     }
 
     /**
@@ -301,7 +301,7 @@ public final class MarkdownUtils {
      * @return the string
      */
     @NotNull
-    public static String getImagePath(String mark){
+    private static String getImagePath(String mark){
         if (StringUtils.isBlank(mark)) {
             return "";
         }
@@ -317,7 +317,7 @@ public final class MarkdownUtils {
      * @return the int [ ]
      */
     @Nullable
-    public static int[] resolveText(String lineText) {
+    private static int[] resolveText(String lineText) {
         if(StringUtils.isBlank(lineText)){
             return null;
         }
