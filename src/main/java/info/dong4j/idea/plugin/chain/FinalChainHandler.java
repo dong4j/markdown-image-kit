@@ -42,7 +42,7 @@ import java.util.Map;
  * @email sjdong3@iflytek.com
  * @since 2019-03-28 17:33
  */
-public class FinalChainHandler extends BaseActionHandler {
+public class FinalChainHandler extends ActionHandlerAdapter {
     @Override
     public String getName() {
         return "扫尾工作";
@@ -65,6 +65,7 @@ public class FinalChainHandler extends BaseActionHandler {
         for (Map.Entry<Document, List<MarkdownImage>> imageEntry : processededData.entrySet()) {
             List<MarkdownImage> markdownImages = imageEntry.getValue();
             for (MarkdownImage markdownImage : markdownImages) {
+
                 if (markdownImage.getInputStream() != null) {
                     try {
                         markdownImage.getInputStream().close();

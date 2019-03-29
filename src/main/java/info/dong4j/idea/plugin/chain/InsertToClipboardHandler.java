@@ -44,7 +44,7 @@ import java.util.Map;
  * @email sjdong3@iflytek.com
  * @since 2019-03-28 13:34
  */
-public class InsertToClipboardHandler extends BaseActionHandler {
+public class InsertToClipboardHandler extends ActionHandlerAdapter {
 
     @Override
     public String getName() {
@@ -60,13 +60,12 @@ public class InsertToClipboardHandler extends BaseActionHandler {
         for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
             int totalCount = imageEntry.getValue().size();
             for (MarkdownImage markdownImage : imageEntry.getValue()) {
-
-                indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
                 String imageName = markdownImage.getImageName();
                 indicator.setText2("Processing " + imageName);
 
-
                 marks.append(markdownImage.getFinalMark()).append(ImageContents.LINE_BREAK);
+
+                indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
             }
         }
         ImageUtils.setStringToClipboard(marks.toString());

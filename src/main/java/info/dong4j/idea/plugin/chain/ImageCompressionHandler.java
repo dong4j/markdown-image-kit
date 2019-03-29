@@ -112,7 +112,7 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
     // }
 
     @Override
-    public void invoke(Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
+    public void invoke(EventData data,  Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
         String imageName = markdownImage.getImageName();
         if (markdownImage.getInputStream() == null) {
             log.trace("inputstream 为 null, remove markdownImage = {}", markdownImage);

@@ -63,19 +63,18 @@ public class ActionHandlerAdapter extends BaseActionHandler {
             Iterator<MarkdownImage> imageIterator = imageEntry.getValue().iterator();
             while (imageIterator.hasNext()) {
                 MarkdownImage markdownImage = imageIterator.next();
+
+                indicator.setText2("Processing " + markdownImage.getImageName());
                 indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
-                String imageName = markdownImage.getImageName();
-                indicator.setText2("Processing " + imageName);
 
-                invoke(imageIterator, markdownImage);
-
+                invoke(data, imageIterator, markdownImage);
             }
         }
         return true;
     }
 
     @Override
-    void invoke(Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
+    protected void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
         log.trace("执行特定逻辑");
     }
 }

@@ -100,7 +100,7 @@ public class ImageLabelChangeHandler extends ActionHandlerAdapter {
     // }
 
     @Override
-    public void invoke(Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
+    public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
         // 如果是本地类型, 则不替换
         if (markdownImage.getLocation().equals(ImageLocationEnum.LOCAL)) {
             return;

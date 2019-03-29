@@ -30,12 +30,11 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.externalSystem.task.TaskCallbackAdapter;
-import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.vfs.VirtualFileManager;
 
 import info.dong4j.idea.plugin.MikBundle;
+import info.dong4j.idea.plugin.chain.ActionHandlerAdapter;
 import info.dong4j.idea.plugin.chain.ActionManager;
-import info.dong4j.idea.plugin.chain.BaseActionHandler;
 import info.dong4j.idea.plugin.chain.FinalChainHandler;
 import info.dong4j.idea.plugin.chain.ImageCompressionHandler;
 import info.dong4j.idea.plugin.chain.ImageRenameHandler;
@@ -47,6 +46,7 @@ import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Contract;
 
 import java.io.*;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -84,34 +84,20 @@ public final class ImageCompressAction extends ImageActionBase {
             // 图片重命名
             .addHandler(new ImageRenameHandler())
             // 替换
-            .addHandler(new BaseActionHandler() {
+            .addHandler(new ActionHandlerAdapter() {
                 @Override
                 public String getName() {
                     return "替换原图";
                 }
 
                 @Override
-                public boolean execute(EventData data) {
-                    ProgressIndicator indicator = data.getIndicator();
-                    int size = data.getSize();
-                    int totalProcessed = 0;
-
-                    for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
-                        int totalCount = imageEntry.getValue().size();
-                        for (MarkdownImage markdownImage : imageEntry.getValue()) {
-                            indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
-                            String imageName = markdownImage.getImageName();
-                            indicator.setText2("Processing " + imageName);
-
-                            InputStream inputStream = markdownImage.getInputStream();
-                            try {
-                                FileUtils.copyToFile(inputStream, new File(markdownImage.getPath()));
-                            } catch (IOException e) {
-                                log.trace("", e);
-                            }
-                        }
+                public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
+                    InputStream inputStream = markdownImage.getInputStream();
+                    try {
+                        FileUtils.copyToFile(inputStream, new File(markdownImage.getPath()));
+                    } catch (IOException e) {
+                        log.trace("", e);
                     }
-                    return true;
                 }
             })
             .addHandler(new FinalChainHandler())

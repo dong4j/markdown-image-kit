@@ -42,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019 -03-27 23:44
  */
 @Slf4j
-public class OptionClientHandler extends BaseActionHandler {
+public class OptionClientHandler extends ActionHandlerAdapter {
 
     @Override
     public String getName() {

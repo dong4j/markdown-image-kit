@@ -26,16 +26,13 @@
 package info.dong4j.idea.plugin.chain;
 
 import com.intellij.openapi.command.WriteCommandAction;
-import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorModificationUtil;
-import com.intellij.openapi.progress.ProgressIndicator;
 
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 
-import java.util.List;
-import java.util.Map;
+import java.util.Iterator;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
@@ -45,32 +42,39 @@ import java.util.Map;
  * @email sjdong3@iflytek.com
  * @since 2019-03-28 13:35
  */
-public class InsertToDocumentHandler extends BaseActionHandler {
+public class InsertToDocumentHandler extends ActionHandlerAdapter {
 
     @Override
     public String getName() {
         return "写入到 document";
     }
 
+    // @Override
+    // public boolean execute(EventData data) {
+    //     ProgressIndicator indicator = data.getIndicator();
+    //     int size = data.getSize();
+    //     int totalProcessed = 0;
+    //     for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
+    //         int totalCount = imageEntry.getValue().size();
+    //         for (MarkdownImage markdownImage : imageEntry.getValue()) {
+    //
+    //             indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
+    //             String imageName = markdownImage.getImageName();
+    //             indicator.setText2("Processing " + imageName);
+    //
+    //
+    //             WriteCommandAction.runWriteCommandAction(data.getProject(),
+    //                                                      () -> EditorModificationUtil.insertStringAtCaret(data.getEditor(),
+    //                                                                                                       markdownImage.getFinalMark() + ImageContents.LINE_BREAK));
+    //         }
+    //     }
+    //     return true;
+    // }
+
     @Override
-    public boolean execute(EventData data) {
-        ProgressIndicator indicator = data.getIndicator();
-        int size = data.getSize();
-        int totalProcessed = 0;
-        for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
-            int totalCount = imageEntry.getValue().size();
-            for (MarkdownImage markdownImage : imageEntry.getValue()) {
-
-                indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
-                String imageName = markdownImage.getImageName();
-                indicator.setText2("Processing " + imageName);
-
-
-                WriteCommandAction.runWriteCommandAction(data.getProject(),
-                                                         () -> EditorModificationUtil.insertStringAtCaret(data.getEditor(),
-                                                                                                          markdownImage.getFinalMark() + ImageContents.LINE_BREAK));
-            }
-        }
-        return true;
+    public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
+        WriteCommandAction.runWriteCommandAction(data.getProject(),
+                                                 () -> EditorModificationUtil.insertStringAtCaret(data.getEditor(),
+                                                                                                  markdownImage.getFinalMark() + ImageContents.LINE_BREAK));
     }
 }

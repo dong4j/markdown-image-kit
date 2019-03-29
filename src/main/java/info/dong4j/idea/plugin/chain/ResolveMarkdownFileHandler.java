@@ -47,7 +47,7 @@ import lombok.Setter;
  * @since 2019 -03-27 22:51
  */
 @Setter
-public class ResolveMarkdownFileHandler extends BaseActionHandler {
+public class ResolveMarkdownFileHandler extends ActionHandlerAdapter {
     private MarkdownFileFilter fileFilter;
 
     @Override

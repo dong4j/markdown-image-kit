@@ -25,9 +25,6 @@
 
 package info.dong4j.idea.plugin.chain;
 
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.progress.ProgressIndicator;
-
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
@@ -36,8 +33,6 @@ import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,7 +45,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019 -03-26 12:38
  */
 @Slf4j
-public class ImageUploadHandler extends BaseActionHandler {
+public class ImageUploadHandler extends ActionHandlerAdapter {
 
     @Override
     public String getName() {
@@ -69,49 +64,76 @@ public class ImageUploadHandler extends BaseActionHandler {
      * @param data the data
      * @return the boolean
      */
+    // @Override
+    // public boolean execute(EventData data) {
+    //     ProgressIndicator indicator = data.getIndicator();
+    //     int size = data.getSize();
+    //     int totalProcessed = 0;
+    //
+    //     for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
+    //         int totalCount = imageEntry.getValue().size();
+    //         Iterator<MarkdownImage> imageIterator = imageEntry.getValue().iterator();
+    //         while (imageIterator.hasNext()) {
+    //             MarkdownImage markdownImage = imageIterator.next();
+    //
+    //             indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
+    //             String imageName = markdownImage.getImageName();
+    //             indicator.setText2("Processing " + imageName);
+    //
+    //
+    //             // 已上传过的不处理, 此时 finalmark 为 null, 替换是忽略
+    //             if (ImageLocationEnum.NETWORK.equals(markdownImage.getLocation())) {
+    //                 continue;
+    //             }
+    //
+    //             if(StringUtils.isBlank(imageName) || markdownImage.getInputStream() == null){
+    //                 log.trace("inputstream 为 null 或者 imageName 为 null, remove markdownImage = {}", markdownImage);
+    //                 imageIterator.remove();
+    //                 continue;
+    //             }
+    //
+    //             String imageUrl = data.getClient().upload(markdownImage.getInputStream(), markdownImage.getImageName());
+    //             if (StringUtils.isBlank(imageUrl)) {
+    //                 imageUrl = "upload error";
+    //                 markdownImage.setLocation(ImageLocationEnum.LOCAL);
+    //             }
+    //             String mark = "![](" + imageUrl + ")";
+    //             markdownImage.setOriginalLineText(mark);
+    //             markdownImage.setOriginalMark(mark);
+    //             markdownImage.setPath(imageUrl);
+    //             markdownImage.setLocation(ImageLocationEnum.NETWORK);
+    //             markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
+    //             markdownImage.setFinalMark(mark);
+    //         }
+    //     }
+    //     return true;
+    // }
+
     @Override
-    public boolean execute(EventData data) {
-        ProgressIndicator indicator = data.getIndicator();
-        int size = data.getSize();
-        int totalProcessed = 0;
-
-        for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
-            int totalCount = imageEntry.getValue().size();
-            Iterator<MarkdownImage> imageIterator = imageEntry.getValue().iterator();
-            while (imageIterator.hasNext()) {
-                MarkdownImage markdownImage = imageIterator.next();
-
-                indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
-                String imageName = markdownImage.getImageName();
-                indicator.setText2("Processing " + imageName);
-
-
-                // 已上传过的不处理, 此时 finalmark 为 null, 替换是忽略
-                if (ImageLocationEnum.NETWORK.equals(markdownImage.getLocation())) {
-                    continue;
-                }
-
-                if(StringUtils.isBlank(imageName) || markdownImage.getInputStream() == null){
-                    log.trace("inputstream 为 null 或者 imageName 为 null, remove markdownImage = {}", markdownImage);
-                    imageIterator.remove();
-                    continue;
-                }
-
-                String imageUrl = data.getClient().upload(markdownImage.getInputStream(), markdownImage.getImageName());
-                indicator.setText2("Uploading " + imageName);
-                if (StringUtils.isBlank(imageUrl)) {
-                    imageUrl = "upload error";
-                    markdownImage.setLocation(ImageLocationEnum.LOCAL);
-                }
-                String mark = "![](" + imageUrl + ")";
-                markdownImage.setOriginalLineText(mark);
-                markdownImage.setOriginalMark(mark);
-                markdownImage.setPath(imageUrl);
-                markdownImage.setLocation(ImageLocationEnum.NETWORK);
-                markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
-                markdownImage.setFinalMark(mark);
-            }
+    public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
+        String imageName = markdownImage.getImageName();
+        // 已上传过的不处理, 此时 finalmark 为 null, 替换是忽略
+        if (ImageLocationEnum.NETWORK.equals(markdownImage.getLocation())) {
+            return;
         }
-        return true;
+
+        if(StringUtils.isBlank(imageName) || markdownImage.getInputStream() == null){
+            log.trace("inputstream 为 null 或者 imageName 为 null, remove markdownImage = {}", markdownImage);
+            imageIterator.remove();
+            return;
+        }
+
+        String imageUrl = data.getClient().upload(markdownImage.getInputStream(), markdownImage.getImageName());
+        if (StringUtils.isBlank(imageUrl)) {
+            imageUrl = "upload error";
+            markdownImage.setLocation(ImageLocationEnum.LOCAL);
+        }
+        String mark = "![](" + imageUrl + ")";
+        markdownImage.setOriginalLineText(mark);
+        markdownImage.setOriginalMark(mark);
+        markdownImage.setPath(imageUrl);
+        markdownImage.setLocation(ImageLocationEnum.NETWORK);
+        markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
+        markdownImage.setFinalMark(mark);
     }
 }

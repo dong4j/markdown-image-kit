@@ -52,7 +52,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019 -03-26 12:35
  */
 @Slf4j
-public class ImageStorageHandler extends BaseActionHandler {
+public class ImageStorageHandler extends ActionHandlerAdapter {
 
     @Override
     public String getName() {
@@ -82,11 +82,9 @@ public class ImageStorageHandler extends BaseActionHandler {
             String savepath = STATE.getImageSavePath();
 
             for (MarkdownImage markdownImage : imageEntry.getValue()) {
-
-                indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
                 String imageName = markdownImage.getImageName();
                 indicator.setText2("Processing " + imageName);
-
+                indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
 
                 // 将 inputstream 转成 file
                 File saveFile = null;

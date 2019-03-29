@@ -67,4 +67,10 @@ public class ParserUtilsTest {
         String path = "./imgs/xxx.png";
         log.trace("{}", ParserUtils.parse2(ImageMarkEnum.LARGE_PICTURE.code, title, path));
     }
+
+    @Test
+    public void test5(){
+        String str = "2019-11-11-2019-11-11-xxxx.png";
+        log.info("{}", str.replace("2019-11-11-", ""));
+    }
 }

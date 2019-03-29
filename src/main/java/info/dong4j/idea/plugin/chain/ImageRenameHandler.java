@@ -91,7 +91,7 @@ public class ImageRenameHandler extends ActionHandlerAdapter {
     // }
 
     @Override
-    public void invoke(Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
+    public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
 
         String imageName = markdownImage.getImageName();
         MikState state = MikPersistenComponent.getInstance().getState();
@@ -104,10 +104,14 @@ public class ImageRenameHandler extends ActionHandlerAdapter {
             case FILE_NAME:
                 break;
             case DATE_FILE_NAME:
+                // 删除原来的时间前缀
+                imageName = imageName.replace(DateFormatUtils.format(new Date(), "yyyy-MM-dd-"), "");
                 imageName =  DateFormatUtils.format(new Date(), "yyyy-MM-dd-") + imageName;
                 break;
             case RANDOM:
-                imageName = PREFIX + CharacterUtils.getRandomString(6) + ImageUtils.getFileExtension(imageName);
+                if(!imageName.startsWith(PREFIX)){
+                    imageName = PREFIX + CharacterUtils.getRandomString(6) + ImageUtils.getFileExtension(imageName);
+                }
                 break;
             default:
                 break;

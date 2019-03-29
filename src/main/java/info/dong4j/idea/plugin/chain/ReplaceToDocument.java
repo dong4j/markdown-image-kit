@@ -45,7 +45,7 @@ import java.util.Map;
  * @email sjdong3@iflytek.com
  * @since 2019-03-28 13:49
  */
-public class ReplaceToDocument extends BaseActionHandler {
+public class ReplaceToDocument extends ActionHandlerAdapter {
     @Override
     public String getName() {
         return "替换原有标签";
@@ -61,11 +61,9 @@ public class ReplaceToDocument extends BaseActionHandler {
             Document document = imageEntry.getKey();
             int totalCount = imageEntry.getValue().size();
             for (MarkdownImage markdownImage : imageEntry.getValue()) {
-
-                indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
                 String imageName = markdownImage.getImageName();
+                indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
                 indicator.setText2("Processing " + imageName);
-
 
                 String finalMark = markdownImage.getFinalMark();
                 if(StringUtils.isBlank(finalMark)){

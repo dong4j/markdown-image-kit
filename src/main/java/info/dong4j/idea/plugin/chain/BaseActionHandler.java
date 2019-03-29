@@ -64,8 +64,9 @@ public abstract class BaseActionHandler implements IActionHandler {
     /**
      * Invoke.
      *
+     * @param data          the data
      * @param imageIterator the image iterator
      * @param markdownImage the markdown image
      */
-    abstract void invoke(Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage);
+    abstract void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage);
 }
