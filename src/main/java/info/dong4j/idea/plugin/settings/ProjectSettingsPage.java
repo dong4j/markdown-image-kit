@@ -108,6 +108,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
 
     /** globalUploadPanel group */
     private JPanel globalUploadPanel;
+    private JComboBox defaultCloudComboBox;
     private JCheckBox changeToHtmlTagCheckBox;
     private JRadioButton largePictureRadioButton;
     private JRadioButton commonRadioButton;
@@ -130,7 +131,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JCheckBox copyToDirCheckBox;
     private JTextField whereToCopyTextField;
     private JCheckBox uploadAndReplaceCheckBox;
-    private JComboBox defaultCloudComboBox;
+    private JLabel defaultCloudLabel;
 
     /** todo-dong4j : (2019年03月20日 13:25) [测试输入验证用] */
     private JTextField myPort;
@@ -357,6 +358,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      * 初始化 upload 配置组
      */
     private void initGlobalPanel(@NotNull MikState state) {
+        this.defaultCloudComboBox.setSelectedIndex(config.getState().getCloudType());
         initChangeToHtmlGroup();
         initCompressGroup();
 
@@ -482,20 +484,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         // 设置 copy 位置
         this.whereToCopyTextField.setText(config.getState().getImageSavePath());
         this.whereToCopyTextField.setEnabled(isCopyToDir);
-        // 默认上传图床
-        this.defaultCloudComboBox.setEnabled(isUploadAndReplace);
-        this.defaultCloudComboBox.setSelectedIndex(config.getState().getCloudType());
 
         // 设置 copyToDirCheckBox 监听
         copyToDirCheckBox.addChangeListener(e -> {
             JCheckBox checkBox = (JCheckBox) e.getSource();
             whereToCopyTextField.setEnabled(checkBox.isSelected());
-        });
-
-        // 设置 uploadAndReplaceCheckBox 监听
-        uploadAndReplaceCheckBox.addChangeListener(e -> {
-            JCheckBox checkBox = (JCheckBox) e.getSource();
-            defaultCloudComboBox.setEnabled(checkBox.isSelected());
         });
     }
 
@@ -606,7 +599,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                && compress == state.isCompress()
                && compressBeforeUploadOfPercent == state.getCompressBeforeUploadOfPercent()
                && isRename == state.isRename()
-               && index == state.getSuffixIndex();
+               && index == state.getSuffixIndex()
+               && defaultCloudComboBox.getSelectedIndex() == state.getCloudType();
+
     }
 
     private boolean isClipboardModified(@NotNull MikState state) {
@@ -616,8 +611,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
 
         return copyToDir == state.isCopyToDir()
                && uploadAndReplace == state.isUploadAndReplace()
-               && whereToCopy.equals(state.getImageSavePath())
-               && defaultCloudComboBox.getSelectedIndex() == state.getCloudType();
+               && whereToCopy.equals(state.getImageSavePath());
     }
 
     /**
@@ -709,13 +703,13 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         state.setCompressBeforeUploadOfPercent(this.compressSlider.getValue());
         state.setRename(renameCheckBox.isSelected());
         state.setSuffixIndex(fileNameSuffixBoxField.getSelectedIndex());
+        state.setCloudType(this.defaultCloudComboBox.getSelectedIndex());
     }
 
     private void applyClipboardConfigs(MikState state) {
         state.setCopyToDir(this.copyToDirCheckBox.isSelected());
         state.setUploadAndReplace(this.uploadAndReplaceCheckBox.isSelected());
         state.setImageSavePath(this.whereToCopyTextField.getText().trim());
-        state.setCloudType(this.defaultCloudComboBox.getSelectedIndex());
     }
 
     private void applyWeiboAuthConfigs(MikState state) {
@@ -786,12 +780,12 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.compressLabel.setText(String.valueOf(compressSlider.getValue()));
         this.renameCheckBox.setSelected(state.isRename());
         this.fileNameSuffixBoxField.setSelectedIndex(state.getSuffixIndex());
+        this.defaultCloudComboBox.setSelectedIndex(state.getCloudType());
     }
 
     private void resetClipboardConfigs(MikState state) {
         this.copyToDirCheckBox.setSelected(state.isCopyToDir());
         this.whereToCopyTextField.setText(state.getImageSavePath());
         this.uploadAndReplaceCheckBox.setSelected(state.isUploadAndReplace());
-        this.defaultCloudComboBox.setSelectedIndex(state.getCloudType());
     }
 }
