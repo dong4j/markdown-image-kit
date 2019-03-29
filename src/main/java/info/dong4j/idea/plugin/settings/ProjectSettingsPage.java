@@ -120,11 +120,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JLabel customLabel;
     private JTextField customHtmlTypeTextField;
     private JCheckBox compressCheckBox;
-    private JCheckBox compressBeforeUploadCheckBox;
-    private JCheckBox compressAtLookupCheckBox;
     private JSlider compressSlider;
     private JLabel compressLabel;
-    private JTextField styleNameTextField;
     private JCheckBox transportCheckBox;
     private JCheckBox renameCheckBox;
     private JComboBox fileNameSuffixBoxField;
@@ -453,20 +450,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      * 初始化图片压缩配置组
      */
     private void initCompressGroup() {
-        styleNameTextField.addFocusListener(new JTextFieldHintListener(styleNameTextField, "请提前在 Aliyun OSS 控制台设置"));
-
         boolean compressStatus = config.getState().isCompress();
-        boolean beforeCompressStatus = config.getState().isCompressBeforeUpload();
-        boolean lookUpCompressStatus = config.getState().isCompressAtLookup();
         // 设置被选中
         this.compressCheckBox.setSelected(compressStatus);
-        // 设置组下多选框状态
-        this.compressBeforeUploadCheckBox.setEnabled(compressStatus);
-        this.compressBeforeUploadCheckBox.setSelected(beforeCompressStatus);
-        this.compressAtLookupCheckBox.setEnabled(compressStatus);
-        this.compressAtLookupCheckBox.setSelected(lookUpCompressStatus);
 
-        this.compressSlider.setEnabled(compressStatus && beforeCompressStatus);
+        this.compressSlider.setEnabled(compressStatus);
         this.compressSlider.setValue(config.getState().getCompressBeforeUploadOfPercent());
 
         // 设置主刻度间隔
@@ -479,28 +467,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         compressSlider.addChangeListener(e -> compressLabel.setText(String.valueOf(compressSlider.getValue())));
 
         this.compressLabel.setText(String.valueOf(compressSlider.getValue()));
-        this.styleNameTextField.setEnabled(compressStatus && lookUpCompressStatus);
-        this.styleNameTextField.setText(config.getState().getStyleName());
 
         // compressCheckBox 监听, 修改组下组件状态
         compressCheckBox.addChangeListener(e -> {
             JCheckBox checkBox = (JCheckBox) e.getSource();
-            if (checkBox.isSelected()) {
-                compressBeforeUploadCheckBox.setEnabled(true);
-                compressAtLookupCheckBox.setEnabled(true);
-            } else {
-                compressBeforeUploadCheckBox.setEnabled(false);
-                compressAtLookupCheckBox.setEnabled(false);
-                compressSlider.setEnabled(false);
-                styleNameTextField.setEnabled(false);
-            }
-        });
-
-        compressBeforeUploadCheckBox.addChangeListener(e -> {
-            compressSlider.setEnabled(compressBeforeUploadCheckBox.isSelected());
-        });
-        compressAtLookupCheckBox.addChangeListener(e -> {
-            styleNameTextField.setEnabled(compressAtLookupCheckBox.isSelected());
+            compressSlider.setEnabled(checkBox.isSelected());
         });
     }
 
@@ -636,17 +607,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
 
         // 是否压缩图片
         boolean compress = compressCheckBox.isSelected();
-        // 上传前压缩
-        boolean compressBeforeUpload = compressBeforeUploadCheckBox.isSelected();
         // 压缩比例
         int compressBeforeUploadOfPercent = compressSlider.getValue();
-        // 查看时压缩
-        boolean compressAtLookup = compressAtLookupCheckBox.isSelected();
-        // Aliyun OSS 图片压缩配置
-        String styleName = "";
-        if (compressAtLookup) {
-            styleName = styleNameTextField.getText().trim();
-        }
         // 图床迁移
         boolean transport = transportCheckBox.isSelected();
 
@@ -658,10 +620,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                && tagType.equals(state.getTagType())
                && tagTypeCode.equals(state.getTagTypeCode())
                && compress == state.isCompress()
-               && compressBeforeUpload == state.isCompressBeforeUpload()
                && compressBeforeUploadOfPercent == state.getCompressBeforeUploadOfPercent()
-               && compressAtLookup == state.isCompressAtLookup()
-               && styleName.equals(state.getStyleName())
                && transport == state.isTransport()
                && isRename == state.isRename()
                && index == state.getSuffixIndex();
@@ -764,10 +723,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             }
         }
         state.setCompress(this.compressCheckBox.isSelected());
-        state.setCompressBeforeUpload(this.compressBeforeUploadCheckBox.isSelected());
         state.setCompressBeforeUploadOfPercent(this.compressSlider.getValue());
-        state.setCompressAtLookup(this.compressAtLookupCheckBox.isSelected());
-        state.setStyleName(this.styleNameTextField.getText().trim());
         state.setTransport(this.transportCheckBox.isSelected());
         state.setRename(renameCheckBox.isSelected());
         state.setSuffixIndex(fileNameSuffixBoxField.getSelectedIndex());
@@ -844,11 +800,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.customRadioButton.setSelected(state.getTagType().equals(ImageMarkEnum.CUSTOM.text));
         this.customHtmlTypeTextField.setText(state.getTagTypeCode());
         this.compressCheckBox.setSelected(state.isCompress());
-        this.compressBeforeUploadCheckBox.setSelected(state.isCompressBeforeUpload());
-        this.compressAtLookupCheckBox.setSelected(state.isCompressAtLookup());
         this.compressSlider.setValue(state.getCompressBeforeUploadOfPercent());
         this.compressLabel.setText(String.valueOf(compressSlider.getValue()));
-        this.styleNameTextField.setText(state.getStyleName());
         this.transportCheckBox.setSelected(state.isTransport());
         this.renameCheckBox.setSelected(state.isRename());
         this.fileNameSuffixBoxField.setSelectedIndex(state.getSuffixIndex());

@@ -56,14 +56,7 @@ public class MikState {
     private String tagTypeCode = "";
     /** 是否压缩图片 */
     private boolean compress = false;
-    /** 上传前压缩 */
-    private boolean compressBeforeUpload = false;
-    /** 压缩比例 */
     private int compressBeforeUploadOfPercent = 60;
-    /** 查看时压缩 */
-    private boolean compressAtLookup = false;
-    /** Aliyun OSS 图片压缩配置 */
-    private String styleName = "";
     /** 图床迁移 */
     private boolean transport = false;
     /** 图片备份 */
