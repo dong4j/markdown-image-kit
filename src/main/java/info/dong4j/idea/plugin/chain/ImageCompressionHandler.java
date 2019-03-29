@@ -31,10 +31,13 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.notify.MikNotification;
-import info.dong4j.idea.plugin.util.ConvertUtil;
 import info.dong4j.idea.plugin.util.ImageUtils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.*;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,11 +73,8 @@ public class ImageCompressionHandler extends BaseActionHandler {
     @Override
     public boolean execute(EventData data) {
         ProgressIndicator indicator = data.getIndicator();
-
         int size = data.getSize();
-
         int totalProcessed = 0;
-
         Map<String, String> compressInfo = new HashMap<>(10);
 
         for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
@@ -92,24 +92,53 @@ public class ImageCompressionHandler extends BaseActionHandler {
                 }
 
                 InputStream inputStream = markdownImage.getInputStream();
-                File temp = ImageUtils.buildTempFile(imageName);
-                try (OutputStream outputStream = new ByteArrayOutputStream()) {
+                try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
                     long oldlength = inputStream.available();
-
                     ImageUtils.compress(inputStream, outputStream, STATE.getCompressBeforeUploadOfPercent());
-
-                    ((ByteArrayOutputStream) outputStream).toByteArray()
-                    long newLength = outputStream.
-                    markdownImage.setInputStream(ConvertUtil.parse(outputStream));
+                    long newLength = outputStream.toByteArray().length;
+                    markdownImage.setInputStream(new ByteArrayInputStream(outputStream.toByteArray()));
+                    buildConpress(compressInfo, imageName, oldlength, newLength);
                 } catch (Exception e) {
                     log.trace("", e);
-                } finally {
-                    temp.deleteOnExit();
                 }
             }
         }
 
         MikNotification.notifyCompressInfo(data.getProject(), compressInfo);
         return true;
+    }
+
+    private void buildConpress(@NotNull Map<String, String> compressInfo,
+                               String imageName,
+                               long oldlength,
+                               long newLength) {
+        String oldSize = bytesToKb(oldlength);
+        String newSize = bytesToKb(newLength);
+
+        DecimalFormat df = new DecimalFormat("0.00");
+        double percentDouble = newLength * 1.0 / oldlength;
+        String percent = df.format((1 - percentDouble) * 100);
+        String message = oldSize + " ---> " + newSize + " --->  " + percent + "%";
+        compressInfo.put(imageName, message);
+    }
+
+    /**
+     * byte(字节)根据长度转成kb(千字节)和mb(兆字节)
+     *
+     * @param bytes
+     * @return
+     */
+    @NotNull
+    private static String bytesToKb(long bytes) {
+        BigDecimal filesize = new BigDecimal(bytes);
+        BigDecimal megabyte = new BigDecimal(1024 * 1024);
+        float returnValue = filesize.divide(megabyte, 2, BigDecimal.ROUND_UP)
+            .floatValue();
+        if (returnValue > 1) {
+            return (returnValue + "MB");
+        }
+        BigDecimal kilobyte = new BigDecimal(1024);
+        returnValue = filesize.divide(kilobyte, 2, BigDecimal.ROUND_UP).floatValue();
+        return (returnValue + "KB");
     }
 }
