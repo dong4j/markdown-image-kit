@@ -112,7 +112,7 @@ public final class MarkdownUtils {
     }
 
     /**
-     * 从 markdown 文件中获取图片信息
+     * 解析每一行数据, 是有效的 Image mark 才解析
      *
      * @param virtualFile the virtual file
      * @return the list
@@ -149,7 +149,6 @@ public final class MarkdownUtils {
 
     /**
      * 不使用正则, 因为需要记录偏移量
-     * fixme-dong4j : (2019年03月29日 03:38 [virtualFile 错误, 应该是图片的 virtualFile])
      *
      * @param virtualFile the virtual file 当前处理的文件
      * @param lineText    the line text    当前处理的文本行
@@ -170,7 +169,50 @@ public final class MarkdownUtils {
         markdownImage.setLineEndOffset(offset[1]);
         // 解析 markdown 图片标签
         try {
-            return resolveImageMark(markdownImage, virtualFile);
+            // 如果以 `<a` 开始, 以 `a>` 结束, 需要修改偏移量
+            if (lineText.contains(ImageContents.HTML_TAG_A_START) && lineText.contains(ImageContents.HTML_TAG_A_END)) {
+                markdownImage.setLineStartOffset(lineText.indexOf(ImageContents.HTML_TAG_A_START));
+                markdownImage.setLineEndOffset(lineText.indexOf(ImageContents.HTML_TAG_A_END) + 2);
+                // 解析标签类型
+                if (lineText.contains(ImageContents.LARG_IMAGE_MARK_ID)) {
+                    markdownImage.setImageMarkType(ImageMarkEnum.LARGE_PICTURE);
+                } else if (lineText.contains(ImageContents.COMMON_IMAGE_MARK_ID)) {
+                    markdownImage.setImageMarkType(ImageMarkEnum.COMMON_PICTURE);
+                } else {
+                    markdownImage.setImageMarkType(ImageMarkEnum.CUSTOM);
+                }
+            } else {
+                markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
+            }
+            // 截取 markdown image 标签
+            markdownImage.setOriginalMark(lineText.substring(markdownImage.getLineStartOffset(), markdownImage.getLineEndOffset()));
+
+            String title = lineText.substring(lineText.indexOf(ImageContents.IMAGE_MARK_PREFIX) + ImageContents.IMAGE_MARK_PREFIX.length(),
+                                              lineText.indexOf(ImageContents.IMAGE_MARK_MIDDLE)).trim();
+
+            String path = lineText.substring(lineText.indexOf(ImageContents.IMAGE_MARK_MIDDLE) + ImageContents.IMAGE_MARK_MIDDLE.length(),
+                                             lineText.indexOf(ImageContents.IMAGE_MARK_SUFFIX)).trim();
+
+            markdownImage.setTitle(title);
+
+            // 设置图片位置类型
+            if (path.startsWith(ImageContents.IMAGE_LOCATION)) {
+                markdownImage.setLocation(ImageLocationEnum.NETWORK);
+                // 图片 url
+                markdownImage.setPath(path);
+                // 解析图片名
+                String imageName = path.substring(path.lastIndexOf("/") + 1);
+                markdownImage.setImageName(imageName);
+                markdownImage.setExtension(ImageUtils.getFileExtension(imageName));
+            } else {
+                markdownImage.setLocation(ImageLocationEnum.LOCAL);
+                // 图片文件的相对路径
+                markdownImage.setPath(path);
+                markdownImage.setExtension(virtualFile.getExtension());
+                markdownImage.setInputStream(virtualFile.getInputStream());
+                markdownImage.setImageName(path.substring(path.lastIndexOf(File.separator) + 1));
+            }
+            return markdownImage;
         } catch (IOException e) {
             log.trace("", e);
         }
@@ -289,61 +331,6 @@ public final class MarkdownUtils {
         offset[0] = indexPrefix;
         offset[1] = indexSuffix + 1;
         return offset;
-    }
-
-    /**
-     * 解析图片标签, 拿到 title, 文件路径 或标签类型
-     *
-     * @param markdownImage the markdown image
-     * @return the markdown image
-     */
-    @Contract("_, _ -> param1")
-    private static MarkdownImage resolveImageMark(@NotNull MarkdownImage markdownImage, VirtualFile virtualFile) throws IOException {
-        // 如果以 `<a` 开始, 以 `a>` 结束, 需要修改偏移量
-        String lineText = markdownImage.getOriginalLineText();
-        if (lineText.contains(ImageContents.HTML_TAG_A_START) && lineText.contains(ImageContents.HTML_TAG_A_END)) {
-            markdownImage.setLineStartOffset(lineText.indexOf(ImageContents.HTML_TAG_A_START));
-            markdownImage.setLineEndOffset(lineText.indexOf(ImageContents.HTML_TAG_A_END) + 2);
-            // 解析标签类型
-            if (lineText.contains(ImageContents.LARG_IMAGE_MARK_ID)) {
-                markdownImage.setImageMarkType(ImageMarkEnum.LARGE_PICTURE);
-            } else if (lineText.contains(ImageContents.COMMON_IMAGE_MARK_ID)) {
-                markdownImage.setImageMarkType(ImageMarkEnum.COMMON_PICTURE);
-            } else {
-                markdownImage.setImageMarkType(ImageMarkEnum.CUSTOM);
-            }
-        } else {
-            markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
-        }
-        // 截取 markdown image 标签
-        markdownImage.setOriginalMark(lineText.substring(markdownImage.getLineStartOffset(), markdownImage.getLineEndOffset()));
-
-        String title = lineText.substring(lineText.indexOf(ImageContents.IMAGE_MARK_PREFIX) + ImageContents.IMAGE_MARK_PREFIX.length(),
-                                          lineText.indexOf(ImageContents.IMAGE_MARK_MIDDLE)).trim();
-
-        String path = lineText.substring(lineText.indexOf(ImageContents.IMAGE_MARK_MIDDLE) + ImageContents.IMAGE_MARK_MIDDLE.length(),
-                                         lineText.indexOf(ImageContents.IMAGE_MARK_SUFFIX)).trim();
-
-        markdownImage.setTitle(title);
-
-        // 设置图片位置类型
-        if (path.startsWith(ImageContents.IMAGE_LOCATION)) {
-            markdownImage.setLocation(ImageLocationEnum.NETWORK);
-            // 图片 url
-            markdownImage.setPath(path);
-            // 解析图片名
-            String imageName = path.substring(path.lastIndexOf("/") + 1);
-            markdownImage.setImageName(imageName);
-            markdownImage.setExtension(ImageUtils.getFileExtension(imageName));
-        } else {
-            markdownImage.setLocation(ImageLocationEnum.LOCAL);
-            // 图片文件的相对路径
-            markdownImage.setPath(path);
-            markdownImage.setExtension(virtualFile.getExtension());
-            markdownImage.setInputStream(virtualFile.getInputStream());
-            markdownImage.setImageName(path.substring(path.lastIndexOf(File.separator) + 1));
-        }
-        return markdownImage;
     }
 
     /**
