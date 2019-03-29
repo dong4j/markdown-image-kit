@@ -101,6 +101,7 @@ public class ImageStorageHandler extends BaseActionHandler {
                 }
 
                 try {
+                    // todo-dong4j : (2019年03月29日 16:00) [如果覆盖 inputstream 所属文件将导致拷贝的文件错误]
                     FileUtils.copyToFile(markdownImage.getInputStream(), saveFile);
                 } catch (IOException e) {
                     log.trace("", e);

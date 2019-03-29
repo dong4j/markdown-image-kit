@@ -27,7 +27,6 @@ package info.dong4j.idea.plugin.action.markdown;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFileManager;
 
@@ -36,15 +35,10 @@ import info.dong4j.idea.plugin.chain.ActionManager;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.entity.EventData;
-import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.task.ActionTask;
 import info.dong4j.idea.plugin.util.ActionUtils;
 
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
-import java.util.Map;
 
 import javax.swing.Icon;
 
@@ -115,24 +109,6 @@ public abstract class UploadActionBase extends AnAction {
 
             // 开启后台任务
             new ActionTask(project, MikBundle.message("mik.action.upload.process", getName()), ActionManager.buildUploadChain(data)).queue();
-        }
-    }
-
-    /**
-     * 新建后台任务, 调用 upload() 执行上传逻辑
-     *
-     * @param event                  the event
-     * @param waitingForUploadImages the waiting for upload images
-     * @return the string   url      上传成功后返回的 url
-     */
-    @Contract(pure = true)
-    private void execute(@NotNull AnActionEvent event, Map<Document, List<MarkdownImage>> waitingForUploadImages) {
-        if (waitingForUploadImages.size() > 0) {
-            // 获取对应的 client
-            // OssClient ossClient = getClient();
-            // Uploader.getInstance()
-            //     .setUploadWay(new UploadFromAction(event.getProject(), ossClient, waitingForUploadImages))
-            //     .upload();
         }
     }
 

@@ -58,10 +58,7 @@ public class InsertToClipboardHandler extends BaseActionHandler {
         int totalProcessed = 0;
         StringBuilder marks = new StringBuilder();
         for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
-            Document document = imageEntry.getKey();
-            data.setDocument(document);
             int totalCount = imageEntry.getValue().size();
-
             for (MarkdownImage markdownImage : imageEntry.getValue()) {
                 indicator.setText2("Processing " + markdownImage.getImageName());
                 indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);

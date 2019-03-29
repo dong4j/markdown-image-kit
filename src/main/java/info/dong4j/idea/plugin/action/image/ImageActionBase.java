@@ -25,24 +25,29 @@
 
 package info.dong4j.idea.plugin.action.image;
 
+import com.intellij.mock.MockDocument;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 
 import info.dong4j.idea.plugin.content.ImageContents;
+import info.dong4j.idea.plugin.entity.MarkdownImage;
+import info.dong4j.idea.plugin.enums.ImageLocationEnum;
+import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.util.ActionUtils;
 import info.dong4j.idea.plugin.util.ImageUtils;
 
-import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +66,9 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public abstract class ImageActionBase extends AnAction {
+    /**
+     * The constant STATE.
+     */
     protected static final MikState STATE = MikPersistenComponent.getInstance().getState();
 
     /**
@@ -69,6 +77,14 @@ public abstract class ImageActionBase extends AnAction {
      * @return the icon
      */
     abstract protected Icon getIcon();
+
+    /**
+     * Build chain.
+     *
+     * @param event             the event
+     * @param waitingProcessMap the waiting process map
+     */
+    abstract void buildChain(AnActionEvent event, Map<Document, List<MarkdownImage>> waitingProcessMap);
 
     @Override
     public void update(@NotNull AnActionEvent event) {
@@ -80,10 +96,12 @@ public abstract class ImageActionBase extends AnAction {
         Map<String, File> imageMap = new HashMap<>(32);
         Map<String, VirtualFile> virtualFileMap = new HashMap<>(32);
 
+        Map<Document, List<MarkdownImage>> waitingProcessMap = new HashMap<>(32);
+
         final Project project = event.getProject();
         if (project != null) {
-
             log.trace("project's base path = {}", project.getBasePath());
+
             // 如果选中编辑器
             final DataContext dataContext = event.getDataContext();
 
@@ -91,25 +109,29 @@ public abstract class ImageActionBase extends AnAction {
             if (null != editor) {
                 VirtualFile virtualFile = event.getData(PlatformDataKeys.VIRTUAL_FILE);
                 assert virtualFile != null;
-                transform(imageMap, virtualFileMap, virtualFile, virtualFile.getName());
+                buildWaitingProcessMap(waitingProcessMap, virtualFile);
             } else {
                 // 获取被选中的有文件和目录
                 final VirtualFile[] virtualFiles = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(dataContext);
                 if (null != virtualFiles) {
                     for (VirtualFile rootFile : virtualFiles) {
                         if (ImageContents.IMAGE_TYPE_NAME.equals(rootFile.getFileType().getName())) {
-                            transform(imageMap, virtualFileMap, rootFile, rootFile.getName());
+                            buildWaitingProcessMap(waitingProcessMap, rootFile);
 
                         }
                         // 如果是目录, 则递归获取所有 image 文件
                         if (rootFile.isDirectory()) {
                             List<VirtualFile> imageFiles = ImageUtils.recursivelyImageFile(rootFile);
                             for (VirtualFile subFile : imageFiles) {
-                                transform(imageMap, virtualFileMap, subFile, subFile.getName());
+                                buildWaitingProcessMap(waitingProcessMap, subFile);
                             }
                         }
                     }
                 }
+            }
+
+            if(waitingProcessMap.size() > 0){
+                buildChain(event, waitingProcessMap);
             }
         }
     }
@@ -117,21 +139,29 @@ public abstract class ImageActionBase extends AnAction {
     /**
      * 将 VirtualFile 转换为 File
      *
-     * @param imageMap    the image map
-     * @param virtualFile the virtual file
-     * @param name        the name
+     * @param waitingProcessMap the waiting process map
+     * @param virtualFile       the virtual file
      */
-    private void transform(@NotNull Map<String, File> imageMap,
-                           @NotNull Map<String, VirtualFile> virtualFileMap,
-                           @NotNull VirtualFile virtualFile,
-                           String name) {
-        File out = ImageUtils.buildTempFile(virtualFile.getName());
+    private void buildWaitingProcessMap(@NotNull Map<Document, List<MarkdownImage>> waitingProcessMap,
+                                        @NotNull VirtualFile virtualFile) {
+        MarkdownImage markdownImage = new MarkdownImage();
+        markdownImage.setVirtualFile(virtualFile);
+        markdownImage.setImageName(virtualFile.getName());
+        markdownImage.setPath(virtualFile.getPath());
         try {
-            FileUtils.copyToFile(virtualFile.getInputStream(), out);
-            imageMap.put(name, out);
-            virtualFileMap.put(name, virtualFile);
+            markdownImage.setInputStream(virtualFile.getInputStream());
         } catch (IOException e) {
-            log.trace("", e);
+            return;
         }
+        markdownImage.setFileName(virtualFile.getName());
+        markdownImage.setExtension(virtualFile.getExtension());
+        markdownImage.setLocation(ImageLocationEnum.LOCAL);
+        markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
+
+        waitingProcessMap.put(new MockDocument(), new ArrayList<MarkdownImage>() {
+            {
+                add(markdownImage);
+            }
+        });
     }
 }

@@ -89,6 +89,7 @@ public class ImageUploadHandler extends BaseActionHandler {
                 String imageName = markdownImage.getImageName();
 
                 if(StringUtils.isBlank(imageName) || markdownImage.getInputStream() == null){
+                    log.trace("inputstream 为 null 或者 imageName 为 null, remove markdownImage = {}", markdownImage);
                     imageIterator.remove();
                     continue;
                 }

@@ -39,6 +39,7 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -79,9 +80,14 @@ public class ImageCompressionHandler extends BaseActionHandler {
 
         for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
             int totalCount = imageEntry.getValue().size();
-            for (MarkdownImage markdownImage : imageEntry.getValue()) {
+            Iterator<MarkdownImage> imageIterator = imageEntry.getValue().iterator();
+            while (imageIterator.hasNext()) {
+                MarkdownImage markdownImage = imageIterator.next();
                 indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
+
                 if (markdownImage.getInputStream() == null) {
+                    log.trace("inputstream 为 null, remove markdownImage = {}", markdownImage);
+                    imageIterator.remove();
                     continue;
                 }
                 indicator.setText2("process " + imageEntry.getValue());

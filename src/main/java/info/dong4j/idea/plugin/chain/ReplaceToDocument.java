@@ -59,7 +59,6 @@ public class ReplaceToDocument extends BaseActionHandler {
 
         for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
             Document document = imageEntry.getKey();
-            data.setDocument(document);
             int totalCount = imageEntry.getValue().size();
             for (MarkdownImage markdownImage : imageEntry.getValue()) {
                 indicator.setText2("Processing " + markdownImage.getImageName());

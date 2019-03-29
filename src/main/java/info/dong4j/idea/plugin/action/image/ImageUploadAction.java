@@ -27,7 +27,7 @@ package info.dong4j.idea.plugin.action.image;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.Project;
+import com.intellij.openapi.editor.Document;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ActionManager;
@@ -38,16 +38,18 @@ import info.dong4j.idea.plugin.chain.ImageRenameHandler;
 import info.dong4j.idea.plugin.chain.ImageUploadHandler;
 import info.dong4j.idea.plugin.chain.InsertToClipboardHandler;
 import info.dong4j.idea.plugin.chain.OptionClientHandler;
-import info.dong4j.idea.plugin.chain.ResolveImageFileHandler;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.entity.EventData;
+import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.task.ActionTask;
 import info.dong4j.idea.plugin.util.ClientUtils;
 
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.Icon;
 
@@ -70,38 +72,34 @@ public final class ImageUploadAction extends ImageActionBase {
     }
 
     @Override
-    public void actionPerformed(@NotNull AnActionEvent event) {
-        Project project = event.getProject();
-        if (project != null) {
-            // 使用默认 client
-            CloudEnum cloudEnum = OssState.getCloudType(STATE.getCloudType());
-            OssClient client = ClientUtils.getClient(cloudEnum);
+    protected void buildChain(AnActionEvent event, Map<Document, List<MarkdownImage>> waitingProcessMap) {
+        // 使用默认 client
+        CloudEnum cloudEnum = OssState.getCloudType(STATE.getCloudType());
+        OssClient client = ClientUtils.getClient(cloudEnum);
 
-            EventData data = new EventData()
-                .setActionEvent(event)
-                .setProject(event.getProject())
-                .setClient(client)
-                .setClientName(cloudEnum.title);
+        EventData data = new EventData()
+            .setActionEvent(event)
+            .setProject(event.getProject())
+            .setClient(client)
+            .setClientName(cloudEnum.title)
+            .setWaitingProcessMap(waitingProcessMap);
 
-            ActionManager manager = new ActionManager(data)
-                // 解析 image 文件
-                .addHandler(new ResolveImageFileHandler())
-                // 处理 client
-                .addHandler(new OptionClientHandler())
-                // 图片压缩
-                .addHandler(new ImageCompressionHandler())
-                // 图片重命名
-                .addHandler(new ImageRenameHandler())
-                // 图片上传
-                .addHandler(new ImageUploadHandler())
-                // 标签转换
-                .addHandler(new ImageLabelChangeHandler())
-                // 写到 clipboard
-                .addHandler(new InsertToClipboardHandler())
-                .addHandler(new FinalChainHandler());
+        ActionManager manager = new ActionManager(data)
+            // 处理 client
+            .addHandler(new OptionClientHandler())
+            // 图片压缩
+            .addHandler(new ImageCompressionHandler())
+            // 图片重命名
+            .addHandler(new ImageRenameHandler())
+            // 图片上传
+            .addHandler(new ImageUploadHandler())
+            // 标签转换
+            .addHandler(new ImageLabelChangeHandler())
+            // 写到 clipboard
+            .addHandler(new InsertToClipboardHandler())
+            .addHandler(new FinalChainHandler());
 
-            // 开启后台任务
-            new ActionTask(event.getProject(), MikBundle.message("mik.action.upload.process", cloudEnum.title), manager).queue();
-        }
+        // 开启后台任务
+        new ActionTask(event.getProject(), MikBundle.message("mik.action.upload.process", cloudEnum.title), manager).queue();
     }
 }

@@ -30,10 +30,19 @@ import com.intellij.openapi.progress.ProgressIndicator;
 
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
+import info.dong4j.idea.plugin.enums.SuffixEnum;
+import info.dong4j.idea.plugin.settings.MikPersistenComponent;
+import info.dong4j.idea.plugin.settings.MikState;
+import info.dong4j.idea.plugin.util.CharacterUtils;
+import info.dong4j.idea.plugin.util.EnumsUtils;
 import info.dong4j.idea.plugin.util.ImageUtils;
 
+import org.apache.commons.lang3.time.DateFormatUtils;
+
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,6 +56,8 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ImageRenameHandler extends BaseActionHandler {
+    private static final String PREFIX = "MIK-";
+
     @Override
     public String getName() {
         return "图片重命名";
@@ -75,9 +86,35 @@ public class ImageRenameHandler extends BaseActionHandler {
                 indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
                 String imageName = markdownImage.getImageName();
                 indicator.setText2("Processing " + imageName);
-                markdownImage.setImageName(ImageUtils.processFileName(imageName));
+
+                markdownImage.setImageName(processFileName(imageName));
             }
         }
         return true;
+    }
+
+    /**
+     * 统一处理 fileName
+     *
+     * @param fileName the file name
+     * @return the string
+     */
+    private String processFileName(String fileName) {
+        MikState state = MikPersistenComponent.getInstance().getState();
+        // 处理文件名有空格导致上传 gif 变为静态图的问题
+        fileName = fileName.replaceAll("\\s*", "");
+        int sufixIndex = state.getSuffixIndex();
+        Optional<SuffixEnum> sufix = EnumsUtils.getEnumObject(SuffixEnum.class, e -> e.getIndex() == sufixIndex);
+        SuffixEnum suffixEnum = sufix.orElse(SuffixEnum.FILE_NAME);
+        switch (suffixEnum) {
+            case FILE_NAME:
+                return fileName;
+            case DATE_FILE_NAME:
+                return DateFormatUtils.format(new Date(), "yyyy-MM-dd-") + fileName;
+            case RANDOM:
+                return PREFIX + CharacterUtils.getRandomString(6) + ImageUtils.getFileExtension(fileName);
+            default:
+                return fileName;
+        }
     }
 }
