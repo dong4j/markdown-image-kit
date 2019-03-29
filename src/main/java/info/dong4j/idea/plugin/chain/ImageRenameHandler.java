@@ -25,9 +25,6 @@
 
 package info.dong4j.idea.plugin.chain;
 
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.progress.ProgressIndicator;
-
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.SuffixEnum;
@@ -40,8 +37,7 @@ import info.dong4j.idea.plugin.util.ImageUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.Iterator;
 import java.util.Optional;
 
 import lombok.extern.slf4j.Slf4j;
@@ -55,7 +51,8 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019 -03-27 21:24
  */
 @Slf4j
-public class ImageRenameHandler extends BaseActionHandler {
+public class ImageRenameHandler extends ActionHandlerAdapter {
+
     private static final String PREFIX = "MIK-";
 
     @Override
@@ -74,47 +71,48 @@ public class ImageRenameHandler extends BaseActionHandler {
      * @param data the data
      * @return the boolean
      */
+    // @Override
+    // public boolean execute(EventData data) {
+    //     ProgressIndicator indicator = data.getIndicator();
+    //     int size = data.getSize();
+    //     int totalProcessed = 0;
+    //
+    //     for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
+    //         int totalCount = imageEntry.getValue().size();
+    //         for (MarkdownImage markdownImage : imageEntry.getValue()) {
+    //             indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
+    //             String imageName = markdownImage.getImageName();
+    //             indicator.setText2("Processing " + imageName);
+    //
+    //             markdownImage.setImageName(processFileName(imageName));
+    //         }
+    //     }
+    //     return true;
+    // }
+
     @Override
-    public boolean execute(EventData data) {
-        ProgressIndicator indicator = data.getIndicator();
-        int size = data.getSize();
-        int totalProcessed = 0;
+    public void invoke(Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
 
-        for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
-            int totalCount = imageEntry.getValue().size();
-            for (MarkdownImage markdownImage : imageEntry.getValue()) {
-                indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
-                String imageName = markdownImage.getImageName();
-                indicator.setText2("Processing " + imageName);
-
-                markdownImage.setImageName(processFileName(imageName));
-            }
-        }
-        return true;
-    }
-
-    /**
-     * 统一处理 fileName
-     *
-     * @param fileName the file name
-     * @return the string
-     */
-    private String processFileName(String fileName) {
+        String imageName = markdownImage.getImageName();
         MikState state = MikPersistenComponent.getInstance().getState();
         // 处理文件名有空格导致上传 gif 变为静态图的问题
-        fileName = fileName.replaceAll("\\s*", "");
+        imageName = imageName.replaceAll("\\s*", "");
         int sufixIndex = state.getSuffixIndex();
         Optional<SuffixEnum> sufix = EnumsUtils.getEnumObject(SuffixEnum.class, e -> e.getIndex() == sufixIndex);
         SuffixEnum suffixEnum = sufix.orElse(SuffixEnum.FILE_NAME);
         switch (suffixEnum) {
             case FILE_NAME:
-                return fileName;
+                break;
             case DATE_FILE_NAME:
-                return DateFormatUtils.format(new Date(), "yyyy-MM-dd-") + fileName;
+                imageName =  DateFormatUtils.format(new Date(), "yyyy-MM-dd-") + imageName;
+                break;
             case RANDOM:
-                return PREFIX + CharacterUtils.getRandomString(6) + ImageUtils.getFileExtension(fileName);
+                imageName = PREFIX + CharacterUtils.getRandomString(6) + ImageUtils.getFileExtension(imageName);
+                break;
             default:
-                return fileName;
+                break;
         }
+
+        markdownImage.setImageName(imageName);
     }
 }

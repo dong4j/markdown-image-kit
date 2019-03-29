@@ -60,8 +60,11 @@ public class InsertToDocumentHandler extends BaseActionHandler {
         for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
             int totalCount = imageEntry.getValue().size();
             for (MarkdownImage markdownImage : imageEntry.getValue()) {
-                indicator.setText2("Processing " + markdownImage.getImageName());
+
                 indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
+                String imageName = markdownImage.getImageName();
+                indicator.setText2("Processing " + imageName);
+
 
                 WriteCommandAction.runWriteCommandAction(data.getProject(),
                                                          () -> EditorModificationUtil.insertStringAtCaret(data.getEditor(),

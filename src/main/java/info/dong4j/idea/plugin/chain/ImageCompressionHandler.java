@@ -25,12 +25,8 @@
 
 package info.dong4j.idea.plugin.chain;
 
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.progress.ProgressIndicator;
-
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
-import info.dong4j.idea.plugin.notify.MikNotification;
 import info.dong4j.idea.plugin.util.ImageUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -38,9 +34,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.*;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
@@ -54,7 +48,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019 -03-28 09:23
  */
 @Slf4j
-public class ImageCompressionHandler extends BaseActionHandler {
+public class ImageCompressionHandler extends ActionHandlerAdapter {
     @Override
     public String getName() {
         return "图片压缩";
@@ -71,49 +65,82 @@ public class ImageCompressionHandler extends BaseActionHandler {
      * @param data the data
      * @return the boolean
      */
+    // @Override
+    // public boolean execute(EventData data) {
+    //     ProgressIndicator indicator = data.getIndicator();
+    //     int size = data.getSize();
+    //     int totalProcessed = 0;
+    //
+    //     Map<String, String> compressInfo = new HashMap<>(10);
+    //
+    //     for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
+    //         int totalCount = imageEntry.getValue().size();
+    //         Iterator<MarkdownImage> imageIterator = imageEntry.getValue().iterator();
+    //         while (imageIterator.hasNext()) {
+    //             MarkdownImage markdownImage = imageIterator.next();
+    //
+    //             indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
+    //             String imageName = markdownImage.getImageName();
+    //             indicator.setText2("Processing " + imageName);
+    //
+    //
+    //             if (markdownImage.getInputStream() == null) {
+    //                 log.trace("inputstream 为 null, remove markdownImage = {}", markdownImage);
+    //                 imageIterator.remove();
+    //                 continue;
+    //             }
+    //
+    //             if (imageName.endsWith("gif")) {
+    //                 continue;
+    //             }
+    //
+    //             InputStream inputStream = markdownImage.getInputStream();
+    //             try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+    //                 long oldlength = inputStream.available();
+    //                 ImageUtils.compress(inputStream, outputStream, STATE.getCompressBeforeUploadOfPercent());
+    //                 long newLength = outputStream.toByteArray().length;
+    //                 markdownImage.setInputStream(new ByteArrayInputStream(outputStream.toByteArray()));
+    //                 buildConpress(compressInfo, imageName, oldlength, newLength);
+    //             } catch (Exception e) {
+    //                 log.trace("", e);
+    //             }
+    //         }
+    //     }
+    //
+    //     MikNotification.notifyCompressInfo(data.getProject(), compressInfo);
+    //     return true;
+    // }
+
     @Override
-    public boolean execute(EventData data) {
-        ProgressIndicator indicator = data.getIndicator();
-        int size = data.getSize();
-        int totalProcessed = 0;
-        Map<String, String> compressInfo = new HashMap<>(10);
-
-        for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
-            int totalCount = imageEntry.getValue().size();
-            Iterator<MarkdownImage> imageIterator = imageEntry.getValue().iterator();
-            while (imageIterator.hasNext()) {
-                MarkdownImage markdownImage = imageIterator.next();
-                indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
-
-                if (markdownImage.getInputStream() == null) {
-                    log.trace("inputstream 为 null, remove markdownImage = {}", markdownImage);
-                    imageIterator.remove();
-                    continue;
-                }
-                indicator.setText2("process " + imageEntry.getValue());
-
-                String imageName = markdownImage.getImageName();
-                if (imageName.endsWith("gif")) {
-                    continue;
-                }
-
-                InputStream inputStream = markdownImage.getInputStream();
-                try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-                    long oldlength = inputStream.available();
-                    ImageUtils.compress(inputStream, outputStream, STATE.getCompressBeforeUploadOfPercent());
-                    long newLength = outputStream.toByteArray().length;
-                    markdownImage.setInputStream(new ByteArrayInputStream(outputStream.toByteArray()));
-                    buildConpress(compressInfo, imageName, oldlength, newLength);
-                } catch (Exception e) {
-                    log.trace("", e);
-                }
-            }
+    public void invoke(Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
+        String imageName = markdownImage.getImageName();
+        if (markdownImage.getInputStream() == null) {
+            log.trace("inputstream 为 null, remove markdownImage = {}", markdownImage);
+            imageIterator.remove();
+            return;
         }
 
-        MikNotification.notifyCompressInfo(data.getProject(), compressInfo);
-        return true;
+        if (imageName.endsWith("gif")) {
+            return;
+        }
+
+        InputStream inputStream = markdownImage.getInputStream();
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            ImageUtils.compress(inputStream, outputStream, STATE.getCompressBeforeUploadOfPercent());
+            markdownImage.setInputStream(new ByteArrayInputStream(outputStream.toByteArray()));
+        } catch (Exception e) {
+            log.trace("", e);
+        }
     }
 
+    /**
+     * Build conpress.
+     *
+     * @param compressInfo the compress info
+     * @param imageName    the image name
+     * @param oldlength    the oldlength
+     * @param newLength    the new length
+     */
     private void buildConpress(@NotNull Map<String, String> compressInfo,
                                String imageName,
                                long oldlength,

@@ -80,13 +80,16 @@ public class ImageUploadHandler extends BaseActionHandler {
             Iterator<MarkdownImage> imageIterator = imageEntry.getValue().iterator();
             while (imageIterator.hasNext()) {
                 MarkdownImage markdownImage = imageIterator.next();
+
                 indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
-                indicator.setText2("Processing " + markdownImage.getImageName());
+                String imageName = markdownImage.getImageName();
+                indicator.setText2("Processing " + imageName);
+
+
                 // 已上传过的不处理, 此时 finalmark 为 null, 替换是忽略
                 if (ImageLocationEnum.NETWORK.equals(markdownImage.getLocation())) {
                     continue;
                 }
-                String imageName = markdownImage.getImageName();
 
                 if(StringUtils.isBlank(imageName) || markdownImage.getInputStream() == null){
                     log.trace("inputstream 为 null 或者 imageName 为 null, remove markdownImage = {}", markdownImage);

@@ -61,8 +61,11 @@ public class ReplaceToDocument extends BaseActionHandler {
             Document document = imageEntry.getKey();
             int totalCount = imageEntry.getValue().size();
             for (MarkdownImage markdownImage : imageEntry.getValue()) {
-                indicator.setText2("Processing " + markdownImage.getImageName());
+
                 indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
+                String imageName = markdownImage.getImageName();
+                indicator.setText2("Processing " + imageName);
+
 
                 String finalMark = markdownImage.getFinalMark();
                 if(StringUtils.isBlank(finalMark)){
