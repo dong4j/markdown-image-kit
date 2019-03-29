@@ -28,10 +28,6 @@ package info.dong4j.idea.plugin.settings;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.SearchableConfigurable;
-import com.intellij.openapi.project.ProjectManager;
-import com.intellij.openapi.ui.ComponentValidator;
-import com.intellij.openapi.ui.ValidationInfo;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.JBColor;
 
@@ -122,7 +118,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JCheckBox compressCheckBox;
     private JSlider compressSlider;
     private JLabel compressLabel;
-    private JCheckBox transportCheckBox;
     private JCheckBox renameCheckBox;
     private JComboBox fileNameSuffixBoxField;
 
@@ -175,33 +170,33 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         initGlobalPanel(state);
         initClipboardControl();
 
-        String MESSAGE = "The port number should be between 0 and 65535.";
-
-        // Components initialization
-        new ComponentValidator(ProjectManager.getInstance().getDefaultProject()).withValidator(v -> {
-            String pt = myPort.getText();
-            if (StringUtil.isNotEmpty(pt)) {
-                try {
-                    int portValue = Integer.parseInt(pt);
-                    if (portValue >= 0 && portValue <= 65535) {
-                        v.updateInfo(null);
-                    } else {
-                        v.updateInfo(new ValidationInfo(MESSAGE, myPort));
-                    }
-                } catch (NumberFormatException nfe) {
-                    v.updateInfo(new ValidationInfo(MESSAGE, myPort));
-                }
-            } else {
-                v.updateInfo(null);
-            }
-        }).installOn(myPort);
-
-        myPort.getDocument().addDocumentListener(new DocumentAdapter() {
-            @Override
-            protected void textChanged(@NotNull DocumentEvent e) {
-                ComponentValidator.getInstance(myPort).ifPresent(ComponentValidator::revalidate);
-            }
-        });
+        // String MESSAGE = "The port number should be between 0 and 65535.";
+        //
+        // // Components initialization
+        // new ComponentValidator(ProjectManager.getInstance().getDefaultProject()).withValidator(v -> {
+        //     String pt = myPort.getText();
+        //     if (StringUtil.isNotEmpty(pt)) {
+        //         try {
+        //             int portValue = Integer.parseInt(pt);
+        //             if (portValue >= 0 && portValue <= 65535) {
+        //                 v.updateInfo(null);
+        //             } else {
+        //                 v.updateInfo(new ValidationInfo(MESSAGE, myPort));
+        //             }
+        //         } catch (NumberFormatException nfe) {
+        //             v.updateInfo(new ValidationInfo(MESSAGE, myPort));
+        //         }
+        //     } else {
+        //         v.updateInfo(null);
+        //     }
+        // }).installOn(myPort);
+        //
+        // myPort.getDocument().addDocumentListener(new DocumentAdapter() {
+        //     @Override
+        //     protected void textChanged(@NotNull DocumentEvent e) {
+        //         ComponentValidator.getInstance(myPort).ifPresent(ComponentValidator::revalidate);
+        //     }
+        // });
     }
 
     /**
@@ -364,7 +359,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private void initGlobalPanel(@NotNull MikState state) {
         initChangeToHtmlGroup();
         initCompressGroup();
-        initExpandGroup();
 
         // 初始化上传图片的后缀
         renameCheckBox.setSelected(config.getState().isRename());
@@ -473,14 +467,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             JCheckBox checkBox = (JCheckBox) e.getSource();
             compressSlider.setEnabled(checkBox.isSelected());
         });
-    }
-
-    /**
-     * 初始化图片备份和图床迁移
-     */
-    private void initExpandGroup() {
-        // todo-dong4j : (2019年03月15日 20:52) [删除此设置, 使用 MoveToOtherStorageAction 替代]
-        this.transportCheckBox.setSelected(config.getState().isTransport());
     }
 
     /**
@@ -609,8 +595,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         boolean compress = compressCheckBox.isSelected();
         // 压缩比例
         int compressBeforeUploadOfPercent = compressSlider.getValue();
-        // 图床迁移
-        boolean transport = transportCheckBox.isSelected();
 
         boolean isRename = renameCheckBox.isSelected();
         // 图片后缀
@@ -621,7 +605,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                && tagTypeCode.equals(state.getTagTypeCode())
                && compress == state.isCompress()
                && compressBeforeUploadOfPercent == state.getCompressBeforeUploadOfPercent()
-               && transport == state.isTransport()
                && isRename == state.isRename()
                && index == state.getSuffixIndex();
     }
@@ -724,7 +707,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         }
         state.setCompress(this.compressCheckBox.isSelected());
         state.setCompressBeforeUploadOfPercent(this.compressSlider.getValue());
-        state.setTransport(this.transportCheckBox.isSelected());
         state.setRename(renameCheckBox.isSelected());
         state.setSuffixIndex(fileNameSuffixBoxField.getSelectedIndex());
     }
@@ -802,7 +784,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.compressCheckBox.setSelected(state.isCompress());
         this.compressSlider.setValue(state.getCompressBeforeUploadOfPercent());
         this.compressLabel.setText(String.valueOf(compressSlider.getValue()));
-        this.transportCheckBox.setSelected(state.isTransport());
         this.renameCheckBox.setSelected(state.isRename());
         this.fileNameSuffixBoxField.setSelectedIndex(state.getSuffixIndex());
     }

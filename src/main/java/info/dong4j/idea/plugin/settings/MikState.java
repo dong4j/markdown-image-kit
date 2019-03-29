@@ -57,8 +57,6 @@ public class MikState {
     /** 是否压缩图片 */
     private boolean compress = false;
     private int compressBeforeUploadOfPercent = 60;
-    /** 图床迁移 */
-    private boolean transport = false;
     /** 图片备份 */
     private boolean backup = false;
     /** 拷贝图片到目录 */

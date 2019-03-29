@@ -70,6 +70,7 @@ public final class MoveToOtherStorageAction extends AnAction {
     private static final String DOMAIN_DEFAULT_MESSAGE = MikBundle.message("mik.panel.message.domain-field");
     private static final int CONNECTION_TIMEOUT = 5 * 1000;
     private static final int READ_TIMEOUT = 10 * 1000;
+    private static final String MOVE_ALL = "ALL";
 
     @Override
     public void update(@NotNull AnActionEvent event) {
@@ -106,7 +107,7 @@ public final class MoveToOtherStorageAction extends AnAction {
             // http://www.jetbrains.org/intellij/sdk/docs/basics/persisting_state_of_components.html
             PropertiesComponent propComp = PropertiesComponent.getInstance();
             // 过滤掉配置用户输入后的其他标签
-            propComp.setValue(MarkdownFileFilter.FILTER_KEY, domain);
+            propComp.setValue(MarkdownFileFilter.FILTER_KEY, domain.equals(MOVE_ALL) ? "" : domain);
 
             new ActionTask(project,
                            MikBundle.message("mik.action.move.process", cloudEnum.title),
