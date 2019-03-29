@@ -27,9 +27,7 @@ package info.dong4j.idea.plugin.action.intention;
 
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.IncorrectOperationException;
 
@@ -45,7 +43,6 @@ import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.task.ActionTask;
-import info.dong4j.idea.plugin.util.MarkdownUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -72,16 +69,12 @@ public final class ImageMoveIntentionAction extends IntentionActionBase {
 
     @Override
     public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
-        Document document = editor.getDocument();
-        int documentLine = document.getLineNumber(editor.getCaretModel().getOffset());
-        VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
-
-        MarkdownImage matchImageMark = MarkdownUtils.matchImageMark(virtualFile, getLineText(editor), documentLine);
-        if(matchImageMark == null){
+        MarkdownImage matchImageMark = getMarkdownImage(editor);
+        if (matchImageMark == null) {
             return;
         }
 
-        if(ImageLocationEnum.NETWORK != matchImageMark.getLocation()){
+        if (ImageLocationEnum.NETWORK != matchImageMark.getLocation()) {
             return;
         }
 

@@ -25,6 +25,8 @@
 
 package info.dong4j.idea.plugin.entity;
 
+import com.intellij.openapi.vfs.VirtualFile;
+
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 
@@ -72,4 +74,6 @@ public class MarkdownImage implements Serializable {
     private InputStream inputStream;
     /** 最终需要插入到文本的标签*/
     private String finalMark;
+    /** 保存当前标签对应的 image file*/
+    private VirtualFile virtualFile;
 }

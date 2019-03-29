@@ -26,6 +26,7 @@
 package info.dong4j.idea.plugin.action.intention;
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
@@ -34,6 +35,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 
 import info.dong4j.idea.plugin.client.OssClient;
+import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
@@ -43,6 +45,7 @@ import info.dong4j.idea.plugin.util.MarkdownUtils;
 
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -117,7 +120,7 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
                                @NotNull PsiElement element) {
 
 
-        if(!MarkdownUtils.isImageMark(getLineText(editor))){
+        if (!MarkdownUtils.isImageMark(getLineText(editor))) {
             return false;
         }
 
@@ -135,7 +138,7 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
      * @param editor the editor
      * @return the string
      */
-    String getLineText(Editor editor){
+    private String getLineText(Editor editor) {
         int documentLine = editor.getDocument().getLineNumber(editor.getCaretModel().getOffset());
         int linestartoffset = editor.getDocument().getLineStartOffset(documentLine);
         int lineendoffset = editor.getDocument().getLineEndOffset(documentLine);
@@ -145,5 +148,18 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
         String text = editor.getDocument().getText(new TextRange(linestartoffset, lineendoffset));
         log.trace("text = {}", text);
         return text;
+    }
+
+    @Nullable
+    MarkdownImage getMarkdownImage(Editor editor) {
+        Document document = editor.getDocument();
+        int documentLine = document.getLineNumber(editor.getCaretModel().getOffset());
+        VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
+
+        MarkdownImage matchImageMark = MarkdownUtils.analysisImageMark(virtualFile, getLineText(editor), documentLine);
+        if (matchImageMark == null) {
+            return null;
+        }
+        return matchImageMark;
     }
 }

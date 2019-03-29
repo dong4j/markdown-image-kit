@@ -33,6 +33,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -136,10 +137,7 @@ public final class MarkdownUtils {
                 }
                 log.trace("originalLineText: {}", originalLineText);
                 MarkdownImage markdownImage;
-                // todo-dong4j : (2019年03月29日 03:44) [获取 imageName]
-                //  根据 imageName 全文搜索 UploadUtils.searchVirtualFileByName
-                //  如果找不到则不处理
-                if ((markdownImage = matchImageMark(virtualFile, originalLineText, line)) != null) {
+                if ((markdownImage = analysisImageMark(virtualFile, originalLineText, line)) != null) {
                     markdownImageList.add(markdownImage);
                 }
             }
@@ -156,7 +154,7 @@ public final class MarkdownUtils {
      * @return the markdown image
      */
     @Nullable
-    public static MarkdownImage matchImageMark(VirtualFile virtualFile, String lineText, int line) {
+    public static MarkdownImage analysisImageMark(VirtualFile virtualFile, String lineText, int line) {
         int[] offset = resolveText(lineText);
         if (offset == null) {
             return null;
@@ -167,6 +165,8 @@ public final class MarkdownUtils {
         markdownImage.setLineNumber(line);
         markdownImage.setLineStartOffset(offset[0]);
         markdownImage.setLineEndOffset(offset[1]);
+
+
         // 解析 markdown 图片标签
         try {
             // 如果以 `<a` 开始, 以 `a>` 结束, 需要修改偏移量
@@ -208,13 +208,18 @@ public final class MarkdownUtils {
                 markdownImage.setLocation(ImageLocationEnum.LOCAL);
                 // 图片文件的相对路径
                 markdownImage.setPath(path);
-                markdownImage.setExtension(virtualFile.getExtension());
-                markdownImage.setInputStream(virtualFile.getInputStream());
-                markdownImage.setImageName(path.substring(path.lastIndexOf(File.separator) + 1));
+                String imagename = path.substring(path.lastIndexOf(File.separator) + 1);
+
+                Project project = ProjectUtil.guessProjectForFile(virtualFile);
+                VirtualFile imageVirtualFile = UploadUtils.searchVirtualFileByName(project, imagename);
+                markdownImage.setExtension(imageVirtualFile.getExtension());
+                markdownImage.setInputStream(imageVirtualFile.getInputStream());
+                markdownImage.setVirtualFile(imageVirtualFile);
+                markdownImage.setImageName(imagename);
             }
             return markdownImage;
         } catch (IOException e) {
-            log.trace("", e);
+            log.trace("markdown imge mark analysis error", e);
         }
         return null;
     }
