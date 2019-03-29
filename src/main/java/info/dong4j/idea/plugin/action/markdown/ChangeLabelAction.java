@@ -44,6 +44,7 @@ import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.task.ActionTask;
 import info.dong4j.idea.plugin.util.ActionUtils;
+import info.dong4j.idea.plugin.util.ParserUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -90,6 +91,14 @@ public class ChangeLabelAction extends AnAction {
                     public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
                         // 如果是本地类型, 则不替换
                         if (markdownImage.getLocation().equals(ImageLocationEnum.LOCAL)) {
+                            return;
+                        }
+
+                        // 如果没有勾选 标签替换开关, 则全部替换为原始标签
+                        if (!STATE.isChangeToHtmlTag()) {
+                            markdownImage.setFinalMark(ParserUtils.parse2(ImageMarkEnum.ORIGINAL.code,
+                                                                          markdownImage.getTitle(),
+                                                                          markdownImage.getPath()));
                             return;
                         }
 

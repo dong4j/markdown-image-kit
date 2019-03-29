@@ -63,7 +63,7 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
     /**
      * The State.
      */
-    private static final MikState STATE = MikPersistenComponent.getInstance().getState();
+    static final MikState STATE = MikPersistenComponent.getInstance().getState();
 
     /**
      * Gets message.

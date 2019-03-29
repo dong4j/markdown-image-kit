@@ -65,6 +65,13 @@ public class ImageLabelChangeIntetionAction extends IntentionActionBase {
     }
 
     @Override
+    public boolean isAvailable(@NotNull Project project, Editor editor,
+                               @NotNull PsiElement element) {
+
+        return super.isAvailable(project, editor, element) && STATE.isChangeToHtmlTag();
+    }
+
+    @Override
     public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
         MarkdownImage markdownImage = getMarkdownImage(editor);
         if (markdownImage != null) {

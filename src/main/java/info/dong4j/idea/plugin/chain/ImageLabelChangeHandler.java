@@ -46,10 +46,8 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ImageLabelChangeHandler extends ActionHandlerAdapter {
-    /**
-     * The constant MESSAGE.
-     */
-    public static final String MESSAGE = "自定义标签格式设置错误, 请重新设置";
+    private static final String MESSAGE = "自定义标签格式设置错误, 请重新设置";
+
     @Override
     public String getName() {
         return "标签替换";
