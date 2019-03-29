@@ -128,14 +128,18 @@ public final class MarkdownUtils {
                 // 获取指定行的最后一个字符在全文中的偏移量，行号的取值范围为：[0,getLineCount()-1]
                 int endOffset = document.getLineEndOffset(line);
                 TextRange currentLineTextRange = TextRange.create(startOffset, endOffset);
-
                 String originalLineText = document.getText(currentLineTextRange);
-                if (StringUtils.isNotBlank(originalLineText)) {
-                    log.trace("originalLineText: {}", originalLineText);
-                    MarkdownImage markdownImage;
-                    if ((markdownImage = matchImageMark(virtualFile, originalLineText, line)) != null) {
-                        markdownImageList.add(markdownImage);
-                    }
+                // todo-dong4j : (2019年03月29日 03:42) [如果此行文本中有 markdown image mark 才处理]
+                if(StringUtils.isBlank(originalLineText) || !isImageMark(originalLineText)){
+                    continue;
+                }
+                log.trace("originalLineText: {}", originalLineText);
+                MarkdownImage markdownImage;
+                // todo-dong4j : (2019年03月29日 03:44) [获取 imageName]
+                //  根据 imageName 全文搜索 UploadUtils.searchVirtualFileByName
+                //  如果找不到则不处理
+                if ((markdownImage = matchImageMark(virtualFile, originalLineText, line)) != null) {
+                    markdownImageList.add(markdownImage);
                 }
             }
         }
@@ -144,7 +148,7 @@ public final class MarkdownUtils {
 
     /**
      * 不使用正则, 因为需要记录偏移量
-     *
+     * fixme-dong4j : (2019年03月29日 03:38 [virtualFile 错误, 应该是图片的 virtualFile])
      * @param virtualFile the virtual file 当前处理的文件
      * @param lineText    the line text    当前处理的文本行
      * @param line        the line         在文本中的行数
@@ -169,6 +173,31 @@ public final class MarkdownUtils {
             log.trace("", e);
         }
         return null;
+    }
+
+    /**
+     * 是否为有效的 markdown image 标签
+     * ![](xxxx) () 内不能为空
+     * ![](yyyy) () 内必须是图片
+     * ![](zzz.png) () 内图片必须存在
+     * fixme-dong4j : (2019年03月29日 03:38 [])
+     * @return the boolean
+     */
+    @Contract(pure = true)
+    public static boolean isImageMark(String mark){
+        return false;
+    }
+
+    /**
+     * 从 mark 中获取图片名称
+     * fixme-dong4j : (2019年03月29日 03:38 [])
+     * @param mark the mark
+     * @return the string
+     */
+    @NotNull
+    @Contract(pure = true)
+    public static String getImageNameFromMark(String mark){
+        return "";
     }
 
     /**
@@ -258,31 +287,6 @@ public final class MarkdownUtils {
             markdownImage.setImageName(path.substring(path.lastIndexOf(File.separator) + 1));
         }
         return markdownImage;
-    }
-
-    /**
-     * 是否为有效的 markdown image 标签
-     * ![](xxxx) () 内不能为空
-     * ![](yyyy) () 内必须是图片
-     * ![](zzz.png) () 内图片必须存在
-     *
-     * @return the boolean
-     */
-    @Contract(pure = true)
-    public static boolean isImageMark(String mark){
-        return false;
-    }
-
-    /**
-     * 从 mark 中获取图片名称
-     *
-     * @param mark the mark
-     * @return the string
-     */
-    @NotNull
-    @Contract(pure = true)
-    public static String getImageNameFromMark(String mark){
-        return "";
     }
 
     /**
