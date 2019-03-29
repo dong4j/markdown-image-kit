@@ -29,6 +29,9 @@
         <intentionAction>
             <className>info.dong4j.idea.plugin.action.intention.ImageMoveIntentionAction</className>
         </intentionAction>
+        <intentionAction>
+            <className>info.dong4j.idea.plugin.action.intention.ImageLabelChangeIntetionAction</className>
+        </intentionAction>
 
     </extensions>
 
@@ -52,6 +55,11 @@
                 popup="true" text="图床迁移计划">
         </action>
 
+        <action id="ChangeLabelAction" class="info.dong4j.idea.plugin.action.markdown.ChangeLabelAction"
+                popup="true" text="替换所有标签">
+        </action>
+
+
         <group popup="true" id="info.dong4j.idea.plugin.markdown.image.kit"
                class="info.dong4j.idea.plugin.action.MikGroupAction"
                text="Markdown Image Kit">
@@ -62,6 +70,7 @@
             <reference ref="ImageCompressAction"/>
             <reference ref="ImageUploadAction"/>
             <separator/>
+            <reference ref="ChangeLabelAction"/>
             <reference ref="MoveToOtherStorageAction"/>
             <add-to-group group-id="ToolsMenu" anchor="last"/>
             <add-to-group group-id="MainToolBar" anchor="last"/>
@@ -79,6 +88,7 @@
             <reference ref="ImageCompressAction"/>
             <reference ref="ImageUploadAction"/>
             <separator/>
+            <reference ref="ChangeLabelAction"/>
             <reference ref="MoveToOtherStorageAction"/>
             <add-to-group group-id="EditorPopupMenu" anchor="last"/>
         </group>

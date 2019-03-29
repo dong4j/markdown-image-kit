@@ -23,79 +23,88 @@
  *
  */
 
-package info.dong4j.idea.plugin.action.intention;
+package info.dong4j.idea.plugin.action.markdown;
 
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.Editor;
+import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiElement;
-import com.intellij.util.IncorrectOperationException;
 
 import info.dong4j.idea.plugin.MikBundle;
+import info.dong4j.idea.plugin.chain.ActionHandlerAdapter;
 import info.dong4j.idea.plugin.chain.ActionManager;
 import info.dong4j.idea.plugin.chain.FinalChainHandler;
 import info.dong4j.idea.plugin.chain.ImageLabelChangeHandler;
 import info.dong4j.idea.plugin.chain.ReplaceToDocument;
+import info.dong4j.idea.plugin.chain.ResolveMarkdownFileHandler;
+import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.task.ActionTask;
+import info.dong4j.idea.plugin.util.ActionUtils;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Iterator;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: 替换标签意图</p>
+ * <p>Description: 全局替换标签 </p>
  *
  * @author dong4j
  * @email sjdong3@iflytek.com
- * @since 2019-03-29 12:44
+ * @since 2019-03-29 19:03
  */
-public class ImageLabelChangeIntetionAction extends IntentionActionBase {
-    @NotNull
+@Slf4j
+public class ChangeLabelAction extends AnAction {
     @Override
-    String getMessage(String clientName) {
-        return MikBundle.message("mik.intention.change.message");
+    public void update(@NotNull AnActionEvent event) {
+        ActionUtils.isAvailable(event, AllIcons.Actions.ListChanges, MarkdownContents.MARKDOWN_TYPE_NAME);
     }
 
     @Override
-    public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
-        MarkdownImage markdownImage = getMarkdownImage(editor);
-        if (markdownImage != null) {
-            if (markdownImage.getLocation().name().equals(ImageLocationEnum.LOCAL.name())) {
-                return;
-            }
+    public void actionPerformed(@NotNull AnActionEvent event) {
 
-            Map<Document, List<MarkdownImage>> waitingForMoveMap = new HashMap<Document, List<MarkdownImage>>(1) {
-                {
-                    put(editor.getDocument(), new ArrayList<MarkdownImage>(1) {
-                        {
-                            // 手动设置为原始类型, 后面才能替换
-                            markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
-                            add(markdownImage);
-                        }
-                    });
-                }
-            };
+        final Project project = event.getProject();
+        if (project != null) {
 
             EventData data = new EventData()
-                .setProject(project)
-                .setWaitingProcessMap(waitingForMoveMap);
+                .setActionEvent(event)
+                .setProject(project);
 
             ActionManager actionManager = new ActionManager(data)
-                .addHandler(new ImageLabelChangeHandler())
+                // 解析 markdown 文件
+                .addHandler(new ResolveMarkdownFileHandler())
+                // 全部标签转换
+                .addHandler(new ActionHandlerAdapter() {
+                    @Override
+                    public String getName() {
+                        return "全局替换标签";
+                    }
+
+                    @Override
+                    public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
+                        // 如果是本地类型, 则不替换
+                        if (markdownImage.getLocation().equals(ImageLocationEnum.LOCAL)) {
+                            return;
+                        }
+
+                        ImageMarkEnum currentMarkType = markdownImage.getImageMarkType();
+                        if (!STATE.getTagType().equals(currentMarkType.text)) {
+                            ImageLabelChangeHandler.change(markdownImage);
+                        }
+                    }
+                })
                 // 写入标签
                 .addHandler(new ReplaceToDocument())
                 .addHandler(new FinalChainHandler());
 
-            // 开启后台任务
-            new ActionTask(project, MikBundle.message("mik.action.move.process", getName()),
+            new ActionTask(project,
+                           MikBundle.message("mik.action.change.process"),
                            actionManager).queue();
         }
     }

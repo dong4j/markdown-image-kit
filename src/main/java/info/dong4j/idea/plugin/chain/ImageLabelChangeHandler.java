@@ -46,7 +46,10 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ImageLabelChangeHandler extends ActionHandlerAdapter {
-
+    /**
+     * The constant MESSAGE.
+     */
+    public static final String MESSAGE = "自定义标签格式设置错误, 请重新设置";
     @Override
     public String getName() {
         return "标签替换";
@@ -57,48 +60,6 @@ public class ImageLabelChangeHandler extends ActionHandlerAdapter {
         return STATE.isChangeToHtmlTag();
     }
 
-    // @Override
-    // public boolean execute(EventData data) {
-    //     ProgressIndicator indicator = data.getIndicator();
-    //     int size = data.getSize();
-    //     int totalProcessed = 0;
-    //
-    //     for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
-    //         int totalCount = imageEntry.getValue().size();
-    //         for (MarkdownImage markdownImage : imageEntry.getValue()) {
-    //             indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
-    //             String imageName = markdownImage.getImageName();
-    //             indicator.setText2("Processing " + imageName);
-    //
-    //
-    //             // 如果是本地类型, 则不替换
-    //             if (markdownImage.getLocation().equals(ImageLocationEnum.LOCAL)) {
-    //                 continue;
-    //             }
-    //
-    //             // 如果标签已经与配置的类型一致, 则不替换
-    //             ImageMarkEnum currentMarkType = markdownImage.getImageMarkType();
-    //             if (STATE.getTagType().equals(currentMarkType.text)) {
-    //                 continue;
-    //             }
-    //
-    //             String finalMark;
-    //             // 最后替换与配置不一致的标签
-    //             String typeCode = STATE.getTagTypeCode();
-    //             if (MikBundle.message("mik.change.mark.message").equals(typeCode)) {
-    //                 finalMark = "自定义标签格式设置错误, 请重新设置";
-    //             } else {
-    //                 finalMark = ParserUtils.parse2(typeCode,
-    //                                                markdownImage.getTitle(),
-    //                                                markdownImage.getPath());
-    //             }
-    //             markdownImage.setFinalMark(finalMark);
-    //
-    //         }
-    //     }
-    //     return true;
-    // }
-
     @Override
     public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
         // 如果是本地类型, 则不替换
@@ -106,17 +67,24 @@ public class ImageLabelChangeHandler extends ActionHandlerAdapter {
             return;
         }
 
-        // 如果标签已经与配置的类型一致, 则不替换
+        // 只替换原始类型的标签, 避免全部替换(使用右键上传时, 根据类型替换为指定标签, 如果已经替换过则不处理)
         ImageMarkEnum currentMarkType = markdownImage.getImageMarkType();
-        if (STATE.getTagType().equals(currentMarkType.text)) {
-            return;
+        if(ImageMarkEnum.ORIGINAL.equals(currentMarkType)){
+            change(markdownImage);
         }
+    }
 
+    /**
+     * Change.
+     *
+     * @param markdownImage the markdown image
+     */
+    public static void change(MarkdownImage markdownImage) {
         String finalMark;
         // 最后替换与配置不一致的标签
         String typeCode = STATE.getTagTypeCode();
         if (MikBundle.message("mik.change.mark.message").equals(typeCode)) {
-            finalMark = "自定义标签格式设置错误, 请重新设置";
+            finalMark = MESSAGE;
         } else {
             finalMark = ParserUtils.parse2(typeCode,
                                            markdownImage.getTitle(),
