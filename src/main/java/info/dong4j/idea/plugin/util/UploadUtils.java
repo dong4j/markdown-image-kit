@@ -29,6 +29,7 @@ import com.google.common.collect.Iterables;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -40,6 +41,7 @@ import info.dong4j.idea.plugin.settings.MikState;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.*;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -104,7 +106,7 @@ public class UploadUtils {
      * @param name    the name
      * @return the virtual file
      */
-    public static VirtualFile searchVirtualFileByName(Project project, String name){
+    public static VirtualFile searchVirtualFileByName(Project project, String name) {
         // Read access is allowed from event dispatch thread or inside read-action only (see com.intellij.openapi.application.Application.runReadAction())
         AtomicReference<Collection<VirtualFile>> findedFiles = new AtomicReference<>();
         ApplicationManager.getApplication().runReadAction(() -> {
@@ -115,5 +117,15 @@ public class UploadUtils {
 
         // 只取第一个图片
         return Iterables.getFirst(findedFiles.get(), null);
+    }
+
+    /**
+     * 通过文件精确查找 VirtualFile
+     *
+     * @param file the file
+     * @return the virtual file
+     */
+    public static VirtualFile searchVirtualFile(File file) {
+        return LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
     }
 }

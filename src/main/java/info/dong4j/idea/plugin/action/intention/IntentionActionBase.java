@@ -34,7 +34,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 
 import info.dong4j.idea.plugin.client.OssClient;
-import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
@@ -62,10 +61,6 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
      * The State.
      */
     private static final MikState STATE = MikPersistenComponent.getInstance().getState();
-    /**
-     * The Match image mark.
-     */
-    MarkdownImage matchImageMark;
 
     /**
      * Gets message.
@@ -74,13 +69,6 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
      * @return the message
      */
     abstract String getMessage(String clientName);
-
-    /**
-     * Show boolean.
-     *
-     * @return the boolean
-     */
-    abstract boolean show();
 
     /**
      * 使用设置的默认 client
@@ -128,16 +116,8 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
     public boolean isAvailable(@NotNull Project project, Editor editor,
                                @NotNull PsiElement element) {
 
-        int documentLine = editor.getDocument().getLineNumber(editor.getCaretModel().getOffset());
-        int linestartoffset = editor.getDocument().getLineStartOffset(documentLine);
-        int lineendoffset = editor.getDocument().getLineEndOffset(documentLine);
 
-        log.trace("documentLine = {}, linestartoffset = {}, lineendoffset = {}", documentLine, linestartoffset, lineendoffset);
-
-        String text = editor.getDocument().getText(new TextRange(linestartoffset, lineendoffset));
-        log.trace("text = {}", text);
-
-        if(!MarkdownUtils.isImageMark(text)){
+        if(!MarkdownUtils.isImageMark(getLineText(editor))){
             return false;
         }
 
@@ -146,14 +126,24 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
             return false;
         }
 
-        if (!MarkdownUtils.isMardownFile(virtualFile)) {
-            return false;
-        }
-
-
-        matchImageMark = MarkdownUtils.matchImageMark(virtualFile, text, documentLine);
-
-        return matchImageMark != null && show();
+        return MarkdownUtils.isMardownFile(virtualFile);
     }
 
+    /**
+     * 获取光标所在行文本
+     *
+     * @param editor the editor
+     * @return the string
+     */
+    String getLineText(Editor editor){
+        int documentLine = editor.getDocument().getLineNumber(editor.getCaretModel().getOffset());
+        int linestartoffset = editor.getDocument().getLineStartOffset(documentLine);
+        int lineendoffset = editor.getDocument().getLineEndOffset(documentLine);
+
+        log.trace("documentLine = {}, linestartoffset = {}, lineendoffset = {}", documentLine, linestartoffset, lineendoffset);
+
+        String text = editor.getDocument().getText(new TextRange(linestartoffset, lineendoffset));
+        log.trace("text = {}", text);
+        return text;
+    }
 }

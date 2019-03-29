@@ -32,6 +32,7 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -129,8 +130,8 @@ public final class MarkdownUtils {
                 int endOffset = document.getLineEndOffset(line);
                 TextRange currentLineTextRange = TextRange.create(startOffset, endOffset);
                 String originalLineText = document.getText(currentLineTextRange);
-                // todo-dong4j : (2019年03月29日 03:42) [如果此行文本中有 markdown image mark 才处理]
-                if(StringUtils.isBlank(originalLineText) || !isImageMark(originalLineText)){
+
+                if (!isImageMark(originalLineText)) {
                     continue;
                 }
                 log.trace("originalLineText: {}", originalLineText);
@@ -149,6 +150,7 @@ public final class MarkdownUtils {
     /**
      * 不使用正则, 因为需要记录偏移量
      * fixme-dong4j : (2019年03月29日 03:38 [virtualFile 错误, 应该是图片的 virtualFile])
+     *
      * @param virtualFile the virtual file 当前处理的文件
      * @param lineText    the line text    当前处理的文本行
      * @param line        the line         在文本中的行数
@@ -177,27 +179,78 @@ public final class MarkdownUtils {
 
     /**
      * 是否为有效的 markdown image 标签
-     * ![](xxxx) () 内不能为空
-     * ![](yyyy) () 内必须是图片
-     * ![](zzz.png) () 内图片必须存在
-     * fixme-dong4j : (2019年03月29日 03:38 [])
+     *
      * @return the boolean
      */
-    @Contract(pure = true)
-    public static boolean isImageMark(String mark){
-        return false;
+    public static boolean isImageMark(String mark) {
+        // 整行数据是否有 markdown 标签
+        int[] offset = resolveText(mark);
+        if (offset == null) {
+            return false;
+        }
+
+        // ![]() path 不能为空
+        String path = getImagePath(mark);
+        if(StringUtils.isBlank(path)){
+            return false;
+        }
+
+        // 图片名不能为空
+        String imageName = getImageName(mark);
+        if (StringUtils.isBlank(imageName)) {
+            return false;
+        }
+
+        // 如果是 url, 则不在本地查询文件
+        if(path.startsWith(ImageContents.IMAGE_LOCATION)){
+            return true;
+        }
+
+        // 未找到对应的文件
+        VirtualFile virtualFiles = UploadUtils.searchVirtualFileByName(ProjectManager.getInstance().getDefaultProject(), imageName);
+        if (virtualFiles == null) {
+            return false;
+        }
+
+        // 文件不是图片
+        return ImageContents.IMAGE_TYPE_NAME.equals(virtualFiles.getFileType().getName());
     }
 
     /**
      * 从 mark 中获取图片名称
-     * fixme-dong4j : (2019年03月29日 03:38 [])
-     * @param mark the mark
+     *
+     * @param mark the mark     必须是正确的 markdown image 标签
      * @return the string
      */
     @NotNull
     @Contract(pure = true)
-    public static String getImageNameFromMark(String mark){
-        return "";
+    public static String getImageName(String mark) {
+        String path = getImagePath(mark);
+        if(StringUtils.isBlank(path)){
+            return "";
+        }
+        String imageName = "";
+        // 设置图片位置类型
+        try{
+            if (path.startsWith(ImageContents.IMAGE_LOCATION)) {
+                imageName = path.substring(path.lastIndexOf("/") + 1);
+            } else {
+                imageName = path.substring(path.lastIndexOf(File.separator) + 1);
+            }
+        }catch (Exception e){
+            log.trace("get iamge name from path error. path = {}", path);
+        }
+        return imageName;
+    }
+
+    @NotNull
+    public static String getImagePath(String mark){
+        if (StringUtils.isBlank(mark)) {
+            return "";
+        }
+
+        return mark.substring(mark.indexOf(ImageContents.IMAGE_MARK_MIDDLE) + ImageContents.IMAGE_MARK_MIDDLE.length(),
+                              mark.indexOf(ImageContents.IMAGE_MARK_SUFFIX)).trim();
     }
 
     /**
@@ -206,7 +259,11 @@ public final class MarkdownUtils {
      * @param lineText the line text
      * @return the int [ ]
      */
+    @Nullable
     public static int[] resolveText(String lineText) {
+        if(StringUtils.isBlank(lineText)){
+            return null;
+        }
         int[] offset = new int[2];
         lineText = StringUtils.trim(lineText);
         // 匹配 '![' 字符串

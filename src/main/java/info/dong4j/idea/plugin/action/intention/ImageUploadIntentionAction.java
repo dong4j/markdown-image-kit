@@ -27,6 +27,7 @@ package info.dong4j.idea.plugin.action.intention;
 
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
@@ -42,14 +43,12 @@ import info.dong4j.idea.plugin.chain.ImageUploadHandler;
 import info.dong4j.idea.plugin.chain.InsertToClipboardHandler;
 import info.dong4j.idea.plugin.chain.OptionClientHandler;
 import info.dong4j.idea.plugin.chain.ResolveImageFileHandler;
-import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.task.ActionTask;
-import info.dong4j.idea.plugin.util.UploadUtils;
+import info.dong4j.idea.plugin.util.MarkdownUtils;
 
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -77,25 +76,20 @@ public final class ImageUploadIntentionAction extends IntentionActionBase {
         return MikBundle.message("mik.intention.upload.message", clientName);
     }
 
-    @Contract(pure = true)
-    @Override
-    boolean show() {
-        return ImageLocationEnum.LOCAL == matchImageMark.getLocation();
-    }
-
     @Override
     public void invoke(@NotNull Project project,
                        Editor editor,
                        @NotNull PsiElement element) throws IncorrectOperationException {
 
-        String imageName = matchImageMark.getImageName();
-        VirtualFile virtualFile = UploadUtils.searchVirtualFileByName(project, imageName);
-
-        if (virtualFile == null) {
+        Document document = editor.getDocument();
+        int documentLine = document.getLineNumber(editor.getCaretModel().getOffset());
+        VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
+        MarkdownImage matchImageMark = MarkdownUtils.matchImageMark(virtualFile, getLineText(editor), documentLine);
+        if(matchImageMark == null){
             return;
         }
 
-        if (!ImageContents.IMAGE_TYPE_NAME.equals(virtualFile.getFileType().getName())) {
+        if(ImageLocationEnum.LOCAL != matchImageMark.getLocation()){
             return;
         }
 
