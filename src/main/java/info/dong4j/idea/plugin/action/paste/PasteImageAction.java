@@ -154,8 +154,6 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
                         .setWaitingProcessMap(waitingProcessMap);
 
                     ActionManager manager = new ActionManager(data)
-                        // 处理 client
-                        .addHandler(new OptionClientHandler())
                         // 图片压缩
                         .addHandler(new ImageCompressionHandler())
                         // 图片重命名
@@ -165,7 +163,9 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
                         manager.addHandler(new ImageStorageHandler());
                     }
                     if (STATE.isUploadAndReplace()) {
-                        manager.addHandler(new ImageUploadHandler());
+                        // 处理 client
+                        manager.addHandler(new OptionClientHandler())
+                            .addHandler(new ImageUploadHandler());
                     }
 
                     // 标签转换

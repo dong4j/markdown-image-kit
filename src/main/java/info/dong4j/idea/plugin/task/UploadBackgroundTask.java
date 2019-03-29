@@ -59,6 +59,7 @@ import java.util.Map;
  * @email sjdong3 @iflytek.com
  * @since 2019 -03-21 22:51
  */
+@Deprecated
 public class UploadBackgroundTask extends Task.Backgroundable {
     private Map<Document, List<MarkdownImage>> waitingForUploadImages;
     private Project project;

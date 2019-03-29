@@ -85,12 +85,12 @@ public final class ImageUploadAction extends ImageActionBase {
             .setWaitingProcessMap(waitingProcessMap);
 
         ActionManager manager = new ActionManager(data)
-            // 处理 client
-            .addHandler(new OptionClientHandler())
             // 图片压缩
             .addHandler(new ImageCompressionHandler())
             // 图片重命名
             .addHandler(new ImageRenameHandler())
+            // 处理 client
+            .addHandler(new OptionClientHandler())
             // 图片上传
             .addHandler(new ImageUploadHandler())
             // 标签转换

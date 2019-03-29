@@ -134,12 +134,12 @@ public class ActionManager {
         return new ActionManager(data)
             // 解析 markdown 文件
             .addHandler(new ResolveMarkdownFileHandler())
-            // 处理 client
-            .addHandler(new OptionClientHandler())
             // 图片压缩
             .addHandler(new ImageCompressionHandler())
             // 图片重命名
             .addHandler(new ImageRenameHandler())
+            // 处理 client
+            .addHandler(new OptionClientHandler())
             // 图片上传
             .addHandler(new ImageUploadHandler())
             // 标签转换

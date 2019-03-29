@@ -55,7 +55,7 @@ public abstract class MikTaskBase extends Task.Backgroundable{
      * @param project the project
      * @param title   the title
      */
-    protected ActionManager manager;
+    private ActionManager manager;
 
     MikTaskBase(@Nullable Project project,
                 @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title,

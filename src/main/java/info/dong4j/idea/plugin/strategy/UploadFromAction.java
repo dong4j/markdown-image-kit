@@ -44,6 +44,7 @@ import java.util.Map;
  * @email sjdong3 @iflytek.com
  * @since 2019 -03-22 13:13
  */
+@Deprecated
 public class UploadFromAction implements UploadWay {
     private Project project;
     private OssClient ossClient;

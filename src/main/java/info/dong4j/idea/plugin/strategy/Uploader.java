@@ -38,6 +38,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019 -03-22 13:16
  */
 @Slf4j
+@Deprecated
 public class Uploader {
     private UploadWay uploadWay;
 

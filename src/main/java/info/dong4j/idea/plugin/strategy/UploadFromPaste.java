@@ -37,6 +37,7 @@ import java.io.*;
  * @email sjdong3 @iflytek.com
  * @since 2019 -03-22 13:14
  */
+@Deprecated
 public class UploadFromPaste implements UploadWay {
     private OssClient client;
     private File file;

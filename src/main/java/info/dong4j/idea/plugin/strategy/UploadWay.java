@@ -33,6 +33,7 @@ package info.dong4j.idea.plugin.strategy;
  * @date 2019 -03-22 13:12
  * @email sjdong3 @iflytek.com
  */
+@Deprecated
 public interface UploadWay {
     /**
      * Upload.
