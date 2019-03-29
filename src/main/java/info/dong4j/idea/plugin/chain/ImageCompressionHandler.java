@@ -75,7 +75,7 @@ public class ImageCompressionHandler extends BaseActionHandler {
 
         int totalProcessed = 0;
 
-        Map<String, String> compressInfo = new HashMap<>(data.getImageMap().size());
+        Map<String, String> compressInfo = new HashMap<>(10);
 
         for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
             int totalCount = imageEntry.getValue().size();
@@ -94,7 +94,12 @@ public class ImageCompressionHandler extends BaseActionHandler {
                 InputStream inputStream = markdownImage.getInputStream();
                 File temp = ImageUtils.buildTempFile(imageName);
                 try (OutputStream outputStream = new ByteArrayOutputStream()) {
+                    long oldlength = inputStream.available();
+
                     ImageUtils.compress(inputStream, outputStream, STATE.getCompressBeforeUploadOfPercent());
+
+                    ((ByteArrayOutputStream) outputStream).toByteArray()
+                    long newLength = outputStream.
                     markdownImage.setInputStream(ConvertUtil.parse(outputStream));
                 } catch (Exception e) {
                     log.trace("", e);

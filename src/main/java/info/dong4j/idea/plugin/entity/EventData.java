@@ -35,7 +35,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.enums.InsertEnum;
 
-import java.io.*;
 import java.util.List;
 import java.util.Map;
 
@@ -64,7 +63,6 @@ public class EventData {
     private Editor editor;
     private Document document;
     /** 从 clipboard 中解析的文件 */
-    private Map<String, File> imageMap;
     private Map<String, VirtualFile> virtualFileMap;
     /** save markdown image mark */
     private List<String> saveMarkList;
