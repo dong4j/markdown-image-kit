@@ -82,6 +82,7 @@ public class ImageUploadHandler extends BaseActionHandler {
                 MarkdownImage markdownImage = imageIterator.next();
                 indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
                 indicator.setText2("Processing " + markdownImage.getImageName());
+                // 已上传过的不处理, 此时 finalmark 为 null, 替换是忽略
                 if (ImageLocationEnum.NETWORK.equals(markdownImage.getLocation())) {
                     continue;
                 }
@@ -101,10 +102,10 @@ public class ImageUploadHandler extends BaseActionHandler {
                 String mark = "![](" + imageUrl + ")";
                 markdownImage.setOriginalLineText(mark);
                 markdownImage.setOriginalMark(mark);
-                markdownImage.setFinalMark(mark);
                 markdownImage.setPath(imageUrl);
                 markdownImage.setLocation(ImageLocationEnum.NETWORK);
                 markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
+                markdownImage.setFinalMark(mark);
             }
         }
         return true;

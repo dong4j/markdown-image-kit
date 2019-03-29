@@ -33,6 +33,7 @@ import com.intellij.util.IncorrectOperationException;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ActionManager;
+import info.dong4j.idea.plugin.chain.FinalChainHandler;
 import info.dong4j.idea.plugin.chain.ImageLabelChangeHandler;
 import info.dong4j.idea.plugin.chain.ImageLabelJoinHandler;
 import info.dong4j.idea.plugin.chain.ImageUploadHandler;
@@ -106,7 +107,8 @@ public final class ImageMoveIntentionAction extends IntentionActionBase {
             // 标签转换
             .addHandler(new ImageLabelChangeHandler())
             // 写入标签
-            .addHandler(new ReplaceToDocument());
+            .addHandler(new ReplaceToDocument())
+            .addHandler(new FinalChainHandler());
 
         // 开启后台任务
         new ActionTask(project, MikBundle.message("mik.action.move.process", getName()), manager).queue();

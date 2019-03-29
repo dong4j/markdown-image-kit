@@ -32,7 +32,6 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VfsUtilCore;
@@ -115,10 +114,12 @@ public final class MarkdownUtils {
     /**
      * 解析每一行数据, 是有效的 Image mark 才解析
      *
-     * @param virtualFile the virtual file
+     * @param project     the project           当前项目
+     * @param document    the document          当前文本
+     * @param virtualFile the virtual file      当前处理的文件
      * @return the list
      */
-    private static List<MarkdownImage> getImageInfoFromFiles(Document document, VirtualFile virtualFile) {
+    private static List<MarkdownImage> getImageInfoFromFiles(Project project, Document document, VirtualFile virtualFile) {
         List<MarkdownImage> markdownImageList = new ArrayList<>();
 
         if (document != null) {
@@ -132,7 +133,7 @@ public final class MarkdownUtils {
                 TextRange currentLineTextRange = TextRange.create(startOffset, endOffset);
                 String originalLineText = document.getText(currentLineTextRange);
 
-                if (!isImageMark(originalLineText)) {
+                if (!isImageMark(project, originalLineText)) {
                     continue;
                 }
                 log.trace("originalLineText: {}", originalLineText);
@@ -212,6 +213,7 @@ public final class MarkdownUtils {
 
                 Project project = ProjectUtil.guessProjectForFile(virtualFile);
                 VirtualFile imageVirtualFile = UploadUtils.searchVirtualFileByName(project, imagename);
+
                 markdownImage.setExtension(imageVirtualFile.getExtension());
                 markdownImage.setInputStream(imageVirtualFile.getInputStream());
                 markdownImage.setVirtualFile(imageVirtualFile);
@@ -227,9 +229,11 @@ public final class MarkdownUtils {
     /**
      * 是否为有效的 markdown image 标签
      *
+     * @param project the project
+     * @param mark    the mark
      * @return the boolean
      */
-    public static boolean isImageMark(String mark) {
+    public static boolean isImageMark(Project project, String mark) {
         // 整行数据是否有 markdown 标签
         int[] offset = resolveText(mark);
         if (offset == null) {
@@ -253,8 +257,8 @@ public final class MarkdownUtils {
             return true;
         }
 
-        // 未找到对应的文件
-        VirtualFile virtualFiles = UploadUtils.searchVirtualFileByName(ProjectManager.getInstance().getDefaultProject(), imageName);
+        // 严格验证图片文件是否存在
+        VirtualFile virtualFiles = UploadUtils.searchVirtualFileByName(project, imageName);
         if (virtualFiles == null) {
             return false;
         }
@@ -290,6 +294,12 @@ public final class MarkdownUtils {
         return imageName;
     }
 
+    /**
+     * Get image path string.
+     *
+     * @param mark the mark
+     * @return the string
+     */
     @NotNull
     public static String getImagePath(String mark){
         if (StringUtils.isBlank(mark)) {
@@ -398,7 +408,7 @@ public final class MarkdownUtils {
             // 解析此文件中所有的图片标签
             Document documentFromEditor = editor.getDocument();
             VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(documentFromEditor);
-            waitingProcessMap.put(documentFromEditor, MarkdownUtils.getImageInfoFromFiles(documentFromEditor, virtualFile));
+            waitingProcessMap.put(documentFromEditor, MarkdownUtils.getImageInfoFromFiles(project, documentFromEditor, virtualFile));
         } else {
             // 获取被选中的有文件和目录
             final VirtualFile[] files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(dataContext);
@@ -407,14 +417,14 @@ public final class MarkdownUtils {
                     if (MarkdownUtils.isMardownFile(file)) {
                         // 解析此文件中所有的图片标签
                         Document documentFromVirtualFile = FileDocumentManager.getInstance().getDocument(file);
-                        waitingProcessMap.put(documentFromVirtualFile, MarkdownUtils.getImageInfoFromFiles(documentFromVirtualFile, file));
+                        waitingProcessMap.put(documentFromVirtualFile, MarkdownUtils.getImageInfoFromFiles(project, documentFromVirtualFile, file));
                     }
                     // 如果是目录, 则递归获取所有 markdown 文件
                     if (file.isDirectory()) {
                         List<VirtualFile> markdownFiles = MarkdownUtils.recursivelyMarkdownFile(file);
                         for (VirtualFile virtualFile : markdownFiles) {
                             Document documentFromVirtualFile = FileDocumentManager.getInstance().getDocument(virtualFile);
-                            waitingProcessMap.put(documentFromVirtualFile, MarkdownUtils.getImageInfoFromFiles(documentFromVirtualFile, virtualFile));
+                            waitingProcessMap.put(documentFromVirtualFile, MarkdownUtils.getImageInfoFromFiles(project, documentFromVirtualFile, virtualFile));
                         }
                     }
                 }

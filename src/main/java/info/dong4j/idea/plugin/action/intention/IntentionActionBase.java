@@ -120,7 +120,7 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
                                @NotNull PsiElement element) {
 
 
-        if (!MarkdownUtils.isImageMark(getLineText(editor))) {
+        if (!MarkdownUtils.isImageMark(project, getLineText(editor))) {
             return false;
         }
 
@@ -138,7 +138,7 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
      * @param editor the editor
      * @return the string
      */
-    private String getLineText(Editor editor) {
+    private String getLineText(@NotNull Editor editor) {
         int documentLine = editor.getDocument().getLineNumber(editor.getCaretModel().getOffset());
         int linestartoffset = editor.getDocument().getLineStartOffset(documentLine);
         int lineendoffset = editor.getDocument().getLineEndOffset(documentLine);

@@ -32,6 +32,8 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.List;
 import java.util.Map;
 
@@ -63,8 +65,11 @@ public class ReplaceToDocument extends BaseActionHandler {
                 indicator.setText2("Processing " + markdownImage.getImageName());
                 indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
 
-                String newLineText = markdownImage.getOriginalLineText().replace(markdownImage.getOriginalMark(),
-                                                                                 markdownImage.getFinalMark());
+                String finalMark = markdownImage.getFinalMark();
+                if(StringUtils.isBlank(finalMark)){
+                    continue;
+                }
+                String newLineText = markdownImage.getOriginalLineText().replace(markdownImage.getOriginalMark(), finalMark);
 
                 WriteCommandAction.runWriteCommandAction(data.getProject(), () -> document
                     .replaceString(document.getLineStartOffset(markdownImage.getLineNumber()),

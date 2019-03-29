@@ -33,6 +33,7 @@ import com.intellij.util.IncorrectOperationException;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ActionManager;
+import info.dong4j.idea.plugin.chain.FinalChainHandler;
 import info.dong4j.idea.plugin.chain.ImageCompressionHandler;
 import info.dong4j.idea.plugin.chain.ImageLabelChangeHandler;
 import info.dong4j.idea.plugin.chain.ImageLabelJoinHandler;
@@ -119,7 +120,8 @@ public final class ImageUploadIntentionAction extends IntentionActionBase {
             // 标签转换
             .addHandler(new ImageLabelChangeHandler())
             // 写到 clipboard
-            .addHandler(new InsertToClipboardHandler());
+            .addHandler(new InsertToClipboardHandler())
+            .addHandler(new FinalChainHandler());
 
         // 开启后台任务
         new ActionTask(project, MikBundle.message("mik.action.upload.process", getName()), manager).queue();

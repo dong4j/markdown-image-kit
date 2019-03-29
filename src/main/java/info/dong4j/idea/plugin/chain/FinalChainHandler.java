@@ -26,7 +26,6 @@
 package info.dong4j.idea.plugin.chain;
 
 import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.progress.ProgressIndicator;
 
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
@@ -62,24 +61,21 @@ public class FinalChainHandler extends BaseActionHandler {
      */
     @Override
     public boolean execute(EventData data) {
-        ProgressIndicator indicator = data.getIndicator();
-        int size = data.getSize();
-        int totalProcessed = 0;
-
-        for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
-            int totalCount = imageEntry.getValue().size();
-            for (MarkdownImage markdownImage : imageEntry.getValue()) {
-                indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
-                String imageName = markdownImage.getImageName();
-                indicator.setText2("Processing " + imageName);
-                if(markdownImage.getInputStream() != null){
+        Map<Document, List<MarkdownImage>> processededData = data.getWaitingProcessMap();
+        for (Map.Entry<Document, List<MarkdownImage>> imageEntry : processededData.entrySet()) {
+            List<MarkdownImage> markdownImages = imageEntry.getValue();
+            for (MarkdownImage markdownImage : markdownImages) {
+                if (markdownImage.getInputStream() != null) {
                     try {
                         markdownImage.getInputStream().close();
+                        markdownImage = null;
                     } catch (IOException ignored) {
                     }
                 }
             }
+            markdownImages.clear();
         }
+        processededData.clear();
         return true;
     }
 }

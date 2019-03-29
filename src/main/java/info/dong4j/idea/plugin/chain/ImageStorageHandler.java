@@ -123,9 +123,9 @@ public class ImageStorageHandler extends BaseActionHandler {
                 String mark = "![](" + relImagePath + ")";
                 markdownImage.setOriginalLineText(mark);
                 markdownImage.setOriginalMark(mark);
-                markdownImage.setFinalMark(mark);
                 markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
                 markdownImage.setLocation(ImageLocationEnum.LOCAL);
+                markdownImage.setFinalMark(mark);
             }
         }
         return true;
