@@ -35,9 +35,16 @@ apply plugin: 'org.jetbrains.intellij'
 sourceCompatibility = 1.8
 
 intellij {
+    pluginName 'Markdown Image Kit'
     version '2018.3.5'
     // 插件生成的临时文件的地址，可以省略
     sandboxDirectory = project.rootDir.canonicalPath + "/.sandbox"
+    updateSinceUntilBuild false
+}
+
+publishPlugin {
+    username System.getenv('username')
+    password System.getenv('password')
 }
 
 // 声明依赖使用下面的闭包
