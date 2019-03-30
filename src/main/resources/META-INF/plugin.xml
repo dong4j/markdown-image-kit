@@ -2,14 +2,16 @@
     <id>info.dong4j.idea.plugin.markdown.image.kit</id>
     <name>Markdown Image Kit</name>
     <version>0.0.1</version>
-    <vendor email="dong4j@gmail.com" url="http://www.dong4j.info">dong4j</vendor>
+    <vendor email="dong4j@gmail.com" url="https://github.com/dong4j/markdown-image-kit">dong4j</vendor>
+    <!--http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html-->
+    <idea-version since-build="183"/>
 
     <description><![CDATA[
     <h1>Markdown Image Kit</h1>
         <br/>
-        <a href="https://www.launchaco.com/builder/dong4j">Website</a>
-        <a href="https://github.com/dong4j/markdown-image-kit">GitHub</a>
-        <a href="https://github.com/dong4j/markdown-image-kit/issues">Issues</a>
+        <a href="https://www.launchaco.com/builder/dong4j">Website</a> |
+        <a href="https://github.com/dong4j/markdown-image-kit">GitHub</a> |
+        <a href="https://github.com/dong4j/markdown-image-kit/issues">Issues</a> |
         <a href="http://dev.dong4j.info/product/markdown-image-kit.html">Help</a>
     <br/>
     <br/>
@@ -73,8 +75,6 @@
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
     on how to target different products -->
     <depends>com.intellij.modules.lang</depends>
-    <!--http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html-->
-    <idea-version since-build="183"/>
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- clipboard -->
