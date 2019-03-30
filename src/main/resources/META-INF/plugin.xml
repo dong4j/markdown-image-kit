@@ -73,6 +73,8 @@
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
     on how to target different products -->
     <depends>com.intellij.modules.lang</depends>
+    <!--http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html-->
+    <idea-version since-build="183"/>
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- clipboard -->
