@@ -44,7 +44,7 @@ import javax.swing.JTextField;
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
- * @since 2019 -03-20 11:52
+ * @since 2019-03-20 11:52
  */
 public interface OssClient {
     /** 用于反射调用时的缓存 <className, client>, 容量为实现类个数 */

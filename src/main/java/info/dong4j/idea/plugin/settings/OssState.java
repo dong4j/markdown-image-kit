@@ -43,7 +43,7 @@ import lombok.Data;
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
- * @since 2019 -03-19 18:59
+ * @since 2019-03-19 18:59
  */
 @Data
 public abstract class OssState {

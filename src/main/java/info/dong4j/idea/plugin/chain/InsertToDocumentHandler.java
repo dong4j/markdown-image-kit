@@ -49,28 +49,6 @@ public class InsertToDocumentHandler extends ActionHandlerAdapter {
         return "写入到 document";
     }
 
-    // @Override
-    // public boolean execute(EventData data) {
-    //     ProgressIndicator indicator = data.getIndicator();
-    //     int size = data.getSize();
-    //     int totalProcessed = 0;
-    //     for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
-    //         int totalCount = imageEntry.getValue().size();
-    //         for (MarkdownImage markdownImage : imageEntry.getValue()) {
-    //
-    //             indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
-    //             String imageName = markdownImage.getImageName();
-    //             indicator.setText2("Processing " + imageName);
-    //
-    //
-    //             WriteCommandAction.runWriteCommandAction(data.getProject(),
-    //                                                      () -> EditorModificationUtil.insertStringAtCaret(data.getEditor(),
-    //                                                                                                       markdownImage.getFinalMark() + ImageContents.LINE_BREAK));
-    //         }
-    //     }
-    //     return true;
-    // }
-
     @Override
     public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
         WriteCommandAction.runWriteCommandAction(data.getProject(),

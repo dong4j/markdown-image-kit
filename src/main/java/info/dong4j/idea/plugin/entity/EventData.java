@@ -30,10 +30,8 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 
 import info.dong4j.idea.plugin.client.OssClient;
-import info.dong4j.idea.plugin.enums.InsertEnum;
 
 import java.util.List;
 import java.util.Map;
@@ -55,31 +53,17 @@ public class EventData {
     private AnActionEvent actionEvent;
     /** 显示当前处理进度 */
     private ProgressIndicator indicator;
-    /** chain size */
-    private int size;
-    /** 当前执行的节点 */
-    private int index;
     private Project project;
     private Editor editor;
     private Document document;
-    /** 从 clipboard 中解析的文件 */
-    private Map<String, VirtualFile> virtualFileMap;
-    /** save markdown image mark */
-    private List<String> saveMarkList;
-    /** upload markdown image mark */
-    private List<String> uploadedMarkList;
-    /** save image task status */
-    private volatile boolean saveImageFinished = false;
-    /** upload image task status */
-    private volatile boolean uploadImageFinished = false;
-    /** markdown image mark 插入的位置 */
-    private InsertEnum insertType = InsertEnum.DOCUMENT;
-    /** Intention 需要使用到的数据*/
-    private MarkdownImage markdownImage;
     /** 待处理的数据*/
     private Map<Document, List<MarkdownImage>> waitingProcessMap;
     /** 文件上传客户端*/
     private OssClient client;
     /** client name*/
     private String clientName;
+    /** chain size */
+    private int size;
+    /** 当前执行的节点 */
+    private int index;
 }

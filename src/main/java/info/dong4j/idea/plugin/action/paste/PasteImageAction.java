@@ -93,7 +93,7 @@ import lombok.extern.slf4j.Slf4j;
  * todo-dong4j : (2019年03月17日 19:37) [图片压缩处理]
  *
  * @author dong4j
- * @date 2019 -03-16 12:15
+ * @date 2019-03-16 12:15
  * @email sjdong3 @iflytek.com
  */
 @Slf4j

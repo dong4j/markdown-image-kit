@@ -45,7 +45,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
- * @since 2019 -03-28 09:23
+ * @since 2019-03-28 09:23
  */
 @Slf4j
 public class ImageCompressionHandler extends ActionHandlerAdapter {
@@ -58,58 +58,6 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
     public boolean isEnabled(EventData data) {
         return STATE.isCompress();
     }
-
-    /**
-     * 通过 InputStream 压缩, 处理后替换原来的 InputStream
-     *
-     * @param data the data
-     * @return the boolean
-     */
-    // @Override
-    // public boolean execute(EventData data) {
-    //     ProgressIndicator indicator = data.getIndicator();
-    //     int size = data.getSize();
-    //     int totalProcessed = 0;
-    //
-    //     Map<String, String> compressInfo = new HashMap<>(10);
-    //
-    //     for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
-    //         int totalCount = imageEntry.getValue().size();
-    //         Iterator<MarkdownImage> imageIterator = imageEntry.getValue().iterator();
-    //         while (imageIterator.hasNext()) {
-    //             MarkdownImage markdownImage = imageIterator.next();
-    //
-    //             indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
-    //             String imageName = markdownImage.getImageName();
-    //             indicator.setText2("Processing " + imageName);
-    //
-    //
-    //             if (markdownImage.getInputStream() == null) {
-    //                 log.trace("inputstream 为 null, remove markdownImage = {}", markdownImage);
-    //                 imageIterator.remove();
-    //                 continue;
-    //             }
-    //
-    //             if (imageName.endsWith("gif")) {
-    //                 continue;
-    //             }
-    //
-    //             InputStream inputStream = markdownImage.getInputStream();
-    //             try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-    //                 long oldlength = inputStream.available();
-    //                 ImageUtils.compress(inputStream, outputStream, STATE.getCompressBeforeUploadOfPercent());
-    //                 long newLength = outputStream.toByteArray().length;
-    //                 markdownImage.setInputStream(new ByteArrayInputStream(outputStream.toByteArray()));
-    //                 buildConpress(compressInfo, imageName, oldlength, newLength);
-    //             } catch (Exception e) {
-    //                 log.trace("", e);
-    //             }
-    //         }
-    //     }
-    //
-    //     MikNotification.notifyCompressInfo(data.getProject(), compressInfo);
-    //     return true;
-    // }
 
     @Override
     public void invoke(EventData data,  Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {

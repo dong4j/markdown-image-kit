@@ -57,7 +57,7 @@ import java.util.Map;
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
- * @since 2019 -03-21 22:51
+ * @since 2019-03-21 22:51
  */
 @Deprecated
 public class UploadBackgroundTask extends Task.Backgroundable {

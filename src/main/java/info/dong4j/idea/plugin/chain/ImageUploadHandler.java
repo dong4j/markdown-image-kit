@@ -42,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
- * @since 2019 -03-26 12:38
+ * @since 2019-03-26 12:38
  */
 @Slf4j
 public class ImageUploadHandler extends ActionHandlerAdapter {
@@ -61,54 +61,11 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
     /**
      * 只上传 location = LOCAL 的数据
      *
-     * @param data the data
+     * @param data          the data
+     * @param imageIterator the image iterator
+     * @param markdownImage the markdown image
      * @return the boolean
      */
-    // @Override
-    // public boolean execute(EventData data) {
-    //     ProgressIndicator indicator = data.getIndicator();
-    //     int size = data.getSize();
-    //     int totalProcessed = 0;
-    //
-    //     for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
-    //         int totalCount = imageEntry.getValue().size();
-    //         Iterator<MarkdownImage> imageIterator = imageEntry.getValue().iterator();
-    //         while (imageIterator.hasNext()) {
-    //             MarkdownImage markdownImage = imageIterator.next();
-    //
-    //             indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
-    //             String imageName = markdownImage.getImageName();
-    //             indicator.setText2("Processing " + imageName);
-    //
-    //
-    //             // 已上传过的不处理, 此时 finalmark 为 null, 替换是忽略
-    //             if (ImageLocationEnum.NETWORK.equals(markdownImage.getLocation())) {
-    //                 continue;
-    //             }
-    //
-    //             if(StringUtils.isBlank(imageName) || markdownImage.getInputStream() == null){
-    //                 log.trace("inputstream 为 null 或者 imageName 为 null, remove markdownImage = {}", markdownImage);
-    //                 imageIterator.remove();
-    //                 continue;
-    //             }
-    //
-    //             String imageUrl = data.getClient().upload(markdownImage.getInputStream(), markdownImage.getImageName());
-    //             if (StringUtils.isBlank(imageUrl)) {
-    //                 imageUrl = "upload error";
-    //                 markdownImage.setLocation(ImageLocationEnum.LOCAL);
-    //             }
-    //             String mark = "![](" + imageUrl + ")";
-    //             markdownImage.setOriginalLineText(mark);
-    //             markdownImage.setOriginalMark(mark);
-    //             markdownImage.setPath(imageUrl);
-    //             markdownImage.setLocation(ImageLocationEnum.NETWORK);
-    //             markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
-    //             markdownImage.setFinalMark(mark);
-    //         }
-    //     }
-    //     return true;
-    // }
-
     @Override
     public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
         String imageName = markdownImage.getImageName();

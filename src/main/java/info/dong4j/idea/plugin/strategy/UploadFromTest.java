@@ -37,7 +37,7 @@ import javax.swing.JPanel;
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
- * @since 2019 -03-22 13:14
+ * @since 2019-03-22 13:14
  */
 @Deprecated
 public class UploadFromTest implements UploadWay {

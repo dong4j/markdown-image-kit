@@ -56,6 +56,7 @@ public class MoveToOtherOssSettingsDialog extends JDialog {
     private JLabel domainLabel;
     private JLabel moveLabel;
     private JLabel message;
+    private JLabel tipLable;
 
     public MoveToOtherOssSettingsDialog() {
         setContentPane(contentPane);

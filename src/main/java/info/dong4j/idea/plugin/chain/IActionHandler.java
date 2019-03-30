@@ -35,7 +35,7 @@ import info.dong4j.idea.plugin.settings.MikState;
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
- * @since 2019 -03-22 18:35
+ * @since 2019-03-22 18:35
  */
 public interface IActionHandler {
     /**

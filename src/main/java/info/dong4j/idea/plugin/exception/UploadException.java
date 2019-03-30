@@ -35,7 +35,7 @@ import java.util.function.Supplier;
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
- * @since 2019 -03-13 10:54
+ * @since 2019-03-13 10:54
  */
 public class UploadException extends RuntimeException implements Supplier<UploadException> {
     private static final long serialVersionUID = 4076461843028836262L;

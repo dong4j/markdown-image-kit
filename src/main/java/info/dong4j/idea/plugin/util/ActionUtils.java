@@ -48,7 +48,7 @@ import javax.swing.Icon;
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
- * @since 2019 -03-27 12:34
+ * @since 2019-03-27 12:34
  */
 public final class ActionUtils {
 

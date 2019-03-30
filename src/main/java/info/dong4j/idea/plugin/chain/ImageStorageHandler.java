@@ -49,7 +49,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
- * @since 2019 -03-26 12:35
+ * @since 2019-03-26 12:35
  */
 @Slf4j
 public class ImageStorageHandler extends ActionHandlerAdapter {

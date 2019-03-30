@@ -63,7 +63,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
- * @since 2019 -03-15 20:41
+ * @since 2019-03-15 20:41
  */
 @Slf4j
 public final class MoveToOtherStorageAction extends AnAction {
@@ -170,7 +170,9 @@ public final class MoveToOtherStorageAction extends AnAction {
      * @param dialog  the dialog
      * @param index   the index
      */
-    private static void showMessage(@NotNull DialogBuilder builder, @NotNull MoveToOtherOssSettingsDialog dialog, int index) {
+    private static void showMessage(@NotNull DialogBuilder builder,
+                                    @NotNull MoveToOtherOssSettingsDialog dialog,
+                                    int index) {
         boolean isClientEnable = OssState.getStatus(index);
         boolean isValidInput = StringUtils.isNotBlank(dialog.getDomain().getText()) && !DOMAIN_DEFAULT_MESSAGE.equals(dialog.getDomain().getText());
 

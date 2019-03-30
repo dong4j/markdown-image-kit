@@ -43,7 +43,7 @@ import info.dong4j.idea.plugin.settings.MikState;
  * <p>Description: 操作文档</p>
  *
  * @author dong4j
- * @date 2019 -03-12 22:20
+ * @date 2019-03-12 22:20
  * @email sjdong3 @iflytek.com
  */
 public final class PsiDocumentUtils {

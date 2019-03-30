@@ -69,7 +69,6 @@ public class FinalChainHandler extends ActionHandlerAdapter {
                 if (markdownImage.getInputStream() != null) {
                     try {
                         markdownImage.getInputStream().close();
-                        markdownImage = null;
                     } catch (IOException ignored) {
                     }
                 }

@@ -35,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
- * @since 2019 -03-22 13:16
+ * @since 2019-03-22 13:16
  */
 @Slf4j
 @Deprecated

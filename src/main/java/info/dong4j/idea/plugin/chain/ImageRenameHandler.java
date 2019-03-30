@@ -48,7 +48,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
- * @since 2019 -03-27 21:24
+ * @since 2019-03-27 21:24
  */
 @Slf4j
 public class ImageRenameHandler extends ActionHandlerAdapter {
@@ -68,28 +68,11 @@ public class ImageRenameHandler extends ActionHandlerAdapter {
     /**
      * 根据配置重新设置 imageName
      *
-     * @param data the data
+     * @param data          the data
+     * @param imageIterator the image iterator
+     * @param markdownImage the markdown image
      * @return the boolean
      */
-    // @Override
-    // public boolean execute(EventData data) {
-    //     ProgressIndicator indicator = data.getIndicator();
-    //     int size = data.getSize();
-    //     int totalProcessed = 0;
-    //
-    //     for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
-    //         int totalCount = imageEntry.getValue().size();
-    //         for (MarkdownImage markdownImage : imageEntry.getValue()) {
-    //             indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
-    //             String imageName = markdownImage.getImageName();
-    //             indicator.setText2("Processing " + imageName);
-    //
-    //             markdownImage.setImageName(processFileName(imageName));
-    //         }
-    //     }
-    //     return true;
-    // }
-
     @Override
     public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
 

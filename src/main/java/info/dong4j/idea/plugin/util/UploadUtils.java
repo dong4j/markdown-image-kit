@@ -53,7 +53,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
- * @since 2019 -03-17 20:17
+ * @since 2019-03-17 20:17
  */
 @Slf4j
 public class UploadUtils {

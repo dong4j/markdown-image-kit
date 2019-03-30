@@ -56,7 +56,7 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: 上传后消息通知 </p>
  *
  * @author dong4j
- * @date 2019 -03-22 22:57
+ * @date 2019-03-22 22:57
  * @email sjdong3 @iflytek.com
  */
 @Slf4j

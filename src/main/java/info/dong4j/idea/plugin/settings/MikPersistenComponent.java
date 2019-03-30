@@ -39,7 +39,7 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: 配置持久化 </p>
  *
  * @author dong4j
- * @date 2019 -03-13 11:56
+ * @date 2019-03-13 11:56
  * @email sjdong3 @iflytek.com
  */
 @Slf4j

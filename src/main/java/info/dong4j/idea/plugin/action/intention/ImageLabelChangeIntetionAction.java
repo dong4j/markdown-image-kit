@@ -72,7 +72,8 @@ public class ImageLabelChangeIntetionAction extends IntentionActionBase {
     }
 
     @Override
-    public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
+    public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element)
+        throws IncorrectOperationException {
         MarkdownImage markdownImage = getMarkdownImage(editor);
         if (markdownImage != null) {
             if (markdownImage.getLocation().name().equals(ImageLocationEnum.LOCAL.name())) {

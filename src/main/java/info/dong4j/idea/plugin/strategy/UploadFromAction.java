@@ -28,10 +28,8 @@ package info.dong4j.idea.plugin.strategy;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
 
-import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
-import info.dong4j.idea.plugin.task.UploadBackgroundTask;
 
 import java.util.List;
 import java.util.Map;
@@ -42,7 +40,7 @@ import java.util.Map;
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
- * @since 2019 -03-22 13:13
+ * @since 2019-03-22 13:13
  */
 @Deprecated
 public class UploadFromAction implements UploadWay {
@@ -74,11 +72,11 @@ public class UploadFromAction implements UploadWay {
     @Override
     public String upload() {
         // 所有任务提交给后台任务进行, 避免大量上传阻塞 UI 线程
-        new UploadBackgroundTask(project,
-                                 MikBundle.message("mik.uploading.files.progress") + " " + ossClient.getName(),
-                                 true,
-                                 waitingForUploadImages,
-                                 ossClient).queue();
+        // new UploadBackgroundTask(project,
+        //                          MikBundle.message("mik.uploading.files.progress") + " " + ossClient.getName(),
+        //                          true,
+        //                          waitingForUploadImages,
+        //                          ossClient).queue();
 
 
         return "";

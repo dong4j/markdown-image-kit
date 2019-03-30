@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: ${description}</p>
  *
  * @author dong4j
- * @date 2019 -03-17 16:45
+ * @date 2019-03-17 16:45
  * @email sjdong3 @iflytek.com
  */
 @Slf4j

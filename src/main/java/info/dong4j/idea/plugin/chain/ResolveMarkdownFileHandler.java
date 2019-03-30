@@ -44,7 +44,7 @@ import lombok.Setter;
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
- * @since 2019 -03-27 22:51
+ * @since 2019-03-27 22:51
  */
 @Setter
 public class ResolveMarkdownFileHandler extends ActionHandlerAdapter {

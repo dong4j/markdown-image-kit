@@ -44,7 +44,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
- * @since 2019 -03-27 23:03
+ * @since 2019-03-27 23:03
  */
 @Slf4j
 public abstract class MikTaskBase extends Task.Backgroundable{
@@ -100,6 +100,6 @@ public abstract class MikTaskBase extends Task.Backgroundable{
     @Override
     public void onThrowable(@NotNull Throwable throwable) {
         super.onThrowable(throwable);
-        log.trace("error callback");
+        log.trace("", throwable);
     }
 }

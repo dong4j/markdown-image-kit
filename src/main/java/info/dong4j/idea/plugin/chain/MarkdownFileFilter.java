@@ -38,7 +38,7 @@ import java.util.Map;
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
- * @since 2019 -03-27 23:55
+ * @since 2019-03-27 23:55
  */
 public interface MarkdownFileFilter {
     String FILTER_KEY = "filter_key";

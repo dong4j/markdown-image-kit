@@ -49,7 +49,7 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: 右键上传到 OSS </p>
  *
  * @author dong4j
- * @date 2019 -03-14 17:15
+ * @date 2019-03-14 17:15
  * @email sjdong3 @iflytek.com
  */
 @Slf4j
