@@ -43,7 +43,7 @@ import lombok.Data;
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
- * @since 2019-03-19 18:59
+ * @since 2019 -03-19 18:59
  */
 @Data
 public abstract class OssState {
@@ -63,6 +63,16 @@ public abstract class OssState {
     }
 
     /**
+     * Get state.
+     *
+     * @param cloudIndex the cloud index
+     */
+    public static void getState(int cloudIndex){
+        CloudEnum cloudEnum = getCloudType(cloudIndex);
+
+    }
+
+    /**
      * 获取当前图床的可用状态
      *
      * @param cloudIndex the cloud index
@@ -74,6 +84,20 @@ public abstract class OssState {
             return true;
         }
         return getStatus(getCloudType(cloudIndex));
+    }
+
+    /**
+     * 获取当前图床的可用状态
+     *
+     * @param cloudIndex the cloud index
+     * @return the boolean
+     */
+    @Contract(pure = true)
+    public static boolean getStatusBySetting(int cloudIndex) {
+        if(cloudIndex == CloudEnum.SM_MS_CLOUD.index){
+            return true;
+        }
+        return getStatusBySetting(getCloudType(cloudIndex));
     }
 
     /**
@@ -112,11 +136,53 @@ public abstract class OssState {
     }
 
     /**
-     * 获取当前图床的可用状态
-     * todo-dong4j : (2019年03月20日 15:47) [增加图床实现时记得改这里]
+     * 在设置页面获取当前图床的可用状态
      *
      * @param cloudEnum the cloud enum
      * @return the boolean
+     */
+    @Contract(pure = true)
+    public static boolean getStatusBySetting(CloudEnum cloudEnum) {
+        MikState state = MikPersistenComponent.getInstance().getState();
+        if (cloudEnum == null) {
+            return false;
+        }
+
+        switch (cloudEnum) {
+            case WEIBO_CLOUD:
+                return state.getWeiboOssState().isPassedTest();
+            case ALIYUN_CLOUD:
+                return state.getAliyunOssState().isPassedTest();
+            case QINIU_CLOUD:
+                return state.getQiniuOssState().isPassedTest();
+            case WANGYI_CLOUD:
+                return false;
+            case BAIDU_CLOUD:
+                return false;
+            case JINGDONG_CLOUD:
+                return false;
+            case YOUPAI_CLOUD:
+                return false;
+            case SM_MS_CLOUD:
+                return true;
+            case IMGUR_CLOUD:
+                return false;
+            case U_CLOUD:
+                return false;
+            case QING_CLOUD:
+                return false;
+            case CUSTOMIZE:
+                return false;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Gets status.
+     *
+     * @param cloudEnum the cloud enum
+     * @return the status
      */
     @Contract(pure = true)
     public static boolean getStatus(CloudEnum cloudEnum) {

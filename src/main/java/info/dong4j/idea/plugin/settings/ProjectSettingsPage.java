@@ -275,6 +275,14 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                     testMessage.setForeground(JBColor.GREEN);
                     testMessage.setText("Upload Succeed");
                     testButton.setText("Test Upload");
+                    // 测试通过了, 则判断是否勾选设置默认图床, 若勾选则刷新可用状态
+                    boolean isDefaultCheckBox = this.defaultCloudCheckBox.isSelected();
+                    if(isDefaultCheckBox){
+                        int cloudTypeIndex = this.defaultCloudComboBox.getSelectedIndex();
+                        if(index == cloudTypeIndex){
+                            this.message.setText("");
+                        }
+                    }
                     if (log.isTraceEnabled()) {
                         BrowserUtil.browse(url);
                     }
@@ -390,7 +398,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     private void showSelectCloudMessage(int cloudType) {
-        boolean isClientEnable = OssState.getStatus(cloudType);
+        boolean isClientEnable = OssState.getStatusBySetting(cloudType);
         this.message.setText(isClientEnable ? "" : "当前 OSS 不可用");
         this.message.setForeground(isClientEnable ? JBColor.WHITE : JBColor.RED);
     }
