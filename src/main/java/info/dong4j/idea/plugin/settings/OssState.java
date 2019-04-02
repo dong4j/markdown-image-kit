@@ -70,6 +70,9 @@ public abstract class OssState {
      */
     @Contract(pure = true)
     public static boolean getStatus(int cloudIndex) {
+        if(cloudIndex == CloudEnum.SM_MS_CLOUD.index){
+            return true;
+        }
         return getStatus(getCloudType(cloudIndex));
     }
 
@@ -121,6 +124,7 @@ public abstract class OssState {
         if (cloudEnum == null) {
             return false;
         }
+
         switch (cloudEnum) {
             case WEIBO_CLOUD:
                 return getStatus(state.getWeiboOssState());
@@ -137,7 +141,7 @@ public abstract class OssState {
             case YOUPAI_CLOUD:
                 return false;
             case SM_MS_CLOUD:
-                return false;
+                return true;
             case IMGUR_CLOUD:
                 return false;
             case U_CLOUD:

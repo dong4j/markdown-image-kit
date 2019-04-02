@@ -102,18 +102,6 @@ public class WeiboOssClient implements OssClient {
     }
 
     /**
-     * Upload string.
-     *
-     * @param file the file
-     * @return the string
-     * @throws IOException the io exception
-     */
-    @Override
-    public String upload(File file) {
-        return upload(ossClient, file);
-    }
-
-    /**
      * 被 paste 操作调用 (反射).
      *
      * @param inputStream the input stream
@@ -139,7 +127,6 @@ public class WeiboOssClient implements OssClient {
         File file = ImageUtils.buildTempFile(fileName);
         try {
             FileUtils.copyToFile(inputStream, file);
-            closeStream(inputStream);
             return upload(ossClient, file);
         } catch (IOException e) {
             log.trace("", e);
@@ -210,7 +197,6 @@ public class WeiboOssClient implements OssClient {
             .setAcount(username, password)
             .build();
         String url = weiboOssClient.upload(ossClient, inputStream, fileName);
-        closeStream(inputStream);
         if (StringUtils.isNotBlank(url)) {
             int hashcode = username.hashCode() + password.hashCode();
             OssState.saveStatus(weiboOssState, hashcode, MikState.OLD_HASH_KEY);

@@ -23,46 +23,50 @@
  *
  */
 
-package info.dong4j.idea.plugin.strategy;
+package info.dong4j.idea.plugin.action.markdown;
 
 import info.dong4j.idea.plugin.client.OssClient;
+import info.dong4j.idea.plugin.client.SmmsClient;
+import info.dong4j.idea.plugin.enums.CloudEnum;
+import info.dong4j.idea.plugin.icon.MikIcons;
 
-import java.io.*;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JPanel;
+import javax.swing.Icon;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: 从测试按钮发起的上传请求</p>
+ * <p>Description: </p>
  *
  * @author dong4j
- * @email sjdong3 @iflytek.com
- * @since 2019-03-22 13:14
+ * @email sjdong3@iflytek.com
+ * @since 2019-04-02 18:02
  */
-@Deprecated
-public class UploadFromTest implements UploadWay {
-    private OssClient client;
-    private InputStream inputStream;
-    private String fileName;
-    private JPanel jPanel;
+public final class UploadSmmsCloudAction extends UploadActionBase {
 
-    /**
-     * Instantiates a new Upload from test.
-     *
-     * @param client      the client
-     * @param inputStream the input stream
-     * @param fileName    the file name
-     * @param jPanel      the j panel
-     */
-    public UploadFromTest(OssClient client, InputStream inputStream, String fileName, JPanel jPanel) {
-        this.client = client;
-        this.inputStream = inputStream;
-        this.fileName = fileName;
-        this.jPanel = jPanel;
+    @Contract(pure = true)
+    @Override
+    protected Icon getIcon() {
+        return MikIcons.SM_MS;
     }
 
+    @Contract(pure = true)
     @Override
-    public String upload() {
-        return client.upload(inputStream, fileName, jPanel);
+    boolean isAvailable() {
+        return true;
+    }
+
+    @Nullable
+    @Contract(pure = true)
+    @Override
+    String getName() {
+        return CloudEnum.SM_MS_CLOUD.title;
+    }
+
+    @Contract(pure = true)
+    @Override
+    OssClient getClient() {
+        return SmmsClient.getInstance();
     }
 }

@@ -61,7 +61,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019-03-29 19:03
  */
 @Slf4j
-public class ChangeLabelAction extends AnAction {
+public final class ChangeLabelAction extends AnAction {
     @Override
     public void update(@NotNull AnActionEvent event) {
         ActionUtils.isAvailable(event, AllIcons.Actions.ListChanges, MarkdownContents.MARKDOWN_TYPE_NAME);

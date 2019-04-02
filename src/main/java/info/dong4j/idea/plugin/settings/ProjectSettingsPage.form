@@ -678,79 +678,6 @@
               </hspacer>
             </children>
           </grid>
-          <grid id="fe41" layout-manager="GridLayoutManager" row-count="8" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-            <margin top="0" left="0" bottom="0" right="0"/>
-            <constraints>
-              <tabbedpane title="sm.ms"/>
-            </constraints>
-            <properties/>
-            <border type="none"/>
-            <children>
-              <component id="70fdb" class="javax.swing.JLabel">
-                <constraints>
-                  <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value="String[] allCloud = new String[] {&quot;sm.ms&quot;, &quot;imgur&quot;, &quot;Ucloud&quot;, &quot;QingCloud&quot;, &quot;自定义&quot;};"/>
-                </properties>
-              </component>
-              <component id="d4377" class="javax.swing.JLabel">
-                <constraints>
-                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value="StringBuilder stringBuilder = new StringBuilder();"/>
-                </properties>
-              </component>
-              <component id="f264c" class="javax.swing.JLabel">
-                <constraints>
-                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value="for (String s : allCloud) {"/>
-                </properties>
-              </component>
-              <component id="9a3ff" class="javax.swing.JLabel">
-                <constraints>
-                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="4" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value="stringBuilder.append(&quot;next&quot;).append(&quot; &quot;);"/>
-                </properties>
-              </component>
-              <component id="8eea6" class="javax.swing.JLabel">
-                <constraints>
-                  <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="4" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value="System.out.println(String.format(&quot;「%s」 \tsee you %sversion.&quot;, s, stringBuilder));"/>
-                </properties>
-              </component>
-              <component id="dbfca" class="javax.swing.JLabel">
-                <constraints>
-                  <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value="}"/>
-                </properties>
-              </component>
-              <vspacer id="62403">
-                <constraints>
-                  <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
-                </constraints>
-              </vspacer>
-              <vspacer id="578bd">
-                <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
-                </constraints>
-              </vspacer>
-              <hspacer id="6c859">
-                <constraints>
-                  <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-                </constraints>
-              </hspacer>
-            </children>
-          </grid>
           <grid id="16cae" layout-manager="GridLayoutManager" row-count="8" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
@@ -1045,7 +972,7 @@
           </grid>
         </children>
       </tabbedpane>
-      <grid id="9b7d6" binding="globalUploadPanel" layout-manager="GridLayoutManager" row-count="8" column-count="19" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="9b7d6" binding="globalUploadPanel" layout-manager="GridLayoutManager" row-count="8" column-count="18" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
           <grid row="2" column="0" row-span="1" col-span="21" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -1081,7 +1008,7 @@
           </component>
           <component id="19181" class="javax.swing.JTextField" binding="customHtmlTypeTextField">
             <constraints>
-              <grid row="4" column="2" row-span="1" col-span="17" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="1" use-parent-layout="false">
+              <grid row="4" column="2" row-span="1" col-span="16" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="1" use-parent-layout="false">
                 <preferred-size width="200" height="-1"/>
               </grid>
             </constraints>
@@ -1093,7 +1020,7 @@
           </component>
           <hspacer id="ace39">
             <constraints>
-              <grid row="1" column="2" row-span="1" col-span="17" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="1" column="2" row-span="1" col-span="16" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
           </hspacer>
           <component id="5a547" class="javax.swing.JRadioButton" binding="commonRadioButton">
@@ -1126,7 +1053,7 @@
           </component>
           <component id="3805b" class="javax.swing.JSlider" binding="compressSlider">
             <constraints>
-              <grid row="5" column="2" row-span="1" col-span="14" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="5" column="2" row-span="1" col-span="13" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <enabled value="false"/>
@@ -1140,7 +1067,7 @@
           </component>
           <component id="50514" class="javax.swing.JLabel" binding="commonLabel">
             <constraints>
-              <grid row="2" column="2" row-span="1" col-span="9" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+              <grid row="2" column="2" row-span="1" col-span="8" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
             </constraints>
             <properties>
               <enabled value="false"/>
@@ -1149,7 +1076,7 @@
           </component>
           <component id="89cf6" class="javax.swing.JLabel" binding="customLabel">
             <constraints>
-              <grid row="3" column="2" row-span="1" col-span="17" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+              <grid row="3" column="2" row-span="1" col-span="16" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
             </constraints>
             <properties>
               <enabled value="false"/>
@@ -1159,7 +1086,7 @@
           </component>
           <component id="7c591" class="javax.swing.JLabel">
             <constraints>
-              <grid row="5" column="18" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="5" column="17" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value="         "/>
@@ -1167,7 +1094,7 @@
           </component>
           <component id="660f9" class="javax.swing.JLabel" binding="compressLabel">
             <constraints>
-              <grid row="5" column="16" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="5" column="15" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <enabled value="false"/>
@@ -1176,7 +1103,7 @@
           </component>
           <component id="2c64a" class="javax.swing.JLabel">
             <constraints>
-              <grid row="5" column="17" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="5" column="16" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value="       "/>
@@ -1205,12 +1132,12 @@
           </component>
           <hspacer id="5c">
             <constraints>
-              <grid row="6" column="8" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="6" column="5" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
           </hspacer>
           <component id="1e699" class="javax.swing.JLabel">
             <constraints>
-              <grid row="6" column="3" row-span="1" col-span="5" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="6" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value="此项设置对微博无效"/>
@@ -1218,69 +1145,61 @@
           </component>
           <hspacer id="faea0">
             <constraints>
-              <grid row="6" column="9" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="6" column="6" row-span="1" col-span="3" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
           </hspacer>
           <hspacer id="14c5f">
             <constraints>
-              <grid row="6" column="10" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="6" column="9" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
           </hspacer>
           <hspacer id="ee202">
             <constraints>
-              <grid row="6" column="11" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="6" column="10" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
           </hspacer>
           <hspacer id="924e9">
             <constraints>
-              <grid row="6" column="12" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="6" column="11" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
           </hspacer>
           <hspacer id="afe1">
             <constraints>
-              <grid row="6" column="13" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="6" column="12" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
           </hspacer>
           <hspacer id="68da1">
             <constraints>
-              <grid row="6" column="14" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="6" column="13" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
           </hspacer>
           <hspacer id="32381">
             <constraints>
-              <grid row="6" column="15" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="6" column="14" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
           </hspacer>
           <hspacer id="2ea08">
             <constraints>
-              <grid row="6" column="16" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="6" column="15" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
           </hspacer>
           <hspacer id="eac16">
             <constraints>
-              <grid row="6" column="17" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="6" column="16" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
           </hspacer>
           <hspacer id="b4aa1">
             <constraints>
-              <grid row="6" column="18" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="6" column="17" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
           </hspacer>
-          <component id="b4c1f" class="javax.swing.JLabel" binding="defaultCloudLabel">
-            <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text value="* 设置全局默认图床"/>
-            </properties>
-          </component>
           <component id="64c59" class="javax.swing.JComboBox" binding="defaultCloudComboBox">
             <constraints>
               <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <editable value="false"/>
-              <enabled value="true"/>
+              <enabled value="false"/>
               <model>
                 <item value="微博"/>
                 <item value="阿里云"/>
@@ -1289,7 +1208,6 @@
                 <item value="百度云"/>
                 <item value="京东云"/>
                 <item value="又拍云"/>
-                <item value="sm.ms"/>
                 <item value="Imgur"/>
                 <item value="Ucloud"/>
                 <item value="QingCloud"/>
@@ -1299,11 +1217,28 @@
           </component>
           <component id="72d53" class="javax.swing.JLabel" binding="message">
             <constraints>
-              <grid row="0" column="3" row-span="1" col-span="7" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+              <grid row="0" column="4" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
             </constraints>
             <properties>
               <enabled value="false"/>
               <text value="   "/>
+            </properties>
+          </component>
+          <component id="2de94" class="javax.swing.JCheckBox" binding="defaultCloudCheckBox">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="自定义默认图床"/>
+            </properties>
+          </component>
+          <component id="cf112" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="0" column="7" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <enabled value="false"/>
+              <text value="若未自定义, 将使用 sm.ms 作为默认图床"/>
             </properties>
           </component>
         </children>

@@ -107,22 +107,6 @@ public class AliyunOssClient implements OssClient {
     }
 
     /**
-     * Upload string.
-     *
-     * @param file the file
-     * @return the string
-     */
-    @Override
-    public String upload(File file) {
-        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(file))) {
-            return upload(bufferedInputStream, file.getName());
-        } catch (IOException e) {
-            log.trace("", e);
-        }
-        return "";
-    }
-
-    /**
      * 上传到OSS服务器  如果同名文件会覆盖服务器上的
      *
      * @param inputStream 文件流
@@ -266,8 +250,6 @@ public class AliyunOssClient implements OssClient {
             return getUrl(ossClient, filedir, fileName);
         } catch (IOException e) {
             log.trace("", e);
-        } finally {
-            closeStream(instream);
         }
         return "";
     }

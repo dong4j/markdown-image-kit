@@ -65,12 +65,15 @@ public class MikState {
     private boolean uploadAndReplace = false;
     /** 图片保存路径 */
     private String imageSavePath = "./imgs";
+    /** 是否自定义默认图床 */
+    private boolean defaultCloudCheck = false;
     /** 默认图床 */
-    private int cloudType = CloudEnum.WEIBO_CLOUD.index;
+    private int cloudType = CloudEnum.SM_MS_CLOUD.index;
     /** 重命名文件 */
     private boolean rename = false;
     /** 文件名后缀 */
     private int suffixIndex = SuffixEnum.FILE_NAME.index;
+
     public MikState() {
         this.aliyunOssState = new AliyunOssState();
         this.qiniuOssState = new QiniuOssState();

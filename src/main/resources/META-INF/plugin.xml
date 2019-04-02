@@ -100,11 +100,14 @@
     </extensions>
 
     <actions>
-        <action id="AliyunObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadAliyunCloudAction"
-                popup="true" text="上传到阿里云">
+        <action id="SmmsObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadSmmsCloudAction"
+                popup="true" text="上传到 sm.ms">
         </action>
         <action id="WeiboObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadWeiboCloudAction"
                 popup="true" text="上传到微博">
+        </action>
+        <action id="AliyunObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadAliyunCloudAction"
+                popup="true" text="上传到阿里云">
         </action>
         <action id="QiniuObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadQiniuCloudAction"
                 popup="true" text="上传到七牛云">
@@ -127,6 +130,7 @@
         <group popup="true" id="info.dong4j.idea.plugin.markdown.image.kit"
                class="info.dong4j.idea.plugin.action.MikGroupAction"
                text="Markdown Image Kit">
+            <reference ref="SmmsObjectStorageServiceAction"/>
             <reference ref="WeiboObjectStorageServiceAction"/>
             <reference ref="AliyunObjectStorageServiceAction"/>
             <reference ref="QiniuObjectStorageServiceAction"/>
@@ -145,6 +149,7 @@
         <!-- 编辑器右键菜单 -->
         <group popup="true" id="info.dong4j.idea.plugin.editor.popup.menu.group" text="Upload Image"
                icon="AllIcons.Gutter.Colors">
+            <reference ref="SmmsObjectStorageServiceAction"/>
             <reference ref="WeiboObjectStorageServiceAction"/>
             <reference ref="AliyunObjectStorageServiceAction"/>
             <reference ref="QiniuObjectStorageServiceAction"/>

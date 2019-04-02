@@ -124,23 +124,6 @@ public class QiniuOssClient implements OssClient {
     /**
      * Upload string.
      *
-     * @param file the file
-     * @return the string
-     */
-    @Override
-    @NotNull
-    public String upload(File file) {
-        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(file))) {
-            return upload(ossClient, bufferedInputStream, file.getName());
-        } catch (IOException e) {
-            log.trace("", e);
-        }
-        return "";
-    }
-
-    /**
-     * Upload string.
-     *
      * @param inputStream the input stream
      * @param fileName    the file name
      * @return the string
@@ -280,8 +263,6 @@ public class QiniuOssClient implements OssClient {
             }
         } catch (MalformedURLException e) {
             log.trace("", e);
-        } finally {
-            closeStream(inputStream);
         }
         return "";
     }

@@ -18,9 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RunsInActiveStoreMode
 public class WeiboOssClientTest extends LightPlatformTestCase {
-    public void test1() {
+    public void test1() throws FileNotFoundException {
         WeiboOssClient weiboOssClient = WeiboOssClient.getInstance();
-        String url = weiboOssClient.upload(new File("/Users/dong4j/Downloads/我可要开始皮了.png"));
+        String url = weiboOssClient.upload(new FileInputStream(new File("/Users/dong4j/Downloads/我可要开始皮了.png")), "我可要开始皮了.png");
         log.info(url);
     }
 

@@ -25,6 +25,10 @@
 
 package info.dong4j.idea.plugin.client;
 
+import com.google.gson.Gson;
+
+import info.dong4j.idea.plugin.entity.SmmsResult;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -47,7 +51,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
@@ -61,11 +64,6 @@ import okhttp3.ResponseBody;
 public class SmmsClientTest {
     @Test
     public void test() throws Exception {
-        upload("");
-        // upload("", new File("/Users/dong4j/Downloads/mik.png"));
-        // log.info("{}", upload("https://sm.ms/api/upload", "/Users/dong4j/Downloads/mik.png", "mik.png"));
-        // upload();
-        doPostupload(new File("/Users/dong4j/Downloads/mik.png"), 0, "https://sm.ms/api/upload/");
     }
 
     public static void upload(String fileName) throws IOException {
@@ -104,7 +102,9 @@ public class SmmsClientTest {
         log.info("{}", response);
     }
 
-    public String upload(String imageType, File file) {
+    @Test
+    public void upload3() {
+        File file = new File("/Users/dong4j/Downloads/mik.png");
         RequestBody fileBody = RequestBody.create(MediaType.parse("image/png"), file);
         RequestBody requestBody = new MultipartBody.Builder()
             .setType(MultipartBody.FORM)
@@ -113,6 +113,8 @@ public class SmmsClientTest {
 
         Request request = new Request.Builder()
             .url("http://sm.ms/api/upload")
+            .addHeader("Content-Type", "multipart/form-data")
+            .addHeader("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 6.1; zh-CN; rv:1.9.2.6)")
             .post(requestBody)
             .build();
 
@@ -127,10 +129,11 @@ public class SmmsClientTest {
                 throw new RuntimeException("upload error code " + response);
             } else {
                 JSONObject jsonObject = new JSONObject(jsonString);
+                log.info("{}", jsonObject);
                 int errorCode = jsonObject.getInt("errorCode");
                 if (errorCode == 0) {
                     log.trace(" upload data =" + jsonObject.getString("data"));
-                    return jsonObject.getString("data");
+                     jsonObject.getString("data");
                 } else {
                     throw new RuntimeException("upload error code " + errorCode + ",errorInfo=" + jsonObject.getString("errorInfo"));
                 }
@@ -141,23 +144,23 @@ public class SmmsClientTest {
         } catch (JSONException e) {
             log.trace("upload JSONException ", e);
         }
-        return null;
     }
 
-    public static ResponseBody upload(String url, String filePath, String fileName) throws Exception {
+    @Test
+    public void upload4() throws Exception {
+        String fileName = "mik.png";
+        String filePath = "/Users/dong4j/Downloads/mik.png";
+        String url = "https://sm.ms/api/upload";
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = new MultipartBody.Builder()
             .setType(MultipartBody.FORM)
-            // .addFormDataPart("smfile", fileName, RequestBody.create(MediaType.parse("multipart/form-data"), new File(filePath)))
-            .addFormDataPart("ssl", "false")
-            .addFormDataPart("name", "smfile")
-            .addFormDataPart("filename", "fileName")
+            .addFormDataPart("smfile", fileName, RequestBody.create(MediaType.parse("multipart/form-data"), new File(filePath)))
             .build();
 
         Request request = new Request.Builder()
             .url(url)
             .addHeader("Content-Type", "multipart/form-data")
-            .addHeader("cache-control", "no-cache")
+            .addHeader("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 6.1; zh-CN; rv:1.9.2.6)")
             .post(requestBody)
             .build();
 
@@ -165,8 +168,11 @@ public class SmmsClientTest {
         if (!response.isSuccessful()) {
             throw new IOException("Unexpected code " + response);
         }
-
-        return response.body();
+        if (response.body() != null) {
+            String result = response.body().string();
+            SmmsResult smmsResult = new Gson().fromJson(result, SmmsResult.class);
+            log.info("{}", smmsResult);
+        }
     }
 
     public static void upload() throws InterruptedException {

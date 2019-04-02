@@ -90,11 +90,11 @@ public final class MoveToOtherStorageAction extends AnAction {
             if (StringUtils.isBlank(domain)) {
                 return;
             }
-            if (!OssState.getStatus(dialog.getCloudComboBox().getSelectedIndex())) {
+            if (!OssState.getStatus(dialog.getCloudComboBox().getSelectedIndex()- 1)) {
                 return;
             }
 
-            int cloudIndex = dialog.getCloudComboBox().getSelectedIndex();
+            int cloudIndex = dialog.getCloudComboBox().getSelectedIndex() - 1;
             CloudEnum cloudEnum = OssState.getCloudType(cloudIndex);
 
             EventData data = new EventData()
@@ -126,12 +126,12 @@ public final class MoveToOtherStorageAction extends AnAction {
         MoveToOtherOssSettingsDialog dialog = new MoveToOtherOssSettingsDialog();
 
         int index = MikPersistenComponent.getInstance().getState().getCloudType();
-        dialog.getCloudComboBox().setSelectedIndex(index);
+        dialog.getCloudComboBox().setSelectedIndex(index + 1);
         showMessage(builder, dialog, index);
 
         dialog.getCloudComboBox().addActionListener(e -> {
             int selectedIndex = dialog.getCloudComboBox().getSelectedIndex();
-            showMessage(builder, dialog, selectedIndex);
+            showMessage(builder, dialog, selectedIndex - 1);
         });
 
         dialog.getDomain().getDocument().addDocumentListener(new DocumentAdapter() {

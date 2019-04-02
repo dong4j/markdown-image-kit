@@ -67,15 +67,7 @@ public interface OssClient {
     CloudEnum getCloudType();
 
     /**
-     * Upload string.
-     *
-     * @param file the file
-     * @return the string
-     */
-    String upload(File file);
-
-    /**
-     * Upload string.
+     * 全部通过此接口上传
      *
      * @param inputStream the input stream
      * @param fileName    the file name
@@ -110,20 +102,5 @@ public interface OssClient {
             }
         }
         return fieldMap;
-    }
-
-    /**
-     * Close stream.
-     *
-     * @param inputStream the input stream
-     * @throws IOException the io exception
-     */
-    default void closeStream(InputStream inputStream) {
-        if (inputStream != null) {
-            try {
-                inputStream.close();
-            } catch (IOException ignored) {
-            }
-        }
     }
 }

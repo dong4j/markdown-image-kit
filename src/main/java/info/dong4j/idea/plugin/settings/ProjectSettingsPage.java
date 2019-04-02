@@ -109,7 +109,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     /** globalUploadPanel group */
     private JPanel globalUploadPanel;
     private JComboBox defaultCloudComboBox;
-    private JLabel defaultCloudLabel;
     private JLabel message;
 
     private JCheckBox changeToHtmlTagCheckBox;
@@ -134,6 +133,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JCheckBox copyToDirCheckBox;
     private JTextField whereToCopyTextField;
     private JCheckBox uploadAndReplaceCheckBox;
+    /** 自定义默认图床 */
+    private JCheckBox defaultCloudCheckBox;
 
 
     /** todo-dong4j : (2019年03月20日 13:25) [测试输入验证用] */
@@ -206,9 +207,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     /**
      * 初始化 authorizationTabbedPanel group
      */
-    private void initAuthorizationTabbedPanel(MikState state) {
+    private void initAuthorizationTabbedPanel(@NotNull MikState state) {
         // 打开设置页时默认选中默认上传图床
-        authorizationTabbedPanel.setSelectedIndex(state.getCloudType());
+        authorizationTabbedPanel.setSelectedIndex(state.getCloudType() == CloudEnum.SM_MS_CLOUD.index ? CloudEnum.WEIBO_CLOUD.index : state.getCloudType());
         authorizationTabbedPanel.addChangeListener(e -> {
             // 清理 test 信息
             testMessage.setText("");
@@ -315,7 +316,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     /**
      * 初始化 qiniu oss 认证相关设置
      */
-    private void initQiniuOssAuthenticationPanel(MikState state) {
+    private void initQiniuOssAuthenticationPanel(@NotNull MikState state) {
         QiniuOssState qiniuOssState = state.getQiniuOssState();
         qiniuOssAccessSecretKeyTextField.setText(DES.decrypt(qiniuOssState.getAccessSecretKey(), MikState.QINIU));
 
@@ -361,9 +362,15 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      * 初始化 upload 配置组
      */
     private void initGlobalPanel(@NotNull MikState state) {
-        this.defaultCloudComboBox.setSelectedIndex(config.getState().getCloudType());
+        boolean isDefaultCloudCheck = state.isDefaultCloudCheck();
+        this.defaultCloudCheckBox.setSelected(isDefaultCloudCheck);
+        this.defaultCloudComboBox.setEnabled(isDefaultCloudCheck);
+        int index = config.getState().getCloudType() == CloudEnum.SM_MS_CLOUD.index ? CloudEnum.WEIBO_CLOUD.index : config.getState().getCloudType();
+        this.defaultCloudComboBox.setSelectedIndex(index);
 
-        showSelectCloudMessage(config.getState().getCloudType());
+        defaultCloudCheckBox.addActionListener(e -> defaultCloudComboBox.setEnabled(defaultCloudCheckBox.isSelected()));
+
+        showSelectCloudMessage(index);
 
         this.defaultCloudComboBox.addActionListener(e -> {
             showSelectCloudMessage(this.defaultCloudComboBox.getSelectedIndex());
@@ -554,7 +561,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                && weiboPassword.equals(weiboOssState.getPassword());
     }
 
-    private boolean isQiniuAuthModified(MikState state) {
+    private boolean isQiniuAuthModified(@NotNull MikState state) {
         QiniuOssState qiniuOssState = state.getQiniuOssState();
         String bucketName = qiniuOssBucketNameTextField.getText().trim();
         String accessKey = qiniuOssAccessKeyTextField.getText().trim();
@@ -608,6 +615,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         boolean isRename = renameCheckBox.isSelected();
         // 图片后缀
         int index = fileNameSuffixBoxField.getSelectedIndex();
+        boolean isDefaultCloudCheck = defaultCloudCheckBox.isSelected();
 
         return changeToHtmlTag == state.isChangeToHtmlTag()
                && tagType.equals(state.getTagType())
@@ -616,6 +624,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                && compressBeforeUploadOfPercent == state.getCompressBeforeUploadOfPercent()
                && isRename == state.isRename()
                && index == state.getSuffixIndex()
+               && isDefaultCloudCheck == state.isDefaultCloudCheck()
                && defaultCloudComboBox.getSelectedIndex() == state.getCloudType();
 
     }
@@ -644,7 +653,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         applyWeiboAuthConfigs(state);
     }
 
-    private void applyAliyunAuthConfigs(MikState state) {
+    private void applyAliyunAuthConfigs(@NotNull MikState state) {
         AliyunOssState aliyunOssState = state.getAliyunOssState();
         String bucketName = this.aliyunOssBucketNameTextField.getText().trim();
         String accessKey = this.aliyunOssAccessKeyTextField.getText().trim();
@@ -668,7 +677,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         aliyunOssState.setFiledir(this.aliyunOssFileDirTextField.getText().trim());
     }
 
-    private void applyQiniuAuthConfigs(MikState state) {
+    private void applyQiniuAuthConfigs(@NotNull MikState state) {
         QiniuOssState qiniuOssState = state.getQiniuOssState();
         // todo-dong4j : (2019年03月19日 21:01) [重构为 domain]
         String endpoint = qiniuOssUpHostTextField.getText().trim();
@@ -695,7 +704,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         qiniuOssState.setZoneIndex(zoneIndex);
     }
 
-    private void applyGeneralConfigs(MikState state) {
+    private void applyGeneralConfigs(@NotNull MikState state) {
         state.setChangeToHtmlTag(this.changeToHtmlTagCheckBox.isSelected());
         if (this.changeToHtmlTagCheckBox.isSelected()) {
             // 正常的
@@ -719,16 +728,17 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         state.setCompressBeforeUploadOfPercent(this.compressSlider.getValue());
         state.setRename(renameCheckBox.isSelected());
         state.setSuffixIndex(fileNameSuffixBoxField.getSelectedIndex());
-        state.setCloudType(this.defaultCloudComboBox.getSelectedIndex());
+        state.setDefaultCloudCheck(this.defaultCloudCheckBox.isSelected());
+        state.setCloudType(state.isDefaultCloudCheck() ? this.defaultCloudComboBox.getSelectedIndex() : CloudEnum.SM_MS_CLOUD.index);
     }
 
-    private void applyClipboardConfigs(MikState state) {
+    private void applyClipboardConfigs(@NotNull MikState state) {
         state.setCopyToDir(this.copyToDirCheckBox.isSelected());
         state.setUploadAndReplace(this.uploadAndReplaceCheckBox.isSelected());
         state.setImageSavePath(this.whereToCopyTextField.getText().trim());
     }
 
-    private void applyWeiboAuthConfigs(MikState state) {
+    private void applyWeiboAuthConfigs(@NotNull MikState state) {
         WeiboOssState weiboOssState = state.getWeiboOssState();
         // 处理 weibo 保存时的逻辑 (保存之前必须通过测试, 右键菜单才可用)
         String username = this.weiboUserNameTextField.getText().trim();
@@ -769,7 +779,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.aliyunOssFileDirTextField.setText(aliyunOssState.getFiledir());
     }
 
-    private void resetQiniuunConfigs(MikState state) {
+    private void resetQiniuunConfigs(@NotNull MikState state) {
         QiniuOssState qiniuOssState = state.getQiniuOssState();
         this.qiniuOssBucketNameTextField.setText(qiniuOssState.getBucketName());
         this.qiniuOssAccessKeyTextField.setText(qiniuOssState.getAccessKey());
@@ -785,7 +795,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.weiboPasswordField.setText(DES.decrypt(weiboOssState.getPassword(), MikState.WEIBOKEY));
     }
 
-    private void resetGeneralCOnfigs(MikState state) {
+    private void resetGeneralCOnfigs(@NotNull MikState state) {
         this.changeToHtmlTagCheckBox.setSelected(state.isChangeToHtmlTag());
         this.largePictureRadioButton.setSelected(state.getTagType().equals(ImageMarkEnum.LARGE_PICTURE.text));
         this.commonRadioButton.setSelected(state.getTagType().equals(ImageMarkEnum.CUSTOM.text));
@@ -796,10 +806,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.compressLabel.setText(String.valueOf(compressSlider.getValue()));
         this.renameCheckBox.setSelected(state.isRename());
         this.fileNameSuffixBoxField.setSelectedIndex(state.getSuffixIndex());
+        this.defaultCloudCheckBox.setSelected(state.isDefaultCloudCheck());
         this.defaultCloudComboBox.setSelectedIndex(state.getCloudType());
     }
 
-    private void resetClipboardConfigs(MikState state) {
+    private void resetClipboardConfigs(@NotNull MikState state) {
         this.copyToDirCheckBox.setSelected(state.isCopyToDir());
         this.whereToCopyTextField.setText(state.getImageSavePath());
         this.uploadAndReplaceCheckBox.setSelected(state.isUploadAndReplace());

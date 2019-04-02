@@ -18,9 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 // @RunsInActiveStoreMode
 public class AliyunOssClientTest extends LightPlatformTestCase {
     // @Test
-    public void test(){
+    public void test() throws FileNotFoundException {
         AliyunOssClient aliyunOssClient = AliyunOssClient.getInstance();
-        String url = aliyunOssClient.upload(new File("/Users/dong4j/Downloads/我可要开始皮了.png"));
+        String url = aliyunOssClient.upload(new FileInputStream(new File("/Users/dong4j/Downloads/我可要开始皮了.png")), "我可要开始皮了.png");
         log.info(url);
     }
 }

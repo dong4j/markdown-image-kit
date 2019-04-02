@@ -139,9 +139,9 @@ public class QiniuOssClientTest extends LightPlatformTestCase {
         return "";
     }
 
-    public void test1(){
+    public void test1() throws FileNotFoundException {
         QiniuOssClient qiniuOssClient = QiniuOssClient.getInstance();
-        String url = qiniuOssClient.upload(new File("/Users/dong4j/Downloads/我可要开始皮了.png"));
+        String url = qiniuOssClient.upload(new FileInputStream(new File("/Users/dong4j/Downloads/我可要开始皮了.png")), "我可要开始皮了.png");
         log.info(url);
     }
 }
