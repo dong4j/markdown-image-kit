@@ -102,11 +102,6 @@ public class AliyunOssClient implements OssClient {
     }
 
     @Override
-    public String getName() {
-        return getCloudType().title;
-    }
-
-    @Override
     public CloudEnum getCloudType() {
         return CloudEnum.ALIYUN_CLOUD;
     }

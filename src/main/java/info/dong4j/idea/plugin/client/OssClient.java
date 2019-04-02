@@ -55,7 +55,9 @@ public interface OssClient {
      *
      * @return the name
      */
-    String getName();
+    default String getName(){
+        return getCloudType().title;
+    }
 
     /**
      * Gets cloud type.

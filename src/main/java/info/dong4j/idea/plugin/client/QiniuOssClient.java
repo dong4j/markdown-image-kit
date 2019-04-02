@@ -117,11 +117,6 @@ public class QiniuOssClient implements OssClient {
     }
 
     @Override
-    public String getName() {
-        return getCloudType().title;
-    }
-
-    @Override
     public CloudEnum getCloudType() {
         return CloudEnum.QINIU_CLOUD;
     }

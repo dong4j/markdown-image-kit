@@ -47,7 +47,7 @@ public enum CloudEnum {
     BAIDU_CLOUD(4, "百度云", ""),
     JINGDONG_CLOUD(5, "京东云", ""),
     YOUPAI_CLOUD(6, "又拍云", ""),
-    SM_MS_CLOUD(7, "sm.ms", ""),
+    SM_MS_CLOUD(7, "sm.ms", "smms"),
     IMGUR_CLOUD(8, "Imgur", ""),
     U_CLOUD(9, "Ucloud", ""),
     QING_CLOUD(10, "QIngCloud", ""),
