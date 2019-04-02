@@ -50,6 +50,14 @@
     ]]></description>
 
     <change-notes><![CDATA[
+     <p>0.0.2-RELEASE</p>
+      <ul>
+        <li>Support <a href="https://sm.ms">sm.ms</a>, and set it as the default</li>
+      </ul>
+      <ul>
+        <li>支持 sm.ms, 并设置为默认图床</li>
+       </ul>
+       <br/>
       <p>0.0.1-RELEASE</p>
       <ul>
         <li>One-click uploading the current document (all documents) automatically replaces all reference pictures, and experiences the simplest and most efficient one-wave operation;</li>
