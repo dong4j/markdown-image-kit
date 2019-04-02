@@ -373,15 +373,22 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         boolean isDefaultCloudCheck = state.isDefaultCloudCheck();
         this.defaultCloudCheckBox.setSelected(isDefaultCloudCheck);
         this.defaultCloudComboBox.setEnabled(isDefaultCloudCheck);
-        int index = config.getState().getCloudType() == CloudEnum.SM_MS_CLOUD.index ? CloudEnum.WEIBO_CLOUD.index : config.getState().getCloudType();
-        this.defaultCloudComboBox.setSelectedIndex(index);
+        this.defaultCloudComboBox.setSelectedIndex(state.getTempCloudType());
 
-        defaultCloudCheckBox.addActionListener(e -> defaultCloudComboBox.setEnabled(defaultCloudCheckBox.isSelected()));
+        showSelectCloudMessage(state.getTempCloudType());
 
-        showSelectCloudMessage(index);
+        defaultCloudCheckBox.addActionListener(e -> {
+            showSelectCloudMessage(state.getTempCloudType());
+            defaultCloudComboBox.setEnabled(defaultCloudCheckBox.isSelected());
+        });
 
         this.defaultCloudComboBox.addActionListener(e -> {
-            showSelectCloudMessage(this.defaultCloudComboBox.getSelectedIndex());
+            JComboBox jComboBox = (JComboBox) e.getSource();
+            int currentSelectIndex = jComboBox.getSelectedIndex();
+            showSelectCloudMessage(currentSelectIndex);
+            if(currentSelectIndex == CloudEnum.SM_MS_CLOUD.index){
+                defaultCloudComboBox.setSelectedIndex(state.getTempCloudType());
+            }
         });
 
         initChangeToHtmlGroup();
@@ -398,9 +405,14 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     private void showSelectCloudMessage(int cloudType) {
-        boolean isClientEnable = OssState.getStatusBySetting(cloudType);
-        this.message.setText(isClientEnable ? "" : "当前 OSS 不可用");
-        this.message.setForeground(isClientEnable ? JBColor.WHITE : JBColor.RED);
+        if(defaultCloudCheckBox.isSelected()){
+            boolean isClientEnable = OssState.getStatusBySetting(cloudType);
+            this.message.setText(isClientEnable ? "" : "当前 OSS 不可用");
+            this.message.setForeground(isClientEnable ? JBColor.WHITE : JBColor.RED);
+        }else {
+            this.message.setText("");
+            this.message.setForeground(JBColor.WHITE);
+        }
     }
 
     /**
@@ -738,6 +750,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         state.setSuffixIndex(fileNameSuffixBoxField.getSelectedIndex());
         state.setDefaultCloudCheck(this.defaultCloudCheckBox.isSelected());
         state.setCloudType(state.isDefaultCloudCheck() ? this.defaultCloudComboBox.getSelectedIndex() : CloudEnum.SM_MS_CLOUD.index);
+        state.setTempCloudType(this.defaultCloudComboBox.getSelectedIndex());
     }
 
     private void applyClipboardConfigs(@NotNull MikState state) {
