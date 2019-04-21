@@ -43,7 +43,7 @@ import lombok.extern.slf4j.Slf4j;
  * @email sjdong3 @iflytek.com
  */
 @Slf4j
-@State(name = "MikSettings", storages = @Storage(value = Storage.NOT_ROAMABLE_FILE, file = "$APP_CONFIG$/markdown.image.kit.configs.xml"))
+@State(name = "MikSettings", storages = @Storage("markdown.image.kit.configs.xml"))
 public class MikPersistenComponent implements PersistentStateComponent<MikState> {
 
     private MikState myState = new MikState();
