@@ -57,7 +57,7 @@ public class TencentOssClient implements OssClient {
     }
 
     /**
-     * 在调用 ossClient 之前先检查, 如果为 null 就 init()
+     * 在调用 ossClient 之前先检查, 如果为 null 则初始化
      */
     private static void checkClient() {
         if (ossClient == null) {
@@ -77,11 +77,8 @@ public class TencentOssClient implements OssClient {
         regionName = tencentOssState.getRegionName();
 
         try {
-            // 1 初始化用户身份信息(secretId, secretKey)
             COSCredentials cred = new BasicCOSCredentials(accessKey, accessSecretKey);
-            // 2 设置bucket的区域, COS地域的简称请参照 https://www.qcloud.com/document/product/436/6224
             ClientConfig clientConfig = new ClientConfig(new Region(regionName));
-            // 3 生成cos客户端
             ossClient = new COSClient(cred, clientConfig);
         } catch (Exception ignored) {
         }
@@ -225,7 +222,7 @@ public class TencentOssClient implements OssClient {
      * @param fileName    the file name
      * @return the string
      */
-    public String upload(@NotNull COSClient ossClient, InputStream inputStream, String fileName) {
+    public String upload(@NotNull COSClient ossClient, @NotNull InputStream inputStream, String fileName) {
         ObjectMetadata objectMetadata = new ObjectMetadata();
         // 从输入流上传必须制定content length, 否则http客户端可能会缓存所有数据，存在内存OOM的情况
         try {
