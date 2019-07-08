@@ -51,7 +51,9 @@ public enum CloudEnum {
     IMGUR_CLOUD(7, "Imgur", ""),
     U_CLOUD(8, "Ucloud", ""),
     QING_CLOUD(9, "QIngCloud", ""),
-    CUSTOMIZE(10, "自定义", "");
+    /** @see info.dong4j.idea.plugin.client.TencentOssClient */
+    TENCENT_CLOUD(10, "腾讯云", ""),
+    CUSTOMIZE(11, "自定义", "");
 
     public int index;
     public String title;

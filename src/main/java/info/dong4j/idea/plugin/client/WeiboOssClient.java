@@ -62,6 +62,7 @@ import lombok.extern.slf4j.Slf4j;
 public class WeiboOssClient implements OssClient {
     private static final Object LOCK = new Object();
     private static WbpUploadRequest ossClient = null;
+
     private WeiboOssState weiboOssState = MikPersistenComponent.getInstance().getState().getWeiboOssState();
 
     private WeiboOssClient() {
@@ -99,6 +100,33 @@ public class WeiboOssClient implements OssClient {
     @Override
     public CloudEnum getCloudType() {
         return CloudEnum.WEIBO_CLOUD;
+    }
+
+    /**
+     * Set oss client.
+     *
+     * @param oss the oss
+     */
+    private void setOssClient(WbpUploadRequest oss) {
+        ossClient = oss;
+    }
+
+    /**
+     * Gets instance.
+     *
+     * @return the instance
+     */
+    @Contract(pure = true)
+    public static WeiboOssClient getInstance() {
+        return WeiboOssClient.SingletonHandler.singleton;
+    }
+
+    private static class SingletonHandler {
+        private static WeiboOssClient singleton = new WeiboOssClient();
+
+        static {
+            init();
+        }
     }
 
     /**
@@ -142,7 +170,7 @@ public class WeiboOssClient implements OssClient {
      * @return the string
      * @throws IOException the io exception
      */
-    public String upload(WbpUploadRequest ossClient, File file) {
+    public String upload(@NotNull WbpUploadRequest ossClient, File file) {
         String url = "";
         UploadResponse response;
         try {
@@ -205,30 +233,4 @@ public class WeiboOssClient implements OssClient {
         return url;
     }
 
-    /**
-     * Gets instance.
-     *
-     * @return the instance
-     */
-    @Contract(pure = true)
-    public static WeiboOssClient getInstance() {
-        return WeiboOssClient.SingletonHandler.singleton;
-    }
-
-    /**
-     * Set oss client.
-     *
-     * @param oss the oss
-     */
-    private void setOssClient(WbpUploadRequest oss) {
-        ossClient = oss;
-    }
-
-    private static class SingletonHandler {
-        private static WeiboOssClient singleton = new WeiboOssClient();
-
-        static {
-            init();
-        }
-    }
 }

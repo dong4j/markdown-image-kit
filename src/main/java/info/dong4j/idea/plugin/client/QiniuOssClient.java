@@ -106,6 +106,24 @@ public class QiniuOssClient implements OssClient {
     }
 
     /**
+     * Set domain.
+     *
+     * @param newDomain the new domain
+     */
+    private void setDomain(String newDomain) {
+        domain = newDomain;
+    }
+
+    /**
+     * Set oss client.
+     *
+     * @param oss the oss
+     */
+    private void setOssClient(UploadManager oss) {
+        ossClient = oss;
+    }
+
+    /**
      * Build token string.
      *
      * @param auth       the auth
@@ -119,6 +137,24 @@ public class QiniuOssClient implements OssClient {
     @Override
     public CloudEnum getCloudType() {
         return CloudEnum.QINIU_CLOUD;
+    }
+
+    /**
+     * Gets instance.
+     *
+     * @return the instance
+     */
+    @Contract(pure = true)
+    public static QiniuOssClient getInstance() {
+        return QiniuOssClient.SingletonHandler.singleton;
+    }
+
+    private static class SingletonHandler {
+        private static QiniuOssClient singleton = new QiniuOssClient();
+
+        static {
+            checkClient();
+        }
     }
 
     /**
@@ -192,6 +228,7 @@ public class QiniuOssClient implements OssClient {
         QiniuOssClient.buildToken(auth, bucketName);
 
         qiniuOssClient.setDomain(endpoint);
+
         String url = qiniuOssClient.upload(ossClient, inputStream, fileName);
 
         if (StringUtils.isNotBlank(url)) {
@@ -207,34 +244,6 @@ public class QiniuOssClient implements OssClient {
     }
 
     /**
-     * Gets instance.
-     *
-     * @return the instance
-     */
-    @Contract(pure = true)
-    public static QiniuOssClient getInstance() {
-        return QiniuOssClient.SingletonHandler.singleton;
-    }
-
-    /**
-     * Set domain.
-     *
-     * @param newDomain the new domain
-     */
-    private void setDomain(String newDomain) {
-        domain = newDomain;
-    }
-
-    /**
-     * Set oss client.
-     *
-     * @param oss the oss
-     */
-    private void setOssClient(UploadManager oss) {
-        ossClient = oss;
-    }
-
-    /**
      * Upload string.
      *
      * @param ossClient   the oss client
@@ -242,7 +251,7 @@ public class QiniuOssClient implements OssClient {
      * @param fileName    the file name
      * @return the string
      */
-    public String upload(UploadManager ossClient, InputStream inputStream, String fileName) {
+    public String upload(@NotNull UploadManager ossClient, InputStream inputStream, String fileName) {
         try {
             ossClient.put(inputStream, fileName, token, null, null);
             // 拼接 url, 需要正确配置域名 (https://developer.qiniu.com/fusion/kb/1322/how-to-configure-cname-domain-name)
@@ -267,11 +276,4 @@ public class QiniuOssClient implements OssClient {
         return "";
     }
 
-    private static class SingletonHandler {
-        private static QiniuOssClient singleton = new QiniuOssClient();
-
-        static {
-            checkClient();
-        }
-    }
 }

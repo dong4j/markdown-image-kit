@@ -40,14 +40,20 @@ import lombok.Data;
  */
 @Data
 public class MikState {
+    /** 加密盐值*/
     public static final String WEIBOKEY = "ekjgbpiq!g34o@erberb.erbmkv.c;,ergw_.";
     public static final String ALIYUN = "awj7@piq!g3jo@er_erb.erbsrxhc!,wr.w_1";
     public static final String QINIU = "gerb2.erhgds'5yf@4ybtree!43h34hbd4_";
+    public static final String TENCENT = "xg13g143fvsdklo)2,m.we_123vds12e!#41c";
+
     public static final String OLD_HASH_KEY = "old";
     public static final String NEW_HASH_KEY = "new";
+
     private WeiboOssState weiboOssState;
     private AliyunOssState aliyunOssState;
     private QiniuOssState qiniuOssState;
+    private TencentOssState tencentOssState;
+
     /** 是否替换标签 */
     private boolean changeToHtmlTag = false;
     /** 替换的标签类型 */

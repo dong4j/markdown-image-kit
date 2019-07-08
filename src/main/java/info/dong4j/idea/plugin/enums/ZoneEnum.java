@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Contract;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: ${description}</p>
+ * <p>Description: 七牛云存储位置 </p>
  *
  * @author dong4j
  * @date 2019-03-19 20:26

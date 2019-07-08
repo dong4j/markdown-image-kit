@@ -59,6 +59,7 @@ public class SmmsClient implements OssClient {
     private static final String UPLOAD_URL = "https://sm.ms/api/upload";
     private Client ossClient;
 
+    @Contract(pure = true)
     private SmmsClient() {
 
     }
@@ -66,6 +67,24 @@ public class SmmsClient implements OssClient {
     @Override
     public CloudEnum getCloudType() {
         return CloudEnum.SM_MS_CLOUD;
+    }
+
+    /**
+     * Gets instance.
+     *
+     * @return the instance
+     */
+    @Contract(pure = true)
+    public static SmmsClient getInstance() {
+        return SmmsClient.SingletonHandler.singleton;
+    }
+
+    private static class SingletonHandler {
+        private static SmmsClient singleton = new SmmsClient();
+
+        static {
+
+        }
     }
 
     /**
@@ -95,16 +114,6 @@ public class SmmsClient implements OssClient {
     }
 
     /**
-     * Gets instance.
-     *
-     * @return the instance
-     */
-    @Contract(pure = true)
-    public static SmmsClient getInstance() {
-        return SmmsClient.SingletonHandler.singleton;
-    }
-
-    /**
      * Upload string.
      *
      * @param ossClient   the oss client
@@ -119,17 +128,8 @@ public class SmmsClient implements OssClient {
         return ossClient.upload(inputStream, fileName);
     }
 
-    private static class SingletonHandler {
-        private static SmmsClient singleton = new SmmsClient();
-
-        static {
-
-        }
-    }
-
     private class Client {
         private OkHttpClient client;
-        private Request request;
 
         /**
          * Instantiates a new Client.
@@ -141,7 +141,7 @@ public class SmmsClient implements OssClient {
         }
 
         /**
-         * Upload string.
+         * 直接使用 http 接口上传
          *
          * @param inputStream the input stream
          * @param fileName    the file name
@@ -154,7 +154,7 @@ public class SmmsClient implements OssClient {
                     .addFormDataPart("smfile", fileName, RequestBody.create(MediaType.parse("multipart/form-data"), IOUtils.toByteArray(inputStream)))
                     .build();
 
-                this.request = new Request.Builder()
+                Request request = new Request.Builder()
                     .url(UPLOAD_URL)
                     .addHeader("Content-Type", "multipart/form-data")
                     .addHeader("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 6.1; zh-CN; rv:1.9.2.6)")

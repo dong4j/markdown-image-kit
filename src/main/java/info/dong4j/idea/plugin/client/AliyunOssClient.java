@@ -63,10 +63,12 @@ import lombok.extern.slf4j.Slf4j;
 public class AliyunOssClient implements OssClient {
     public static final String URL_PROTOCOL_HTTPS = "https";
     private static final String URL_PROTOCOL_HTTP = "http";
+
     private static final Object LOCK = new Object();
     private static String bucketName;
     private static String filedir;
     private static OSS ossClient = null;
+
     private AliyunOssState aliyunOssState = MikPersistenComponent.getInstance().getState().getAliyunOssState();
 
     private AliyunOssClient() {
@@ -98,6 +100,42 @@ public class AliyunOssClient implements OssClient {
         try {
             ossClient = new OSSClientBuilder().build(endpoint, accessKey, accessSecretKey);
         } catch (Exception ignored) {
+        }
+    }
+
+    /**
+     * Set bucket name.
+     *
+     * @param newBucketName the new bucket name
+     */
+    private void setBucketName(String newBucketName) {
+        bucketName = newBucketName;
+    }
+
+    /**
+     * Set oss client.
+     *
+     * @param oss the oss
+     */
+    private void setOssClient(OSS oss) {
+        ossClient = oss;
+    }
+
+    /**
+     * Gets instance.
+     *
+     * @return the instance
+     */
+    @Contract(pure = true)
+    public static AliyunOssClient getInstance() {
+        return SingletonHandler.singleton;
+    }
+
+    private static class SingletonHandler {
+        private static AliyunOssClient singleton = new AliyunOssClient();
+
+        static {
+            checkClient();
         }
     }
 
@@ -172,6 +210,7 @@ public class AliyunOssClient implements OssClient {
         OSS ossClient = new OSSClientBuilder().build(endpoint, accessKey, accessSecretKey);
 
         aliyunOssClient.setBucketName(bucketName);
+
         String url = aliyunOssClient.upload(ossClient, inputStream, filedir, fileName);
 
         if (org.apache.commons.lang.StringUtils.isNotBlank(url)) {
@@ -183,34 +222,6 @@ public class AliyunOssClient implements OssClient {
             aliyunOssClient.setOssClient(ossClient);
         }
         return url;
-    }
-
-    /**
-     * Gets instance.
-     *
-     * @return the instance
-     */
-    @Contract(pure = true)
-    public static AliyunOssClient getInstance() {
-        return SingletonHandler.singleton;
-    }
-
-    /**
-     * Set bucket name.
-     *
-     * @param newBucketName the new bucket name
-     */
-    private void setBucketName(String newBucketName) {
-        bucketName = newBucketName;
-    }
-
-    /**
-     * Set oss client.
-     *
-     * @param oss the oss
-     */
-    private void setOssClient(OSS oss) {
-        ossClient = oss;
     }
 
     /**
@@ -234,7 +245,7 @@ public class AliyunOssClient implements OssClient {
      * @param fileName  the file name
      * @return the string
      */
-    public String upload(OSS ossClient,
+    public String upload(@NotNull OSS ossClient,
                          @NotNull InputStream instream,
                          String filedir,
                          @NotNull String fileName) {
@@ -276,11 +287,5 @@ public class AliyunOssClient implements OssClient {
         return "";
     }
 
-    private static class SingletonHandler {
-        private static AliyunOssClient singleton = new AliyunOssClient();
 
-        static {
-            checkClient();
-        }
-    }
 }

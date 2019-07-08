@@ -131,3 +131,10 @@
 
 要是你在使用这款插件, 记得给我点个 [star](https://github.com/dong4j/markdown-image-kit)
 
+## 修复报错
+
+```
+java.lang.Throwable: Element component@ImageManagerSetting.option.WeiboOssState.option.@name=password probably contains sensitive information (file: ~/Library/Preferences/IntelliJIdea2019.1/options/other.xml)
+```
+
+打开上面的文件, 删除 `<component name="ImageManagerSetting">` 节点
