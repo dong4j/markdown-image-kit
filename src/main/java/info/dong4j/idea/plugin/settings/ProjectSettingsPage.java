@@ -135,6 +135,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JCheckBox uploadAndReplaceCheckBox;
     /** 自定义默认图床 */
     private JCheckBox defaultCloudCheckBox;
+    private JPanel tencentOssAuthorizationPanel;
+    private JTextField tencentBacketNameTextField;
+    private JTextField tencentAccessKeyTextField;
+    private JPasswordField tencentSecretKeyTextField;
+    private JTextField tencentRegionNameTextField;
 
 
     /** todo-dong4j : (2019年03月20日 13:25) [测试输入验证用] */
@@ -221,6 +226,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         initAliyunOssAuthenticationPanel();
         initWeiboOssAuthenticationPanel();
         initQiniuOssAuthenticationPanel(state);
+        initTencentOssAuthorizationPanelPanel(state);
         testAndHelpListener();
     }
 
@@ -291,6 +297,10 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                     testMessage.setForeground(JBColor.RED);
                     testMessage.setText("Upload Failed, Please Check The Configuration");
                 }
+            } else {
+                testButton.setText("Try Again");
+                testMessage.setForeground(JBColor.RED);
+                testMessage.setText("Upload Failed, Please Check The Configuration");
             }
         });
 
@@ -364,6 +374,17 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             }
         };
         button.addActionListener(actionListener);
+    }
+
+    /**
+     * 初始化 tencent oss 认证相关设置
+     */
+    private void initTencentOssAuthorizationPanelPanel(MikState state) {
+        TencentOssState tencentOssState = state.getTencentOssState();
+        tencentSecretKeyTextField.setText(DES.decrypt(tencentOssState.getSecretKey(), MikState.TENCENT));
+        tencentAccessKeyTextField.setText(tencentOssState.getAccessKey());
+        tencentRegionNameTextField.setText(tencentOssState.getRegionName());
+        tencentBacketNameTextField.setText(tencentOssState.getBucketName());
     }
 
     /**
@@ -547,6 +568,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         return !(isAliyunAuthModified(state)
                  && isWeiboAuthModified(state)
                  && isQiniuAuthModified(state)
+                 && isTencentAuthModified(state)
                  && isGeneralModified(state)
                  && isClipboardModified(state)
         );
@@ -599,6 +621,25 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                && secretKey.equals(qiniuOssState.getAccessSecretKey())
                && zoneIndex == qiniuOssState.getZoneIndex()
                && endpoint.equals(qiniuOssState.getEndpoint());
+    }
+
+    private boolean isTencentAuthModified(@NotNull MikState state) {
+        TencentOssState tencentOssState = state.getTencentOssState();
+        String secretKey = new String(tencentSecretKeyTextField.getPassword());
+
+        if (StringUtils.isNotBlank(secretKey)) {
+            secretKey = DES.encrypt(secretKey, MikState.QINIU);
+        }
+
+        String bucketName = tencentBacketNameTextField.getText().trim();
+        String accessKey = tencentAccessKeyTextField.getText().trim();
+
+        String regionName = tencentRegionNameTextField.getText().trim();
+
+        return bucketName.equals(tencentOssState.getBucketName())
+               && accessKey.equals(tencentOssState.getAccessKey())
+               && secretKey.equals(tencentOssState.getSecretKey())
+               && regionName.equals(tencentOssState.getRegionName());
     }
 
     private boolean isGeneralModified(MikState state) {
@@ -668,6 +709,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         MikState state = config.getState();
         applyAliyunAuthConfigs(state);
         applyQiniuAuthConfigs(state);
+        applyTencentAuthConfigs(state);
         applyGeneralConfigs(state);
         applyClipboardConfigs(state);
         applyWeiboAuthConfigs(state);
@@ -776,6 +818,31 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         weiboOssState.setPassword(password);
     }
 
+    private void applyTencentAuthConfigs(@NotNull MikState state) {
+        TencentOssState tencentOssState = state.getTencentOssState();
+
+        String accessKey = this.tencentAccessKeyTextField.getText().trim();
+        String secretKey = new String(tencentSecretKeyTextField.getPassword());
+        String regionName = tencentRegionNameTextField.getText().trim();
+        String bucketName = tencentBacketNameTextField.getText().trim();
+        // 需要在加密之前计算 hashcode
+        int hashcode = bucketName.hashCode() +
+                       accessKey.hashCode() +
+                       secretKey.hashCode() +
+                       regionName.hashCode();
+
+        OssState.saveStatus(tencentOssState, hashcode, MikState.NEW_HASH_KEY);
+
+        if (StringUtils.isNotBlank(secretKey)) {
+            secretKey = DES.encrypt(secretKey, MikState.TENCENT);
+        }
+
+        tencentOssState.setAccessKey(accessKey);
+        tencentOssState.setSecretKey(secretKey);
+        tencentOssState.setRegionName(regionName);
+        tencentOssState.setBucketName(bucketName);
+    }
+
     /**
      * 撤回是调用
      */
@@ -786,6 +853,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         resetAliyunConfigs(state);
         resetQiniuunConfigs(state);
         resetWeiboConfigs(state);
+        resetTencentConfigs(state);
         resetGeneralCOnfigs(state);
         resetClipboardConfigs(state);
     }
@@ -814,6 +882,14 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         WeiboOssState weiboOssState = state.getWeiboOssState();
         this.weiboUserNameTextField.setText(weiboOssState.getUserName());
         this.weiboPasswordField.setText(DES.decrypt(weiboOssState.getPassword(), MikState.WEIBOKEY));
+    }
+
+    private void resetTencentConfigs(@NotNull MikState state) {
+        TencentOssState tencentOssState = state.getTencentOssState();
+        this.tencentAccessKeyTextField.setText(tencentOssState.getAccessKey());
+        this.tencentRegionNameTextField.setText(tencentOssState.getRegionName());
+        this.tencentBacketNameTextField.setText(tencentOssState.getBucketName());
+        this.tencentSecretKeyTextField.setText(DES.decrypt(tencentOssState.getSecretKey(), MikState.TENCENT));
     }
 
     private void resetGeneralCOnfigs(@NotNull MikState state) {

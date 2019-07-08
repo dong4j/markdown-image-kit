@@ -44,7 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: </p>
+ * <p>Description: 加载 ClientUtils 时, 将通过反射创建 map 映射 </p>
  *
  * @author dong4j
  * @email sjdong3 @iflytek.com
@@ -55,7 +55,7 @@ public final class ClientUtils {
 
     static {
         try {
-            // 获取特定包下所有的类(包括接口和类)
+            // 获取特定包下所有的类(包括接口和类, 排除内部类)
             cache(ClassUtils.getAllClassByInterface(OssClient.class));
         } catch (Exception e) {
             log.trace("", e);
@@ -63,7 +63,7 @@ public final class ClientUtils {
     }
 
     /**
-     * 缓存 client 关系
+     * 使用反射生成 client, 缓存 client 关系
      *
      * @param clsList the cls list
      */
@@ -74,20 +74,16 @@ public final class ClientUtils {
                 try {
                     clz = Class.forName(className);
                     // 抽象类忽略
-                    if (Modifier.isAbstract(clz.getModifiers())) {
-                        continue;
-                    }
-                    // 接口忽略
-                    if (Modifier.isInterface(clz.getModifiers())) {
-                        continue;
-                    }
-                    if (!OssClient.class.isAssignableFrom(clz)) {
+                    if (Modifier.isAbstract(clz.getModifiers())
+                        || Modifier.isInterface(clz.getModifiers())
+                        || !OssClient.class.isAssignableFrom(clz)) {
                         continue;
                     }
                 } catch (ClassNotFoundException ignore) {
                     continue;
                 }
 
+                // 实例化被 @Client 标识的 client, 存入到 map 中
                 Client client = clz.getAnnotation(Client.class);
                 if (client != null) {
                     try {
@@ -126,13 +122,27 @@ public final class ClientUtils {
 
     /**
      * 通过枚举获取 client 实例, 如果没有会从 subClassMap 中获取对应的 sub class name
+     * 如果为 null, 则需要通过反射初始化, 避免通过 'test' 按钮失效
      *
      * @param cloudEnum the cloud enum
      * @return the instance             有可能返回 null
      */
     @Nullable
     public static OssClient getClient(@NotNull CloudEnum cloudEnum) {
-        return OssClient.INSTANCES.get(cloudEnum);
+        OssClient client = OssClient.INSTANCES.get(cloudEnum);
+        if(client == null){
+            try {
+                Class<?> clz = Class.forName(cloudEnum.getFeature());
+                Constructor constructor = clz.getDeclaredConstructor();
+                constructor.setAccessible(true);
+                OssClient uploader = (OssClient) constructor.newInstance();
+                OssClient.INSTANCES.put(cloudEnum, uploader);
+                client = uploader;
+            } catch (ClassNotFoundException | InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        return client;
     }
 
     /**

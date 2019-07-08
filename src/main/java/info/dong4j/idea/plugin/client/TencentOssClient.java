@@ -7,7 +7,6 @@ import com.qcloud.cos.auth.COSCredentials;
 import com.qcloud.cos.exception.CosClientException;
 import com.qcloud.cos.model.ObjectMetadata;
 import com.qcloud.cos.model.PutObjectRequest;
-import com.qcloud.cos.model.PutObjectResult;
 import com.qcloud.cos.model.StorageClass;
 import com.qcloud.cos.region.Region;
 
@@ -19,6 +18,7 @@ import info.dong4j.idea.plugin.settings.TencentOssState;
 import info.dong4j.idea.plugin.util.DES;
 import info.dong4j.idea.plugin.util.ImageUtils;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -45,12 +45,9 @@ import lombok.extern.slf4j.Slf4j;
 @Client(CloudEnum.TENCENT_CLOUD)
 public class TencentOssClient implements OssClient {
 
-    private static final Object LOCK = new Object();
     private static COSClient ossClient = null;
     private static String bucketName;
     private static String regionName;
-
-    private TencentOssState tencentOssState = MikPersistenComponent.getInstance().getState().getTencentOssState();
 
     /**
      * Instantiates a new Tencent oss client.
@@ -63,21 +60,20 @@ public class TencentOssClient implements OssClient {
      * 在调用 ossClient 之前先检查, 如果为 null 就 init()
      */
     private static void checkClient() {
-        synchronized (LOCK) {
-            if (ossClient == null) {
-                init();
-            }
+        if (ossClient == null) {
+            init();
         }
     }
 
     /**
      * 如果是第一次使用, ossClient == null, 使用持久化配置初始化
+     * 1. 如果是第一次设置, 获取的持久化配置为 null, 则初始化 ossClient 失败
      */
     private static void init() {
         TencentOssState tencentOssState = MikPersistenComponent.getInstance().getState().getTencentOssState();
         bucketName = tencentOssState.getBucketName();
         String accessKey = tencentOssState.getAccessKey();
-        String accessSecretKey = DES.decrypt(tencentOssState.getAccessSecretKey(), MikState.TENCENT);
+        String accessSecretKey = DES.decrypt(tencentOssState.getSecretKey(), MikState.TENCENT);
         regionName = tencentOssState.getRegionName();
 
         try {
@@ -87,7 +83,8 @@ public class TencentOssClient implements OssClient {
             ClientConfig clientConfig = new ClientConfig(new Region(regionName));
             // 3 生成cos客户端
             ossClient = new COSClient(cred, clientConfig);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.trace("", e);
         }
     }
 
@@ -100,30 +97,34 @@ public class TencentOssClient implements OssClient {
     }
 
     /**
-     * Gets instance.
-     *
-     * @return the instance
-     */
-    @Contract(pure = true)
-    public static TencentOssClient getInstance() {
-        return TencentOssClient.SingletonHandler.singleton;
-    }
-
-    private static class SingletonHandler {
-        private static TencentOssClient singleton = new TencentOssClient();
-
-        static {
-            checkClient();
-        }
-    }
-
-    /**
      * Set oss client.
      *
      * @param oss the oss
      */
     private void setOssClient(COSClient oss) {
         ossClient = oss;
+    }
+
+    /**
+     * Gets instance.
+     *
+     * @return the instance
+     */
+    @Contract(pure = true)
+    public static TencentOssClient getInstance() {
+        TencentOssClient client = TencentOssClient.SingletonHandler.singleton;
+        if (client == null) {
+            client = new TencentOssClient();
+            OssClient.INSTANCES.put(CloudEnum.TENCENT_CLOUD, client);
+        }
+        return client;
+    }
+
+    /**
+     * 使用缓存的 map 映射获取已初始化的 client, 避免创建多个实例
+     */
+    private static class SingletonHandler {
+        private static TencentOssClient singleton = (TencentOssClient) OssClient.INSTANCES.get(CloudEnum.TENCENT_CLOUD);
     }
 
     /**
@@ -207,12 +208,15 @@ public class TencentOssClient implements OssClient {
 
         String url = tencentOssClient.upload(ossClient, inputStream, fileName);
 
-        if (org.apache.commons.lang.StringUtils.isNotBlank(url)) {
+        if (StringUtils.isNotBlank(url)) {
             int hashcode = bucketName.hashCode() +
-                           accessKey.hashCode() +
                            secretKey.hashCode() +
+                           accessKey.hashCode() +
                            regionName.hashCode();
-            OssState.saveStatus(tencentOssState, hashcode, MikState.OLD_HASH_KEY);
+            // 更新可用状态
+            OssState.saveStatus(MikPersistenComponent.getInstance().getState().getTencentOssState(),
+                                hashcode,
+                                MikState.OLD_HASH_KEY);
             // 保存经过验证的 client
             tencentOssClient.setOssClient(ossClient);
         }
@@ -244,11 +248,11 @@ public class TencentOssClient implements OssClient {
         putObjectRequest.setStorageClass(StorageClass.Standard);
 
         try {
-            PutObjectResult putObjectResult = ossClient.putObject(putObjectRequest);
+            ossClient.putObject(putObjectRequest);
             // 拼接 url = <BucketName-APPID>.cos.region_name.myqcloud.com/key
             return "http://" + bucketName + ".cos." + regionName + ".myqcloud.com/" + fileName;
         } catch (CosClientException e) {
-            e.printStackTrace();
+            log.error("upload error", e);
         }
         return "";
     }

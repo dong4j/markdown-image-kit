@@ -44,15 +44,15 @@ public enum CloudEnum {
     ALIYUN_CLOUD(1, "Aliyun", "aliyun"),
     /** @see info.dong4j.idea.plugin.client.QiniuOssClient */
     QINIU_CLOUD(2, "Qiniu", "qiniu"),
-    WANGYI_CLOUD(3, "网易云", ""),
-    BAIDU_CLOUD(4, "百度云", ""),
-    JINGDONG_CLOUD(5, "京东云", ""),
-    YOUPAI_CLOUD(6, "又拍云", ""),
-    IMGUR_CLOUD(7, "Imgur", ""),
-    U_CLOUD(8, "Ucloud", ""),
-    QING_CLOUD(9, "QIngCloud", ""),
     /** @see info.dong4j.idea.plugin.client.TencentOssClient */
-    TENCENT_CLOUD(10, "腾讯云", ""),
+    TENCENT_CLOUD(3, "腾讯云", "info.dong4j.idea.plugin.client.TencentOssClient"),
+    WANGYI_CLOUD(4, "网易云", ""),
+    BAIDU_CLOUD(5, "百度云", ""),
+    JINGDONG_CLOUD(6, "京东云", ""),
+    YOUPAI_CLOUD(7, "又拍云", ""),
+    IMGUR_CLOUD(8, "Imgur", ""),
+    U_CLOUD(9, "Ucloud", ""),
+    QING_CLOUD(10, "QingCloud", ""),
     CUSTOMIZE(11, "自定义", "");
 
     public int index;
@@ -60,6 +60,7 @@ public enum CloudEnum {
     /** 图床特征*/
     public String feature;
 
+    @Contract(pure = true)
     CloudEnum(int index, String title, String feature) {
         this.index = index;
         this.title = title;

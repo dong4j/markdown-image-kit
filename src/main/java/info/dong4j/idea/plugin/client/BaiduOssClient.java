@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019 -07-08 17:07
  */
 @Slf4j
-@Client(CloudEnum.BAIDU_CLOUD)
+// @Client(CloudEnum.BAIDU_CLOUD)
 public class BaiduOssClient implements OssClient {
 
     private static final Object LOCK = new Object();

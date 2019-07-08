@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019 -07-08 16:39
  */
 @Slf4j
-@Client(CloudEnum.TENCENT_CLOUD)
 public class DemoClient implements OssClient {
 
     private static final Object LOCK = new Object();

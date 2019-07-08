@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TencentOssState extends OssState{
     private String accessKey = "";
-    private String accessSecretKey = "";
+    private String secretKey = "";
     private String bucketName = "";
     private String regionName = "";
 }

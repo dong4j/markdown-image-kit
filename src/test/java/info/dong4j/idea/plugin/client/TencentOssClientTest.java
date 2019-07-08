@@ -42,6 +42,8 @@ import com.qcloud.cos.region.Region;
 import org.junit.Test;
 
 import java.io.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.*;
 
 import lombok.extern.slf4j.Slf4j;
@@ -143,5 +145,29 @@ public class TencentOssClientTest {
         SimpleUploadFileFromLocal();
         // url = <BucketName-APPID>.cos.region_name.myqcloud.com/key
         log.info("url = {}", buildUrl("xu.png"));
+    }
+
+    @Test
+    public void test2() {
+        // 实例化被 @Client 标识的 client, 存入到 map 中
+        Class<?> clz = null;
+        try {
+            clz = Class.forName("info.dong4j.idea.plugin.client.TencentOssClient");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        try {
+            Constructor constructor = clz.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            OssClient uploader = (OssClient) constructor.newInstance();
+
+            log.info("{}", uploader.getName());
+            String url = uploader.upload(new FileInputStream(new File("/Users/dong4j/Downloads/xu.png")), "x2.png");
+            log.info("url = {}", url);
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            log.trace("", e);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -86,5 +86,6 @@ public class MikState {
         this.aliyunOssState = new AliyunOssState();
         this.qiniuOssState = new QiniuOssState();
         this.weiboOssState = new WeiboOssState();
+        this.tencentOssState = new TencentOssState();
     }
 }

@@ -25,6 +25,9 @@
 
 package info.dong4j.idea.plugin.util;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
@@ -32,6 +35,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -52,7 +56,7 @@ public final class ClassUtils {
      * @param pkg the pkg
      * @return all class by package name
      */
-    public static List<String> getAllClassByPackageName(Package pkg) {
+    public static List<String> getAllClassByPackageName(@NotNull Package pkg) {
         String packageName = pkg.getName();
         // 获取当前包下以及子包下所以的类
         return getClasses(packageName, null);
@@ -64,13 +68,16 @@ public final class ClassUtils {
      * @param c the c
      * @return the all class by interface
      */
-    static List<String> getAllClassByInterface(Class<?> c) {
+    static List<String> getAllClassByInterface(@NotNull Class<?> c) {
         List<String> returnClassList = new ArrayList<>();
         if (c.isInterface()) {
             // 获取当前的包名
             String packageName = c.getPackage().getName();
             // 获取当前包下以及子包下所有的类
             returnClassList = getClasses(packageName, c);
+
+            // 排除内部类
+            returnClassList = returnClassList.stream().filter(s -> !s.contains("$")).collect(Collectors.toList());
         }
         return returnClassList;
     }
@@ -82,7 +89,8 @@ public final class ClassUtils {
      * @param packageName   the package name
      * @return the string [ ]
      */
-    public static String[] getPackageAllClassName(String classLocation, String packageName) {
+    @Nullable
+    public static String[] getPackageAllClassName(String classLocation, @NotNull String packageName) {
         // 将packageName分解
         String[] packagePathSplit = packageName.split("[.]");
         StringBuilder realClassLocation = new StringBuilder(classLocation);
@@ -101,7 +109,7 @@ public final class ClassUtils {
      *
      * @return
      */
-    private static List<String> getClasses(String packageName, Class<?> c) {
+    private static List<String> getClasses(@NotNull String packageName, @NotNull Class<?> c) {
         // 第一个class类的集合
         List<String> classes = new ArrayList<>();
         // 是否循环迭代
