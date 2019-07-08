@@ -39,6 +39,8 @@ import com.qcloud.cos.model.PutObjectResult;
 import com.qcloud.cos.model.StorageClass;
 import com.qcloud.cos.region.Region;
 
+import info.dong4j.idea.plugin.enums.CloudEnum;
+
 import org.junit.Test;
 
 import java.io.*;
@@ -152,7 +154,7 @@ public class TencentOssClientTest {
         // 实例化被 @Client 标识的 client, 存入到 map 中
         Class<?> clz = null;
         try {
-            clz = Class.forName("info.dong4j.idea.plugin.client.TencentOssClient");
+            clz = Class.forName(CloudEnum.TENCENT_CLOUD.feature);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -161,13 +163,20 @@ public class TencentOssClientTest {
             constructor.setAccessible(true);
             OssClient uploader = (OssClient) constructor.newInstance();
 
-            log.info("{}", uploader.getName());
-            String url = uploader.upload(new FileInputStream(new File("/Users/dong4j/Downloads/xu.png")), "x2.png");
-            log.info("url = {}", url);
+            OssClient.INSTANCES.put(CloudEnum.TENCENT_CLOUD, uploader);
+
+            upload();
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             log.trace("", e);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    private void upload() throws FileNotFoundException {
+        OssClient uploader = OssClient.INSTANCES.get(CloudEnum.TENCENT_CLOUD);
+        log.info("{}", uploader.getName());
+        String url = uploader.upload(new FileInputStream(new File("/Users/dong4j/Downloads/xu.png")), "x2.png");
+        log.info("url = {}", url);
     }
 }

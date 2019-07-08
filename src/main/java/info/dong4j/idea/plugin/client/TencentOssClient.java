@@ -52,7 +52,7 @@ public class TencentOssClient implements OssClient {
     /**
      * Instantiates a new Tencent oss client.
      */
-    private TencentOssClient() {
+    public TencentOssClient() {
         checkClient();
     }
 
@@ -83,8 +83,7 @@ public class TencentOssClient implements OssClient {
             ClientConfig clientConfig = new ClientConfig(new Region(regionName));
             // 3 生成cos客户端
             ossClient = new COSClient(cred, clientConfig);
-        } catch (Exception e) {
-            log.trace("", e);
+        } catch (Exception ignored) {
         }
     }
 
@@ -112,12 +111,7 @@ public class TencentOssClient implements OssClient {
      */
     @Contract(pure = true)
     public static TencentOssClient getInstance() {
-        TencentOssClient client = TencentOssClient.SingletonHandler.singleton;
-        if (client == null) {
-            client = new TencentOssClient();
-            OssClient.INSTANCES.put(CloudEnum.TENCENT_CLOUD, client);
-        }
-        return client;
+        return TencentOssClient.SingletonHandler.singleton;
     }
 
     /**

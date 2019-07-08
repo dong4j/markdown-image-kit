@@ -129,20 +129,7 @@ public final class ClientUtils {
      */
     @Nullable
     public static OssClient getClient(@NotNull CloudEnum cloudEnum) {
-        OssClient client = OssClient.INSTANCES.get(cloudEnum);
-        if(client == null){
-            try {
-                Class<?> clz = Class.forName(cloudEnum.getFeature());
-                Constructor constructor = clz.getDeclaredConstructor();
-                constructor.setAccessible(true);
-                OssClient uploader = (OssClient) constructor.newInstance();
-                OssClient.INSTANCES.put(cloudEnum, uploader);
-                client = uploader;
-            } catch (ClassNotFoundException | InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
-        return client;
+        return OssClient.INSTANCES.get(cloudEnum);
     }
 
     /**
