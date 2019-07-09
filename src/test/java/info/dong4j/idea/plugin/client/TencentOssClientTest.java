@@ -25,21 +25,21 @@
 
 package info.dong4j.idea.plugin.client;
 
-import com.qcloud.cos.COSClient;
-import com.qcloud.cos.ClientConfig;
-import com.qcloud.cos.auth.AnonymousCOSCredentials;
-import com.qcloud.cos.auth.BasicCOSCredentials;
-import com.qcloud.cos.auth.COSCredentials;
-import com.qcloud.cos.exception.CosClientException;
-import com.qcloud.cos.http.HttpMethodName;
-import com.qcloud.cos.model.GeneratePresignedUrlRequest;
-import com.qcloud.cos.model.ObjectMetadata;
-import com.qcloud.cos.model.PutObjectRequest;
-import com.qcloud.cos.model.PutObjectResult;
-import com.qcloud.cos.model.StorageClass;
-import com.qcloud.cos.region.Region;
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
+import info.dong4j.idea.plugin.sdk.qcloud.cos.COSClient;
+import info.dong4j.idea.plugin.sdk.qcloud.cos.ClientConfig;
+import info.dong4j.idea.plugin.sdk.qcloud.cos.auth.AnonymousCOSCredentials;
+import info.dong4j.idea.plugin.sdk.qcloud.cos.auth.BasicCOSCredentials;
+import info.dong4j.idea.plugin.sdk.qcloud.cos.auth.COSCredentials;
+import info.dong4j.idea.plugin.sdk.qcloud.cos.exception.CosClientException;
+import info.dong4j.idea.plugin.sdk.qcloud.cos.http.HttpMethodName;
+import info.dong4j.idea.plugin.sdk.qcloud.cos.model.GeneratePresignedUrlRequest;
+import info.dong4j.idea.plugin.sdk.qcloud.cos.model.ObjectMetadata;
+import info.dong4j.idea.plugin.sdk.qcloud.cos.model.PutObjectRequest;
+import info.dong4j.idea.plugin.sdk.qcloud.cos.model.PutObjectResult;
+import info.dong4j.idea.plugin.sdk.qcloud.cos.model.StorageClass;
+import info.dong4j.idea.plugin.sdk.qcloud.cos.region.Region;
 
 import org.junit.Test;
 

@@ -65,10 +65,11 @@ dependencies {
     compile 'com.qiniu:qiniu-java-sdk:7.2.+'
     // https://mvnrepository.com/artifact/net.coobird/thumbnailator
     compile group: 'net.coobird', name: 'thumbnailator', version: '0.4.8'
-    // https://mvnrepository.com/artifact/com.qcloud/cos_api
-    compile (group: 'com.qcloud', name: 'cos_api', version: '5.5.1'){
-        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    }
+    // https://mvnrepository.com/artifact/joda-time/joda-time
+    compile group: 'joda-time', name: 'joda-time', version: '2.9.9'
+    // https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.6'
+
 
     //    // 单个依赖
     //    compile group: 'log4j', name: 'log4j', version: '1.2.17'

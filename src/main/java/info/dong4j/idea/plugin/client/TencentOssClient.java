@@ -1,16 +1,15 @@
 package info.dong4j.idea.plugin.client;
 
-import com.qcloud.cos.COSClient;
-import com.qcloud.cos.ClientConfig;
-import com.qcloud.cos.auth.BasicCOSCredentials;
-import com.qcloud.cos.auth.COSCredentials;
-import com.qcloud.cos.exception.CosClientException;
-import com.qcloud.cos.model.ObjectMetadata;
-import com.qcloud.cos.model.PutObjectRequest;
-import com.qcloud.cos.model.StorageClass;
-import com.qcloud.cos.region.Region;
-
 import info.dong4j.idea.plugin.enums.CloudEnum;
+import info.dong4j.idea.plugin.sdk.qcloud.cos.COSClient;
+import info.dong4j.idea.plugin.sdk.qcloud.cos.ClientConfig;
+import info.dong4j.idea.plugin.sdk.qcloud.cos.auth.BasicCOSCredentials;
+import info.dong4j.idea.plugin.sdk.qcloud.cos.auth.COSCredentials;
+import info.dong4j.idea.plugin.sdk.qcloud.cos.exception.CosClientException;
+import info.dong4j.idea.plugin.sdk.qcloud.cos.model.ObjectMetadata;
+import info.dong4j.idea.plugin.sdk.qcloud.cos.model.PutObjectRequest;
+import info.dong4j.idea.plugin.sdk.qcloud.cos.model.StorageClass;
+import info.dong4j.idea.plugin.sdk.qcloud.cos.region.Region;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
@@ -49,8 +48,7 @@ public class TencentOssClient implements OssClient {
     private static String bucketName;
     private static String regionName;
 
-
-    static{
+    static {
         init();
     }
 
@@ -113,8 +111,8 @@ public class TencentOssClient implements OssClient {
      */
     @Contract(pure = true)
     public static TencentOssClient getInstance() {
-        TencentOssClient client = (TencentOssClient)OssClient.INSTANCES.get(CloudEnum.TENCENT_CLOUD);
-        if(client == null){
+        TencentOssClient client = (TencentOssClient) OssClient.INSTANCES.get(CloudEnum.TENCENT_CLOUD);
+        if (client == null) {
             client = SingletonHandler.singleton;
             OssClient.INSTANCES.put(CloudEnum.TENCENT_CLOUD, client);
         }
@@ -253,7 +251,7 @@ public class TencentOssClient implements OssClient {
             // 拼接 url = <BucketName-APPID>.cos.region_name.myqcloud.com/key
             return "http://" + bucketName + ".cos." + regionName + ".myqcloud.com/" + fileName;
         } catch (CosClientException e) {
-            log.error("upload error", e);
+            log.trace("upload error", e);
         }
         return "";
     }

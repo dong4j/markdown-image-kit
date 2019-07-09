@@ -1,7 +1,5 @@
 package info.dong4j.idea.plugin.client;
 
-import com.qcloud.cos.COSClient;
-
 import info.dong4j.idea.plugin.enums.CloudEnum;
 
 import org.jetbrains.annotations.Contract;
@@ -27,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class BaiduOssClient implements OssClient {
 
     private static final Object LOCK = new Object();
-    private static COSClient ossClient = null;
+    private static OssClient ossClient = null;
 
     static{
         init();
@@ -88,7 +86,7 @@ public class BaiduOssClient implements OssClient {
      *
      * @param oss the oss
      */
-    private void setOssClient(COSClient oss) {
+    private void setOssClient(OssClient oss) {
         ossClient = oss;
     }
     /******************************* singleton end *******************************************/
@@ -162,13 +160,11 @@ public class BaiduOssClient implements OssClient {
                          String accessKey,
                          String secretKey) {
 
-        TencentOssClient tencentOssClient = TencentOssClient.getInstance();
         // 1. 使用 SDK 生成 client
         // 2. 调用 SDK 上传文件
-        String url = tencentOssClient.upload(ossClient, inputStream, fileName);
         // 3. 计算 hashcode
         // 4. 保存有效的 client
-        return url;
+        return "url";
     }
 
     /**
@@ -179,7 +175,7 @@ public class BaiduOssClient implements OssClient {
      * @param fileName    the file name
      * @return the string
      */
-    public String upload(@NotNull COSClient ossClient, InputStream inputStream, String fileName) {
+    public String upload(@NotNull OssClient ossClient, InputStream inputStream, String fileName) {
         return "";
     }
     /******************************* custom upload end *******************************************/
