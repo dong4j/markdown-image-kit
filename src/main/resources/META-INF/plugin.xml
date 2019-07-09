@@ -53,11 +53,11 @@
       <p>0.0.3-RELEASE</p>
       <ul>
         <li>Support Tencent COS</li>
-        <li></li>
+        <li>Optimize client logic, initialize client with lazy loading</li>
       </ul>
       <ul>
         <li>支持腾讯云 COS</li>
-        <li>Optimize client logic, initialize client with lazy loading</li>
+        <li>y优化 client 逻辑, 使用懒加载初始化 client</li>
        </ul>
        <br/>
       <p>0.0.2-RELEASE</p>
