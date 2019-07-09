@@ -41,7 +41,8 @@ public interface ImageContents {
     String IMAGE_MARK_MIDDLE = "](";
     String IMAGE_MARK_SUFFIX = ")";
     String IMAGE_LOCATION = "http";
-    String LINE_BREAK = System.lineSeparator();
+    // String LINE_BREAK = System.lineSeparator();
+    String LINE_BREAK = "\n";
     /** 默认的 image 标签替换类型 */
     String DEFAULT_IMAGE_MARK = "![${title}](${path})";
     /** 点击查看大图, 需要添加 js 支持 */
