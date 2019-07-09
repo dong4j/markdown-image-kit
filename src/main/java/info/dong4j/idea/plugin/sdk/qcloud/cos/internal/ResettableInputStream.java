@@ -98,18 +98,19 @@ public class ResettableInputStream extends ReleasableInputStream {
      * via {@link ResettableInputStream#disableClose()}, so that the release method becomes the only
      * way to truly close the opened file.
      *
-     * @param _ ignored
+     * @param ignored ignored
      */
     @Override
-    public void mark(int _) {
+    public void mark(int ignored) {
         abortIfNeeded();
         try {
             markPos = fileChannel.position();
         } catch (IOException e) {
             throw new CosClientException("Failed to mark the file position", e);
         }
-        if (log.isTraceEnabled())
+        if (log.isTraceEnabled()) {
             log.trace("File input stream marked at position " + markPos);
+        }
     }
 
     /**

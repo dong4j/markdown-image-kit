@@ -92,20 +92,20 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
     }
 
     /**
-     * 获取设置的默认客户端类型
+     * 获取设置的默认客户端类型, 如果设置的不可用, 则使用 sm.ms
      *
      * @return the cloud enum
      */
     protected CloudEnum getCloudType() {
-        return OssState.getCloudType(STATE.getCloudType());
+        CloudEnum cloudEnum = OssState.getCloudType(STATE.getCloudType());
+        return OssState.getStatus(cloudEnum) ? cloudEnum : CloudEnum.SM_MS_CLOUD;
     }
 
     @Nls
     @NotNull
     @Override
     public String getText() {
-        CloudEnum cloudEnum = OssState.getCloudType(STATE.getCloudType());
-        return getMessage(cloudEnum.title);
+        return getMessage(getCloudType().title);
     }
 
     @Nls
