@@ -198,6 +198,8 @@ public abstract class OssState {
                 return getStatus(state.getAliyunOssState());
             case QINIU_CLOUD:
                 return getStatus(state.getQiniuOssState());
+            case TENCENT_CLOUD:
+                return getStatus(state.getTencentOssState());
             case WANGYI_CLOUD:
                 return false;
             case BAIDU_CLOUD:
