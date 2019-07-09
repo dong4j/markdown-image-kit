@@ -50,7 +50,17 @@
     ]]></description>
 
     <change-notes><![CDATA[
-     <p>0.0.2-RELEASE</p>
+      <p>0.0.3-RELEASE</p>
+      <ul>
+        <li>Support Tencent COS</li>
+        <li></li>
+      </ul>
+      <ul>
+        <li>支持腾讯云 COS</li>
+        <li>Optimize client logic, initialize client with lazy loading</li>
+       </ul>
+       <br/>
+      <p>0.0.2-RELEASE</p>
       <ul>
         <li>Support <a href="https://sm.ms">sm.ms</a>, and set it as the default</li>
       </ul>
