@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>info.dong4j.idea.plugin.markdown.image.kit</id>
     <name>Markdown Image Kit</name>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
     <vendor email="dong4j@gmail.com" url="https://github.com/dong4j/markdown-image-kit">dong4j</vendor>
     <!--http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html-->
     <idea-version since-build="183"/>
