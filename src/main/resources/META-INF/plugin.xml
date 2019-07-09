@@ -54,10 +54,14 @@
       <ul>
         <li>Support Tencent COS</li>
         <li>Optimize client logic, initialize client with lazy loading</li>
+        <li>Fix the problem of copy upload error under windows OS</li>
+        <li>Fix an issue where the persistent file occasionally reports an error. This version moves the persistent file to a separate markdown-image-kit.xml file and encrypts it. (It may be necessary to delete the corresponding node in other.xml based on the error message.)</li>
       </ul>
       <ul>
         <li>支持腾讯云 COS</li>
-        <li>y优化 client 逻辑, 使用懒加载初始化 client</li>
+        <li>优化 client 逻辑, 使用懒加载初始化 client</li>
+        <li>修复 windows OS 下, 复制上传错误的问题</li>
+        <li>修复持久化文件偶尔报错的问题, 此版本将持久化文件移动到单独的 markdown-image-kit.xml 文件中, 并做了加密处理. (可能需要根据报错信息, 删除 other.xml 中的对应节点)</li>
        </ul>
        <br/>
       <p>0.0.2-RELEASE</p>

@@ -52,7 +52,9 @@ public class InsertToDocumentHandler extends ActionHandlerAdapter {
     @Override
     public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
         WriteCommandAction.runWriteCommandAction(data.getProject(),
-                                                 () -> EditorModificationUtil.insertStringAtCaret(data.getEditor(),
-                                                                                                  markdownImage.getFinalMark() + ImageContents.LINE_BREAK));
+                                                 () -> EditorModificationUtil
+                                                     .insertStringAtCaret(
+                                                         data.getEditor(),
+                                                         markdownImage.getFinalMark() + ImageContents.LINE_BREAK));
     }
 }
