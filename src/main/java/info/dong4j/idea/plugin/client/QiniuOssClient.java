@@ -66,13 +66,16 @@ import lombok.extern.slf4j.Slf4j;
 public class QiniuOssClient implements OssClient {
     private static final long DEAD_LINE = 3600L * 1000 * 24 * 365 * 10;
     private static final Object LOCK = new Object();
+
     private static String token;
     private static UploadManager ossClient = null;
     private static String domain;
-    private QiniuOssState qiniuOssState = MikPersistenComponent.getInstance().getState().getQiniuOssState();
 
+    static {
+        init();
+    }
     private QiniuOssClient() {
-        checkClient();
+        // checkClient();
     }
 
     /**
@@ -146,15 +149,16 @@ public class QiniuOssClient implements OssClient {
      */
     @Contract(pure = true)
     public static QiniuOssClient getInstance() {
-        return QiniuOssClient.SingletonHandler.singleton;
+        QiniuOssClient client = (QiniuOssClient)OssClient.INSTANCES.get(CloudEnum.QINIU_CLOUD);
+        if(client == null){
+            client = SingletonHandler.singleton;
+            OssClient.INSTANCES.put(CloudEnum.QINIU_CLOUD, client);
+        }
+        return client;
     }
 
     private static class SingletonHandler {
         private static QiniuOssClient singleton = new QiniuOssClient();
-
-        static {
-            checkClient();
-        }
     }
 
     /**
@@ -237,7 +241,9 @@ public class QiniuOssClient implements OssClient {
                            secretKey.hashCode() +
                            endpoint.hashCode() +
                            zoneIndex;
-            OssState.saveStatus(qiniuOssState, hashcode, MikState.OLD_HASH_KEY);
+            OssState.saveStatus(MikPersistenComponent.getInstance().getState().getQiniuOssState(),
+                                hashcode,
+                                MikState.OLD_HASH_KEY);
             qiniuOssClient.setOssClient(ossClient);
         }
         return url;

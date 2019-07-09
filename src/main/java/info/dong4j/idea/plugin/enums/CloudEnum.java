@@ -37,13 +37,14 @@ import org.jetbrains.annotations.Contract;
  * @email sjdong3@iflytek.com
  */
 public enum CloudEnum {
-    SM_MS_CLOUD(-1, "sm.ms", "smms"),
+    /** @see info.dong4j.idea.plugin.client.SmmsClient */
+    SM_MS_CLOUD(-1, "sm.ms", "info.dong4j.idea.plugin.client.SmmsClient"),
     /** @see info.dong4j.idea.plugin.client.WeiboOssClient */
-    WEIBO_CLOUD(0, "Weibo", "sinaimg"),
+    WEIBO_CLOUD(0, "Weibo", "info.dong4j.idea.plugin.client.WeiboOssClient"),
     /** @see info.dong4j.idea.plugin.client.AliyunOssClient */
-    ALIYUN_CLOUD(1, "Aliyun", "aliyun"),
+    ALIYUN_CLOUD(1, "Aliyun", "info.dong4j.idea.plugin.client.AliyunOssClient"),
     /** @see info.dong4j.idea.plugin.client.QiniuOssClient */
-    QINIU_CLOUD(2, "Qiniu", "qiniu"),
+    QINIU_CLOUD(2, "Qiniu", "info.dong4j.idea.plugin.client.QiniuOssClient"),
     /** @see info.dong4j.idea.plugin.client.TencentOssClient */
     TENCENT_CLOUD(3, "腾讯云", "info.dong4j.idea.plugin.client.TencentOssClient"),
     WANGYI_CLOUD(4, "网易云", ""),

@@ -76,15 +76,16 @@ public class SmmsClient implements OssClient {
      */
     @Contract(pure = true)
     public static SmmsClient getInstance() {
-        return SmmsClient.SingletonHandler.singleton;
+        SmmsClient client = (SmmsClient)OssClient.INSTANCES.get(CloudEnum.SM_MS_CLOUD);
+        if(client == null){
+            client = SingletonHandler.singleton;
+            OssClient.INSTANCES.put(CloudEnum.SM_MS_CLOUD, client);
+        }
+        return client;
     }
 
     private static class SingletonHandler {
         private static SmmsClient singleton = new SmmsClient();
-
-        static {
-
-        }
     }
 
     /**

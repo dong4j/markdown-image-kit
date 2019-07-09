@@ -49,11 +49,16 @@ public class TencentOssClient implements OssClient {
     private static String bucketName;
     private static String regionName;
 
+
+    static{
+        init();
+    }
+
     /**
      * Instantiates a new Tencent oss client.
      */
-    public TencentOssClient() {
-        checkClient();
+    private TencentOssClient() {
+        // checkClient();
     }
 
     /**
@@ -108,14 +113,19 @@ public class TencentOssClient implements OssClient {
      */
     @Contract(pure = true)
     public static TencentOssClient getInstance() {
-        return TencentOssClient.SingletonHandler.singleton;
+        TencentOssClient client = (TencentOssClient)OssClient.INSTANCES.get(CloudEnum.TENCENT_CLOUD);
+        if(client == null){
+            client = SingletonHandler.singleton;
+            OssClient.INSTANCES.put(CloudEnum.TENCENT_CLOUD, client);
+        }
+        return client;
     }
 
     /**
      * 使用缓存的 map 映射获取已初始化的 client, 避免创建多个实例
      */
     private static class SingletonHandler {
-        private static TencentOssClient singleton = (TencentOssClient) OssClient.INSTANCES.get(CloudEnum.TENCENT_CLOUD);
+        private static TencentOssClient singleton = new TencentOssClient();
     }
 
     /**

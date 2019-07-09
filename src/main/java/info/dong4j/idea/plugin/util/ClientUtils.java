@@ -37,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.List;
 
@@ -56,7 +57,7 @@ public final class ClientUtils {
     static {
         try {
             // 获取特定包下所有的类(包括接口和类, 排除内部类)
-            cache(ClassUtils.getAllClassByInterface(OssClient.class));
+            // cache(ClassUtils.getAllClassByInterface(OssClient.class));
         } catch (Exception e) {
             log.trace("", e);
         }
@@ -129,7 +130,28 @@ public final class ClientUtils {
      */
     @Nullable
     public static OssClient getClient(@NotNull CloudEnum cloudEnum) {
-        return OssClient.INSTANCES.get(cloudEnum);
+        OssClient client = OssClient.INSTANCES.get(cloudEnum);
+        if(client == null){
+            try {
+                // 如果没有加载 class, 则执行 static 代码块
+                Class<?> clz = Class.forName(cloudEnum.getFeature());
+
+                Client clientAn = clz.getAnnotation(Client.class);
+                // 被 @Client 标记过的 client 才执行 getInstance 静态方法
+                if (clientAn != null) {
+                    try {
+                        Method method = clz.getMethod("getInstance");
+                        method.invoke(null);
+                        client = OssClient.INSTANCES.get(cloudEnum);
+                    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                        log.trace("", e);
+                    }
+                }
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        return client;
     }
 
     /**

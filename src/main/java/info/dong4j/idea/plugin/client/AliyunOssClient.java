@@ -25,8 +25,10 @@
 
 package info.dong4j.idea.plugin.client;
 
+import com.aliyun.oss.ClientException;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
+import com.aliyun.oss.OSSException;
 import com.aliyun.oss.model.ObjectMetadata;
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
@@ -71,8 +73,12 @@ public class AliyunOssClient implements OssClient {
     private static String filedir;
     private static OSS ossClient = null;
 
+    static {
+        init();
+    }
+
     private AliyunOssClient() {
-        checkClient();
+        // checkClient();
     }
 
     /**
@@ -140,14 +146,19 @@ public class AliyunOssClient implements OssClient {
      */
     @Contract(pure = true)
     public static AliyunOssClient getInstance() {
-        return SingletonHandler.singleton;
+        AliyunOssClient client = (AliyunOssClient)OssClient.INSTANCES.get(CloudEnum.ALIYUN_CLOUD);
+        if(client == null){
+            client = SingletonHandler.singleton;
+            OssClient.INSTANCES.put(CloudEnum.ALIYUN_CLOUD, client);
+        }
+        return client;
     }
 
     /**
      * 使用缓存的 map 映射获取已初始化的 client, 避免创建多个实例
      */
     private static class SingletonHandler {
-        private static AliyunOssClient singleton = (AliyunOssClient)OssClient.INSTANCES.get(CloudEnum.ALIYUN_CLOUD);
+        private static AliyunOssClient singleton = new AliyunOssClient();
     }
 
     @Override
@@ -261,7 +272,7 @@ public class AliyunOssClient implements OssClient {
             objectMetadata.setContentDisposition("inline;filename=" + fileName);
             ossClient.putObject(bucketName, filedir + fileName, instream, objectMetadata);
             return getUrl(ossClient, filedir, fileName);
-        } catch (IOException e) {
+        } catch (IOException | OSSException | ClientException e) {
             log.trace("", e);
         }
         return "";

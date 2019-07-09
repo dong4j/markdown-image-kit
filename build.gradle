@@ -69,6 +69,8 @@ dependencies {
     compile (group: 'com.qcloud', name: 'cos_api', version: '5.5.1'){
         exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     }
+    // https://mvnrepository.com/artifact/com.bea.xml/jsr173-ri
+    compile group: 'com.bea.xml', name: 'jsr173-ri', version: '1.0'
 
     //    // 单个依赖
     //    compile group: 'log4j', name: 'log4j', version: '1.2.17'

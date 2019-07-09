@@ -65,9 +65,13 @@ public class WeiboOssClient implements OssClient {
 
     private WeiboOssState weiboOssState = MikPersistenComponent.getInstance().getState().getWeiboOssState();
 
+    static {
+        init();
+    }
+
     private WeiboOssClient() {
         // 反射调用时判断是否初始化
-        checkClient();
+        // checkClient();
     }
 
     /**
@@ -118,15 +122,16 @@ public class WeiboOssClient implements OssClient {
      */
     @Contract(pure = true)
     public static WeiboOssClient getInstance() {
-        return WeiboOssClient.SingletonHandler.singleton;
+        WeiboOssClient client = (WeiboOssClient)OssClient.INSTANCES.get(CloudEnum.WEIBO_CLOUD);
+        if(client == null){
+            client = WeiboOssClient.SingletonHandler.singleton;
+            OssClient.INSTANCES.put(CloudEnum.WEIBO_CLOUD, client);
+        }
+        return client;
     }
 
     private static class SingletonHandler {
         private static WeiboOssClient singleton = new WeiboOssClient();
-
-        static {
-            init();
-        }
     }
 
     /**
