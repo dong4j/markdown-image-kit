@@ -76,7 +76,7 @@ public class MikState {
     /** 默认图床 */
     private int cloudType = CloudEnum.SM_MS_CLOUD.index;
     /** 这个只是 setting 页面用, 用于保存未勾选自定义默认图床时需要保存的下拉列表选项*/
-    private int tempCloudType = cloudType;
+    private int tempCloudType = CloudEnum.WEIBO_CLOUD.index;
     /** 重命名文件 */
     private boolean rename = false;
     /** 文件名后缀 */

@@ -109,7 +109,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     /** globalUploadPanel group */
     private JPanel globalUploadPanel;
     private JComboBox defaultCloudComboBox;
-    private JLabel message;
 
     private JCheckBox changeToHtmlTagCheckBox;
     private JRadioButton largePictureRadioButton;
@@ -140,6 +139,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JTextField tencentAccessKeyTextField;
     private JPasswordField tencentSecretKeyTextField;
     private JTextField tencentRegionNameTextField;
+    private JLabel customMessage;
 
 
     /** todo-dong4j : (2019年03月20日 13:25) [测试输入验证用] */
@@ -286,7 +286,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                     if(isDefaultCheckBox){
                         int cloudTypeIndex = this.defaultCloudComboBox.getSelectedIndex();
                         if(index == cloudTypeIndex){
-                            this.message.setText("");
+                            this.customMessage.setText("");
                         }
                     }
                     if (log.isTraceEnabled()) {
@@ -393,12 +393,19 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private void initGlobalPanel(@NotNull MikState state) {
         boolean isDefaultCloudCheck = state.isDefaultCloudCheck();
         this.defaultCloudCheckBox.setSelected(isDefaultCloudCheck);
+        // 没有设置默认图床, 则显示提示消息
+        if(!isDefaultCloudCheck){
+            this.customMessage.setText("未设置默认图床时, 将使用 sm.ms 作为默认图床");
+        } else {
+            this.customMessage.setText(OssState.getStatus(state.getCloudType()) ? "" : "当前 OSS 不可用, 将使用 sm.ms 作为默认图床");
+        }
         this.defaultCloudComboBox.setEnabled(isDefaultCloudCheck);
-        this.defaultCloudComboBox.setSelectedIndex(state.getTempCloudType());
+        this.defaultCloudComboBox.setSelectedIndex(state.getCloudType());
 
-        showSelectCloudMessage(state.getTempCloudType());
+        showSelectCloudMessage(state.getCloudType());
 
         defaultCloudCheckBox.addActionListener(e -> {
+            System.out.println("勾选复选框 type = " + state.getTempCloudType());
             showSelectCloudMessage(state.getTempCloudType());
             defaultCloudComboBox.setEnabled(defaultCloudCheckBox.isSelected());
         });
@@ -406,10 +413,12 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.defaultCloudComboBox.addActionListener(e -> {
             JComboBox jComboBox = (JComboBox) e.getSource();
             int currentSelectIndex = jComboBox.getSelectedIndex();
+            System.out.println("选择下来列表 type = " + currentSelectIndex);
             showSelectCloudMessage(currentSelectIndex);
             if(currentSelectIndex == CloudEnum.SM_MS_CLOUD.index){
                 defaultCloudComboBox.setSelectedIndex(state.getTempCloudType());
             }
+            state.setTempCloudType(currentSelectIndex);
         });
 
         initChangeToHtmlGroup();
@@ -426,13 +435,14 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     private void showSelectCloudMessage(int cloudType) {
+        System.out.println("showSelectCloudMessage type = " + cloudType);
         if(defaultCloudCheckBox.isSelected()){
             boolean isClientEnable = OssState.getStatus(cloudType);
-            this.message.setText(isClientEnable ? "" : "当前 OSS 不可用, 将使用 sm.ms");
-            this.message.setForeground(isClientEnable ? JBColor.WHITE : JBColor.RED);
+            this.customMessage.setText(isClientEnable ? "" : "当前 OSS 不可用, 将使用 sm.ms 作为默认图床");
+            this.customMessage.setForeground(isClientEnable ? JBColor.WHITE : JBColor.RED);
         }else {
-            this.message.setText("");
-            this.message.setForeground(JBColor.WHITE);
+            this.customMessage.setText("未设置默认图床时, 将使用 sm.ms 作为默认图床");
+            this.customMessage.setForeground(JBColor.WHITE);
         }
     }
 

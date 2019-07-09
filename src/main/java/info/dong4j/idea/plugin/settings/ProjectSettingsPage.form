@@ -1327,15 +1327,6 @@
               </model>
             </properties>
           </component>
-          <component id="72d53" class="javax.swing.JLabel" binding="message">
-            <constraints>
-              <grid row="0" column="4" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <enabled value="false"/>
-              <text value="   "/>
-            </properties>
-          </component>
           <component id="2de94" class="javax.swing.JCheckBox" binding="defaultCloudCheckBox">
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
@@ -1344,9 +1335,9 @@
               <text value="自定义默认图床"/>
             </properties>
           </component>
-          <component id="cf112" class="javax.swing.JLabel">
+          <component id="cf112" class="javax.swing.JLabel" binding="customMessage">
             <constraints>
-              <grid row="0" column="7" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="0" column="4" row-span="1" col-span="11" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <enabled value="false"/>
