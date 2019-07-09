@@ -117,6 +117,7 @@ public final class MoveToOtherStorageAction extends AnAction {
 
     /**
      * 初始化 dialog
+     * 组件 index 与 cloudType index 关系 差 1
      *
      * @return the move to other oss settings dialog
      */
@@ -138,7 +139,7 @@ public final class MoveToOtherStorageAction extends AnAction {
             @Override
             protected void textChanged(@NotNull DocumentEvent e) {
                 boolean isValidInput = StringUtils.isNotBlank(dialog.getDomain().getText()) && !DOMAIN_DEFAULT_MESSAGE.equals(dialog.getDomain().getText());
-                boolean isClientEnable = OssState.getStatus(dialog.getCloudComboBox().getSelectedIndex());
+                boolean isClientEnable = OssState.getStatus(dialog.getCloudComboBox().getSelectedIndex() - 1);
                 builder.setOkActionEnabled(isValidInput && isClientEnable);
             }
         });
@@ -174,7 +175,8 @@ public final class MoveToOtherStorageAction extends AnAction {
                                     @NotNull MoveToOtherOssSettingsDialog dialog,
                                     int index) {
         boolean isClientEnable = OssState.getStatus(index);
-        boolean isValidInput = StringUtils.isNotBlank(dialog.getDomain().getText()) && !DOMAIN_DEFAULT_MESSAGE.equals(dialog.getDomain().getText());
+        boolean isValidInput = StringUtils.isNotBlank(dialog.getDomain().getText())
+                               && !DOMAIN_DEFAULT_MESSAGE.equals(dialog.getDomain().getText());
 
         dialog.getMessage().setText(isClientEnable ? "" : "当前 OSS 不可用");
         dialog.getMessage().setForeground(isClientEnable ? JBColor.WHITE : JBColor.RED);
