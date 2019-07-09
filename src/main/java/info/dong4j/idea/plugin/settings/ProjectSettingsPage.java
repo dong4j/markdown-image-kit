@@ -427,7 +427,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
 
     private void showSelectCloudMessage(int cloudType) {
         if(defaultCloudCheckBox.isSelected()){
-            boolean isClientEnable = OssState.getStatusBySetting(cloudType);
+            boolean isClientEnable = OssState.getStatus(cloudType);
             this.message.setText(isClientEnable ? "" : "当前 OSS 不可用");
             this.message.setForeground(isClientEnable ? JBColor.WHITE : JBColor.RED);
         }else {

@@ -87,20 +87,6 @@ public abstract class OssState {
     }
 
     /**
-     * 获取当前图床的可用状态
-     *
-     * @param cloudIndex the cloud index
-     * @return the boolean
-     */
-    @Contract(pure = true)
-    public static boolean getStatusBySetting(int cloudIndex) {
-        if(cloudIndex == CloudEnum.SM_MS_CLOUD.index){
-            return true;
-        }
-        return getStatusBySetting(getCloudType(cloudIndex));
-    }
-
-    /**
      * 通过 index 获取枚举, 不会返回 null, 业务上控制了, 只会选择 CloudEnum 有的类型
      *
      * @param cloudIndex the cloud index
@@ -133,49 +119,6 @@ public abstract class OssState {
         return isPassedTest
                && StringUtils.isNotEmpty(oldAndNewAuth.get(MikState.OLD_HASH_KEY))
                && oldAndNewAuth.get(MikState.OLD_HASH_KEY).equals(oldAndNewAuth.get(MikState.NEW_HASH_KEY));
-    }
-
-    /**
-     * 在设置页面获取当前图床的可用状态
-     *
-     * @param cloudEnum the cloud enum
-     * @return the boolean
-     */
-    @Contract(pure = true)
-    public static boolean getStatusBySetting(CloudEnum cloudEnum) {
-        MikState state = MikPersistenComponent.getInstance().getState();
-        if (cloudEnum == null) {
-            return false;
-        }
-
-        switch (cloudEnum) {
-            case WEIBO_CLOUD:
-                return state.getWeiboOssState().isPassedTest();
-            case ALIYUN_CLOUD:
-                return state.getAliyunOssState().isPassedTest();
-            case QINIU_CLOUD:
-                return state.getQiniuOssState().isPassedTest();
-            case WANGYI_CLOUD:
-                return false;
-            case BAIDU_CLOUD:
-                return false;
-            case JINGDONG_CLOUD:
-                return false;
-            case YOUPAI_CLOUD:
-                return false;
-            case SM_MS_CLOUD:
-                return true;
-            case IMGUR_CLOUD:
-                return false;
-            case U_CLOUD:
-                return false;
-            case QING_CLOUD:
-                return false;
-            case CUSTOMIZE:
-                return false;
-            default:
-                return false;
-        }
     }
 
     /**
