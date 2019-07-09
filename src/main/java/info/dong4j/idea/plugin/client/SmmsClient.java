@@ -57,7 +57,7 @@ import okhttp3.Response;
 @Client(CloudEnum.SM_MS_CLOUD)
 public class SmmsClient implements OssClient {
     private static final String UPLOAD_URL = "https://sm.ms/api/upload";
-    private Client ossClient;
+    private static Client client;
 
     @Contract(pure = true)
     private SmmsClient() {
@@ -97,7 +97,10 @@ public class SmmsClient implements OssClient {
      */
     @Override
     public String upload(InputStream inputStream, String fileName) {
-        return upload(ossClient, inputStream, fileName);
+        if (client == null) {
+            client = new Client();
+        }
+        return client.upload(inputStream, fileName);
     }
 
     /**
@@ -112,21 +115,6 @@ public class SmmsClient implements OssClient {
     @Override
     public String upload(InputStream inputStream, String fileName, JPanel jPanel) {
         return "";
-    }
-
-    /**
-     * Upload string.
-     *
-     * @param ossClient   the oss client
-     * @param inputStream the input stream
-     * @param fileName    the file name
-     * @return the string
-     */
-    public String upload(Client ossClient, InputStream inputStream, String fileName) {
-        if (ossClient == null) {
-            ossClient = new Client();
-        }
-        return ossClient.upload(inputStream, fileName);
     }
 
     private class Client {

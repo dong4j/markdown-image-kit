@@ -23,15 +23,19 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019 -07-08 17:07
  */
 @Slf4j
-// @Client(CloudEnum.BAIDU_CLOUD)
+@Client(CloudEnum.BAIDU_CLOUD)
 public class BaiduOssClient implements OssClient {
 
     private static final Object LOCK = new Object();
     private static COSClient ossClient = null;
 
+    static{
+        init();
+    }
+
     /******************************* 1. init start *******************************************/
     private BaiduOssClient() {
-        checkClient();
+        // checkClient();
     }
 
     /**
@@ -56,6 +60,7 @@ public class BaiduOssClient implements OssClient {
 
 
     /******************************* 2. singleton start *******************************************/
+
     /**
      * Gets instance.
      *
@@ -63,15 +68,19 @@ public class BaiduOssClient implements OssClient {
      */
     @Contract(pure = true)
     public static BaiduOssClient getInstance() {
-        return BaiduOssClient.SingletonHandler.singleton;
+        BaiduOssClient client = (BaiduOssClient)OssClient.INSTANCES.get(CloudEnum.BAIDU_CLOUD);
+        if(client == null){
+            client = BaiduOssClient.SingletonHandler.singleton;
+            OssClient.INSTANCES.put(CloudEnum.BAIDU_CLOUD, client);
+        }
+        return client;
     }
 
+    /**
+     * 使用缓存的 map 映射获取已初始化的 client, 避免创建多个实例
+     */
     private static class SingletonHandler {
         private static BaiduOssClient singleton = new BaiduOssClient();
-
-        static {
-            checkClient();
-        }
     }
 
     /**
