@@ -32,12 +32,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description:替换字符串中 ${} 或者 {} 等占位符的工具类</p>
  *
  * @author dong4j
  * @date 2018 -08-15 10:27
- * @email sjdong3 @iflytek.com
+ * @email dong4j@gmail.com
  */
 public final class ParserUtils {
     @Contract(" -> fail")

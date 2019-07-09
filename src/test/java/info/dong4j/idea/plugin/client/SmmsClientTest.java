@@ -53,12 +53,12 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: ${description}</p>
  *
  * @author dong4j
  * @date 2019-04-02 14:23
- * @email sjdong3@iflytek.com
+ * @email dong4j@gmail.com
  */
 @Slf4j
 public class SmmsClientTest {

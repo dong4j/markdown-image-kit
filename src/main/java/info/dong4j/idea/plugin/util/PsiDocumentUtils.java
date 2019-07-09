@@ -39,12 +39,12 @@ import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: 操作文档</p>
  *
  * @author dong4j
  * @date 2019-03-12 22:20
- * @email sjdong3 @iflytek.com
+ * @email dong4j@gmail.com
  */
 public final class PsiDocumentUtils {
     private static MikState state = MikPersistenComponent.getInstance().getState();

@@ -51,12 +51,12 @@ import java.net.*;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: 腾讯与 COS 简单上传文件 </p>
  *
  * @author dong4j
  * @date 2019-04-16 20:11
- * @email sjdong3@iflytek.com
+ * @email dong4j@gmail.com
  */
 @Slf4j
 public class TencentOssClientTest {

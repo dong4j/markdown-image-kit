@@ -50,39 +50,23 @@ import javax.swing.JPanel;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: </p>
  *
  * @author dong4j
- * @email sjdong3 @iflytek.com
+ * @email dong4j@gmail.com
  * @since 2019-03-18 09:57
  */
 @Slf4j
 @Client(CloudEnum.WEIBO_CLOUD)
 public class WeiboOssClient implements OssClient {
-    private static final Object LOCK = new Object();
+
     private static WbpUploadRequest ossClient = null;
 
     private WeiboOssState weiboOssState = MikPersistenComponent.getInstance().getState().getWeiboOssState();
 
     static {
         init();
-    }
-
-    private WeiboOssClient() {
-        // 反射调用时判断是否初始化
-        // checkClient();
-    }
-
-    /**
-     * 在调用 ossClient 之前先检查, 如果为 null 就 init()
-     */
-    private static void checkClient() {
-        synchronized (LOCK) {
-            if (ossClient == null) {
-                init();
-            }
-        }
     }
 
     /**

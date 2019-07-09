@@ -28,13 +28,13 @@ package info.dong4j.idea.plugin.enums;
 import org.jetbrains.annotations.Contract;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: 枚举顺序不能改变
  * 后期扩展时, 只需要实现具体的上传逻辑, 需要在此处添加具体的 OssClient</p>
  *
  * @author dong4j
  * @date 2019-03-17 00:15
- * @email sjdong3@iflytek.com
+ * @email dong4j@gmail.com
  */
 public enum CloudEnum {
     /** @see info.dong4j.idea.plugin.client.SmmsClient */

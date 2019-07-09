@@ -44,11 +44,11 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: 加载 ClientUtils 时, 将通过反射创建 map 映射 </p>
  *
  * @author dong4j
- * @email sjdong3 @iflytek.com
+ * @email dong4j@gmail.com
  * @since 2019-03-22 16:22
  */
 @Slf4j

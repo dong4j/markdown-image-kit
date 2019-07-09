@@ -54,18 +54,17 @@ import javax.swing.JPanel;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: </p>
  *
  * @author dong4j
- * @email sjdong3 @iflytek.com
+ * @email dong4j@gmail.com
  * @since 2019-03-19 15:25
  */
 @Slf4j
 @Client(CloudEnum.QINIU_CLOUD)
 public class QiniuOssClient implements OssClient {
     private static final long DEAD_LINE = 3600L * 1000 * 24 * 365 * 10;
-    private static final Object LOCK = new Object();
 
     private static String token;
     private static UploadManager ossClient = null;
@@ -73,20 +72,6 @@ public class QiniuOssClient implements OssClient {
 
     static {
         init();
-    }
-    private QiniuOssClient() {
-        // checkClient();
-    }
-
-    /**
-     * 在调用 ossClient 之前先检查, 如果为 null 就 init()
-     */
-    private static void checkClient() {
-        synchronized (LOCK) {
-            if (ossClient == null) {
-                init();
-            }
-        }
     }
 
     /**

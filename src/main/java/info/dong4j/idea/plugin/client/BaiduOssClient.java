@@ -13,38 +13,21 @@ import javax.swing.JPanel;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: 百度云</p>
  *
  * @author dong4j
- * @email sjdong3 @iflytek.com
+ * @email dong4j@gmail.com
  * @since 2019 -07-08 17:07
  */
 @Slf4j
 @Client(CloudEnum.BAIDU_CLOUD)
 public class BaiduOssClient implements OssClient {
 
-    private static final Object LOCK = new Object();
     private static OssClient ossClient = null;
 
     static{
         init();
-    }
-
-    /******************************* 1. init start *******************************************/
-    private BaiduOssClient() {
-        // checkClient();
-    }
-
-    /**
-     * 在调用 ossClient 之前先检查, 如果为 null 就 init()
-     */
-    private static void checkClient() {
-        synchronized (LOCK) {
-            if (ossClient == null) {
-                init();
-            }
-        }
     }
 
     /**

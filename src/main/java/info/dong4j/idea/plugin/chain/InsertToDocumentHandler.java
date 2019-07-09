@@ -35,11 +35,11 @@ import info.dong4j.idea.plugin.entity.MarkdownImage;
 import java.util.Iterator;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: 插入新的文本行</p>
  *
  * @author dong4j
- * @email sjdong3@iflytek.com
+ * @email dong4j@gmail.com
  * @since 2019-03-28 13:35
  */
 public class InsertToDocumentHandler extends ActionHandlerAdapter {

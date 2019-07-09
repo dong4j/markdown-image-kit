@@ -29,12 +29,12 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.PlainDocument;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: 限制输入数字的位数</p>
  *
  * @author dong4j
  * @date 2019-03-14 20:00
- * @email sjdong3@iflytek.com
+ * @email dong4j@gmail.com
  */
 public class NumberValidator extends PlainDocument {
 

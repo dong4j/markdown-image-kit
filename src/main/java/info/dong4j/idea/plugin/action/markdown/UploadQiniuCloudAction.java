@@ -38,11 +38,11 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: 上传到七牛云 OSS 事件</p>
  *
  * @author dong4j
- * @email sjdong3@iflytek.com
+ * @email dong4j@gmail.com
  * @since 2019-03-14 17:09
  */
 public final class UploadQiniuCloudAction extends UploadActionBase {

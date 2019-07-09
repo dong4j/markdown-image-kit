@@ -26,12 +26,12 @@
 package info.dong4j.idea.plugin.content;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: ${description}</p>
  *
  * @author dong4j
  * @date 2019-03-27 12:26
- * @email sjdong3@iflytek.com
+ * @email dong4j@gmail.com
  */
 public interface MikContents {
     /** nodejs 库 */

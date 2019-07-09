@@ -53,11 +53,11 @@ import javax.swing.JPanel;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: 右键上传一次或者点击测试按钮时初始化一次</p>
  *
  * @author dong4j
- * @email sjdong3 @iflytek.com
+ * @email dong4j@gmail.com
  * @since 2019 -03-18 09:57
  */
 @Slf4j
@@ -75,19 +75,6 @@ public class AliyunOssClient implements OssClient {
 
     static {
         init();
-    }
-
-    private AliyunOssClient() {
-        // checkClient();
-    }
-
-    /**
-     * 在调用 ossClient 之前先检查, 如果为 null 就 init()
-     */
-    private static void checkClient() {
-        if (ossClient == null) {
-            init();
-        }
     }
 
     /**

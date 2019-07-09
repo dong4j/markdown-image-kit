@@ -88,13 +88,13 @@ import javax.imageio.ImageIO;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: 读取 Clipboard 图片, 上传到 OSS, 最后插入到光标位置</p>
  * todo-dong4j : (2019年03月17日 19:37) [图片压缩处理]
  *
  * @author dong4j
  * @date 2019-03-16 12:15
- * @email sjdong3 @iflytek.com
+ * @email dong4j@gmail.com
  */
 @Slf4j
 public class PasteImageAction extends EditorActionHandler implements EditorTextInsertHandler {

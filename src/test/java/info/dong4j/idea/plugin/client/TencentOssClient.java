@@ -20,7 +20,7 @@ import javax.swing.JPanel;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: oss client 实现步骤:
  * 1. 初始化配置: 从持久化配置中初始化 client
  * 2. 静态内部类获取 client 单例
@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
  * 4. 自定义 upload 逻辑</p>
  *
  * @author dong4j
- * @email sjdong3 @iflytek.com
+ * @email dong4j@gmail.com
  * @since 2019 -07-08 16:39
  */
 @Slf4j

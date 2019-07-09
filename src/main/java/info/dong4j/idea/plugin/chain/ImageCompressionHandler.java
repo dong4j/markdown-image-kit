@@ -40,11 +40,11 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: 图片压缩处理, 将 MarkdownImage 的文件修改 InputStream </p>
  *
  * @author dong4j
- * @email sjdong3 @iflytek.com
+ * @email dong4j@gmail.com
  * @since 2019-03-28 09:23
  */
 @Slf4j

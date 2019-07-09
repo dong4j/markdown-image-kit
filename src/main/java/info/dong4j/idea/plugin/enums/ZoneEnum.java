@@ -30,12 +30,12 @@ import com.qiniu.common.Zone;
 import org.jetbrains.annotations.Contract;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: 七牛云存储位置 </p>
  *
  * @author dong4j
  * @date 2019-03-19 20:26
- * @email sjdong3@iflytek.com
+ * @email dong4j@gmail.com
  */
 public enum ZoneEnum {
     // 区域名称：z0 华东  z1 华北  z2 华南  na0 北美  as0 东南亚

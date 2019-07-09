@@ -36,11 +36,11 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: </p>
  *
  * @author dong4j
- * @email sjdong3@iflytek.com
+ * @email dong4j@gmail.com
  * @since 2019-04-02 18:02
  */
 public final class UploadSmmsCloudAction extends UploadActionBase {

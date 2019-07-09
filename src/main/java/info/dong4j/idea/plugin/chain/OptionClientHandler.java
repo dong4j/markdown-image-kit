@@ -33,12 +33,12 @@ import info.dong4j.idea.plugin.util.ClientUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: 上传客户端处理</p>
  * 需要 OssClient
  *
  * @author dong4j
- * @email sjdong3 @iflytek.com
+ * @email dong4j@gmail.com
  * @since 2019-03-27 23:44
  */
 @Slf4j

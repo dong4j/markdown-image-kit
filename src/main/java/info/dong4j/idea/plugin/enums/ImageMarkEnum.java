@@ -30,12 +30,12 @@ import info.dong4j.idea.plugin.content.ImageContents;
 import org.jetbrains.annotations.Contract;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: ${description}</p>
  *
  * @author dong4j
  * @date 2019-03-14 10:23
- * @email sjdong3@iflytek.com
+ * @email dong4j@gmail.com
  */
 public enum ImageMarkEnum {
     LARGE_PICTURE(1, "点击看大图", ImageContents.LARG_IMAGE_MARK),

@@ -50,12 +50,12 @@ import org.jetbrains.annotations.Nullable;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: alt + enter </p>
  * 使用设置后的默认 OSS 客户端
  *
  * @author dong4j
- * @email sjdong3 @iflytek.com
+ * @email dong4j@gmail.com
  * @since 2019-03-27 13:28
  */
 @Slf4j
@@ -157,9 +157,6 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
         VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
 
         MarkdownImage matchImageMark = MarkdownUtils.analysisImageMark(virtualFile, getLineText(editor), documentLine);
-        if (matchImageMark == null) {
-            return null;
-        }
         return matchImageMark;
     }
 }
