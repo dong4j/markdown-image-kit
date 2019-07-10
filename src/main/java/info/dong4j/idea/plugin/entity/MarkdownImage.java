@@ -35,11 +35,11 @@ import java.io.*;
 import lombok.Data;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: </p>
  *
  * @author dong4j
- * @email sjdong3@iflytek.com
+ * @email dong4j@gmail.com
  * @since 2019-03-14 21:00
  */
 @Data

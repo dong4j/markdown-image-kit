@@ -39,11 +39,15 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
- * <p>Description: </p>
+ * <p>Company: no company</p>
+ * <p>Description: oss client 实现步骤:
+ * 1. 初始化配置: 从持久化配置中初始化 client
+ * 2. 静态内部类获取 client 单例
+ * 3. 实现 OssClient 接口
+ * 4. 自定义 upload 逻辑</p>
  *
  * @author dong4j
- * @email sjdong3 @iflytek.com
+ * @email dong4j@gmail.com
  * @since 2019-03-20 11:52
  */
 public interface OssClient {
@@ -55,7 +59,9 @@ public interface OssClient {
      *
      * @return the name
      */
-    String getName();
+    default String getName(){
+        return getCloudType().title;
+    }
 
     /**
      * Gets cloud type.
@@ -65,15 +71,7 @@ public interface OssClient {
     CloudEnum getCloudType();
 
     /**
-     * Upload string.
-     *
-     * @param file the file
-     * @return the string
-     */
-    String upload(File file);
-
-    /**
-     * Upload string.
+     * 全部通过此接口上传
      *
      * @param inputStream the input stream
      * @param fileName    the file name
@@ -108,20 +106,5 @@ public interface OssClient {
             }
         }
         return fieldMap;
-    }
-
-    /**
-     * Close stream.
-     *
-     * @param inputStream the input stream
-     * @throws IOException the io exception
-     */
-    default void closeStream(InputStream inputStream) {
-        if (inputStream != null) {
-            try {
-                inputStream.close();
-            } catch (IOException ignored) {
-            }
-        }
     }
 }

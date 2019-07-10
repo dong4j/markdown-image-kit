@@ -30,11 +30,11 @@ import com.intellij.openapi.project.Project;
 import java.util.function.Supplier;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: </p>
  *
  * @author dong4j
- * @email sjdong3 @iflytek.com
+ * @email dong4j@gmail.com
  * @since 2019-03-13 10:54
  */
 public class UploadException extends RuntimeException implements Supplier<UploadException> {

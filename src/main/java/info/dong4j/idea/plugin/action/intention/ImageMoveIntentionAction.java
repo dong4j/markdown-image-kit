@@ -51,11 +51,11 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: 将已上传的图片迁移到当前 OSS 或者替换标签</p>
  *
  * @author dong4j
- * @email sjdong3@iflytek.com
+ * @email dong4j@gmail.com
  * @since 2019-03-27 13:39
  */
 @Slf4j

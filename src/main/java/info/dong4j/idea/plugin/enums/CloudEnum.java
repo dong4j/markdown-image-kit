@@ -28,29 +28,33 @@ package info.dong4j.idea.plugin.enums;
 import org.jetbrains.annotations.Contract;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: 枚举顺序不能改变
  * 后期扩展时, 只需要实现具体的上传逻辑, 需要在此处添加具体的 OssClient</p>
  *
  * @author dong4j
  * @date 2019-03-17 00:15
- * @email sjdong3@iflytek.com
+ * @email dong4j@gmail.com
  */
 public enum CloudEnum {
+    /** @see info.dong4j.idea.plugin.client.SmmsClient */
+    SM_MS_CLOUD(-1, "sm.ms", "info.dong4j.idea.plugin.client.SmmsClient"),
     /** @see info.dong4j.idea.plugin.client.WeiboOssClient */
-    WEIBO_CLOUD(0, "Weibo", "sinaimg"),
+    WEIBO_CLOUD(0, "Weibo", "info.dong4j.idea.plugin.client.WeiboOssClient"),
     /** @see info.dong4j.idea.plugin.client.AliyunOssClient */
-    ALIYUN_CLOUD(1, "Aliyun", "aliyun"),
+    ALIYUN_CLOUD(1, "Aliyun", "info.dong4j.idea.plugin.client.AliyunOssClient"),
     /** @see info.dong4j.idea.plugin.client.QiniuOssClient */
-    QINIU_CLOUD(2, "Qiniu", "qiniu"),
-    WANGYI_CLOUD(3, "网易云", ""),
-    BAIDU_CLOUD(4, "百度云", ""),
-    JINGDONG_CLOUD(5, "京东云", ""),
-    YOUPAI_CLOUD(6, "又拍云", ""),
-    SM_MS_CLOUD(7, "sm.ms", ""),
+    QINIU_CLOUD(2, "Qiniu", "info.dong4j.idea.plugin.client.QiniuOssClient"),
+    /** @see info.dong4j.idea.plugin.client.TencentOssClient */
+    TENCENT_CLOUD(3, "腾讯云", "info.dong4j.idea.plugin.client.TencentOssClient"),
+    WANGYI_CLOUD(4, "网易云", ""),
+    /** @see info.dong4j.idea.plugin.client.BaiduOssClient */
+    BAIDU_CLOUD(5, "百度云", "info.dong4j.idea.plugin.client.BaiduOssClient"),
+    JINGDONG_CLOUD(6, "京东云", ""),
+    YOUPAI_CLOUD(7, "又拍云", ""),
     IMGUR_CLOUD(8, "Imgur", ""),
     U_CLOUD(9, "Ucloud", ""),
-    QING_CLOUD(10, "QIngCloud", ""),
+    QING_CLOUD(10, "QingCloud", ""),
     CUSTOMIZE(11, "自定义", "");
 
     public int index;
@@ -58,6 +62,7 @@ public enum CloudEnum {
     /** 图床特征*/
     public String feature;
 
+    @Contract(pure = true)
     CloudEnum(int index, String title, String feature) {
         this.index = index;
         this.title = title;

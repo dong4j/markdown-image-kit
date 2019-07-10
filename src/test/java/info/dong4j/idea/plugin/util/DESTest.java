@@ -3,12 +3,12 @@ package info.dong4j.idea.plugin.util;
 import org.junit.Test;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: ${description}</p>
  *
  * @author dong4j
  * @date 2019-03-18 06:47
- * @email sjdong3@iflytek.com
+ * @email dong4j@gmail.com
  */
 public class DESTest {
     @Test

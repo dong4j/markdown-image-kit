@@ -58,11 +58,11 @@ import javax.swing.event.DocumentEvent;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: 图床迁移计划 这里是批量迁移处理, 处理对象为 markdown 或者 目录</p>
  *
  * @author dong4j
- * @email sjdong3 @iflytek.com
+ * @email dong4j@gmail.com
  * @since 2019-03-15 20:41
  */
 @Slf4j
@@ -90,11 +90,11 @@ public final class MoveToOtherStorageAction extends AnAction {
             if (StringUtils.isBlank(domain)) {
                 return;
             }
-            if (!OssState.getStatus(dialog.getCloudComboBox().getSelectedIndex())) {
+            if (!OssState.getStatus(dialog.getCloudComboBox().getSelectedIndex()- 1)) {
                 return;
             }
 
-            int cloudIndex = dialog.getCloudComboBox().getSelectedIndex();
+            int cloudIndex = dialog.getCloudComboBox().getSelectedIndex() - 1;
             CloudEnum cloudEnum = OssState.getCloudType(cloudIndex);
 
             EventData data = new EventData()
@@ -117,6 +117,7 @@ public final class MoveToOtherStorageAction extends AnAction {
 
     /**
      * 初始化 dialog
+     * 组件 index 与 cloudType index 关系 差 1
      *
      * @return the move to other oss settings dialog
      */
@@ -126,19 +127,19 @@ public final class MoveToOtherStorageAction extends AnAction {
         MoveToOtherOssSettingsDialog dialog = new MoveToOtherOssSettingsDialog();
 
         int index = MikPersistenComponent.getInstance().getState().getCloudType();
-        dialog.getCloudComboBox().setSelectedIndex(index);
+        dialog.getCloudComboBox().setSelectedIndex(index + 1);
         showMessage(builder, dialog, index);
 
         dialog.getCloudComboBox().addActionListener(e -> {
             int selectedIndex = dialog.getCloudComboBox().getSelectedIndex();
-            showMessage(builder, dialog, selectedIndex);
+            showMessage(builder, dialog, selectedIndex - 1);
         });
 
         dialog.getDomain().getDocument().addDocumentListener(new DocumentAdapter() {
             @Override
             protected void textChanged(@NotNull DocumentEvent e) {
                 boolean isValidInput = StringUtils.isNotBlank(dialog.getDomain().getText()) && !DOMAIN_DEFAULT_MESSAGE.equals(dialog.getDomain().getText());
-                boolean isClientEnable = OssState.getStatus(dialog.getCloudComboBox().getSelectedIndex());
+                boolean isClientEnable = OssState.getStatus(dialog.getCloudComboBox().getSelectedIndex() - 1);
                 builder.setOkActionEnabled(isValidInput && isClientEnable);
             }
         });
@@ -174,7 +175,8 @@ public final class MoveToOtherStorageAction extends AnAction {
                                     @NotNull MoveToOtherOssSettingsDialog dialog,
                                     int index) {
         boolean isClientEnable = OssState.getStatus(index);
-        boolean isValidInput = StringUtils.isNotBlank(dialog.getDomain().getText()) && !DOMAIN_DEFAULT_MESSAGE.equals(dialog.getDomain().getText());
+        boolean isValidInput = StringUtils.isNotBlank(dialog.getDomain().getText())
+                               && !DOMAIN_DEFAULT_MESSAGE.equals(dialog.getDomain().getText());
 
         dialog.getMessage().setText(isClientEnable ? "" : "当前 OSS 不可用");
         dialog.getMessage().setForeground(isClientEnable ? JBColor.WHITE : JBColor.RED);

@@ -40,12 +40,12 @@ import javax.swing.KeyStroke;
 import lombok.Getter;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: tip: 设置 dialog 大小, 使用 PreferredSize </p>
  *
  * @author dong4j
  * @date 2019-03-27 14:26
- * @email sjdong3@iflytek.com
+ * @email dong4j@gmail.com
  */
 @Getter
 public class MoveToOtherOssSettingsDialog extends JDialog {

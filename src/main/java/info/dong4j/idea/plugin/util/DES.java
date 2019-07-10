@@ -33,12 +33,12 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: 加解密工具类</p>
  *
  * @author dong4j
  * @date 2018 -08-26 00:30
- * @email sjdong3 @iflytek.com
+ * @email dong4j@gmail.com
  */
 public final class DES {
 

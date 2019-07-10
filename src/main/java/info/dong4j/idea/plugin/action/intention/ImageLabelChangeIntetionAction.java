@@ -50,11 +50,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: 替换标签意图</p>
  *
  * @author dong4j
- * @email sjdong3@iflytek.com
+ * @email dong4j@gmail.com
  * @since 2019-03-29 12:44
  */
 public class ImageLabelChangeIntetionAction extends IntentionActionBase {

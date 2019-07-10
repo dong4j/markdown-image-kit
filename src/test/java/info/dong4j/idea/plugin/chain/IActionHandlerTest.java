@@ -3,12 +3,12 @@ package info.dong4j.idea.plugin.chain;
 import org.junit.Test;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: ${description}</p>
  *
  * @author dong4j
  * @date 2019-03-22 19:42
- * @email sjdong3@iflytek.com
+ * @email dong4j@gmail.com
  */
 public class IActionHandlerTest {
     @Test

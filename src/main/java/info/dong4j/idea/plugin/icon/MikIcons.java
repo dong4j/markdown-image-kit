@@ -32,12 +32,12 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Icon;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: {@link com.intellij.icons.AllIcons}</p>
  *
  * @author dong4j
  * @date 2019-03-13 21:10
- * @email sjdong3@iflytek.com
+ * @email dong4j@gmail.com
  */
 public class MikIcons {
     public static final Icon ALIYUN_OSS = IconLoader.getIcon("/icons/aliyun.png");

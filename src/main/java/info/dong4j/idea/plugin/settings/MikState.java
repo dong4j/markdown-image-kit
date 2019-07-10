@@ -31,23 +31,29 @@ import info.dong4j.idea.plugin.enums.SuffixEnum;
 import lombok.Data;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: </p>
  *
  * @author dong4j
- * @email sjdong3@iflytek.com
+ * @email dong4j@gmail.com
  * @since 2019-03-13 14:21
  */
 @Data
 public class MikState {
+    /** 加密盐值*/
     public static final String WEIBOKEY = "ekjgbpiq!g34o@erberb.erbmkv.c;,ergw_.";
     public static final String ALIYUN = "awj7@piq!g3jo@er_erb.erbsrxhc!,wr.w_1";
     public static final String QINIU = "gerb2.erhgds'5yf@4ybtree!43h34hbd4_";
+    public static final String TENCENT = "xg13g143fvsdklo)2,m.we_123vds12e!#41c";
+
     public static final String OLD_HASH_KEY = "old";
     public static final String NEW_HASH_KEY = "new";
+
     private WeiboOssState weiboOssState;
     private AliyunOssState aliyunOssState;
     private QiniuOssState qiniuOssState;
+    private TencentOssState tencentOssState;
+
     /** 是否替换标签 */
     private boolean changeToHtmlTag = false;
     /** 替换的标签类型 */
@@ -65,15 +71,21 @@ public class MikState {
     private boolean uploadAndReplace = false;
     /** 图片保存路径 */
     private String imageSavePath = "./imgs";
+    /** 是否自定义默认图床 */
+    private boolean defaultCloudCheck = false;
     /** 默认图床 */
-    private int cloudType = CloudEnum.WEIBO_CLOUD.index;
+    private int cloudType = CloudEnum.SM_MS_CLOUD.index;
+    /** 这个只是 setting 页面用, 用于保存未勾选自定义默认图床时需要保存的下拉列表选项*/
+    private int tempCloudType = CloudEnum.WEIBO_CLOUD.index;
     /** 重命名文件 */
     private boolean rename = false;
     /** 文件名后缀 */
     private int suffixIndex = SuffixEnum.FILE_NAME.index;
+
     public MikState() {
         this.aliyunOssState = new AliyunOssState();
         this.qiniuOssState = new QiniuOssState();
         this.weiboOssState = new WeiboOssState();
+        this.tencentOssState = new TencentOssState();
     }
 }

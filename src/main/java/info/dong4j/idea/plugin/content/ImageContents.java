@@ -26,11 +26,11 @@
 package info.dong4j.idea.plugin.content;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: </p>
  *
  * @author dong4j
- * @email sjdong3@iflytek.com
+ * @email dong4j@gmail.com
  * @since 2019-03-15 18:29
  */
 public interface ImageContents {
@@ -41,7 +41,8 @@ public interface ImageContents {
     String IMAGE_MARK_MIDDLE = "](";
     String IMAGE_MARK_SUFFIX = ")";
     String IMAGE_LOCATION = "http";
-    String LINE_BREAK = System.lineSeparator();
+    // String LINE_BREAK = System.lineSeparator();
+    String LINE_BREAK = "\n";
     /** 默认的 image 标签替换类型 */
     String DEFAULT_IMAGE_MARK = "![${title}](${path})";
     /** 点击查看大图, 需要添加 js 支持 */

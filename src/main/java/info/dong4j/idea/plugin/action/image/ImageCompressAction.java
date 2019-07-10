@@ -55,11 +55,11 @@ import javax.swing.Icon;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: 图像压缩 </p>
  *
  * @author dong4j
- * @email sjdong3@iflytek.com
+ * @email dong4j@gmail.com
  * @since 2019-03-15 20:43
  */
 @Slf4j

@@ -50,12 +50,12 @@ import org.jetbrains.annotations.Nullable;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: alt + enter </p>
  * 使用设置后的默认 OSS 客户端
  *
  * @author dong4j
- * @email sjdong3 @iflytek.com
+ * @email dong4j@gmail.com
  * @since 2019-03-27 13:28
  */
 @Slf4j
@@ -92,20 +92,20 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
     }
 
     /**
-     * 获取设置的默认客户端类型
+     * 获取设置的默认客户端类型, 如果设置的不可用, 则使用 sm.ms
      *
      * @return the cloud enum
      */
     protected CloudEnum getCloudType() {
-        return OssState.getCloudType(STATE.getCloudType());
+        CloudEnum cloudEnum = OssState.getCloudType(STATE.getCloudType());
+        return OssState.getStatus(cloudEnum) ? cloudEnum : CloudEnum.SM_MS_CLOUD;
     }
 
     @Nls
     @NotNull
     @Override
     public String getText() {
-        CloudEnum cloudEnum = OssState.getCloudType(STATE.getCloudType());
-        return getMessage(cloudEnum.title);
+        return getMessage(getCloudType().title);
     }
 
     @Nls
@@ -157,9 +157,6 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
         VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
 
         MarkdownImage matchImageMark = MarkdownUtils.analysisImageMark(virtualFile, getLineText(editor), documentLine);
-        if (matchImageMark == null) {
-            return null;
-        }
         return matchImageMark;
     }
 }

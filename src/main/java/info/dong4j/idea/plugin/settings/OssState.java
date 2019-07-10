@@ -38,12 +38,12 @@ import java.util.Optional;
 import lombok.Data;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: </p>
  *
  * @author dong4j
- * @email sjdong3 @iflytek.com
- * @since 2019-03-19 18:59
+ * @email dong4j@gmail.com
+ * @since 2019 -03-19 18:59
  */
 @Data
 public abstract class OssState {
@@ -63,6 +63,16 @@ public abstract class OssState {
     }
 
     /**
+     * Get state.
+     *
+     * @param cloudIndex the cloud index
+     */
+    public static void getState(int cloudIndex){
+        CloudEnum cloudEnum = getCloudType(cloudIndex);
+
+    }
+
+    /**
      * 获取当前图床的可用状态
      *
      * @param cloudIndex the cloud index
@@ -70,6 +80,9 @@ public abstract class OssState {
      */
     @Contract(pure = true)
     public static boolean getStatus(int cloudIndex) {
+        if(cloudIndex == CloudEnum.SM_MS_CLOUD.index){
+            return true;
+        }
         return getStatus(getCloudType(cloudIndex));
     }
 
@@ -109,11 +122,10 @@ public abstract class OssState {
     }
 
     /**
-     * 获取当前图床的可用状态
-     * todo-dong4j : (2019年03月20日 15:47) [增加图床实现时记得改这里]
+     * Gets status.
      *
      * @param cloudEnum the cloud enum
-     * @return the boolean
+     * @return the status
      */
     @Contract(pure = true)
     public static boolean getStatus(CloudEnum cloudEnum) {
@@ -121,6 +133,7 @@ public abstract class OssState {
         if (cloudEnum == null) {
             return false;
         }
+
         switch (cloudEnum) {
             case WEIBO_CLOUD:
                 return getStatus(state.getWeiboOssState());
@@ -128,6 +141,8 @@ public abstract class OssState {
                 return getStatus(state.getAliyunOssState());
             case QINIU_CLOUD:
                 return getStatus(state.getQiniuOssState());
+            case TENCENT_CLOUD:
+                return getStatus(state.getTencentOssState());
             case WANGYI_CLOUD:
                 return false;
             case BAIDU_CLOUD:
@@ -137,7 +152,7 @@ public abstract class OssState {
             case YOUPAI_CLOUD:
                 return false;
             case SM_MS_CLOUD:
-                return false;
+                return true;
             case IMGUR_CLOUD:
                 return false;
             case U_CLOUD:

@@ -9,12 +9,12 @@ import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: ${description}</p>
  *
  * @author dong4j
  * @date 2019-03-13 16:02
- * @email sjdong3@iflytek.com
+ * @email dong4j@gmail.com
  */
 @Slf4j
 public class EnumsUtilsTest {

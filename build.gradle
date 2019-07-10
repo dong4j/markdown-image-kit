@@ -9,7 +9,7 @@ buildscript {
 }
 
 plugins {
-    id 'org.jetbrains.intellij' version '0.4.4'
+    id 'org.jetbrains.intellij' version '0.4.9'
 }
 
 repositories {
@@ -17,10 +17,6 @@ repositories {
     maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
     maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
     maven { url 'http://dl.bintray.com/jetbrains/intellij-plugin-service' }
-}
-
-tasks.withType(JavaCompile) {
-    options.encoding = "UTF-8"
 }
 
 // 导入插件
@@ -32,11 +28,11 @@ apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'org.jetbrains.intellij'
 
-sourceCompatibility = 1.8
+sourceCompatibility = javaVersion
 
 intellij {
-    pluginName 'Markdown Image Kit'
-    version '2018.3.5'
+    pluginName name
+    version ideaVersion
     // 插件生成的临时文件的地址，可以省略
     sandboxDirectory = project.rootDir.canonicalPath + "/.sandbox"
     updateSinceUntilBuild false
@@ -45,6 +41,7 @@ intellij {
 publishPlugin {
     username System.getenv('username')
     password System.getenv('password')
+    channels publishChannels
 }
 
 // 声明依赖使用下面的闭包
@@ -68,6 +65,11 @@ dependencies {
     compile 'com.qiniu:qiniu-java-sdk:7.2.+'
     // https://mvnrepository.com/artifact/net.coobird/thumbnailator
     compile group: 'net.coobird', name: 'thumbnailator', version: '0.4.8'
+    // https://mvnrepository.com/artifact/joda-time/joda-time
+    compile group: 'joda-time', name: 'joda-time', version: '2.9.9'
+    // https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.6'
+
 
     //    // 单个依赖
     //    compile group: 'log4j', name: 'log4j', version: '1.2.17'
@@ -91,5 +93,5 @@ dependencies {
 
 }
 
-group 'info.dong4j'
-version '0.0.1'
+group group
+version version

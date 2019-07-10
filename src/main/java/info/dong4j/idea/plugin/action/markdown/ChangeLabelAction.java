@@ -53,15 +53,15 @@ import java.util.Iterator;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: 全局替换标签 </p>
  *
  * @author dong4j
- * @email sjdong3@iflytek.com
+ * @email dong4j@gmail.com
  * @since 2019-03-29 19:03
  */
 @Slf4j
-public class ChangeLabelAction extends AnAction {
+public final class ChangeLabelAction extends AnAction {
     @Override
     public void update(@NotNull AnActionEvent event) {
         ActionUtils.isAvailable(event, AllIcons.Actions.ListChanges, MarkdownContents.MARKDOWN_TYPE_NAME);

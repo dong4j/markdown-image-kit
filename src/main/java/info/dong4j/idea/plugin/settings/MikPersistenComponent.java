@@ -35,15 +35,15 @@ import org.jetbrains.annotations.NotNull;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: 配置持久化 </p>
  *
  * @author dong4j
  * @date 2019-03-13 11:56
- * @email sjdong3 @iflytek.com
+ * @email dong4j@gmail.com
  */
 @Slf4j
-@State(name = "MikSettings", storages = @Storage(value = Storage.NOT_ROAMABLE_FILE, file = "$APP_CONFIG$/markdown.image.kit.configs.xml"))
+@State(name = "MikSettings", storages = @Storage("markdown.image.kit.configs.xml"))
 public class MikPersistenComponent implements PersistentStateComponent<MikState> {
 
     private MikState myState = new MikState();

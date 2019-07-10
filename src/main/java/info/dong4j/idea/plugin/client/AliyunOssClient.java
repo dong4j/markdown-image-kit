@@ -25,8 +25,10 @@
 
 package info.dong4j.idea.plugin.client;
 
+import com.aliyun.oss.ClientException;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
+import com.aliyun.oss.OSSException;
 import com.aliyun.oss.model.ObjectMetadata;
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
@@ -51,37 +53,28 @@ import javax.swing.JPanel;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: 右键上传一次或者点击测试按钮时初始化一次</p>
  *
  * @author dong4j
- * @email sjdong3 @iflytek.com
- * @since 2019-03-18 09:57
+ * @email dong4j@gmail.com
+ * @since 2019 -03-18 09:57
  */
 @Slf4j
 @Client(CloudEnum.ALIYUN_CLOUD)
 public class AliyunOssClient implements OssClient {
+    /**
+     * The constant URL_PROTOCOL_HTTPS.
+     */
     public static final String URL_PROTOCOL_HTTPS = "https";
     private static final String URL_PROTOCOL_HTTP = "http";
-    private static final Object LOCK = new Object();
+
     private static String bucketName;
     private static String filedir;
     private static OSS ossClient = null;
-    private AliyunOssState aliyunOssState = MikPersistenComponent.getInstance().getState().getAliyunOssState();
 
-    private AliyunOssClient() {
-        checkClient();
-    }
-
-    /**
-     * 在调用 ossClient 之前先检查, 如果为 null 就 init()
-     */
-    private static void checkClient() {
-        synchronized (LOCK) {
-            if (ossClient == null) {
-                init();
-            }
-        }
+    static {
+        init();
     }
 
     /**
@@ -89,42 +82,75 @@ public class AliyunOssClient implements OssClient {
      */
     private static void init() {
         AliyunOssState aliyunOssState = MikPersistenComponent.getInstance().getState().getAliyunOssState();
-        bucketName = aliyunOssState.getBucketName();
         String accessKey = aliyunOssState.getAccessKey();
         String accessSecretKey = DES.decrypt(aliyunOssState.getAccessSecretKey(), MikState.ALIYUN);
         String endpoint = aliyunOssState.getEndpoint();
+
+        bucketName = aliyunOssState.getBucketName();
+
         String tempFileDir = aliyunOssState.getFiledir();
         filedir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";
+
         try {
             ossClient = new OSSClientBuilder().build(endpoint, accessKey, accessSecretKey);
         } catch (Exception ignored) {
         }
     }
 
-    @Override
-    public String getName() {
-        return getCloudType().title;
+    /**
+     * Set bucket name.
+     *
+     * @param newBucketName the new bucket name
+     */
+    private void setBucketName(String newBucketName) {
+        bucketName = newBucketName;
+    }
+
+    private void setFiledir(String newFileddir){
+        filedir = newFileddir;
+    }
+
+    /**
+     * Set oss client.
+     *
+     * @param oss the oss
+     */
+    private void setOssClient(OSS oss) {
+        ossClient = oss;
+    }
+
+    /**
+     * 静态内部类实现单例
+     * 为什么这样实现就是单例的？
+     * 1. 因为这个类的实例化是靠静态内部类的静态常量实例化的;
+     * 2. INSTANCE 是常量，因此只能赋值一次；它还是静态的，因此随着内部类一起加载;
+     * 这样实现有什么好处？
+     * 1. 我记得以前接触的懒汉式的代码好像有线程安全问题，需要加同步锁才能解决;
+     * 2. 采用静态内部类实现的代码也是懒加载的，只有第一次使用这个单例的实例的时候才加载;
+     * 3. 不会有线程安全问题;
+     *
+     * @return the instance
+     */
+    @Contract(pure = true)
+    public static AliyunOssClient getInstance() {
+        AliyunOssClient client = (AliyunOssClient)OssClient.INSTANCES.get(CloudEnum.ALIYUN_CLOUD);
+        if(client == null){
+            client = SingletonHandler.singleton;
+            OssClient.INSTANCES.put(CloudEnum.ALIYUN_CLOUD, client);
+        }
+        return client;
+    }
+
+    /**
+     * 使用缓存的 map 映射获取已初始化的 client, 避免创建多个实例
+     */
+    private static class SingletonHandler {
+        private static AliyunOssClient singleton = new AliyunOssClient();
     }
 
     @Override
     public CloudEnum getCloudType() {
         return CloudEnum.ALIYUN_CLOUD;
-    }
-
-    /**
-     * Upload string.
-     *
-     * @param file the file
-     * @return the string
-     */
-    @Override
-    public String upload(File file) {
-        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(file))) {
-            return upload(bufferedInputStream, file.getName());
-        } catch (IOException e) {
-            log.trace("", e);
-        }
-        return "";
     }
 
     /**
@@ -136,7 +162,7 @@ public class AliyunOssClient implements OssClient {
      */
     @Override
     public String upload(InputStream inputStream, String fileName) {
-        return upload(inputStream, filedir, fileName);
+        return upload(ossClient, inputStream, fileName);
     }
 
     /**
@@ -189,61 +215,27 @@ public class AliyunOssClient implements OssClient {
 
         filedir = org.apache.commons.lang.StringUtils.isBlank(filedir) ? "" : filedir + "/";
 
+        // 重设 client 相关配置
         AliyunOssClient aliyunOssClient = AliyunOssClient.getInstance();
-        OSS ossClient = new OSSClientBuilder().build(endpoint, accessKey, accessSecretKey);
 
         aliyunOssClient.setBucketName(bucketName);
-        String url = aliyunOssClient.upload(ossClient, inputStream, filedir, fileName);
+        aliyunOssClient.setFiledir(filedir);
 
-        if (org.apache.commons.lang.StringUtils.isNotBlank(url)) {
+        OSS ossClient = new OSSClientBuilder().build(endpoint, accessKey, accessSecretKey);
+
+        String url = aliyunOssClient.upload(ossClient, inputStream, fileName);
+
+        if (StringUtils.isNotBlank(url)) {
             int hashcode = bucketName.hashCode() +
                            accessKey.hashCode() +
                            accessSecretKey.hashCode() +
                            endpoint.hashCode();
-            OssState.saveStatus(aliyunOssState, hashcode, MikState.OLD_HASH_KEY);
+            OssState.saveStatus(MikPersistenComponent.getInstance().getState().getAliyunOssState(),
+                                hashcode,
+                                MikState.OLD_HASH_KEY);
             aliyunOssClient.setOssClient(ossClient);
         }
         return url;
-    }
-
-    /**
-     * Gets instance.
-     *
-     * @return the instance
-     */
-    @Contract(pure = true)
-    public static AliyunOssClient getInstance() {
-        return SingletonHandler.singleton;
-    }
-
-    /**
-     * Set bucket name.
-     *
-     * @param newBucketName the new bucket name
-     */
-    private void setBucketName(String newBucketName) {
-        bucketName = newBucketName;
-    }
-
-    /**
-     * Set oss client.
-     *
-     * @param oss the oss
-     */
-    private void setOssClient(OSS oss) {
-        ossClient = oss;
-    }
-
-    /**
-     * Upload string.
-     *
-     * @param inputStream the inputStream
-     * @param filedir     the filedir
-     * @param fileName    the file name
-     * @return the string
-     */
-    public String upload(InputStream inputStream, String filedir, String fileName) {
-        return upload(ossClient, inputStream, filedir, fileName);
     }
 
     /**
@@ -251,13 +243,11 @@ public class AliyunOssClient implements OssClient {
      *
      * @param ossClient the ossClient client
      * @param instream  the instream
-     * @param filedir   the filedir
      * @param fileName  the file name
      * @return the string
      */
-    public String upload(OSS ossClient,
+    public String upload(@NotNull OSS ossClient,
                          @NotNull InputStream instream,
-                         String filedir,
                          @NotNull String fileName) {
         try {
             // 创建上传 Object 的 Metadata
@@ -269,10 +259,8 @@ public class AliyunOssClient implements OssClient {
             objectMetadata.setContentDisposition("inline;filename=" + fileName);
             ossClient.putObject(bucketName, filedir + fileName, instream, objectMetadata);
             return getUrl(ossClient, filedir, fileName);
-        } catch (IOException e) {
+        } catch (IOException | OSSException | ClientException e) {
             log.trace("", e);
-        } finally {
-            closeStream(instream);
         }
         return "";
     }
@@ -299,11 +287,5 @@ public class AliyunOssClient implements OssClient {
         return "";
     }
 
-    private static class SingletonHandler {
-        private static AliyunOssClient singleton = new AliyunOssClient();
 
-        static {
-            checkClient();
-        }
-    }
 }

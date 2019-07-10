@@ -42,12 +42,12 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: </p>
  *
  * @author dong4j
  * @date 2019-03-17 23:22
- * @email sjdong3@iflytek.com
+ * @email dong4j@gmail.com
  */
 public final class RSAEncodeUtils {
     private static final char[] HEX_CHAR = {'0', '1', '2', '3', '4', '5',

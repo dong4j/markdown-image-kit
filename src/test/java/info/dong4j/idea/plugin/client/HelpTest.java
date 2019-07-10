@@ -30,11 +30,11 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.junit.Test;
 
 /**
- * <p>Company: 科大讯飞股份有限公司-四川分公司</p>
+ * <p>Company: no company</p>
  * <p>Description: </p>
  *
  * @author dong4j
- * @email sjdong3@iflytek.com
+ * @email dong4j@gmail.com
  * @since 2019-03-25 13:20
  */
 public class HelpTest {
