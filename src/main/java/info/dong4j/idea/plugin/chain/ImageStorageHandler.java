@@ -28,14 +28,13 @@ package info.dong4j.idea.plugin.chain;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
-
-import org.apache.commons.io.FileUtils;
 
 import java.io.*;
 import java.util.List;
@@ -103,7 +102,7 @@ public class ImageStorageHandler extends ActionHandlerAdapter {
 
                 try {
                     // todo-dong4j : (2019年03月29日 16:00) [如果覆盖 inputstream 所属文件将导致拷贝的文件错误]
-                    FileUtils.copyToFile(markdownImage.getInputStream(), saveFile);
+                    FileUtil.copy(markdownImage.getInputStream(), new FileOutputStream(saveFile));
                 } catch (IOException e) {
                     log.trace("", e);
                     markdownImage.setFinalMark("copy error");

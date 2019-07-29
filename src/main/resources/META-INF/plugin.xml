@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>info.dong4j.idea.plugin.markdown.image.kit</id>
     <name>Markdown Image Kit</name>
-    <version>0.0.3</version>
+    <version>0.0.4</version>
     <vendor email="dong4j@gmail.com" url="https://github.com/dong4j/markdown-image-kit">dong4j</vendor>
     <!--http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html-->
     <idea-version since-build="183"/>
@@ -50,6 +50,14 @@
     ]]></description>
 
     <change-notes><![CDATA[
+      <p>0.0.4-RELEASE</p>
+      <ul>
+        <li>Fix WebStrom copy image can't find class problem</li>
+      </ul>
+      <ul>
+        <li>修复 WebStrom 复制图片找不到 class 的问题</li>
+       </ul>
+      <br/>
       <p>0.0.3-RELEASE</p>
       <ul>
         <li>Support Tencent COS</li>

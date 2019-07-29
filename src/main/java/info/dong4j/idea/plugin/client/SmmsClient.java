@@ -27,10 +27,11 @@ package info.dong4j.idea.plugin.client;
 
 import com.google.gson.Gson;
 
+import com.intellij.openapi.util.io.FileUtil;
+
 import info.dong4j.idea.plugin.entity.SmmsResult;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 
-import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.Contract;
 
 import java.io.*;
@@ -140,7 +141,7 @@ public class SmmsClient implements OssClient {
             try {
                 RequestBody requestBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
-                    .addFormDataPart("smfile", fileName, RequestBody.create(MediaType.parse("multipart/form-data"), IOUtils.toByteArray(inputStream)))
+                    .addFormDataPart("smfile", fileName, RequestBody.create(MediaType.parse("multipart/form-data"), FileUtil.loadBytes(inputStream)))
                     .build();
 
                 Request request = new Request.Builder()

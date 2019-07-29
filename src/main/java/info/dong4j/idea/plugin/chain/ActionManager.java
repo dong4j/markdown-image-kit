@@ -28,13 +28,12 @@ package info.dong4j.idea.plugin.chain;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.externalSystem.task.TaskCallback;
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.util.io.FileUtil;
 
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
-
-import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.net.*;
@@ -179,7 +178,7 @@ public class ActionManager {
                         } else {
                             // 将 URL 图片转成 inputstream
                             try {
-                                byte[] temp = IOUtils.toByteArray(new URL(markdownImage.getPath()));
+                                byte[] temp = FileUtil.loadBytes(new URL(markdownImage.getPath()).openStream());
                                 InputStream inputStream = new ByteArrayInputStream(temp);
                                 markdownImage.setInputStream(inputStream);
                                 // 这里设置为本地图片, 才会在 uploadhandler 中上传

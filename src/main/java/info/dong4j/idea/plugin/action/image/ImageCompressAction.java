@@ -30,6 +30,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.externalSystem.task.TaskCallbackAdapter;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFileManager;
 
 import info.dong4j.idea.plugin.MikBundle;
@@ -42,7 +43,6 @@ import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.task.ActionTask;
 
-import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Contract;
 
 import java.io.*;
@@ -94,7 +94,7 @@ public final class ImageCompressAction extends ImageActionBase {
                 public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
                     InputStream inputStream = markdownImage.getInputStream();
                     try {
-                        FileUtils.copyToFile(inputStream, new File(markdownImage.getPath()));
+                        FileUtil.copy(inputStream, new FileOutputStream(new File(markdownImage.getPath())));
                     } catch (IOException e) {
                         log.trace("", e);
                     }

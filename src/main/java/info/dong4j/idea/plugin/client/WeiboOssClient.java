@@ -25,6 +25,8 @@
 
 package info.dong4j.idea.plugin.client;
 
+import com.intellij.openapi.util.io.FileUtil;
+
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
@@ -37,7 +39,6 @@ import info.dong4j.idea.plugin.weibo.UploadRequestBuilder;
 import info.dong4j.idea.plugin.weibo.UploadResponse;
 import info.dong4j.idea.plugin.weibo.WbpUploadRequest;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -143,7 +144,7 @@ public class WeiboOssClient implements OssClient {
     public String upload(WbpUploadRequest ossClient, InputStream inputStream, String fileName) {
         File file = ImageUtils.buildTempFile(fileName);
         try {
-            FileUtils.copyToFile(inputStream, file);
+            FileUtil.copy(inputStream, new FileOutputStream(file));
             return upload(ossClient, file);
         } catch (IOException e) {
             log.trace("", e);
