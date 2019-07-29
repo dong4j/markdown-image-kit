@@ -1,5 +1,7 @@
 package info.dong4j.idea.plugin.util;
 
+import com.intellij.openapi.util.io.FileUtil;
+
 import net.coobird.thumbnailator.Thumbnails;
 
 import org.apache.commons.io.FileUtils;
@@ -384,6 +386,14 @@ public class ImageUtilsTest {
         // 获取不同系统的换行符
         String lineSeparator = System.lineSeparator();
         System.out.println(lineSeparator);
+    }
+
+    @Test
+    public void fileCopyTest() throws IOException {
+        File file1 = new File("/Users/dong4j/Downloads/xu.png");
+        File file2 = new File("/Users/dong4j/Downloads/xu1.png");
+        FileUtils.copyToFile(new FileInputStream(file1), file2);
+        FileUtil.copy(new FileInputStream(file1), new FileOutputStream(file2));
     }
 }
 
