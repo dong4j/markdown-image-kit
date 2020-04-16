@@ -10,10 +10,11 @@ import java.util.List;
  * An XML response handler that can also process an arbitrary number of headers
  * in the response.
  */
-public class ResponseHeaderHandlerChain <T> extends COSXmlResponseHandler<T> {
+public class ResponseHeaderHandlerChain<T> extends COSXmlResponseHandler<T> {
 
     private final List<HeaderHandler<T>> headerHandlers;
 
+    @SafeVarargs
     public ResponseHeaderHandlerChain(Unmarshaller<T, InputStream> responseUnmarshaller, HeaderHandler<T>... headerHandlers) {
         super(responseUnmarshaller);
         this.headerHandlers = Arrays.asList(headerHandlers);

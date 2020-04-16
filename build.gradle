@@ -1,16 +1,15 @@
-// mavenCentral() 是一个插件仓库, 导入的插件将会在仓库中寻找并下载
-buildscript {
-    repositories {
-        mavenCentral()
-        maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-        maven { url 'http://dl.bintray.com/jetbrains/intellij-plugin-service' }
-    }
+plugins {
+    // 1. 编译, 测试插件 (Java, Groovy,Scala, War 等)
+    id 'java'
+    // Java 是Gradle的核心插件, 是内置的, 内置插件不需要配置依赖路径
+    id 'org.jetbrains.intellij' version '0.4.18'
 }
 
-plugins {
-    id 'org.jetbrains.intellij' version '0.4.9'
-}
+group group
+version version
+
+sourceCompatibility = javaVersion
+targetCompatibility = javaVersion
 
 repositories {
     mavenCentral()
@@ -19,23 +18,13 @@ repositories {
     maven { url 'http://dl.bintray.com/jetbrains/intellij-plugin-service' }
 }
 
-// 导入插件
-// 1. 编译, 测试插件 (Java, Groovy,Scala, War 等)
-// 2. 代码分析插件 (Checkstyle, FindBugs, Sonar 等)
-// 3. IDE 插件 (Eclipse, IDEA 等)
-// Java 是Gradle的核心插件, 是内置的, 内置插件不需要配置依赖路径
-apply plugin: 'java'
-apply plugin: 'idea'
-apply plugin: 'org.jetbrains.intellij'
-
-sourceCompatibility = javaVersion
-
 intellij {
     pluginName name
     version ideaVersion
     // 插件生成的临时文件的地址，可以省略
     sandboxDirectory = project.rootDir.canonicalPath + "/.sandbox"
     updateSinceUntilBuild false
+    sameSinceUntilBuild false
 }
 
 publishPlugin {
@@ -46,52 +35,23 @@ publishPlugin {
 
 // 声明依赖使用下面的闭包
 dependencies {
-    // <configuration name> <dependencies>
-    // 1. compile: 源代码（src/main/java）编译时的依赖 (最常用)
-    // 2. runtime: 源代码（src/main/java）执行时依赖
-    // 3. testCompile: 测试代码（src/main/test）编译时的依赖
-    // 4. testRuntime: 测试代码（src/main/java）执行时的依赖
-    // 5. archives: 项目打包（e.g.jar）时的依赖
-
     // 解决 gradle 使用 lombok 的问题
-    annotationProcessor 'org.projectlombok:lombok:1.18.2'
-    compileOnly 'org.projectlombok:lombok:1.18.2'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.2'
-    testCompileOnly 'org.projectlombok:lombok:1.18.2'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+    testCompileOnly 'org.projectlombok:lombok:1.18.12'
     // 单元测试
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'junit', name: 'junit', version: '4.13'
     // https://mvnrepository.com/artifact/com.aliyun.oss/aliyun-sdk-oss
-    compile group: 'com.aliyun.oss', name: 'aliyun-sdk-oss', version: '3.4.2'
-    compile 'com.qiniu:qiniu-java-sdk:7.2.+'
+    compile group: 'com.aliyun.oss', name: 'aliyun-sdk-oss', version: '3.8.1'
+    compile 'com.qiniu:qiniu-java-sdk:7.2.28'
     // https://mvnrepository.com/artifact/net.coobird/thumbnailator
-    compile group: 'net.coobird', name: 'thumbnailator', version: '0.4.8'
+    compile group: 'net.coobird', name: 'thumbnailator', version: '0.4.11'
     // https://mvnrepository.com/artifact/joda-time/joda-time
-    compile group: 'joda-time', name: 'joda-time', version: '2.9.9'
+    compile group: 'joda-time', name: 'joda-time', version: '2.10.5'
     // https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient
-    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.6'
-
-
-    //    // 单个依赖
-    //    compile group: 'log4j', name: 'log4j', version: '1.2.17'
-    //    // 简写 => compile 'log4j:log4j:1.2.17'
-    //
-    //    // 以数组形式添加多个依赖
-    //    compile 'joda-time:joda-time:2.9.2', 'log4j:log4j:1.2.17'
-    //
-    //    // 闭包形式，以添加额外配置
-    //    compile(group: 'log4j', name: 'log4j', version: '1.2.17') {
-    //        // ... 额外配置
-    //    }
-    //    // 等价于
-    //    compile('log4j:log4j:1.2.17') {
-    //        // ... 额外配置
-    //    }
-    //    // 排除 依赖
-    //    compile (group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.11.0') {
-    //        exclude group: 'org.slf4j', module: 'slf4j-api'
-    //    }
-
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.12'
+    // https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp
+    compile group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.5.0'
 }
 
-group group
-version version
