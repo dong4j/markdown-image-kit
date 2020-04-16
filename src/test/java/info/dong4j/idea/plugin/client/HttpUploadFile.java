@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2020 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,10 +44,10 @@ public class HttpUploadFile {
     public static void main(String[] args) {
         testUploadImage();
     }
-    
+
     /**
      * 测试上传png图片
-     * 
+     *
      */
     public static void testUploadImage(){
         String url = "https://sm.ms/api/upload";
@@ -80,7 +80,7 @@ public class HttpUploadFile {
         String res = "";
         HttpURLConnection conn = null;
         // boundary就是request头和上传文件内容的分隔符
-        String BOUNDARY = "---------------------------123821742118716"; 
+        String BOUNDARY = "---------------------------123821742118716";
         try {
             URL url = new URL(urlStr);
             conn = (HttpURLConnection) url.openConnection();
@@ -127,13 +127,13 @@ public class HttpUploadFile {
                     }
                     File file = new File(inputValue);
                     String filename = file.getName();
-                    
+
                     //没有传入文件类型，同时根据文件获取不到类型，默认采用application/octet-stream
                     contentType = new MimetypesFileTypeMap().getContentType(file);
                     //contentType非空采用filename匹配默认的图片类型
                     if(!"".equals(contentType)){
                         if (filename.endsWith(".png")) {
-                            contentType = "image/png"; 
+                            contentType = "image/png";
                         }else if (filename.endsWith(".jpg") || filename.endsWith(".jpeg") || filename.endsWith(".jpe")) {
                             contentType = "image/jpeg";
                         }else if (filename.endsWith(".gif")) {
