@@ -29,18 +29,24 @@ import com.google.gson.Gson;
 
 import info.dong4j.idea.plugin.entity.SmmsResult;
 
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Call;
@@ -57,15 +63,27 @@ import okhttp3.Response;
  * <p>Description: ${description}</p>
  *
  * @author dong4j
- * @date 2019-04-02 14:23
- * @email dong4j@gmail.com
+ * @version x.x.x
+ * @email dong4j @gmail.com
+ * @date 2019 -04-02 14:23
  */
 @Slf4j
 public class SmmsClientTest {
+    /**
+     * Test *
+     *
+     * @throws Exception exception
+     */
     @Test
     public void test() throws Exception {
     }
 
+    /**
+     * Upload *
+     *
+     * @param fileName file name
+     * @throws IOException io exception
+     */
     public static void upload(String fileName) throws IOException {
         OkHttpClient client = new OkHttpClient();
 
@@ -84,6 +102,11 @@ public class SmmsClientTest {
         log.info("{}", response);
     }
 
+    /**
+     * Upload 1 *
+     *
+     * @throws IOException io exception
+     */
     @Test
     public void upload1() throws IOException {
         OkHttpClient client = new OkHttpClient();
@@ -102,6 +125,9 @@ public class SmmsClientTest {
         log.info("{}", response);
     }
 
+    /**
+     * Upload 3
+     */
     @Test
     public void upload3() {
         File file = new File("/Users/dong4j/Downloads/mik.png");
@@ -133,7 +159,7 @@ public class SmmsClientTest {
                 int errorCode = jsonObject.getInt("errorCode");
                 if (errorCode == 0) {
                     log.trace(" upload data =" + jsonObject.getString("data"));
-                     jsonObject.getString("data");
+                    jsonObject.getString("data");
                 } else {
                     throw new RuntimeException("upload error code " + errorCode + ",errorInfo=" + jsonObject.getString("errorInfo"));
                 }
@@ -146,6 +172,11 @@ public class SmmsClientTest {
         }
     }
 
+    /**
+     * Upload 4 *
+     *
+     * @throws Exception exception
+     */
     @Test
     public void upload4() throws Exception {
         String fileName = "mik1.png";
@@ -175,6 +206,12 @@ public class SmmsClientTest {
         }
     }
 
+
+    /**
+     * Upload *
+     *
+     * @throws InterruptedException interrupted exception
+     */
     public static void upload() throws InterruptedException {
         OkHttpClient okHttpClient = new OkHttpClient();
         MediaType parse = MediaType.parse("text/x-markdown;charset=utf-8");
@@ -199,39 +236,51 @@ public class SmmsClientTest {
         Thread.currentThread().join();
     }
 
-
-    public static String doPostupload(File file, int type, String url) {
-        HttpClient httpClient = new DefaultHttpClient();
-        HttpPost httpPost = null;
-
-        // 把文件转换成流对象FileBody
-        FileBody bin = new FileBody(file);
-        try {
-            //***************注意这里的代码******
-            // httpClient = new SSLClient();
-            httpPost = new HttpPost(url);
-            MultipartEntity reqEntity = new MultipartEntity();
-            //封装其他参数到Stringbody（需要把int转成String再放入）
-            StringBody username = new StringBody("张三");
-            StringBody password = new StringBody("123456");
-            // StringBody type1 = new StringBody(String.valueOf(type));//type为int
-            //参数放入请求实体（包括文件和其他参数）
-            reqEntity.addPart("smfile", bin);
-            // reqEntity.addPart("type", type1);
-            httpPost.setEntity(reqEntity);
-
-            HttpResponse httpResponse = httpClient.execute(httpPost);
-            log.info("{}", httpResponse);
-
-            //String body = result.getResponseString(); // body即为服务器返回的内容
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return "";
+    /**
+     * Test 1 *
+     *
+     * @throws IOException io exception
+     */
+    @Test
+    public void test1() throws IOException {
+        log.info("{}", this.start("https://sm.ms/api/v2/upload", "/Users/dong4j/Downloads/05B3AB1C-BBA9-4113-B212-10A914D0CC18.jpg"));
     }
 
-    @Test
-    public void test1(){
+
+    /**
+     * Start string
+     *
+     * @param url      url
+     * @param filePath file path
+     * @return the string
+     * @throws IOException io exception
+     */
+    @NotNull
+    private String start(String url, String filePath) throws IOException {
+        HttpPost post = new HttpPost(url);
+        File imageFile = new File(filePath);
+        FileBody imageFileBody = new FileBody(imageFile);
+
+        HttpEntity reqEntity = MultipartEntityBuilder.create()
+            .addPart("smfile", imageFileBody)
+            .build();
+
+        post.setEntity(reqEntity);
+
+        HttpClientBuilder builder = HttpClients.custom();
+        // 必须设置 UA, 不然会报 403
+        builder.setUserAgent("Mozilla/5.0 (Windows; U; Windows NT 6.1; zh-CN; rv:1.9.2.6)");
+        CloseableHttpClient httpClient = builder.build();
+
+        HttpResponse response = httpClient.execute(post);
+        byte[] res;
+        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+            res = EntityUtils.toByteArray(response.getEntity());
+            String result = IOUtils.toString(res, StandardCharsets.UTF_8.name());
+            SmmsResult smmsResult = new Gson().fromJson(result, SmmsResult.class);
+            log.info("{}", smmsResult);
+        }
+
+        return "";
     }
 }

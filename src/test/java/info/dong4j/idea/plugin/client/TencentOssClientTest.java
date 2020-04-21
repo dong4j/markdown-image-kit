@@ -27,26 +27,14 @@ package info.dong4j.idea.plugin.client;
 
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
-import info.dong4j.idea.plugin.sdk.qcloud.cos.COSClient;
-import info.dong4j.idea.plugin.sdk.qcloud.cos.ClientConfig;
-import info.dong4j.idea.plugin.sdk.qcloud.cos.auth.AnonymousCOSCredentials;
-import info.dong4j.idea.plugin.sdk.qcloud.cos.auth.BasicCOSCredentials;
-import info.dong4j.idea.plugin.sdk.qcloud.cos.auth.COSCredentials;
-import info.dong4j.idea.plugin.sdk.qcloud.cos.exception.CosClientException;
-import info.dong4j.idea.plugin.sdk.qcloud.cos.http.HttpMethodName;
-import info.dong4j.idea.plugin.sdk.qcloud.cos.model.GeneratePresignedUrlRequest;
-import info.dong4j.idea.plugin.sdk.qcloud.cos.model.ObjectMetadata;
-import info.dong4j.idea.plugin.sdk.qcloud.cos.model.PutObjectRequest;
-import info.dong4j.idea.plugin.sdk.qcloud.cos.model.PutObjectResult;
-import info.dong4j.idea.plugin.sdk.qcloud.cos.model.StorageClass;
-import info.dong4j.idea.plugin.sdk.qcloud.cos.region.Region;
+import info.dong4j.idea.plugin.util.QcloudCosUtils;
 
 import org.junit.Test;
 
 import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.net.*;
+import java.util.Objects;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -55,100 +43,30 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: 腾讯与 COS 简单上传文件 </p>
  *
  * @author dong4j
- * @date 2019-04-16 20:11
- * @email dong4j@gmail.com
+ * @version x.x.x
+ * @email dong4j @gmail.com
+ * @date 2019 -04-16 20:11
  */
 @Slf4j
 public class TencentOssClientTest {
-    private static String secretId = System.getProperty("secretId");
-    private static String secretKey = System.getProperty("secretKey");
+    /** secretId */
+    private static final String secretId = System.getProperty("secretId");
+    /** secretKey */
+    private static final String secretKey = System.getProperty("secretKey");
+    /** bucketName */
     // bucket名需包含appid
-    private static String bucketName = System.getProperty("bucketName");
-
-    private static void SimpleUploadFileFromLocal() {
-        // 1 初始化用户身份信息(secretId, secretKey)
-        COSCredentials cred = new BasicCOSCredentials(secretId, secretKey);
-        // 2 设置bucket的区域, COS地域的简称请参照 https://www.qcloud.com/document/product/436/6224
-        ClientConfig clientConfig = new ClientConfig(new Region("ap-chengdu"));
-        // 3 生成cos客户端
-        COSClient cosclient = new COSClient(cred, clientConfig);
-
-        String key = "x1.png";
-        File localFile = new File("/Users/dong4j/Downloads/xu.png");
-        PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, key, localFile);
-        // 设置存储类型, 默认是标准(Standard), 低频(standard_ia)
-        putObjectRequest.setStorageClass(StorageClass.Standard);
-        try {
-            PutObjectResult putObjectResult = cosclient.putObject(putObjectRequest);
-            // putobjectResult会返回文件的etag
-            String etag = putObjectResult.getETag();
-        } catch (CosClientException e) {
-            e.printStackTrace();
-        }
-
-        // 关闭客户端
-        cosclient.shutdown();
-    }
-
-    // 从输入流进行读取并上传到COS
-    private static void SimpleUploadFileFromStream() {
-        // 1 初始化用户身份信息(secretId, secretKey)
-        COSCredentials cred = new BasicCOSCredentials("AKIDXXXXXXXX", "1A2Z3YYYYYYYYYY");
-        // 2 设置bucket的区域, COS地域的简称请参照 https://www.qcloud.com/document/product/436/6224
-        ClientConfig clientConfig = new ClientConfig(new Region("ap-beijing-1"));
-        // 3 生成cos客户端
-        COSClient cosclient = new COSClient(cred, clientConfig);
-        // bucket名需包含appid
-        String bucketName = "mybucket-1251668577";
-
-        String key = "aaa/bbb.jpg";
-        File localFile = new File("src/test/resources/len10M.txt");
-
-        InputStream input = new ByteArrayInputStream(new byte[10]);
-        ObjectMetadata objectMetadata = new ObjectMetadata();
-        // 从输入流上传必须制定content length, 否则http客户端可能会缓存所有数据，存在内存OOM的情况
-        objectMetadata.setContentLength(10);
-        // 默认下载时根据cos路径key的后缀返回响应的contenttype, 上传时设置contenttype会覆盖默认值
-        objectMetadata.setContentType("image/jpeg");
-
-        PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, key, input, objectMetadata);
-        // 设置存储类型, 默认是标准(Standard), 低频(standard_ia)
-        putObjectRequest.setStorageClass(StorageClass.Standard_IA);
-        try {
-            PutObjectResult putObjectResult = cosclient.putObject(putObjectRequest);
-            // putobjectResult会返回文件的etag
-            String etag = putObjectResult.getETag();
-        } catch (CosClientException e) {
-            e.printStackTrace();
-        }
-
-        // 关闭客户端
-        cosclient.shutdown();
-    }
-
-    private static String buildUrl(String key) {
-        // 生成匿名的请求签名，需要重新初始化一个匿名的 cosClient
-        // 1 初始化用户身份信息, 匿名身份不用传入ak sk
-        COSCredentials cred = new AnonymousCOSCredentials();
-        // 2 设置 bucket 的区域, COS 地域的简称请参照 https://cloud.tencent.com/document/product/436/6224
-        ClientConfig clientConfig = new ClientConfig(new Region("ap-chengdu"));
-        // 3 生成 cos 客户端
-        COSClient cosClient = new COSClient(cred, clientConfig);
-
-        GeneratePresignedUrlRequest req = new GeneratePresignedUrlRequest("dong4j-1258270892", key, HttpMethodName.GET);
-        URL url = cosClient.generatePresignedUrl(req);
-
-        cosClient.shutdown();
-        return url.toString();
-    }
-
+    private static final String bucketName = System.getProperty("bucketName");
+    
+    /**
+     * Test
+     */
     @Test
     public void test() {
-        SimpleUploadFileFromLocal();
-        // url = <BucketName-APPID>.cos.region_name.myqcloud.com/key
-        log.info("url = {}", buildUrl("xu.png"));
     }
 
+    /**
+     * Test 2
+     */
     @Test
     public void test2() {
         // 实例化被 @Client 标识的 client, 存入到 map 中
@@ -159,13 +77,13 @@ public class TencentOssClientTest {
             e.printStackTrace();
         }
         try {
-            Constructor constructor = clz.getDeclaredConstructor();
+            Constructor<?> constructor = Objects.requireNonNull(clz).getDeclaredConstructor();
             constructor.setAccessible(true);
             OssClient uploader = (OssClient) constructor.newInstance();
 
             OssClient.INSTANCES.put(CloudEnum.TENCENT_CLOUD, uploader);
 
-            upload();
+            this.upload();
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             log.trace("", e);
         } catch (FileNotFoundException e) {
@@ -173,10 +91,35 @@ public class TencentOssClientTest {
         }
     }
 
+    /**
+     * Upload *
+     *
+     * @throws FileNotFoundException file not found exception
+     */
     private void upload() throws FileNotFoundException {
         OssClient uploader = OssClient.INSTANCES.get(CloudEnum.TENCENT_CLOUD);
         log.info("{}", uploader.getName());
         String url = uploader.upload(new FileInputStream(new File("/Users/dong4j/Downloads/xu.png")), "x2.png");
         log.info("url = {}", url);
+    }
+
+
+    /**
+     * Test web api *
+     *
+     * @throws FileNotFoundException file not found exception
+     */
+    @Test
+    public void test_web_api() throws FileNotFoundException {
+        String putResult = QcloudCosUtils.putObject(new FileInputStream(new File("/Users/dong4j/Downloads/05B3AB1C-BBA9-4113-B212-10A914D0CC18.jpg")),
+                                                    "/test/jjj.jpg",
+                                                    secretKey,
+                                                    secretId,
+                                                    bucketName,
+                                                    "ap-chengdu");
+        System.out.println("putResult:" + putResult);
+
+        String getResult = QcloudCosUtils.getUrl(bucketName, "ap-chengdu", putResult);
+        System.out.println("getResult:" + getResult);
     }
 }

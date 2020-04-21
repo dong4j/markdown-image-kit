@@ -27,25 +27,28 @@ package info.dong4j.idea.plugin.client;
 
 import com.google.gson.Gson;
 
-import com.intellij.openapi.util.io.FileUtil;
-
 import info.dong4j.idea.plugin.entity.SmmsResult;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.jetbrains.annotations.Contract;
 
 import java.io.*;
-import java.util.Objects;
+import java.nio.charset.StandardCharsets;
 
 import javax.swing.JPanel;
 
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
 /**
  * <p>Company: no company</p>
@@ -120,7 +123,7 @@ public class SmmsClient implements OssClient {
     }
 
     private static class Client {
-        private final OkHttpClient client;
+        private final CloseableHttpClient client;
 
         /**
          * Instantiates a new Client.
@@ -128,7 +131,10 @@ public class SmmsClient implements OssClient {
          * @throws IOException the io exception
          */
         Client() {
-            this.client = new OkHttpClient();
+            HttpClientBuilder builder = HttpClients.custom();
+            // 必须设置 UA, 不然会报 403
+            builder.setUserAgent("Mozilla/5.0 (Windows; U; Windows NT 6.1; zh-CN; rv:1.9.2.6)");
+            this.client = builder.build();
         }
 
         /**
@@ -140,23 +146,19 @@ public class SmmsClient implements OssClient {
          */
         public String upload(InputStream inputStream, String fileName) {
             try {
-                RequestBody requestBody = new MultipartBody.Builder()
-                    .setType(MultipartBody.FORM)
-                    .addFormDataPart("smfile", fileName, RequestBody.create(MediaType.parse("multipart/form-data"), FileUtil.loadBytes(inputStream)))
+                HttpEntity reqEntity = MultipartEntityBuilder.create()
+                    .addBinaryBody("smfile", inputStream, ContentType.DEFAULT_BINARY, fileName)
                     .build();
 
-                Request request = new Request.Builder()
-                    .url(UPLOAD_URL)
-                    .addHeader("Content-Type", "multipart/form-data")
-                    .addHeader("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 6.1; zh-CN; rv:1.9.2.6)")
-                    .post(requestBody)
-                    .build();
-                Response response = this.client.newCall(request).execute();
-                if (!response.isSuccessful()) {
-                    return "";
-                }
-                if (response.body() != null) {
-                    String result = Objects.requireNonNull(response.body()).string();
+                HttpPost post = new HttpPost(UPLOAD_URL);
+                post.setHeader("Content-Type", "multipart/form-data");
+                post.setEntity(reqEntity);
+
+                HttpResponse response = this.client.execute(post);
+
+                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                    byte[] res = EntityUtils.toByteArray(response.getEntity());
+                    String result = IOUtils.toString(res, StandardCharsets.UTF_8.name());
                     SmmsResult smmsResult = new Gson().fromJson(result, SmmsResult.class);
                     log.trace("{}", smmsResult);
                     return smmsResult.getData().getUrl();
