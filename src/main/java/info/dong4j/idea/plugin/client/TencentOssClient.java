@@ -97,7 +97,7 @@ public class TencentOssClient implements OssClient {
     public static TencentOssClient getInstance() {
         TencentOssClient client = (TencentOssClient) OssClient.INSTANCES.get(CloudEnum.TENCENT_CLOUD);
         if (client == null) {
-            client = SingletonHandler.singleton;
+            client = SingletonHandler.SINGLETON;
             OssClient.INSTANCES.put(CloudEnum.TENCENT_CLOUD, client);
         }
         return client;
@@ -107,7 +107,7 @@ public class TencentOssClient implements OssClient {
      * 使用缓存的 map 映射获取已初始化的 client, 避免创建多个实例
      */
     private static class SingletonHandler {
-        private static TencentOssClient singleton = new TencentOssClient();
+        private static final TencentOssClient SINGLETON = new TencentOssClient();
     }
 
     /**
@@ -129,7 +129,7 @@ public class TencentOssClient implements OssClient {
      */
     @Override
     public String upload(InputStream inputStream, String fileName) {
-        return upload(ossClient, inputStream, fileName);
+        return this.upload(ossClient, inputStream, fileName);
     }
 
     /**
@@ -143,18 +143,18 @@ public class TencentOssClient implements OssClient {
      */
     @Override
     public String upload(InputStream inputStream, String fileName, JPanel jPanel) {
-        Map<String, String> map = getTestFieldText(jPanel);
+        Map<String, String> map = this.getTestFieldText(jPanel);
         String bucketName = map.get("bucketName");
         String accessKey = map.get("accessKey");
         String secretKey = map.get("secretKey");
         String regionName = map.get("regionName");
 
-        return upload(inputStream,
-                      fileName,
-                      bucketName,
-                      accessKey,
-                      secretKey,
-                      regionName);
+        return this.upload(inputStream,
+                           fileName,
+                           bucketName,
+                           accessKey,
+                           secretKey,
+                           regionName);
     }
 
     /**
@@ -179,8 +179,8 @@ public class TencentOssClient implements OssClient {
 
         TencentOssClient tencentOssClient = TencentOssClient.getInstance();
 
-        setBucketName(bucketName);
-        setRegionName(regionName);
+        this.setBucketName(bucketName);
+        this.setRegionName(regionName);
 
         // 1 初始化用户身份信息 (secretId, secretKey)
         COSCredentials cred = new BasicCOSCredentials(accessKey, secretKey);

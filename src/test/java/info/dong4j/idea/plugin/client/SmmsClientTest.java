@@ -105,14 +105,14 @@ public class SmmsClientTest {
     @Test
     public void upload3() {
         File file = new File("/Users/dong4j/Downloads/mik.png");
-        RequestBody fileBody = RequestBody.create(MediaType.parse("image/png"), file);
+        RequestBody fileBody = RequestBody.create(MediaType.parse("multipart/form-data"), file);
         RequestBody requestBody = new MultipartBody.Builder()
             .setType(MultipartBody.FORM)
             .addFormDataPart("smfile", file.getName(), fileBody)
             .build();
 
         Request request = new Request.Builder()
-            .url("http://sm.ms/api/upload")
+            .url("http://sm.ms/api/v2/upload")
             .addHeader("Content-Type", "multipart/form-data")
             .addHeader("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 6.1; zh-CN; rv:1.9.2.6)")
             .post(requestBody)
@@ -148,9 +148,9 @@ public class SmmsClientTest {
 
     @Test
     public void upload4() throws Exception {
-        String fileName = "mik.png";
+        String fileName = "mik1.png";
         String filePath = "/Users/dong4j/Downloads/mik.png";
-        String url = "https://sm.ms/api/upload";
+        String url = "https://sm.ms/api/v2/upload";
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = new MultipartBody.Builder()
             .setType(MultipartBody.FORM)

@@ -35,6 +35,7 @@ import info.dong4j.idea.plugin.enums.CloudEnum;
 import org.jetbrains.annotations.Contract;
 
 import java.io.*;
+import java.util.Objects;
 
 import javax.swing.JPanel;
 
@@ -57,7 +58,7 @@ import okhttp3.Response;
 @Slf4j
 @Client(CloudEnum.SM_MS_CLOUD)
 public class SmmsClient implements OssClient {
-    private static final String UPLOAD_URL = "https://sm.ms/api/upload";
+    private static final String UPLOAD_URL = "https://sm.ms/api/v2/upload";
     private static Client client;
 
     @Contract(pure = true)
@@ -79,14 +80,14 @@ public class SmmsClient implements OssClient {
     public static SmmsClient getInstance() {
         SmmsClient client = (SmmsClient)OssClient.INSTANCES.get(CloudEnum.SM_MS_CLOUD);
         if(client == null){
-            client = SingletonHandler.singleton;
+            client = SingletonHandler.SINGLETON;
             OssClient.INSTANCES.put(CloudEnum.SM_MS_CLOUD, client);
         }
         return client;
     }
 
     private static class SingletonHandler {
-        private static SmmsClient singleton = new SmmsClient();
+        private static final SmmsClient SINGLETON = new SmmsClient();
     }
 
     /**
@@ -118,8 +119,8 @@ public class SmmsClient implements OssClient {
         return "";
     }
 
-    private class Client {
-        private OkHttpClient client;
+    private static class Client {
+        private final OkHttpClient client;
 
         /**
          * Instantiates a new Client.
@@ -150,12 +151,12 @@ public class SmmsClient implements OssClient {
                     .addHeader("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 6.1; zh-CN; rv:1.9.2.6)")
                     .post(requestBody)
                     .build();
-                Response response = client.newCall(request).execute();
+                Response response = this.client.newCall(request).execute();
                 if (!response.isSuccessful()) {
                     return "";
                 }
                 if (response.body() != null) {
-                    String result = response.body().string();
+                    String result = Objects.requireNonNull(response.body()).string();
                     SmmsResult smmsResult = new Gson().fromJson(result, SmmsResult.class);
                     log.trace("{}", smmsResult);
                     return smmsResult.getData().getUrl();

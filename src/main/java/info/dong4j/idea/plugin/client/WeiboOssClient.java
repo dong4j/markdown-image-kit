@@ -64,7 +64,7 @@ public class WeiboOssClient implements OssClient {
 
     private static WbpUploadRequest ossClient = null;
 
-    private WeiboOssState weiboOssState = MikPersistenComponent.getInstance().getState().getWeiboOssState();
+    private final WeiboOssState weiboOssState = MikPersistenComponent.getInstance().getState().getWeiboOssState();
 
     static {
         init();
@@ -109,14 +109,14 @@ public class WeiboOssClient implements OssClient {
     public static WeiboOssClient getInstance() {
         WeiboOssClient client = (WeiboOssClient)OssClient.INSTANCES.get(CloudEnum.WEIBO_CLOUD);
         if(client == null){
-            client = WeiboOssClient.SingletonHandler.singleton;
+            client = WeiboOssClient.SingletonHandler.SINGLETON;
             OssClient.INSTANCES.put(CloudEnum.WEIBO_CLOUD, client);
         }
         return client;
     }
 
     private static class SingletonHandler {
-        private static WeiboOssClient singleton = new WeiboOssClient();
+        private static final WeiboOssClient SINGLETON = new WeiboOssClient();
     }
 
     /**
@@ -129,7 +129,7 @@ public class WeiboOssClient implements OssClient {
      */
     @Override
     public String upload(InputStream inputStream, String fileName) {
-        return upload(ossClient, inputStream, fileName);
+        return this.upload(ossClient, inputStream, fileName);
     }
 
     /**
@@ -145,7 +145,7 @@ public class WeiboOssClient implements OssClient {
         File file = ImageUtils.buildTempFile(fileName);
         try {
             FileUtil.copy(inputStream, new FileOutputStream(file));
-            return upload(ossClient, file);
+            return this.upload(ossClient, file);
         } catch (IOException e) {
             log.trace("", e);
         }
@@ -186,11 +186,11 @@ public class WeiboOssClient implements OssClient {
      */
     @Override
     public String upload(InputStream inputStream, String fileName, JPanel jPanel) {
-        Map<String, String> map = getTestFieldText(jPanel);
+        Map<String, String> map = this.getTestFieldText(jPanel);
         String username = map.get("username");
         String password = map.get("password");
 
-        return upload(inputStream, fileName, username, password);
+        return this.upload(inputStream, fileName, username, password);
     }
 
     /**
@@ -217,7 +217,7 @@ public class WeiboOssClient implements OssClient {
         String url = weiboOssClient.upload(ossClient, inputStream, fileName);
         if (StringUtils.isNotBlank(url)) {
             int hashcode = username.hashCode() + password.hashCode();
-            OssState.saveStatus(weiboOssState, hashcode, MikState.OLD_HASH_KEY);
+            OssState.saveStatus(this.weiboOssState, hashcode, MikState.OLD_HASH_KEY);
             weiboOssClient.setOssClient(ossClient);
         }
         return url;

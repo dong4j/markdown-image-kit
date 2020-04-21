@@ -33,14 +33,10 @@ public class BaiduOssClient implements OssClient {
     /**
      * 如果是第一次使用, ossClient == null, 使用持久化配置初始化 SDK client
      */
+    @Contract(pure = true)
     private static void init() {
 
     }
-
-    /******************************** init end ******************************************/
-
-
-    /******************************* 2. singleton start *******************************************/
 
     /**
      * Gets instance.
@@ -51,7 +47,7 @@ public class BaiduOssClient implements OssClient {
     public static BaiduOssClient getInstance() {
         BaiduOssClient client = (BaiduOssClient)OssClient.INSTANCES.get(CloudEnum.BAIDU_CLOUD);
         if(client == null){
-            client = BaiduOssClient.SingletonHandler.singleton;
+            client = BaiduOssClient.SingletonHandler.SINGLETON;
             OssClient.INSTANCES.put(CloudEnum.BAIDU_CLOUD, client);
         }
         return client;
@@ -61,7 +57,7 @@ public class BaiduOssClient implements OssClient {
      * 使用缓存的 map 映射获取已初始化的 client, 避免创建多个实例
      */
     private static class SingletonHandler {
-        private static BaiduOssClient singleton = new BaiduOssClient();
+        private static final BaiduOssClient SINGLETON = new BaiduOssClient();
     }
 
     /**
@@ -72,9 +68,7 @@ public class BaiduOssClient implements OssClient {
     private void setOssClient(OssClient oss) {
         ossClient = oss;
     }
-    /******************************* singleton end *******************************************/
 
-    /******************************* 3. interface start *******************************************/
     /**
      * 实现接口, 获取当前 client type
      *
@@ -94,7 +88,7 @@ public class BaiduOssClient implements OssClient {
      */
     @Override
     public String upload(InputStream inputStream, String fileName) {
-        return upload(ossClient, inputStream, fileName);
+        return this.upload(ossClient, inputStream, fileName);
     }
 
     /**
@@ -108,22 +102,17 @@ public class BaiduOssClient implements OssClient {
      */
     @Override
     public String upload(InputStream inputStream, String fileName, JPanel jPanel) {
-        Map<String, String> map = getTestFieldText(jPanel);
+        Map<String, String> map = this.getTestFieldText(jPanel);
         String bucketName = map.get("bucketName");
         String accessKey = map.get("accessKey");
         String secretKey = map.get("secretKey");
 
-        return upload(inputStream,
-                      fileName,
-                      bucketName,
-                      accessKey,
-                      secretKey);
+        return this.upload(inputStream,
+                           fileName,
+                           bucketName,
+                           accessKey,
+                           secretKey);
     }
-
-    /******************************* interface end *******************************************/
-
-
-    /******************************* 4. custom upload start *******************************************/
 
     /**
      * test 按钮点击事件后请求, 成功后保留 client, paste 或者 右键 上传时使用
@@ -161,5 +150,4 @@ public class BaiduOssClient implements OssClient {
     public String upload(@NotNull OssClient ossClient, InputStream inputStream, String fileName) {
         return "";
     }
-    /******************************* custom upload end *******************************************/
 }

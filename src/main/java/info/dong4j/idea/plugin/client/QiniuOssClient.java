@@ -118,7 +118,7 @@ public class QiniuOssClient implements OssClient {
      * @param bucketName the bucket name
      * @return the string
      */
-    private static void buildToken(Auth auth, String bucketName) {
+    private static void buildToken(@NotNull Auth auth, String bucketName) {
         token = auth.uploadToken(bucketName, null, DEAD_LINE, null, true);
     }
 
@@ -136,14 +136,14 @@ public class QiniuOssClient implements OssClient {
     public static QiniuOssClient getInstance() {
         QiniuOssClient client = (QiniuOssClient)OssClient.INSTANCES.get(CloudEnum.QINIU_CLOUD);
         if(client == null){
-            client = SingletonHandler.singleton;
+            client = SingletonHandler.SINGLETON;
             OssClient.INSTANCES.put(CloudEnum.QINIU_CLOUD, client);
         }
         return client;
     }
 
     private static class SingletonHandler {
-        private static QiniuOssClient singleton = new QiniuOssClient();
+        private static final QiniuOssClient SINGLETON = new QiniuOssClient();
     }
 
     /**
@@ -155,7 +155,7 @@ public class QiniuOssClient implements OssClient {
      */
     @Override
     public String upload(InputStream inputStream, String fileName) {
-        return upload(ossClient, inputStream, fileName);
+        return this.upload(ossClient, inputStream, fileName);
     }
 
     /**
@@ -169,20 +169,20 @@ public class QiniuOssClient implements OssClient {
      */
     @Override
     public String upload(InputStream inputStream, String fileName, JPanel jPanel) {
-        Map<String, String> map = getTestFieldText(jPanel);
+        Map<String, String> map = this.getTestFieldText(jPanel);
         int zoneIndex = Integer.parseInt(map.get("zoneIndex"));
         String bucketName = map.get("bucketName");
         String accessKey = map.get("accessKey");
         String secretKey = map.get("secretKey");
         String endpoint = map.get("domain");
 
-        return upload(inputStream,
-                      fileName,
-                      bucketName,
-                      accessKey,
-                      secretKey,
-                      endpoint,
-                      zoneIndex);
+        return this.upload(inputStream,
+                           fileName,
+                           bucketName,
+                           accessKey,
+                           secretKey,
+                           endpoint,
+                           zoneIndex);
     }
 
     /**

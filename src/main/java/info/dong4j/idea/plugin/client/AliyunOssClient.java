@@ -135,7 +135,7 @@ public class AliyunOssClient implements OssClient {
     public static AliyunOssClient getInstance() {
         AliyunOssClient client = (AliyunOssClient)OssClient.INSTANCES.get(CloudEnum.ALIYUN_CLOUD);
         if(client == null){
-            client = SingletonHandler.singleton;
+            client = SingletonHandler.SINGLETON;
             OssClient.INSTANCES.put(CloudEnum.ALIYUN_CLOUD, client);
         }
         return client;
@@ -145,7 +145,7 @@ public class AliyunOssClient implements OssClient {
      * 使用缓存的 map 映射获取已初始化的 client, 避免创建多个实例
      */
     private static class SingletonHandler {
-        private static AliyunOssClient singleton = new AliyunOssClient();
+        private static final AliyunOssClient SINGLETON = new AliyunOssClient();
     }
 
     @Override
@@ -162,7 +162,7 @@ public class AliyunOssClient implements OssClient {
      */
     @Override
     public String upload(InputStream inputStream, String fileName) {
-        return upload(ossClient, inputStream, fileName);
+        return this.upload(ossClient, inputStream, fileName);
     }
 
     /**
@@ -176,7 +176,7 @@ public class AliyunOssClient implements OssClient {
      */
     @Override
     public String upload(InputStream inputStream, String fileName, JPanel jPanel) {
-        Map<String, String> map = getTestFieldText(jPanel);
+        Map<String, String> map = this.getTestFieldText(jPanel);
 
         String bucketName = map.get("bucketName");
         String accessKey = map.get("accessKey");
@@ -184,13 +184,13 @@ public class AliyunOssClient implements OssClient {
         String endpoint = map.get("endpoint");
         String filedir = map.get("filedir");
 
-        return upload(inputStream,
-                      fileName,
-                      bucketName,
-                      accessKey,
-                      accessSecretKey,
-                      endpoint,
-                      filedir);
+        return this.upload(inputStream,
+                           fileName,
+                           bucketName,
+                           accessKey,
+                           accessSecretKey,
+                           endpoint,
+                           filedir);
     }
 
     /**
@@ -258,7 +258,7 @@ public class AliyunOssClient implements OssClient {
             objectMetadata.setContentType(ImageUtils.getImageType(fileName));
             objectMetadata.setContentDisposition("inline;filename=" + fileName);
             ossClient.putObject(bucketName, filedir + fileName, instream, objectMetadata);
-            return getUrl(ossClient, filedir, fileName);
+            return this.getUrl(ossClient, filedir, fileName);
         } catch (IOException | OSSException | ClientException e) {
             log.trace("", e);
         }
