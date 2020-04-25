@@ -52,7 +52,10 @@
     <change-notes><![CDATA[
       <p>1.0.0-RELEASE</p>
       <ul>
-        <li>Fix WebStrom copy image can't find class problem</li>
+        <li>Delete the Qcloud SDK, upload pictures using REST API</li>
+        <li>Delete Aliyun SDK, upload pictures using REST API</li>
+        <li>Fix sm.ms upload failure</li>
+        <li>Fix bulk upload warning</li>
       </ul>
       <ul>
         <li>删除 Qcloud SDK, 使用 API 上传图片</li>
