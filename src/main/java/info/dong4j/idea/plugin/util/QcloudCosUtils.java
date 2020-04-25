@@ -10,9 +10,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.net.*;
@@ -44,9 +41,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class QcloudCosUtils {
-    /** EFFECTIVE_MINU */
-    //资源授权有效期(分钟)
-    private static final long EFFECTIVE_MINU = 3600L * 1000 * 24 * 365 * 10;
     /** LINE_SEPARATOR */
     public static final String LINE_SEPARATOR = "\n";
     /** Q_SIGN_ALGORITHM_KEY */
@@ -75,7 +69,6 @@ public class QcloudCosUtils {
      *
      * @return the gmt date
      */
-    @NotNull
     public static String getGMTDate() {
         Calendar cd = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.US);
@@ -86,21 +79,20 @@ public class QcloudCosUtils {
     /**
      * Gets authorization *
      *
-     * @param headers    headers
-     * @param params     params
-     * @param httpMethod http method
-     * @param key        uri pathname
-     * @param secretKey  secret key
-     * @param secretId   secret id
+     * @param headers     headers
+     * @param params      params
+     * @param httpMethod  http method
+     * @param UriPathname uri pathname
+     * @param SecretKey   secret key
+     * @param SecretId    secret id
      * @return the authorization
      */
-    @NotNull
     public static String getAuthorization(Map<String, String> headers,
                                           Map<String, String> params,
                                           String httpMethod,
-                                          String key,
-                                          String secretKey,
-                                          String secretId) {
+                                          String UriPathname,
+                                          String SecretKey,
+                                          String SecretId) {
 
         Map<String, String> signHeaders = buildSignHeaders(headers);
         TreeMap<String, String> sortedSignHeaders = new TreeMap<>();
@@ -115,11 +107,11 @@ public class QcloudCosUtils {
         String formatHeaders = formatMapToStr(sortedSignHeaders);
 
         String formatStr = httpMethod + LINE_SEPARATOR +
-                           key + LINE_SEPARATOR + formatParameters +
+                           UriPathname + LINE_SEPARATOR + formatParameters +
                            LINE_SEPARATOR + formatHeaders + LINE_SEPARATOR;
 
         //增加
-        Date expiredTime = new Date(System.currentTimeMillis() + EFFECTIVE_MINU);
+        Date expiredTime = new Date(System.currentTimeMillis() + 3600L * 1000 * 24 * 365 * 10);
         String qKeyTimeStr, qSignTimeStr;
         qKeyTimeStr = qSignTimeStr = buildTimeStr(expiredTime);
         String hashFormatStr = DigestUtils.sha1Hex(formatStr);
@@ -127,12 +119,12 @@ public class QcloudCosUtils {
                               LINE_SEPARATOR + qSignTimeStr + LINE_SEPARATOR +
                               hashFormatStr + LINE_SEPARATOR;
 
-        String signKey = HmacUtils.hmacSha1Hex(secretKey, qKeyTimeStr);
+        String signKey = HmacUtils.hmacSha1Hex(SecretKey, qKeyTimeStr);
         String signature = HmacUtils.hmacSha1Hex(signKey, stringToSign);
 
         return Q_SIGN_ALGORITHM_KEY + "=" +
                Q_SIGN_ALGORITHM_VALUE + "&" + Q_AK + "=" +
-               secretId + "&" + Q_SIGN_TIME + "=" +
+               SecretId + "&" + Q_SIGN_TIME + "=" +
                qSignTimeStr + "&" + Q_KEY_TIME + "=" + qKeyTimeStr +
                "&" + Q_HEADER_LIST + "=" + qHeaderListStr + "&" +
                Q_URL_PARAM_LIST + "=" + qUrlParamListStr + "&" +
@@ -147,7 +139,7 @@ public class QcloudCosUtils {
      * @return the string
      * @throws IOException io exception
      */
-    public static String get(String url, @NotNull Map<String, String> head) throws IOException {
+    public static String get(String url, Map<String, String> head) throws IOException {
         CloseableHttpClient client = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(url);
         for (String key : head.keySet()) {
@@ -166,8 +158,7 @@ public class QcloudCosUtils {
      * @param expiredTime expired time
      * @return the string
      */
-    @NotNull
-    public static String buildTimeStr(@NotNull Date expiredTime) {
+    public static String buildTimeStr(Date expiredTime) {
         StringBuilder strBuilder = new StringBuilder();
         long startTime = System.currentTimeMillis() / 1000;
         long endTime = expiredTime.getTime() / 1000;
@@ -181,8 +172,7 @@ public class QcloudCosUtils {
      * @param kVMap k v map
      * @return the string
      */
-    @NotNull
-    public static String formatMapToStr(@NotNull Map<String, String> kVMap) {
+    public static String formatMapToStr(Map<String, String> kVMap) {
         StringBuilder strBuilder = new StringBuilder();
         boolean seeOne = false;
         for (String key : kVMap.keySet()) {
@@ -208,13 +198,12 @@ public class QcloudCosUtils {
      * @param originHeaders origin headers
      * @return the map
      */
-    @NotNull
-    private static Map<String, String> buildSignHeaders(@NotNull Map<String, String> originHeaders) {
+    private static Map<String, String> buildSignHeaders(Map<String, String> originHeaders) {
         Map<String, String> signHeaders = new HashMap<>();
         for (String key : originHeaders.keySet()) {
 
-            if ("content-type" .equalsIgnoreCase(key) || "content-length" .equalsIgnoreCase(key)
-                || "content-md5" .equalsIgnoreCase(key) || key.startsWith("x")
+            if (key.equalsIgnoreCase("content-type") || key.equalsIgnoreCase("content-length")
+                || key.equalsIgnoreCase("content-md5") || key.startsWith("x")
                 || key.startsWith("X")) {
                 String lowerKey = key.toLowerCase();
                 String value = originHeaders.get(key);
@@ -230,8 +219,7 @@ public class QcloudCosUtils {
      * @param signHeaders sign headers
      * @return the string
      */
-    @NotNull
-    public static String buildSignMemberStr(@NotNull Map<String, String> signHeaders) {
+    public static String buildSignMemberStr(Map<String, String> signHeaders) {
         StringBuilder strBuilder = new StringBuilder();
         boolean seenOne = false;
         for (String key : signHeaders.keySet()) {
@@ -251,7 +239,6 @@ public class QcloudCosUtils {
      * @param originUrl origin url
      * @return the string
      */
-    @Nullable
     public static String encode(String originUrl) {
         try {
             return URLEncoder.encode(originUrl, "UTF-8").replace("+", "%20").replace("*", "%2A").replace("%7E", "~");
@@ -260,56 +247,53 @@ public class QcloudCosUtils {
         }
     }
 
-
     /**
-     * Gets obj *
-     *
-     * @param key       key
-     * @param backet    backet
-     * @param host      host
-     * @param secretKey secret key
-     * @param secretId  secret id
-     * @return the obj
-     */
-    @Nullable
-    public static String getObject(String key,
-                                   String backet,
-                                   String host,
-                                   String secretKey,
-                                   String secretId) {
-        String gmtDate = getGMTDate();
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Host", backet + host);
-        headers.put("Date", gmtDate);
-
-        Map<String, String> params = new HashMap<>();
-        String authorization = getAuthorization(headers, params, GET, key, secretKey, secretId);
-
-        Map<String, String> httpHeader = new HashMap<>();
-        httpHeader.put("Host", backet + host);
-        httpHeader.put("Date", gmtDate);
-        httpHeader.put("Authorization", authorization);
-
-        try {
-            return get(getUrl(backet, host, key), httpHeader);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Get url string
+     * Gets url *
      *
      * @param backet     backet
      * @param regionName region name
      * @param key        key
-     * @return the string
+     * @return the url
      */
-    @NotNull
-    @Contract(pure = true)
     public static String getUrl(String backet, String regionName, String key) {
+        if (!key.startsWith("/")) {
+            key = "/" + key;
+        }
         return "https://" + backet + ".cos." + regionName + ".myqcloud.com" + key;
+    }
+
+    /**
+     * Gets obj *
+     *
+     * @param key        key
+     * @param backet     backet
+     * @param regionName region name
+     * @param SecretKey  secret key
+     * @param SecretId   secret id
+     * @return the obj
+     */
+    public static String getObj(String key, String backet, String regionName,
+                                String SecretKey,
+                                String SecretId) {
+        String gmtDate = getGMTDate();
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Host", backet + ".cos." + regionName + ".myqcloud.com");
+        headers.put("Date", gmtDate);
+
+        Map<String, String> params = new HashMap<>();
+        String authorization = getAuthorization(headers, params, GET, key, SecretKey, SecretId);
+
+        Map<String, String> httpHeader = new HashMap<>();
+        httpHeader.put("Host", backet + ".cos." + regionName + ".myqcloud.com");
+        httpHeader.put("Date", gmtDate);
+        httpHeader.put("Authorization", authorization);
+
+        try {
+            return get(getUrl(backet, regionName, key), httpHeader);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 
     /**
@@ -319,7 +303,6 @@ public class QcloudCosUtils {
      * @return the string
      * @throws Exception exception
      */
-    @NotNull
     public static String shaEncode(String inStr) throws Exception {
         MessageDigest sha;
         try {
@@ -348,7 +331,6 @@ public class QcloudCosUtils {
      * @param date date
      * @return the second timestamp
      */
-    @NotNull
     public static String getSecondTimestamp(Date date) {
         if (null == date) {
             return "";
@@ -369,7 +351,6 @@ public class QcloudCosUtils {
      * @param src src
      * @return the string
      */
-    @NotNull
     public static String genHMAC(String key, String src) {
         try {
             SecretKeySpec signingKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA1");
@@ -383,76 +364,105 @@ public class QcloudCosUtils {
     }
 
     /**
-     * Put obj string
-     *
-     * @param content    content
-     * @param key        key
-     * @param secretKey  secret key
-     * @param secretId   secret id
-     * @param bucket     bucket
-     * @param regionName region name
-     * @return the string
-     */
-    public static String putObject(InputStream content, String key, String secretKey, String secretId, String bucket, String regionName) {
-        try {
-            Date dateStart = new Date();
-            Date dateEnd = new Date();
-            dateEnd.setTime(dateStart.getTime() + EFFECTIVE_MINU);
-
-            String sha1 = "sha1";
-            String qSignTime = getSecondTimestamp(dateStart) + ";" + getSecondTimestamp(dateEnd);
-            String qKeyTime = getSecondTimestamp(dateStart) + ";" + getSecondTimestamp(dateEnd);
-
-
-            String SignKey = genHMAC(secretKey, qKeyTime);
-            String HttpString = PUT + "\n" + key + "\n\n\n";
-            String StringToSign = sha1 + "\n" + qSignTime + "\n" + shaEncode(HttpString) + "\n";
-            String Signature = genHMAC(SignKey, StringToSign);
-
-            String url = getUrl(bucket, regionName, key) + "?q-sign-algorithm=" + sha1 + "&q-ak=" + secretId +
-                         "&q-sign-time=" + qSignTime + "&q-key-time=" + qKeyTime + "&q-header-list=&q-url-param-list=&q-signature=" + Signature;
-
-            getUploadInformation(url, content);
-            return getUrl(bucket, regionName, key);
-        } catch (Exception ex) {
-            return "";
-        }
-    }
-
-    /**
      * Gets upload information *
      *
-     * @param path    path
-     * @param content content
-     * @throws IOException io exception
-     * @throws Exception   exception
+     * @param path       path
+     * @param content    content
+     * @param key        key
+     * @param backet     backet
+     * @param regionName region name
+     * @return the upload information
+     * @throws Exception exception
      */
-    public static void getUploadInformation(String path, @NotNull InputStream content) throws IOException, Exception {
+    public static String getUploadInformation(String path,
+                                              InputStream content,
+                                              String key,
+                                              String backet,
+                                              String regionName) throws Exception {
         //创建连接
         URL url = new URL(path);
         HttpURLConnection connection;
-        //添加 请求内容
-        connection = (HttpURLConnection) url.openConnection();
-        //设置http连接属性
-        connection.setDoOutput(true);
-        connection.setDoInput(true);
-        connection.setRequestMethod("PUT");
-        connection.setRequestProperty("Content-Length", content.available() + "");
+        StringBuffer sbuffer;
+        try {
+            //添加 请求内容
+            connection = (HttpURLConnection) url.openConnection();
+            //设置http连接属性
+            connection.setDoOutput(true);
+            connection.setDoInput(true);
+            connection.setRequestMethod("PUT");
+            connection.setRequestProperty("Content-Length", content.available() + "");
 
-        connection.setReadTimeout(10000);
-        connection.connect();
-
-        try (OutputStream out = connection.getOutputStream()) {
+            connection.setReadTimeout(10000);//设置读取超时时间
+            connection.setConnectTimeout(10000);//设置连接超时时间
+            connection.connect();
+            OutputStream out = connection.getOutputStream();
             IOUtils.copy(content, out);
+
+            out.flush();
+            out.close();
             //读取响应
-            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                String s = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
-                log.trace("{}", s);
+            if (connection.getResponseCode() == 200) {
+                // 从服务器获得一个输入流
+                InputStreamReader inputStream = new InputStreamReader(connection.getInputStream());
+                BufferedReader reader = new BufferedReader(inputStream);
+
+                String lines;
+                sbuffer = new StringBuffer("");
+
+                while ((lines = reader.readLine()) != null) {
+
+                    lines = new String(lines.getBytes(), StandardCharsets.UTF_8);
+                    sbuffer.append(lines);
+                }
+                reader.close();
+                return getUrl(backet, regionName, key);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
+            //断开连接
             connection.disconnect();
+        } catch (IOException ignored) {
+        }
+        return "";
+    }
+
+    /**
+     * Put object string
+     *
+     * @param key        key
+     * @param content    content
+     * @param backet     backet
+     * @param regionName region name
+     * @param secretId   secret id
+     * @param secretKey  secret key
+     * @return the string
+     */
+    public static String putObject(String key,
+                                   InputStream content,
+                                   String backet,
+                                   String regionName,
+                                   String secretId,
+                                   String secretKey) {
+        try {
+            Date dateS = new Date();
+            Date dateE = new Date();
+            dateE.setTime(dateS.getTime() + 3600L * 1000 * 24 * 365 * 10);
+
+            String qSignAlgorithm = "sha1";
+            String qSignTime = getSecondTimestamp(dateS) + ";" + getSecondTimestamp(dateE);
+            String qKeyTime = getSecondTimestamp(dateS) + ";" + getSecondTimestamp(dateE);
+
+
+            String signKey = genHMAC(secretKey, qKeyTime);
+            String httpString = PUT + "\n" + key + "\n\n\n";
+            String stringToSign = qSignAlgorithm + "\n" + qSignTime + "\n" + shaEncode(httpString) + "\n";
+            String signature = genHMAC(signKey, stringToSign);
+
+            String url = getUrl(backet, regionName, key) + "?q-sign-algorithm=" + qSignAlgorithm + "&q-ak=" + secretId +
+                         "&q-sign-time=" + qSignTime + "&q-key-time=" + qKeyTime + "&q-header-list=&q-url-param-list=&q-signature" +
+                         "=" + signature;
+
+            return getUploadInformation(url, content, key, backet, regionName);
+        } catch (Exception ex) {
+            return "";
         }
     }
 }

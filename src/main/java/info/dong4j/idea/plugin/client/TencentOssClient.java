@@ -20,7 +20,6 @@ import javax.swing.JPanel;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Company: no company</p>
  * <p>Description: oss client 实现步骤:
  * 1. 初始化配置: 从持久化配置中初始化 client
  * 2. 静态内部类获取 client 单例
@@ -42,7 +41,9 @@ public class TencentOssClient implements OssClient {
     private static String bucketName;
     /** regionName */
     private static String regionName;
+    /** accessKey */
     private static String accessKey;
+    /** accessSecretKey */
     private static String accessSecretKey;
 
     static {
@@ -60,24 +61,6 @@ public class TencentOssClient implements OssClient {
         accessSecretKey = DES.decrypt(tencentOssState.getSecretKey(), MikState.TENCENT);
         regionName = tencentOssState.getRegionName();
 
-    }
-
-    /**
-     * Sets bucket name *
-     *
-     * @param newBucketName new bucket name
-     */
-    private void setBucketName(String newBucketName) {
-        bucketName = newBucketName;
-    }
-
-    /**
-     * Sets region name *
-     *
-     * @param newRegionName new region name
-     */
-    private void setRegionName(String newRegionName) {
-        regionName = newRegionName;
     }
 
     /**
@@ -128,12 +111,12 @@ public class TencentOssClient implements OssClient {
     @Override
     public String upload(InputStream inputStream, String fileName) {
         // 拼接 url = <BucketName-APPID>.cos.region_name.myqcloud.com/key
-        return QcloudCosUtils.putObject(inputStream,
-                                        fileName,
-                                        accessKey,
-                                        accessSecretKey,
+        return QcloudCosUtils.putObject("/" + fileName,
+                                        inputStream,
                                         bucketName,
-                                        regionName);
+                                        regionName,
+                                        accessKey,
+                                        accessSecretKey);
     }
 
     /**
@@ -150,14 +133,14 @@ public class TencentOssClient implements OssClient {
         Map<String, String> map = this.getTestFieldText(jPanel);
         String bucketName = map.get("bucketName");
         String accessKey = map.get("accessKey");
-        String secretKey = map.get("secretKey");
+        String accessSecretKey = map.get("secretKey");
         String regionName = map.get("regionName");
 
         return this.upload(inputStream,
                            fileName,
                            bucketName,
                            accessKey,
-                           secretKey,
+                           accessSecretKey,
                            regionName);
     }
 
@@ -183,8 +166,10 @@ public class TencentOssClient implements OssClient {
 
         TencentOssClient tencentOssClient = TencentOssClient.getInstance();
 
-        this.setBucketName(bucketName);
-        this.setRegionName(regionName);
+        TencentOssClient.bucketName = bucketName;
+        TencentOssClient.regionName = regionName;
+        TencentOssClient.accessKey = accessKey;
+        TencentOssClient.accessSecretKey = secretKey;
 
         String url = tencentOssClient.upload(inputStream, fileName);
 

@@ -28,6 +28,7 @@ package info.dong4j.idea.plugin.util;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -401,9 +402,9 @@ public final class MarkdownUtils {
 
         log.trace("project's base path = {}", project.getBasePath());
         // 如果选中编辑器
-        final DataContext dataContext = event.getDataContext();
+        DataContext dataContext = event.getDataContext();
 
-        final Editor editor = PlatformDataKeys.EDITOR.getData(dataContext);
+        Editor editor = PlatformDataKeys.EDITOR.getData(dataContext);
         if (null != editor) {
             // 解析此文件中所有的图片标签
             Document documentFromEditor = editor.getDocument();
@@ -411,20 +412,27 @@ public final class MarkdownUtils {
             waitingProcessMap.put(documentFromEditor, MarkdownUtils.getImageInfoFromFiles(project, documentFromEditor, virtualFile));
         } else {
             // 获取被选中的有文件和目录
-            final VirtualFile[] files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(dataContext);
+            VirtualFile[] files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(dataContext);
             if (null != files) {
                 for (VirtualFile file : files) {
                     if (MarkdownUtils.isMardownFile(file)) {
                         // 解析此文件中所有的图片标签
-                        Document documentFromVirtualFile = FileDocumentManager.getInstance().getDocument(file);
-                        waitingProcessMap.put(documentFromVirtualFile, MarkdownUtils.getImageInfoFromFiles(project, documentFromVirtualFile, file));
+                        ApplicationManager.getApplication().runReadAction(() -> {
+                            Document documentFromVirtualFile = FileDocumentManager.getInstance().getDocument(file);
+                            waitingProcessMap.put(documentFromVirtualFile, MarkdownUtils.getImageInfoFromFiles(project,
+                                                                                                               documentFromVirtualFile,
+                                                                                                               file));
+                        });
+
                     }
                     // 如果是目录, 则递归获取所有 markdown 文件
                     if (file.isDirectory()) {
                         List<VirtualFile> markdownFiles = MarkdownUtils.recursivelyMarkdownFile(file);
                         for (VirtualFile virtualFile : markdownFiles) {
-                            Document documentFromVirtualFile = FileDocumentManager.getInstance().getDocument(virtualFile);
-                            waitingProcessMap.put(documentFromVirtualFile, MarkdownUtils.getImageInfoFromFiles(project, documentFromVirtualFile, virtualFile));
+                            ApplicationManager.getApplication().runReadAction(() -> {
+                                Document documentFromVirtualFile = FileDocumentManager.getInstance().getDocument(virtualFile);
+                                waitingProcessMap.put(documentFromVirtualFile, MarkdownUtils.getImageInfoFromFiles(project, documentFromVirtualFile, virtualFile));
+                            });
                         }
                     }
                 }
