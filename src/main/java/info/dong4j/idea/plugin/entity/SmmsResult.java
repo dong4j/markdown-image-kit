@@ -40,6 +40,7 @@ public class SmmsResult {
 
     private String code;
     private DataBean data;
+    private String message;
 
     @Data
     public static class DataBean {

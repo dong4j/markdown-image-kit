@@ -25,27 +25,19 @@
 
 package info.dong4j.idea.plugin.client;
 
-import com.aliyun.oss.ClientException;
-import com.aliyun.oss.OSS;
-import com.aliyun.oss.OSSClientBuilder;
-import com.aliyun.oss.OSSException;
-import com.aliyun.oss.model.ObjectMetadata;
-
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.AliyunOssState;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
+import info.dong4j.idea.plugin.util.AliyunOssUtils;
 import info.dong4j.idea.plugin.util.DES;
-import info.dong4j.idea.plugin.util.ImageUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
-import java.net.*;
-import java.util.Date;
 import java.util.Map;
 
 import javax.swing.JPanel;
@@ -57,7 +49,9 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: 右键上传一次或者点击测试按钮时初始化一次</p>
  *
  * @author dong4j
- * @email dong4j@gmail.com
+ * @version x.x.x
+ * @email dong4j @gmail.com
+ * @date 2020.04.25 17:05
  * @since 2019 -03-18 09:57
  */
 @Slf4j
@@ -67,11 +61,19 @@ public class AliyunOssClient implements OssClient {
      * The constant URL_PROTOCOL_HTTPS.
      */
     public static final String URL_PROTOCOL_HTTPS = "https";
+    /** URL_PROTOCOL_HTTP */
     private static final String URL_PROTOCOL_HTTP = "http";
 
+    /** bucketName */
     private static String bucketName;
+    /** filedir */
     private static String filedir;
-    private static OSS ossClient = null;
+    /** accessKey */
+    private static String accessKey;
+    /** accessSecretKey */
+    private static String accessSecretKey;
+    /** endpoint */
+    private static String endpoint;
 
     static {
         init();
@@ -82,41 +84,12 @@ public class AliyunOssClient implements OssClient {
      */
     private static void init() {
         AliyunOssState aliyunOssState = MikPersistenComponent.getInstance().getState().getAliyunOssState();
-        String accessKey = aliyunOssState.getAccessKey();
-        String accessSecretKey = DES.decrypt(aliyunOssState.getAccessSecretKey(), MikState.ALIYUN);
-        String endpoint = aliyunOssState.getEndpoint();
-
-        bucketName = aliyunOssState.getBucketName();
-
+        accessKey = aliyunOssState.getAccessKey();
+        accessSecretKey = DES.decrypt(aliyunOssState.getAccessSecretKey(), MikState.ALIYUN);
+        endpoint = aliyunOssState.getEndpoint();
         String tempFileDir = aliyunOssState.getFiledir();
         filedir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";
 
-        try {
-            ossClient = new OSSClientBuilder().build(endpoint, accessKey, accessSecretKey);
-        } catch (Exception ignored) {
-        }
-    }
-
-    /**
-     * Set bucket name.
-     *
-     * @param newBucketName the new bucket name
-     */
-    private void setBucketName(String newBucketName) {
-        bucketName = newBucketName;
-    }
-
-    private void setFiledir(String newFileddir){
-        filedir = newFileddir;
-    }
-
-    /**
-     * Set oss client.
-     *
-     * @param oss the oss
-     */
-    private void setOssClient(OSS oss) {
-        ossClient = oss;
     }
 
     /**
@@ -133,8 +106,8 @@ public class AliyunOssClient implements OssClient {
      */
     @Contract(pure = true)
     public static AliyunOssClient getInstance() {
-        AliyunOssClient client = (AliyunOssClient)OssClient.INSTANCES.get(CloudEnum.ALIYUN_CLOUD);
-        if(client == null){
+        AliyunOssClient client = (AliyunOssClient) OssClient.INSTANCES.get(CloudEnum.ALIYUN_CLOUD);
+        if (client == null) {
             client = SingletonHandler.SINGLETON;
             OssClient.INSTANCES.put(CloudEnum.ALIYUN_CLOUD, client);
         }
@@ -143,26 +116,25 @@ public class AliyunOssClient implements OssClient {
 
     /**
      * 使用缓存的 map 映射获取已初始化的 client, 避免创建多个实例
+     *
+     * @author dong4j
+     * @version x.x.x
+     * @email "mailto:dongshijie@fkhwl.com"
+     * @date 2020.04.25 17:05
      */
     private static class SingletonHandler {
+        /** SINGLETON */
         private static final AliyunOssClient SINGLETON = new AliyunOssClient();
     }
 
+    /**
+     * Gets cloud type *
+     *
+     * @return the cloud type
+     */
     @Override
     public CloudEnum getCloudType() {
         return CloudEnum.ALIYUN_CLOUD;
-    }
-
-    /**
-     * 上传到OSS服务器  如果同名文件会覆盖服务器上的
-     *
-     * @param inputStream 文件流
-     * @param fileName    文件名称 包括后缀名
-     * @return 出错返回 "" ,唯一MD5数字签名
-     */
-    @Override
-    public String upload(InputStream inputStream, String fileName) {
-        return this.upload(ossClient, inputStream, fileName);
     }
 
     /**
@@ -215,15 +187,14 @@ public class AliyunOssClient implements OssClient {
 
         filedir = org.apache.commons.lang.StringUtils.isBlank(filedir) ? "" : filedir + "/";
 
-        // 重设 client 相关配置
+        AliyunOssClient.filedir = filedir;
+        AliyunOssClient.bucketName = bucketName;
+        AliyunOssClient.accessKey = accessKey;
+        AliyunOssClient.accessSecretKey = accessSecretKey;
+        AliyunOssClient.endpoint = endpoint;
+
         AliyunOssClient aliyunOssClient = AliyunOssClient.getInstance();
-
-        aliyunOssClient.setBucketName(bucketName);
-        aliyunOssClient.setFiledir(filedir);
-
-        OSS ossClient = new OSSClientBuilder().build(endpoint, accessKey, accessSecretKey);
-
-        String url = aliyunOssClient.upload(ossClient, inputStream, fileName);
+        String url = aliyunOssClient.upload(inputStream, fileName);
 
         if (StringUtils.isNotBlank(url)) {
             int hashcode = bucketName.hashCode() +
@@ -233,59 +204,36 @@ public class AliyunOssClient implements OssClient {
             OssState.saveStatus(MikPersistenComponent.getInstance().getState().getAliyunOssState(),
                                 hashcode,
                                 MikState.OLD_HASH_KEY);
-            aliyunOssClient.setOssClient(ossClient);
         }
         return url;
     }
 
     /**
-     * Upload string.
+     * 上传到OSS服务器  如果同名文件会覆盖服务器上的
      *
-     * @param ossClient the ossClient client
-     * @param instream  the instream
-     * @param fileName  the file name
-     * @return the string
+     * @param instream instream
+     * @param fileName file name
+     * @return 出错返回 "" ,唯一MD5数字签名
      */
-    public String upload(@NotNull OSS ossClient,
-                         @NotNull InputStream instream,
+    @Override
+    public String upload(@NotNull InputStream instream,
                          @NotNull String fileName) {
         try {
-            // 创建上传 Object 的 Metadata
-            ObjectMetadata objectMetadata = new ObjectMetadata();
-            objectMetadata.setContentLength(instream.available());
-            objectMetadata.setCacheControl("no-cache");
-            objectMetadata.setHeader("Pragma", "no-cache");
-            objectMetadata.setContentType(ImageUtils.getImageType(fileName));
-            objectMetadata.setContentDisposition("inline;filename=" + fileName);
-            ossClient.putObject(bucketName, filedir + fileName, instream, objectMetadata);
-            return this.getUrl(ossClient, filedir, fileName);
-        } catch (IOException | OSSException | ClientException e) {
+            String key = filedir + fileName;
+            if (!key.startsWith("/")) {
+                key = "/" + key;
+            }
+            AliyunOssUtils.putObject(key,
+                                     instream,
+                                     bucketName,
+                                     endpoint,
+                                     accessKey,
+                                     accessSecretKey);
+            return "https://" + bucketName + "." + endpoint + "/" + filedir + fileName;
+        } catch (IOException e) {
             log.trace("", e);
         }
         return "";
     }
-
-    /**
-     * Gets url.
-     *
-     * @param ossClient the oss client
-     * @param filedir   the filedir
-     * @param fileName  the name
-     * @return the url
-     */
-    private String getUrl(@NotNull OSS ossClient, String filedir, String fileName) {
-        Date expiration = new Date(System.currentTimeMillis() + 3600L * 1000 * 24 * 365 * 10);
-        URL url = ossClient.generatePresignedUrl(bucketName, filedir + fileName, expiration);
-        if (url != null) {
-            String[] split = url.toString().split("\\?");
-            String uri = split[0];
-            if (url.getProtocol().equals(URL_PROTOCOL_HTTP)) {
-                uri = uri.replace(URL_PROTOCOL_HTTP, URL_PROTOCOL_HTTPS);
-            }
-            return uri;
-        }
-        return "";
-    }
-
 
 }

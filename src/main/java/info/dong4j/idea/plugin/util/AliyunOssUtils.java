@@ -1,6 +1,7 @@
 package info.dong4j.idea.plugin.util;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -10,6 +11,7 @@ import org.apache.http.util.EntityUtils;
 
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -31,25 +33,23 @@ import javax.crypto.spec.SecretKeySpec;
  * @date 2020.04.21 23:29
  */
 public class AliyunOssUtils {
-
-    private static final String ossBucket = "xxx";
-    private static final String accessKeyId = "xxx";
-    private static final String secretAccessKey = "xxx";
-
-    //可根据自己的oss产品自行更改域名
-    private static final String endpoint = "oss-cn-shanghai.aliyuncs.com/";
-
+    /** CHARSET_UTF8 */
     private final static String CHARSET_UTF8 = "utf8";
+    /** ALGORITHM */
     private final static String ALGORITHM = "HmacSHA1";
 
     /**
      * Gets oss obj *
      *
-     * @param key key
+     * @param key             key
+     * @param ossBucket       oss bucket
+     * @param endpoint        endpoint
+     * @param accessKeyId     access key id
+     * @param secretAccessKey secret access key
      * @return the oss obj
      * @throws IOException io exception
      */
-    public static String getOssObj(String key) throws IOException {
+    public static String getObject(String key, String ossBucket, String endpoint, String accessKeyId, String secretAccessKey) throws IOException {
         String signResourcePath = "/" + ossBucket + key;
         String url = "http://" + ossBucket + "." + endpoint;
 
@@ -68,23 +68,28 @@ public class AliyunOssUtils {
     /**
      * Put oss obj string
      *
-     * @param key     key
-     * @param content content
+     * @param key             key
+     * @param content         content
+     * @param ossBucket       oss bucket
+     * @param endpoint        endpoint
+     * @param accessKeyId     access key id
+     * @param secretAccessKey secret access key
      * @return the string
      * @throws IOException io exception
      */
-    public static String putOssObj(String key, String content) throws IOException {
+    public static String putObject(String key, InputStream content, String ossBucket, String endpoint, String accessKeyId,
+                                   String secretAccessKey) throws IOException {
         String date = getGMTDate();
 
         String signResourcePath = "/" + ossBucket + key;
         String connectUrl = "http://" + ossBucket + "." + endpoint;
 
-        String Signature = (hmacSha1(buildPutSignData(date, signResourcePath), secretAccessKey));
-        String Authorization = "OSS " + accessKeyId + ":" + Signature;
+        String signature = (hmacSha1(buildPutSignData(date, signResourcePath), secretAccessKey));
+        String authorization = "OSS " + accessKeyId + ":" + signature;
 
         URL putUrl = new URL(connectUrl + key);
         HttpURLConnection connection;
-        StringBuffer sbuffer = null;
+        StringBuffer sbuffer;
 
         try {
             //添加 请求内容
@@ -94,13 +99,13 @@ public class AliyunOssUtils {
             connection.setRequestMethod("PUT");
             //设置请求头
             connection.setRequestProperty("Date", date);
-            connection.setRequestProperty("Authorization", Authorization);
+            connection.setRequestProperty("Authorization", authorization);
 
-            connection.setReadTimeout(10000);//设置读取超时时间
-            connection.setConnectTimeout(10000);//设置连接超时时间
+            connection.setReadTimeout(10000);
+            connection.setConnectTimeout(10000);
             connection.connect();
             OutputStream out = connection.getOutputStream();
-            out.write(new String(content).getBytes());
+            IOUtils.copy(content, out);
             out.flush();
             out.close();
             //读取响应
@@ -113,13 +118,13 @@ public class AliyunOssUtils {
                 sbuffer = new StringBuffer("");
 
                 while ((lines = reader.readLine()) != null) {
-                    lines = new String(lines.getBytes(), "utf-8");
+                    lines = new String(lines.getBytes(), StandardCharsets.UTF_8);
                     sbuffer.append(lines);
                 }
                 reader.close();
             } else {
                 //连接失败
-                return null;
+                return "";
             }
             //断开连接
             connection.disconnect();
@@ -129,6 +134,14 @@ public class AliyunOssUtils {
         return key;
     }
 
+    /**
+     * Get string
+     *
+     * @param url  url
+     * @param head head
+     * @return the string
+     * @throws IOException io exception
+     */
     public static String get(String url, Map<String, String> head) throws IOException {
         HttpClient client = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(url);
@@ -141,6 +154,13 @@ public class AliyunOssUtils {
         return EntityUtils.toString(entity, "utf-8");
     }
 
+    /**
+     * Hmac sha 1 string
+     *
+     * @param data data
+     * @param key  key
+     * @return the string
+     */
     public static String hmacSha1(String data, String key) {
         try {
             Mac mac = Mac.getInstance("HmacSHA1");
@@ -154,18 +174,37 @@ public class AliyunOssUtils {
         }
     }
 
-    public static String buildGetSignData(String Date, String CanonicalizedResource) {
+    /**
+     * Build get sign data string
+     *
+     * @param date                  date
+     * @param canonicalizedResource canonicalized resource
+     * @return the string
+     */
+    public static String buildGetSignData(String date, String canonicalizedResource) {
         return "GET" + "\n" + "\n" + "\n"
-               + Date + "\n"
-               + CanonicalizedResource;
+               + date + "\n"
+               + canonicalizedResource;
     }
 
-    public static String buildPutSignData(String Date, String CanonicalizedResource) {
+    /**
+     * Build put sign data string
+     *
+     * @param date                  date
+     * @param canonicalizedResource canonicalized resource
+     * @return the string
+     */
+    public static String buildPutSignData(String date, String canonicalizedResource) {
         return "PUT" + "\n" + "\n" + "\n"
-               + Date + "\n"
-               + CanonicalizedResource;
+               + date + "\n"
+               + canonicalizedResource;
     }
 
+    /**
+     * Gets gmt date *
+     *
+     * @return the gmt date
+     */
     public static String getGMTDate() {
         Calendar cd = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.US);

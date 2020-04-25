@@ -164,12 +164,12 @@ public class TencentOssClient implements OssClient {
                          String secretKey,
                          String regionName) {
 
-        TencentOssClient tencentOssClient = TencentOssClient.getInstance();
-
         TencentOssClient.bucketName = bucketName;
         TencentOssClient.regionName = regionName;
         TencentOssClient.accessKey = accessKey;
         TencentOssClient.accessSecretKey = secretKey;
+
+        TencentOssClient tencentOssClient = TencentOssClient.getInstance();
 
         String url = tencentOssClient.upload(inputStream, fileName);
 

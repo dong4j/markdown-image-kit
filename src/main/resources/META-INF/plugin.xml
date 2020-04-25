@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>info.dong4j.idea.plugin.markdown.image.kit</id>
     <name>Markdown Image Kit</name>
-    <version>0.0.4</version>
+    <version>1.0.0</version>
     <vendor email="dong4j@gmail.com" url="https://github.com/dong4j/markdown-image-kit">dong4j</vendor>
     <!--http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html-->
     <idea-version since-build="183"/>
@@ -50,6 +50,17 @@
     ]]></description>
 
     <change-notes><![CDATA[
+      <p>1.0.0-RELEASE</p>
+      <ul>
+        <li>Fix WebStrom copy image can't find class problem</li>
+      </ul>
+      <ul>
+        <li>删除 Qcloud SDK 依赖, 使用 API 上传图片</li>
+        <li>删除 Aliyun SDK 依赖, 使用 API 上传图片</li>
+        <li>修复 sm.ms 上传失败的问题</li>
+        <li>修复批量上传警告</li>
+       </ul>
+      <br/>
       <p>0.0.4-RELEASE</p>
       <ul>
         <li>Fix WebStrom copy image can't find class problem</li>

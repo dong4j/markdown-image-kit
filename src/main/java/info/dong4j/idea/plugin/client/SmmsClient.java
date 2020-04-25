@@ -151,7 +151,6 @@ public class SmmsClient implements OssClient {
                     .build();
 
                 HttpPost post = new HttpPost(UPLOAD_URL);
-                post.setHeader("Content-Type", "multipart/form-data");
                 post.setEntity(reqEntity);
 
                 HttpResponse response = this.client.execute(post);
@@ -161,6 +160,9 @@ public class SmmsClient implements OssClient {
                     String result = IOUtils.toString(res, StandardCharsets.UTF_8.name());
                     SmmsResult smmsResult = new Gson().fromJson(result, SmmsResult.class);
                     log.trace("{}", smmsResult);
+                    if (smmsResult.getData() == null) {
+                        return smmsResult.getMessage();
+                    }
                     return smmsResult.getData().getUrl();
                 }
             } catch (Exception e) {
