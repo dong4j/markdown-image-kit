@@ -55,8 +55,8 @@
         <li>Fix WebStrom copy image can't find class problem</li>
       </ul>
       <ul>
-        <li>删除 Qcloud SDK 依赖, 使用 API 上传图片</li>
-        <li>删除 Aliyun SDK 依赖, 使用 API 上传图片</li>
+        <li>删除 Qcloud SDK, 使用 API 上传图片</li>
+        <li>删除 Aliyun SDK, 使用 API 上传图片</li>
         <li>修复 sm.ms 上传失败的问题</li>
         <li>修复批量上传警告</li>
        </ul>
