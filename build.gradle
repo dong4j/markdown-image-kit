@@ -19,6 +19,8 @@ repositories {
 }
 
 intellij {
+	// 在 2019.2 以上版本添加生效
+	plugins 'java'
     pluginName name
     version ideaVersion
     // 插件生成的临时文件的地址，可以省略

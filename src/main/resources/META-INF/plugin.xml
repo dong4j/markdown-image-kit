@@ -119,6 +119,7 @@
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
     on how to target different products -->
     <depends>com.intellij.modules.lang</depends>
+    <depends>com.intellij.modules.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- clipboard -->
@@ -128,8 +129,7 @@
         <!-- 设置面板 -->
         <applicationConfigurable groupId="tools" instance="info.dong4j.idea.plugin.settings.ProjectSettingsPage"/>
         <!-- 持久化 -->
-        <applicationService serviceInterface="info.dong4j.idea.plugin.settings.MikPersistenComponent"
-                            serviceImplementation="info.dong4j.idea.plugin.settings.MikPersistenComponent"/>
+        <applicationService serviceImplementation="info.dong4j.idea.plugin.settings.MikPersistenComponent"/>
         <!-- alt + enter -->
         <intentionAction>
             <className>info.dong4j.idea.plugin.action.intention.ImageUploadIntentionAction</className>
