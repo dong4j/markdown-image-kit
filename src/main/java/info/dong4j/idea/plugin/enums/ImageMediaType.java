@@ -32,7 +32,7 @@ import org.jetbrains.annotations.NonNls;
  *
  * @author dong4j
  * @version 1.0.0
- * @email "mailto:dong4j@fkhwl.com"
+ * @email "mailto:dong4j@gmail.com"
  * @date 2021.02.14 20:36
  * @since 1.1.0
  */
