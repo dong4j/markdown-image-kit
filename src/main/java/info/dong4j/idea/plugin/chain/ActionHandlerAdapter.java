@@ -42,16 +42,31 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: </p>
  *
  * @author dong4j
- * @email dong4j@gmail.com
- * @since 2019-03-29 16:10
+ * @version x.x.x
+ * @email dong4j @gmail.com
+ * @date 2021.02.14 18:40
+ * @since 2019 -03-29 16:10
  */
 @Slf4j
 public class ActionHandlerAdapter extends BaseActionHandler {
+    /**
+     * Gets name *
+     *
+     * @return the name
+     * @since y.y.y
+     */
     @Override
     public String getName() {
         return "";
     }
 
+    /**
+     * Execute
+     *
+     * @param data data
+     * @return the boolean
+     * @since y.y.y
+     */
     @Override
     public boolean execute(EventData data) {
         ProgressIndicator indicator = data.getIndicator();
@@ -73,6 +88,14 @@ public class ActionHandlerAdapter extends BaseActionHandler {
         return true;
     }
 
+    /**
+     * Invoke
+     *
+     * @param data          data
+     * @param imageIterator image iterator
+     * @param markdownImage markdown image
+     * @since y.y.y
+     */
     @Override
     protected void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
         log.trace("执行特定逻辑");
