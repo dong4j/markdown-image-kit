@@ -138,3 +138,8 @@ java.lang.Throwable: Element component@ImageManagerSetting.option.WeiboOssState.
 ```
 
 打开上面的文件, 删除 `<component name="ImageManagerSetting">` 节点
+
+## TODO
+
+1. 完成生效的图床集成
+2. 添加 GitHub 图床
