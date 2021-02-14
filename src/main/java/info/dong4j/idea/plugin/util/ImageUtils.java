@@ -30,11 +30,11 @@ import com.intellij.psi.PsiFile;
 import com.intellij.ui.JBColor;
 import com.intellij.util.containers.hash.HashMap;
 import com.intellij.util.ui.UIUtil;
-import com.siyeh.ig.portability.mediatype.ImageMediaType;
 
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.content.MikContents;
 import info.dong4j.idea.plugin.enums.FileType;
+import info.dong4j.idea.plugin.enums.ImageMediaType;
 
 import net.coobird.thumbnailator.Thumbnails;
 
