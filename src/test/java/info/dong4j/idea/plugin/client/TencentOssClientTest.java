@@ -26,12 +26,12 @@ package info.dong4j.idea.plugin.client;
 
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
+import info.dong4j.idea.plugin.util.IOUtils;
 import info.dong4j.idea.plugin.util.QcloudCosUtils;
+import info.dong4j.idea.plugin.util.digest.DigestUtils;
+import info.dong4j.idea.plugin.util.digest.Hex;
+import info.dong4j.idea.plugin.util.digest.HmacUtils;
 
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.codec.digest.HmacUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -79,6 +79,7 @@ import lombok.extern.slf4j.Slf4j;
  * @version 0.0.1
  * @email "mailto:dong4j@gmail.com"
  * @date 2019.04.16 20:11
+ * @since 1.1.0
  */
 @Slf4j
 public class TencentOssClientTest {
@@ -92,6 +93,8 @@ public class TencentOssClientTest {
 
     /**
      * Test
+     *
+     * @since 1.1.0
      */
     @Test
     public void test() {
@@ -99,6 +102,8 @@ public class TencentOssClientTest {
 
     /**
      * Test 2
+     *
+     * @since 1.1.0
      */
     @Test
     public void test2() {
@@ -128,6 +133,7 @@ public class TencentOssClientTest {
      * Upload *
      *
      * @throws FileNotFoundException file not found exception
+     * @since 1.1.0
      */
     private void upload() throws FileNotFoundException {
         OssClient uploader = OssClient.INSTANCES.get(CloudEnum.TENCENT_CLOUD);
@@ -140,6 +146,7 @@ public class TencentOssClientTest {
      * Test web api *
      *
      * @throws FileNotFoundException file not found exception
+     * @since 1.1.0
      */
     @Test
     public void test_web_api() throws FileNotFoundException {
@@ -157,6 +164,16 @@ public class TencentOssClientTest {
         // System.out.println("getResult:" + getResult);
     }
 
+    /**
+     * <p>Company: 成都返空汇网络技术有限公司 </p>
+     * <p>Description: </p>
+     *
+     * @author dong4j
+     * @version 1.0.0
+     * @email "mailto:dong4j@gmail.com"
+     * @date 2021.02.14 22:44
+     * @since 1.1.0
+     */
     public static class CosWebApi {
 
         // private static final String bucket = bucketName;
@@ -164,22 +181,40 @@ public class TencentOssClientTest {
         // private static final String SecretKey = secretKey;
         // private static final String host = ".cos.ap-chengdu.myqcloud.com";
 
+        /** effectiveMinu */
         //资源授权有效期(分钟)
         private static final int effectiveMinu = 10;
 
+        /** LINE_SEPARATOR */
         public static final String LINE_SEPARATOR = "\n";
+        /** Q_SIGN_ALGORITHM_KEY */
         public static final String Q_SIGN_ALGORITHM_KEY = "q-sign-algorithm";
+        /** Q_SIGN_ALGORITHM_VALUE */
         public static final String Q_SIGN_ALGORITHM_VALUE = "sha1";
+        /** Q_AK */
         public static final String Q_AK = "q-ak";
+        /** Q_SIGN_TIME */
         public static final String Q_SIGN_TIME = "q-sign-time";
+        /** Q_KEY_TIME */
         public static final String Q_KEY_TIME = "q-key-time";
+        /** Q_HEADER_LIST */
         public static final String Q_HEADER_LIST = "q-header-list";
+        /** Q_URL_PARAM_LIST */
         public static final String Q_URL_PARAM_LIST = "q-url-param-list";
+        /** Q_SIGNATURE */
         public static final String Q_SIGNATURE = "q-signature";
+        /** GET */
         public static final String GET = "get";
+        /** PUT */
         public static final String PUT = "put";
 
 
+        /**
+         * Gets gmt date *
+         *
+         * @return the gmt date
+         * @since 1.1.0
+         */
         public static String getGMTDate() {
             Calendar cd = Calendar.getInstance();
             SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.US);
@@ -187,6 +222,18 @@ public class TencentOssClientTest {
             return sdf.format(cd.getTime());
         }
 
+        /**
+         * Gets authorization *
+         *
+         * @param headers     headers
+         * @param params      params
+         * @param httpMethod  http method
+         * @param UriPathname uri pathname
+         * @param SecretKey   secret key
+         * @param SecretId    secret id
+         * @return the authorization
+         * @since 1.1.0
+         */
         public static String getAuthorization(Map<String, String> headers,
                                               Map<String, String> params,
                                               String httpMethod,
@@ -231,6 +278,15 @@ public class TencentOssClientTest {
                    Q_SIGNATURE + "=" + signature;
         }
 
+        /**
+         * Get
+         *
+         * @param url  url
+         * @param head head
+         * @return the string
+         * @throws IOException io exception
+         * @since 1.1.0
+         */
         //http get请求
         public static String get(String url, Map<String, String> head) throws IOException {
             HttpClient client = HttpClients.createDefault();
@@ -245,6 +301,13 @@ public class TencentOssClientTest {
         }
 
 
+        /**
+         * Build time str
+         *
+         * @param expiredTime expired time
+         * @return the string
+         * @since 1.1.0
+         */
         public static String buildTimeStr(Date expiredTime) {
             StringBuilder strBuilder = new StringBuilder();
             long startTime = System.currentTimeMillis() / 1000;
@@ -253,6 +316,13 @@ public class TencentOssClientTest {
             return strBuilder.toString();
         }
 
+        /**
+         * Format map to str
+         *
+         * @param kVMap k v map
+         * @return the string
+         * @since 1.1.0
+         */
         public static String formatMapToStr(Map<String, String> kVMap) {
             StringBuilder strBuilder = new StringBuilder();
             boolean seeOne = false;
@@ -273,6 +343,13 @@ public class TencentOssClientTest {
             return strBuilder.toString();
         }
 
+        /**
+         * Build sign headers
+         *
+         * @param originHeaders origin headers
+         * @return the map
+         * @since 1.1.0
+         */
         private static Map<String, String> buildSignHeaders(Map<String, String> originHeaders) {
             Map<String, String> signHeaders = new HashMap<>();
             for (String key : originHeaders.keySet()) {
@@ -288,6 +365,13 @@ public class TencentOssClientTest {
             return signHeaders;
         }
 
+        /**
+         * Build sign member str
+         *
+         * @param signHeaders sign headers
+         * @return the string
+         * @since 1.1.0
+         */
         public static String buildSignMemberStr(Map<String, String> signHeaders) {
             StringBuilder strBuilder = new StringBuilder();
             boolean seenOne = false;
@@ -302,6 +386,13 @@ public class TencentOssClientTest {
             return strBuilder.toString();
         }
 
+        /**
+         * Encode
+         *
+         * @param originUrl origin url
+         * @return the string
+         * @since 1.1.0
+         */
         public static String encode(String originUrl) {
             try {
                 return URLEncoder.encode(originUrl, "UTF-8").replace("+", "%20").replace("*", "%2A").replace("%7E", "~");
@@ -310,6 +401,15 @@ public class TencentOssClientTest {
             }
         }
 
+        /**
+         * Gets url *
+         *
+         * @param backet     backet
+         * @param regionName region name
+         * @param key        key
+         * @return the url
+         * @since 1.1.0
+         */
         public static String getUrl(String backet, String regionName, String key) {
             if (!key.startsWith("/")) {
                 key += "/";
@@ -317,6 +417,17 @@ public class TencentOssClientTest {
             return "https://" + backet + ".cos." + regionName + ".myqcloud.com" + key;
         }
 
+        /**
+         * Gets obj *
+         *
+         * @param key        key
+         * @param backet     backet
+         * @param regionName region name
+         * @param SecretKey  secret key
+         * @param SecretId   secret id
+         * @return the obj
+         * @since 1.1.0
+         */
         public static String getObj(String key, String backet, String regionName,
                                     String SecretKey,
                                     String SecretId) {
@@ -342,6 +453,14 @@ public class TencentOssClientTest {
         }
 
 
+        /**
+         * Sha encode
+         *
+         * @param inStr in str
+         * @return the string
+         * @throws Exception exception
+         * @since 1.1.0
+         */
         ////////////////////////////////////////////////////////////////////
         public static String shaEncode(String inStr) throws Exception {
             MessageDigest sha;
@@ -365,6 +484,13 @@ public class TencentOssClientTest {
             return hexValue.toString();
         }
 
+        /**
+         * Gets second timestamp *
+         *
+         * @param date date
+         * @return the second timestamp
+         * @since 1.1.0
+         */
         public static String getSecondTimestamp(Date date) {
             if (null == date) {
                 return "";
@@ -378,6 +504,14 @@ public class TencentOssClientTest {
             }
         }
 
+        /**
+         * Gen hmac
+         *
+         * @param key key
+         * @param src src
+         * @return the string
+         * @since 1.1.0
+         */
         public static String genHMAC(String key, String src) {
             try {
                 SecretKeySpec signingKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA1");
@@ -390,6 +524,14 @@ public class TencentOssClientTest {
             }
         }
 
+        /**
+         * Gets upload information *
+         *
+         * @param path    path
+         * @param content content
+         * @throws Exception exception
+         * @since 1.1.0
+         */
         public static void getUploadInformation(String path, InputStream content) throws Exception {
             //创建连接
             URL url = new URL(path);
@@ -435,6 +577,18 @@ public class TencentOssClientTest {
             }
         }
 
+        /**
+         * Put obj
+         *
+         * @param key        key
+         * @param content    content
+         * @param backet     backet
+         * @param regionName region name
+         * @param secretKey  secret key
+         * @param secretId   secret id
+         * @return the string
+         * @since 1.1.0
+         */
         public static String putObj(String key,
                                     InputStream content,
                                     String backet,
@@ -468,6 +622,13 @@ public class TencentOssClientTest {
             }
         }
 
+        /**
+         * Main
+         *
+         * @param args args
+         * @throws FileNotFoundException file not found exception
+         * @since 1.1.0
+         */
         public static void main(String[] args) throws FileNotFoundException {
 
             String putResult = putObj("/10A914D0CC18.jpg",

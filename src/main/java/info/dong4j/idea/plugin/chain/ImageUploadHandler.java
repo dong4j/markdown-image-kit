@@ -28,8 +28,7 @@ import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
-
-import org.apache.commons.lang.StringUtils;
+import info.dong4j.idea.plugin.util.StringUtils;
 
 import java.util.Iterator;
 

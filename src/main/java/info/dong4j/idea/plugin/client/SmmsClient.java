@@ -28,8 +28,8 @@ import com.google.gson.Gson;
 
 import info.dong4j.idea.plugin.entity.SmmsResult;
 import info.dong4j.idea.plugin.enums.CloudEnum;
+import info.dong4j.idea.plugin.util.IOUtils;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;

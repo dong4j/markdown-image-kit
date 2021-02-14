@@ -49,10 +49,18 @@ import java.util.Objects;
  * <p>Description: ${description}</p>
  *
  * @author dong4j
- * @date 2019.03.23 15:02
+ * @version 1.0.0
  * @email "mailto:dong4j@gmail.com"
+ * @date 2019.03.23 15:02
+ * @since 1.1.0
  */
 public class AbstractUploadCloudActionTest {
+    /**
+     * Action performed
+     *
+     * @param e e
+     * @since 1.1.0
+     */
     public void actionPerformed(@NotNull AnActionEvent e) {
         // PsiFile file = PsiFileFactory.getClient(e.getProject()).createFileFromText()
         // VirtualFile virtualFile = e.getData(PlatformDataKeys.VIRTUAL_FILE);
@@ -67,6 +75,7 @@ public class AbstractUploadCloudActionTest {
      * 获取 VirtualFile 的几种方式
      *
      * @param e the e
+     * @since 1.1.0
      */
     private void getVirtualFile(AnActionEvent e) {
         // 获取 VirtualFile 方式一:
@@ -92,6 +101,7 @@ public class AbstractUploadCloudActionTest {
      * 获取 document 的几种方式
      *
      * @param e the e
+     * @since 1.1.0
      */
     private void getDocument(AnActionEvent e) {
         // 从当前编辑器中获取
@@ -123,6 +133,7 @@ public class AbstractUploadCloudActionTest {
      * 获取 PSI 的几种方式
      *
      * @param e the e
+     * @since 1.1.0
      */
     private void getPsiFile(AnActionEvent e) {
         // 从 action 中获取

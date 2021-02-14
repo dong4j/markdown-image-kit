@@ -42,17 +42,23 @@ import lombok.extern.slf4j.Slf4j;
  * 4. 自定义 upload 逻辑</p>
  *
  * @author dong4j
+ * @version 1.0.0
  * @email "mailto:dong4j@gmail.com"
+ * @date 2021.02.14 22:44
  * @since 2019.07.08 16:39
  */
 @Slf4j
 public class TencentOssClient implements OssClient {
 
+    /** bucketName */
     private static String bucketName;
+    /** regionName */
     private static String regionName;
 
     /**
      * Instantiates a new Tencent oss client.
+     *
+     * @since 1.1.0
      */
     private TencentOssClient() {
         checkClient();
@@ -60,6 +66,8 @@ public class TencentOssClient implements OssClient {
 
     /**
      * 在调用 ossClient 之前先检查, 如果为 null 就 init()
+     *
+     * @since 1.1.0
      */
     private static void checkClient() {
         init();
@@ -67,6 +75,8 @@ public class TencentOssClient implements OssClient {
 
     /**
      * 如果是第一次使用, ossClient == null, 使用持久化配置初始化
+     *
+     * @since 1.1.0
      */
     private static void init() {
         bucketName = System.getProperty("bucketName");
@@ -81,17 +91,40 @@ public class TencentOssClient implements OssClient {
         }
     }
 
+    /**
+     * Gets cloud type *
+     *
+     * @return the cloud type
+     * @since 1.1.0
+     */
     @Override
     public CloudEnum getCloudType() {
         return CloudEnum.TENCENT_CLOUD;
     }
 
+    /**
+     * Upload
+     *
+     * @param inputStream input stream
+     * @param fileName    file name
+     * @return the string
+     * @since 1.1.0
+     */
     @Override
     public String upload(InputStream inputStream, String fileName) {
 
         return "";
     }
 
+    /**
+     * Upload
+     *
+     * @param inputStream input stream
+     * @param fileName    file name
+     * @param jPanel      j panel
+     * @return the string
+     * @since 1.1.0
+     */
     @Override
     public String upload(InputStream inputStream, String fileName, JPanel jPanel) {
         return null;

@@ -24,37 +24,78 @@
 
 package info.dong4j.idea.plugin.client;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PostMethod;
+import info.dong4j.idea.plugin.util.IOUtils;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Company: no company</p>
  * <p>Description: </p>
  *
  * @author dong4j
+ * @version 1.0.0
  * @email "mailto:dong4j@gmail.com"
+ * @date 2021.02.14 22:44
  * @since 2019.03.25 13:20
  */
+@Slf4j
 public class HelpTest {
 
-    private HttpClient help(String where) throws Exception {
-        HttpClient client = new HttpClient();
-        PostMethod method = new PostMethod("http://127.0.0.1:8080/rest/help/" + where);
-        client.getParams().setContentCharset("UTF-8");
-        client.executeMethod(method);
-        String response;
+    /**
+     * Help
+     *
+     * @param where where
+     * @return the http client
+     * @throws Exception exception
+     * @since 1.1.0
+     */
+    private CloseableHttpClient help(String where) throws Exception {
+
+        HttpClientBuilder builder = HttpClients.custom();
+        // 必须设置 UA, 不然会报 403
+        builder.setUserAgent("Mozilla/5.0 (Windows; U; Windows NT 6.1; zh-CN; rv:1.9.2.6)");
+        CloseableHttpClient client = builder.build();
+
+        HttpPost httpPost = new HttpPost("http://127.0.0.1:8080/rest/help/" + where);
+
         try {
-            response = method.getResponseBodyAsString(1000);
+            HttpResponse response = client.execute(httpPost);
+
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                byte[] res = EntityUtils.toByteArray(response.getEntity());
+                String result = IOUtils.toString(res, StandardCharsets.UTF_8.name());
+                log.trace("{}", result);
+            }
+
+        } catch (IOException e) {
+            log.trace("", e);
         } finally {
-            method.releaseConnection();
-        }
-        if (response == null) {
-            throw new NullPointerException();
+            try {
+                client.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return client;
     }
 
+    /**
+     * Test
+     *
+     * @since 1.1.0
+     */
     @Test
     public void test() {
         try {

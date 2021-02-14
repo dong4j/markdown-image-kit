@@ -34,11 +34,19 @@ import java.io.IOException;
  * <p>Description: ${description}</p>
  *
  * @author dong4j
- * @date 2019.03.17 22:42
+ * @version 1.0.0
  * @email "mailto:dong4j@gmail.com"
+ * @date 2019.03.17 22:42
+ * @since 1.1.0
  */
 public class WbpUploadRequestTest {
 
+    /**
+     * Build
+     *
+     * @throws IOException io exception
+     * @since 1.1.0
+     */
     @Test
     public void build() throws IOException {
         WbpUploadRequest request = new UploadRequestBuilder()

@@ -24,8 +24,6 @@
 
 package info.dong4j.idea.plugin.util;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -42,6 +40,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
@@ -58,13 +57,11 @@ import javax.crypto.spec.SecretKeySpec;
  *
  * @author dong4j
  * @version 0.0.1
- * @email "mailto:dongshijie@fkhwl.com"
+ * @email "mailto:dong4j@gmail.com"
  * @date 2020.04.21 23:29
  * @since 0.0.1
  */
 public class AliyunOssUtils {
-    /** CHARSET_UTF8 */
-    private final static String CHARSET_UTF8 = "utf8";
     /** ALGORITHM */
     private final static String ALGORITHM = "HmacSHA1";
 
@@ -201,8 +198,8 @@ public class AliyunOssUtils {
             SecretKeySpec keySpec = new SecretKeySpec(key.getBytes(), ALGORITHM);
             mac.init(keySpec);
             byte[] rawHmac;
-            rawHmac = mac.doFinal(data.getBytes(CHARSET_UTF8));
-            return new String(Base64.encodeBase64(rawHmac));
+            rawHmac = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+            return new String(Base64.getEncoder().encode(rawHmac));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

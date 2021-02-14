@@ -37,12 +37,20 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: ${description}</p>
  *
  * @author dong4j
- * @date 2019.03.18 16:13
+ * @version 1.0.0
  * @email "mailto:dong4j@gmail.com"
+ * @date 2019.03.18 16:13
+ * @since 1.1.0
  */
 @Slf4j
 // @RunsInActiveStoreMode
 public class AliyunOssClientTest extends LightPlatformTestCase {
+    /**
+     * Test
+     *
+     * @throws FileNotFoundException file not found exception
+     * @since 1.1.0
+     */
     // @Test
     public void test() throws FileNotFoundException {
         AliyunOssClient aliyunOssClient = AliyunOssClient.getInstance();

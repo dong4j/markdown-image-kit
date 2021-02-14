@@ -37,11 +37,18 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: ${description}</p>
  *
  * @author dong4j
- * @date 2019.03.13 16:02
+ * @version 1.0.0
  * @email "mailto:dong4j@gmail.com"
+ * @date 2019.03.13 16:02
+ * @since 1.1.0
  */
 @Slf4j
 public class EnumsUtilsTest {
+    /**
+     * Test enums utils
+     *
+     * @since 1.1.0
+     */
     @Test
     public void testEnumsUtils() {
 
@@ -55,32 +62,71 @@ public class EnumsUtilsTest {
 
     }
 
+    /**
+     * <p>Company: 成都返空汇网络技术有限公司 </p>
+     * <p>Description: </p>
+     *
+     * @author dong4j
+     * @version 1.0.0
+     * @email "mailto:dong4j@gmail.com"
+     * @date 2021.02.14 22:44
+     * @since 1.1.0
+     */
     enum SuffixSelectType {
+        /** File name suffix select type */
         FILE_NAME(1, "文件名"),
+        /** Date file name suffix select type */
         DATE_FILE_NAME(2, "日期-文件名"),
+        /** Random suffix select type */
         RANDOM(3, "随机");
 
+        /** Index */
         private final int index;
+        /** Name */
         private final String name;
 
+        /**
+         * Suffix select type
+         *
+         * @param index index
+         * @param name  name
+         * @since 1.1.0
+         */
         SuffixSelectType(int index, String name) {
             this.index = index;
             this.name = name;
         }
 
+        /**
+         * Gets index *
+         *
+         * @return the index
+         * @since 1.1.0
+         */
         @Contract(pure = true)
         public int getIndex() {
             return this.index;
         }
 
+        /**
+         * Gets name *
+         *
+         * @return the name
+         * @since 1.1.0
+         */
         @Contract(pure = true)
         public String getName() {
             return this.name;
         }
     }
 
+    /**
+     * Test 1
+     *
+     * @since 1.1.0
+     */
     @Test
-    public void test1(){
+    public void test1() {
         String[] allCloud = new String[] {"网易云", "百度云", "京东云", "又拍云", "sm.ms", "Imgur", "Ucloud", "QingCloud"};
         StringBuilder stringBuilder = new StringBuilder();
         for (String s : allCloud) {

@@ -38,8 +38,8 @@ import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.settings.QiniuOssState;
 import info.dong4j.idea.plugin.util.DES;
 import info.dong4j.idea.plugin.util.EnumsUtils;
+import info.dong4j.idea.plugin.util.StringUtils;
 
-import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 

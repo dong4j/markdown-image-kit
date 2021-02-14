@@ -47,8 +47,8 @@ import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.task.ActionTask;
 import info.dong4j.idea.plugin.util.ActionUtils;
 import info.dong4j.idea.plugin.util.ClientUtils;
+import info.dong4j.idea.plugin.util.StringUtils;
 
-import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

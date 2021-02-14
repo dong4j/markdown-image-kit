@@ -64,8 +64,8 @@ import info.dong4j.idea.plugin.util.CharacterUtils;
 import info.dong4j.idea.plugin.util.ClientUtils;
 import info.dong4j.idea.plugin.util.ImageUtils;
 import info.dong4j.idea.plugin.util.MarkdownUtils;
+import info.dong4j.idea.plugin.util.StringUtils;
 
-import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

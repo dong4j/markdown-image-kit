@@ -33,12 +33,12 @@ import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.settings.WeiboOssState;
 import info.dong4j.idea.plugin.util.DES;
 import info.dong4j.idea.plugin.util.ImageUtils;
+import info.dong4j.idea.plugin.util.StringUtils;
 import info.dong4j.idea.plugin.weibo.CookieContext;
 import info.dong4j.idea.plugin.weibo.UploadRequestBuilder;
 import info.dong4j.idea.plugin.weibo.UploadResponse;
 import info.dong4j.idea.plugin.weibo.WbpUploadRequest;
 
-import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 

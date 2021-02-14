@@ -32,8 +32,7 @@ import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.util.CharacterUtils;
 import info.dong4j.idea.plugin.util.EnumsUtils;
 import info.dong4j.idea.plugin.util.ImageUtils;
-
-import org.apache.commons.lang3.time.DateFormatUtils;
+import info.dong4j.idea.plugin.util.date.DateFormatUtils;
 
 import java.util.Date;
 import java.util.Iterator;
@@ -100,15 +99,14 @@ public class ImageRenameHandler extends ActionHandlerAdapter {
         Optional<SuffixEnum> sufix = EnumsUtils.getEnumObject(SuffixEnum.class, e -> e.getIndex() == sufixIndex);
         SuffixEnum suffixEnum = sufix.orElse(SuffixEnum.FILE_NAME);
         switch (suffixEnum) {
-            case FILE_NAME:
-                break;
             case DATE_FILE_NAME:
                 // 删除原来的时间前缀
-                imageName = imageName.replace(DateFormatUtils.format(new Date(), "yyyy-MM-dd-"), "");
-                imageName =  DateFormatUtils.format(new Date(), "yyyy-MM-dd-") + imageName;
+                String oldDateTime = DateFormatUtils.format(new Date(), "yyyy-MM-dd-");
+                imageName = imageName.replace(oldDateTime, "");
+                imageName = oldDateTime + imageName;
                 break;
             case RANDOM:
-                if(!imageName.startsWith(PREFIX)){
+                if (!imageName.startsWith(PREFIX)) {
                     imageName = PREFIX + CharacterUtils.getRandomString(6) + ImageUtils.getFileExtension(imageName);
                 }
                 break;

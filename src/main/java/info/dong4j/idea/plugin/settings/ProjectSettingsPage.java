@@ -40,8 +40,8 @@ import info.dong4j.idea.plugin.enums.ZoneEnum;
 import info.dong4j.idea.plugin.notify.MikNotification;
 import info.dong4j.idea.plugin.util.ClientUtils;
 import info.dong4j.idea.plugin.util.DES;
+import info.dong4j.idea.plugin.util.StringUtils;
 
-import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 

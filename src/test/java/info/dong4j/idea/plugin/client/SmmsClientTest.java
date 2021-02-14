@@ -27,11 +27,11 @@ package info.dong4j.idea.plugin.client;
 import com.google.gson.Gson;
 
 import info.dong4j.idea.plugin.entity.SmmsResult;
+import info.dong4j.idea.plugin.util.IOUtils;
 
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -60,6 +60,7 @@ import lombok.extern.slf4j.Slf4j;
  * @version 0.0.1
  * @email "mailto:dong4j@gmail.com"
  * @date 2019.04.02 14:23
+ * @since 1.1.0
  */
 @Slf4j
 public class SmmsClientTest {
@@ -68,6 +69,7 @@ public class SmmsClientTest {
      * Test 1 *
      *
      * @throws IOException io exception
+     * @since 1.1.0
      */
     @Test
     public void test1() throws IOException {
@@ -81,6 +83,7 @@ public class SmmsClientTest {
      * @param filePath file path
      * @return the string
      * @throws IOException io exception
+     * @since 1.1.0
      */
     @NotNull
     private String start(String url, String filePath) throws IOException {
@@ -111,12 +114,26 @@ public class SmmsClientTest {
         return "";
     }
 
+    /**
+     * Test 2
+     *
+     * @throws FileNotFoundException file not found exception
+     * @since 1.1.0
+     */
     @Test
     public void test_2() throws FileNotFoundException {
-        log.info("{}", this.upload(new FileInputStream(new File("/Users/dong4j/Downloads/05B3AB1C-BBA9-4113-B212-10A914D0CC18.jpg")),
-                                   "05B3AB1C-BBA9-4113-B212-10A914D0CC18.jpg"));
+        log.info("{}", this.upload(new FileInputStream(new File("/Users/dong4j/Downloads/xu.png")),
+                                   "xu.png"));
     }
 
+    /**
+     * Upload
+     *
+     * @param inputStream input stream
+     * @param fileName    file name
+     * @return the string
+     * @since 1.1.0
+     */
     public String upload(InputStream inputStream, String fileName) {
         try {
             HttpClientBuilder builder = HttpClients.custom();
@@ -134,7 +151,7 @@ public class SmmsClientTest {
 
             HttpResponse response = client.execute(post);
 
-            if (response.getStatusLine().getStatusCode() == org.apache.http.HttpStatus.SC_OK) {
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 byte[] res = EntityUtils.toByteArray(response.getEntity());
                 String result = IOUtils.toString(res, StandardCharsets.UTF_8.name());
                 SmmsResult smmsResult = new Gson().fromJson(result, SmmsResult.class);

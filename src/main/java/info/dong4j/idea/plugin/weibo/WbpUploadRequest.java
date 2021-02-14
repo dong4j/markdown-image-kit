@@ -27,6 +27,7 @@ package info.dong4j.idea.plugin.weibo;
 import com.google.gson.Gson;
 
 import info.dong4j.idea.plugin.util.RSAEncodeUtils;
+import info.dong4j.idea.plugin.util.StringUtils;
 import info.dong4j.idea.plugin.weibo.entity.ImageInfo;
 import info.dong4j.idea.plugin.weibo.entity.PreLogin;
 import info.dong4j.idea.plugin.weibo.entity.UploadResp;
@@ -34,8 +35,6 @@ import info.dong4j.idea.plugin.weibo.entity.upload.Pic_1;
 import info.dong4j.idea.plugin.weibo.exception.LoginFailedException;
 import info.dong4j.idea.plugin.weibo.http.WbpHttpRequest;
 import info.dong4j.idea.plugin.weibo.http.WbpHttpResponse;
-
-import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;

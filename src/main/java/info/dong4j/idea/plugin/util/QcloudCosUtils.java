@@ -24,10 +24,10 @@
 
 package info.dong4j.idea.plugin.util;
 
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.codec.digest.HmacUtils;
-import org.apache.commons.io.IOUtils;
+import info.dong4j.idea.plugin.util.digest.DigestUtils;
+import info.dong4j.idea.plugin.util.digest.Hex;
+import info.dong4j.idea.plugin.util.digest.HmacUtils;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -67,7 +67,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @author dong4j
  * @version 0.0.1
- * @email "mailto:dongshijie@fkhwl.com"
+ * @email "mailto:dong4j@gmail.com"
  * @date 2020.04.21 23:29
  * @since 0.0.1
  */

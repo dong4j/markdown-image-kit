@@ -31,8 +31,8 @@ import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.util.AliyunOssUtils;
 import info.dong4j.idea.plugin.util.DES;
+import info.dong4j.idea.plugin.util.StringUtils;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -122,7 +122,7 @@ public class AliyunOssClient implements OssClient {
      *
      * @author dong4j
      * @version 0.0.1
-     * @email "mailto:dongshijie@fkhwl.com"
+     * @email "mailto:dong4j@gmail.com"
      * @date 2020.04.25 17:05
      * @since 0.0.1
      */
@@ -192,7 +192,7 @@ public class AliyunOssClient implements OssClient {
                           String endpoint,
                           String filedir) {
 
-        filedir = org.apache.commons.lang.StringUtils.isBlank(filedir) ? "" : filedir + "/";
+        filedir = StringUtils.isBlank(filedir) ? "" : filedir + "/";
 
         AliyunOssClient.filedir = filedir;
         AliyunOssClient.bucketName = bucketName;

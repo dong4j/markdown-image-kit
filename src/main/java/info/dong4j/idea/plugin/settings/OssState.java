@@ -26,8 +26,8 @@ package info.dong4j.idea.plugin.settings;
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.util.EnumsUtils;
+import info.dong4j.idea.plugin.util.StringUtils;
 
-import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Contract;
 
 import java.util.HashMap;

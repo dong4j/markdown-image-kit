@@ -30,8 +30,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
-
-import org.apache.commons.lang.StringUtils;
+import info.dong4j.idea.plugin.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;

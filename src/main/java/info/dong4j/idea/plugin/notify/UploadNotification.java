@@ -37,8 +37,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 
 import info.dong4j.idea.plugin.exception.UploadException;
 import info.dong4j.idea.plugin.settings.ProjectSettingsPage;
+import info.dong4j.idea.plugin.util.StringUtils;
 
-import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;

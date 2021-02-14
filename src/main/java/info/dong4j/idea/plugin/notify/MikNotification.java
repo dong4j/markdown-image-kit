@@ -38,12 +38,20 @@ import com.intellij.openapi.ui.popup.Balloon;
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.entity.HelpResult;
 import info.dong4j.idea.plugin.enums.HelpType;
+import info.dong4j.idea.plugin.util.IOUtils;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
@@ -71,9 +79,13 @@ public class MikNotification extends Notification {
     /** MIK_NOTIFICATION_NONE_GROUP */
     private static final String MIK_NOTIFICATION_NONE_GROUP = "Image Kit Group";
     /** 注册到通知 */
-    protected static final NotificationGroup NOTIFICATION_GROUP = new NotificationGroup(MIK_NOTIFICATION_GROUP, NotificationDisplayType.BALLOON, true, null, AllIcons.Gutter.Colors);
+    protected static final NotificationGroup NOTIFICATION_GROUP = new NotificationGroup(MIK_NOTIFICATION_GROUP,
+                                                                                        NotificationDisplayType.BALLOON, true, null,
+                                                                                        AllIcons.Gutter.Colors);
     /** NOTIFICATION_NONE_GROUP */
-    protected static final NotificationGroup NOTIFICATION_NONE_GROUP = new NotificationGroup(MIK_NOTIFICATION_NONE_GROUP, NotificationDisplayType.NONE, true, null, AllIcons.Debugger.ShowCurrentFrame);
+    protected static final NotificationGroup NOTIFICATION_NONE_GROUP = new NotificationGroup(MIK_NOTIFICATION_NONE_GROUP,
+                                                                                             NotificationDisplayType.NONE, true, null,
+                                                                                             AllIcons.Debugger.ShowCurrentFrame);
 
     /**
      * Instantiates a new Upload notification.
@@ -97,21 +109,44 @@ public class MikNotification extends Notification {
      * @since 0.0.1
      */
     public static String helpUrl(String where) {
-        HttpClient client = new HttpClient();
-        PostMethod method = new PostMethod(MikBundle.message("mik.help.rest.url") + where);
-        client.getParams().setContentCharset("UTF-8");
         HelpResult helpResult = null;
+
+        HttpClientBuilder builder = HttpClients.custom();
+        // 必须设置 UA, 不然会报 403
+        builder.setUserAgent("Mozilla/5.0 (Windows; U; Windows NT 6.1; zh-CN; rv:1.9.2.6)");
+        CloseableHttpClient client = builder.build();
+
+        HttpPost httpPost = new HttpPost(MikBundle.message("mik.help.rest.url") + where);
+
+        RequestConfig requestConfig = RequestConfig.custom()
+            .setConnectTimeout(3000).setConnectionRequestTimeout(1000)
+            .setSocketTimeout(3000).build();
+
+        httpPost.setConfig(requestConfig);
+
         try {
-            client.executeMethod(method);
-            String response = method.getResponseBodyAsString(1000);
-            helpResult = new Gson().fromJson(response, HelpResult.class);
+            HttpResponse response = client.execute(httpPost);
+
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                byte[] res = EntityUtils.toByteArray(response.getEntity());
+                String result = IOUtils.toString(res, StandardCharsets.UTF_8.name());
+                helpResult = new Gson().fromJson(result, HelpResult.class);
+                log.trace("{}", helpResult);
+            }
 
         } catch (IOException e) {
             log.trace("", e);
         } finally {
-            method.releaseConnection();
+            try {
+                client.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        assert helpResult != null;
+        if (helpResult == null) {
+            return "about:blank";
+        }
+
         return helpResult.getUrl();
     }
 
@@ -136,7 +171,7 @@ public class MikNotification extends Notification {
      */
     public static void notifyCompressInfo(Project project, Map<String, String> compressInfo) {
         StringBuilder content = new StringBuilder();
-        for(Map.Entry<String, String> entry : compressInfo.entrySet()){
+        for (Map.Entry<String, String> entry : compressInfo.entrySet()) {
             content.append("<p>").append(entry.getKey()).append("\t\t\t").append(entry.getValue()).append("</p>");
         }
         Notifications.Bus.notify(new Notification(MIK_NOTIFICATION_NONE_GROUP,

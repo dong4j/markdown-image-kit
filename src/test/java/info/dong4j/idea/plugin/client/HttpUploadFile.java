@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,13 +20,19 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.client;
 
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -36,11 +42,21 @@ import javax.activation.MimetypesFileTypeMap;
 /**
  * java通过模拟post方式提交表单实现图片上传功能实例
  * 其他文件类型可以传入 contentType 实现
+ *
  * @author zdz8207
  * @version 1.0
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2021.02.14 22:44
+ * @since 1.1.0
  */
 public class HttpUploadFile {
 
+    /**
+     * Main
+     *
+     * @param args args
+     * @since 1.1.0
+     */
     public static void main(String[] args) {
         testUploadImage();
     }
@@ -48,8 +64,9 @@ public class HttpUploadFile {
     /**
      * 测试上传png图片
      *
+     * @since 1.1.0
      */
-    public static void testUploadImage(){
+    public static void testUploadImage() {
         String url = "https://sm.ms/api/upload";
         String fileName = "/Users/dong4j/Downloads/mik.png";
         Map<String, String> textMap = new HashMap<String, String>();
@@ -67,12 +84,13 @@ public class HttpUploadFile {
 
     /**
      * 上传图片
-     * @param urlStr
-     * @param textMap
-     * @param fileMap
-     * @param contentType 没有传入文件类型默认采用application/octet-stream
-     * contentType非空采用filename匹配默认的图片类型
-     * @return 返回response数据
+     *
+     * @param urlStr      url str
+     * @param textMap     text map
+     * @param fileMap     file map
+     * @param contentType 没有传入文件类型默认采用application/octet-stream contentType非空采用filename匹配默认的图片类型
+     * @return 返回response数据 string
+     * @since 1.1.0
      */
     @SuppressWarnings("rawtypes")
     public static String formUpload(String urlStr, Map<String, String> textMap,

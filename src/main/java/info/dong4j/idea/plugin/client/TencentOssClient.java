@@ -31,8 +31,8 @@ import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.settings.TencentOssState;
 import info.dong4j.idea.plugin.util.DES;
 import info.dong4j.idea.plugin.util.QcloudCosUtils;
+import info.dong4j.idea.plugin.util.StringUtils;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -110,7 +110,7 @@ public class TencentOssClient implements OssClient {
      *
      * @author dong4j
      * @version 0.0.1
-     * @email "mailto:dongshijie@fkhwl.com"
+     * @email "mailto:dong4j@gmail.com"
      * @date 2020.04.22 01:17
      * @since 0.0.1
      */

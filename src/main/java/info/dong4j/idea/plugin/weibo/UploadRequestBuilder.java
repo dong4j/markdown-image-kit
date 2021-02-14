@@ -24,10 +24,9 @@
 
 package info.dong4j.idea.plugin.weibo;
 
+import info.dong4j.idea.plugin.util.StringUtils;
 import info.dong4j.idea.plugin.weibo.http.DefaultWbpHttpRequest;
 import info.dong4j.idea.plugin.weibo.http.WbpHttpRequest;
-
-import org.apache.commons.lang.StringUtils;
 
 /**
  * <p>Description: </p>

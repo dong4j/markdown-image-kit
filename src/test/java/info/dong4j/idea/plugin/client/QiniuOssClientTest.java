@@ -51,11 +51,18 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: ${description}</p>
  *
  * @author dong4j
- * @date 2019.03.19 15:35
+ * @version 1.0.0
  * @email "mailto:dong4j@gmail.com"
+ * @date 2019.03.19 15:35
+ * @since 1.1.0
  */
 @Slf4j
 public class QiniuOssClientTest extends LightPlatformTestCase {
+    /**
+     * Test
+     *
+     * @since 1.1.0
+     */
     public void test() {
         String bucket = "";
         String accessKey = "";
@@ -71,6 +78,17 @@ public class QiniuOssClientTest extends LightPlatformTestCase {
         log.info("{}", url);
     }
 
+    /**
+     * Upload
+     *
+     * @param inputStream input stream
+     * @param bucket      bucket
+     * @param preFix      pre fix
+     * @param accessKey   access key
+     * @param secretKey   secret key
+     * @return the string
+     * @since 1.1.0
+     */
     public static String upload(InputStream inputStream, String bucket, String preFix, String accessKey, String secretKey) {
         //构造一个带指定Zone对象的配置类
         Configuration cfg = new Configuration(Zone.zone0());
@@ -105,6 +123,17 @@ public class QiniuOssClientTest extends LightPlatformTestCase {
         return "";
     }
 
+    /**
+     * Upload
+     *
+     * @param uploadBytes upload bytes
+     * @param preFix      pre fix
+     * @param bucket      bucket
+     * @param accessKey   access key
+     * @param secretKey   secret key
+     * @return the string
+     * @since 1.1.0
+     */
     public static String upload(byte[] uploadBytes, String preFix, String bucket, String accessKey, String secretKey) {
         Configuration cfg = new Configuration(Zone.zone2());
         UploadManager uploadManager = new UploadManager(cfg);
@@ -129,6 +158,17 @@ public class QiniuOssClientTest extends LightPlatformTestCase {
         return key;
     }
 
+    /**
+     * Upload
+     *
+     * @param file      file
+     * @param bucket    bucket
+     * @param accessKey access key
+     * @param secretKey secret key
+     * @param endpoint  endpoint
+     * @return the string
+     * @since 1.1.0
+     */
     public static String upload(File file, String bucket, String accessKey, String secretKey, String endpoint) {
         //构造一个带指定Zone对象的配置类
         Configuration cfg = new Configuration(Zone.zone0());
@@ -167,6 +207,12 @@ public class QiniuOssClientTest extends LightPlatformTestCase {
         return "";
     }
 
+    /**
+     * Test 1
+     *
+     * @throws FileNotFoundException file not found exception
+     * @since 1.1.0
+     */
     public void test1() throws FileNotFoundException {
         QiniuOssClient qiniuOssClient = QiniuOssClient.getInstance();
         String url = qiniuOssClient.upload(new FileInputStream(new File("/Users/dong4j/Downloads/我可要开始皮了.png")), "我可要开始皮了.png");

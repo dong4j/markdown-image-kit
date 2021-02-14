@@ -25,9 +25,8 @@
 package info.dong4j.idea.plugin.weibo;
 
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
+import info.dong4j.idea.plugin.util.StringUtils;
 import info.dong4j.idea.plugin.weibo.io.CookieCacheable;
-
-import org.apache.commons.lang.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
