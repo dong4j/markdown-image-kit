@@ -1,3 +1,27 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package info.dong4j.idea.plugin.util;
 
 import org.apache.commons.codec.binary.Hex;
@@ -11,8 +35,15 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
@@ -35,9 +66,10 @@ import lombok.extern.slf4j.Slf4j;
  * https://cloud.tencent.com/document/product/436/7751
  *
  * @author dong4j
- * @version x.x.x
+ * @version 0.0.1
  * @email "mailto:dongshijie@fkhwl.com"
  * @date 2020.04.21 23:29
+ * @since 0.0.1
  */
 @Slf4j
 public class QcloudCosUtils {
@@ -68,6 +100,7 @@ public class QcloudCosUtils {
      * Gets gmt date *
      *
      * @return the gmt date
+     * @since 0.0.1
      */
     public static String getGMTDate() {
         Calendar cd = Calendar.getInstance();
@@ -86,6 +119,7 @@ public class QcloudCosUtils {
      * @param SecretKey   secret key
      * @param SecretId    secret id
      * @return the authorization
+     * @since 0.0.1
      */
     public static String getAuthorization(Map<String, String> headers,
                                           Map<String, String> params,
@@ -138,6 +172,7 @@ public class QcloudCosUtils {
      * @param head head
      * @return the string
      * @throws IOException io exception
+     * @since 0.0.1
      */
     public static String get(String url, Map<String, String> head) throws IOException {
         CloseableHttpClient client = HttpClients.createDefault();
@@ -157,6 +192,7 @@ public class QcloudCosUtils {
      *
      * @param expiredTime expired time
      * @return the string
+     * @since 0.0.1
      */
     public static String buildTimeStr(Date expiredTime) {
         StringBuilder strBuilder = new StringBuilder();
@@ -171,6 +207,7 @@ public class QcloudCosUtils {
      *
      * @param kVMap k v map
      * @return the string
+     * @since 0.0.1
      */
     public static String formatMapToStr(Map<String, String> kVMap) {
         StringBuilder strBuilder = new StringBuilder();
@@ -197,6 +234,7 @@ public class QcloudCosUtils {
      *
      * @param originHeaders origin headers
      * @return the map
+     * @since 0.0.1
      */
     private static Map<String, String> buildSignHeaders(Map<String, String> originHeaders) {
         Map<String, String> signHeaders = new HashMap<>();
@@ -218,6 +256,7 @@ public class QcloudCosUtils {
      *
      * @param signHeaders sign headers
      * @return the string
+     * @since 0.0.1
      */
     public static String buildSignMemberStr(Map<String, String> signHeaders) {
         StringBuilder strBuilder = new StringBuilder();
@@ -238,6 +277,7 @@ public class QcloudCosUtils {
      *
      * @param originUrl origin url
      * @return the string
+     * @since 0.0.1
      */
     public static String encode(String originUrl) {
         try {
@@ -254,6 +294,7 @@ public class QcloudCosUtils {
      * @param regionName region name
      * @param key        key
      * @return the url
+     * @since 0.0.1
      */
     public static String getUrl(String backet, String regionName, String key) {
         if (!key.startsWith("/")) {
@@ -271,6 +312,7 @@ public class QcloudCosUtils {
      * @param SecretKey  secret key
      * @param SecretId   secret id
      * @return the obj
+     * @since 0.0.1
      */
     public static String getObj(String key, String backet, String regionName,
                                 String SecretKey,
@@ -302,6 +344,7 @@ public class QcloudCosUtils {
      * @param inStr in str
      * @return the string
      * @throws Exception exception
+     * @since 0.0.1
      */
     public static String shaEncode(String inStr) throws Exception {
         MessageDigest sha;
@@ -330,6 +373,7 @@ public class QcloudCosUtils {
      *
      * @param date date
      * @return the second timestamp
+     * @since 0.0.1
      */
     public static String getSecondTimestamp(Date date) {
         if (null == date) {
@@ -350,6 +394,7 @@ public class QcloudCosUtils {
      * @param key key
      * @param src src
      * @return the string
+     * @since 0.0.1
      */
     public static String genHMAC(String key, String src) {
         try {
@@ -373,6 +418,7 @@ public class QcloudCosUtils {
      * @param regionName region name
      * @return the upload information
      * @throws Exception exception
+     * @since 0.0.1
      */
     public static String getUploadInformation(String path,
                                               InputStream content,
@@ -434,6 +480,7 @@ public class QcloudCosUtils {
      * @param secretId   secret id
      * @param secretKey  secret key
      * @return the string
+     * @since 0.0.1
      */
     public static String putObject(String key,
                                    InputStream content,

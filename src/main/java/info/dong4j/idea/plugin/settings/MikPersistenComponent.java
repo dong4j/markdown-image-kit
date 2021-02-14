@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.settings;
@@ -39,30 +38,46 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: 配置持久化 </p>
  *
  * @author dong4j
- * @date 2019-03-13 11:56
- * @email dong4j@gmail.com
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2019.03.13 11:56
+ * @since 0.0.1
  */
 @Slf4j
 @State(name = "MikSettings", storages = @Storage("markdown.image.kit.configs.xml"))
 public class MikPersistenComponent implements PersistentStateComponent<MikState> {
 
+    /** My state */
     private MikState myState = new MikState();
 
     /**
      * Get the instance of this service.
      *
      * @return the unique {@link MikPersistenComponent} instance.
+     * @since 0.0.1
      */
     public static MikPersistenComponent getInstance() {
         return ServiceManager.getService(MikPersistenComponent.class);
     }
 
+    /**
+     * Gets state *
+     *
+     * @return the state
+     * @since 0.0.1
+     */
     @NotNull
     @Override
     public MikState getState() {
         return this.myState;
     }
 
+    /**
+     * Load state
+     *
+     * @param state state
+     * @since 0.0.1
+     */
     @Override
     public void loadState(@NotNull MikState state) {
         this.myState = state;

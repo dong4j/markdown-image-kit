@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.settings;
@@ -35,23 +34,34 @@ import lombok.Data;
  * <p>Description: </p>
  *
  * @author dong4j
- * @email dong4j@gmail.com
- * @since 2019-03-13 14:21
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2021.02.14 18:40
+ * @since 0.0.1
  */
 @Data
 public class MikState {
-    /** 加密盐值*/
+    /** 加密盐值 */
     public static final String WEIBOKEY = "ekjgbpiq!g34o@erberb.erbmkv.c;,ergw_.";
+    /** ALIYUN */
     public static final String ALIYUN = "awj7@piq!g3jo@er_erb.erbsrxhc!,wr.w_1";
+    /** QINIU */
     public static final String QINIU = "gerb2.erhgds'5yf@4ybtree!43h34hbd4_";
+    /** TENCENT */
     public static final String TENCENT = "xg13g143fvsdklo)2,m.we_123vds12e!#41c";
 
+    /** OLD_HASH_KEY */
     public static final String OLD_HASH_KEY = "old";
+    /** NEW_HASH_KEY */
     public static final String NEW_HASH_KEY = "new";
 
+    /** Weibo oss state */
     private WeiboOssState weiboOssState;
+    /** Aliyun oss state */
     private AliyunOssState aliyunOssState;
+    /** Qiniu oss state */
     private QiniuOssState qiniuOssState;
+    /** Tencent oss state */
     private TencentOssState tencentOssState;
 
     /** 是否替换标签 */
@@ -62,6 +72,7 @@ public class MikState {
     private String tagTypeCode = "";
     /** 是否压缩图片 */
     private boolean compress = false;
+    /** Compress before upload of percent */
     private int compressBeforeUploadOfPercent = 60;
     /** 图片备份 */
     private boolean backup = false;
@@ -75,13 +86,18 @@ public class MikState {
     private boolean defaultCloudCheck = false;
     /** 默认图床 */
     private int cloudType = CloudEnum.SM_MS_CLOUD.index;
-    /** 这个只是 setting 页面用, 用于保存未勾选自定义默认图床时需要保存的下拉列表选项*/
+    /** 这个只是 setting 页面用, 用于保存未勾选自定义默认图床时需要保存的下拉列表选项 */
     private int tempCloudType = CloudEnum.WEIBO_CLOUD.index;
     /** 重命名文件 */
     private boolean rename = false;
     /** 文件名后缀 */
     private int suffixIndex = SuffixEnum.FILE_NAME.index;
 
+    /**
+     * Mik state
+     *
+     * @since 0.0.1
+     */
     public MikState() {
         this.aliyunOssState = new AliyunOssState();
         this.qiniuOssState = new QiniuOssState();

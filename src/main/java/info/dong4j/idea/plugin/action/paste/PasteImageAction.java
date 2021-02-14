@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.action.paste;
@@ -75,7 +74,12 @@ import java.awt.Image;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -93,21 +97,26 @@ import lombok.extern.slf4j.Slf4j;
  * todo-dong4j : (2019年03月17日 19:37) [图片压缩处理]
  *
  * @author dong4j
- * @date 2019-03-16 12:15
- * @email dong4j@gmail.com
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2019.03.16 12:15
+ * @since 0.0.1
  */
 @Slf4j
 public class PasteImageAction extends EditorActionHandler implements EditorTextInsertHandler {
+    /** Editor action handler */
     private final EditorActionHandler editorActionHandler;
+    /** STATE */
     private static final MikState STATE = MikPersistenComponent.getInstance().getState();
 
     /**
      * Instantiates a new Paste image handler.
      *
      * @param originalAction the original action
+     * @since 0.0.1
      */
     public PasteImageAction(EditorActionHandler originalAction) {
-        editorActionHandler = originalAction;
+        this.editorActionHandler = originalAction;
     }
 
     /**
@@ -119,6 +128,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
      * @param editor      the editor
      * @param caret       the caret
      * @param dataContext the data context
+     * @since 0.0.1
      */
     @Override
     protected void doExecute(@NotNull Editor editor, @Nullable Caret caret, DataContext dataContext) {
@@ -135,10 +145,10 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
                     Iterator<Map.Entry<DataFlavor, Object>> iterator = clipboardData.entrySet().iterator();
                     Map.Entry<DataFlavor, Object> entry = iterator.next();
 
-                    Map<Document, List<MarkdownImage>> waitingProcessMap = buildWaitingProcessMap(entry, editor);
+                    Map<Document, List<MarkdownImage>> waitingProcessMap = this.buildWaitingProcessMap(entry, editor);
 
                     if (waitingProcessMap.size() == 0) {
-                        defaultAction(editor, caret, dataContext);
+                        this.defaultAction(editor, caret, dataContext);
                         return;
                     }
 
@@ -189,15 +199,23 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
                 }
             }
         }
-        defaultAction(editor, caret, dataContext);
+        this.defaultAction(editor, caret, dataContext);
     }
 
+    /**
+     * Build waiting process map
+     *
+     * @param entry  entry
+     * @param editor editor
+     * @return the map
+     * @since 0.0.1
+     */
     @Contract(pure = true)
     private Map<Document, List<MarkdownImage>> buildWaitingProcessMap(@NotNull Map.Entry<DataFlavor, Object> entry,
                                                                       Editor editor) {
         Map<Document, List<MarkdownImage>> waitingProcessMap = new HashMap<>(10);
         List<MarkdownImage> markdownImages = new ArrayList<>(10);
-        for (Map.Entry<String, InputStream> inputStreamMap : resolveClipboardData(entry).entrySet()) {
+        for (Map.Entry<String, InputStream> inputStreamMap : this.resolveClipboardData(entry).entrySet()) {
             MarkdownImage markdownImage = new MarkdownImage();
             markdownImage.setFileName("");
             markdownImage.setImageName(inputStreamMap.getKey());
@@ -226,13 +244,14 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
      *
      * @param entry the entry     List<File> 或者 Image 类型
      * @return the map              文件名-->File, File 有本地文件(resolveFromFile)和临时文件(resolveFromImage)
+     * @since 0.0.1
      */
     private Map<String, InputStream> resolveClipboardData(@NotNull Map.Entry<DataFlavor, Object> entry) {
         Map<String, InputStream> imageMap = new HashMap<>(10);
         if (entry.getKey().equals(DataFlavor.javaFileListFlavor)) {
-            resolveFromFile(entry, imageMap);
+            this.resolveFromFile(entry, imageMap);
         } else {
-            resolveFromImage(entry, imageMap);
+            this.resolveFromImage(entry, imageMap);
         }
         return imageMap;
     }
@@ -242,6 +261,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
      *
      * @param entry    the entry
      * @param imageMap the image map
+     * @since 0.0.1
      */
     private void resolveFromFile(@NotNull Map.Entry<DataFlavor, Object> entry,
                                  Map<String, InputStream> imageMap) {
@@ -268,6 +288,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
      *
      * @param entry    the entry
      * @param imageMap the image map
+     * @since 0.0.1
      */
     private void resolveFromImage(@NotNull Map.Entry<DataFlavor, Object> entry,
                                   Map<String, InputStream> imageMap) {
@@ -292,11 +313,12 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
      * @param editor      the editor
      * @param caret       the caret
      * @param dataContext the data context
+     * @since 0.0.1
      */
     private void defaultAction(@NotNull Editor editor, @Nullable Caret caret, DataContext dataContext) {
         // 执行默认的 paste 操作
-        if (editorActionHandler != null) {
-            editorActionHandler.execute(editor, caret, dataContext);
+        if (this.editorActionHandler != null) {
+            this.editorActionHandler.execute(editor, caret, dataContext);
         }
     }
 
@@ -306,6 +328,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
      *
      * @param ed        the ed
      * @param imageFile the image file
+     * @since 0.0.1
      */
     private void createVirtualFile(Editor ed, File imageFile) {
         VirtualFile fileByPath = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(imageFile);
@@ -316,6 +339,14 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
         }
     }
 
+    /**
+     * Execute
+     *
+     * @param editor      editor
+     * @param dataContext data context
+     * @param producer    producer
+     * @since 0.0.1
+     */
     @Override
     public void execute(Editor editor, DataContext dataContext, Producer<Transferable> producer) {
 

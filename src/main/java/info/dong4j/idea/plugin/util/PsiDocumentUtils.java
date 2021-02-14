@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.util;
@@ -43,11 +42,14 @@ import info.dong4j.idea.plugin.settings.MikState;
  * <p>Description: 操作文档</p>
  *
  * @author dong4j
- * @date 2019-03-12 22:20
- * @email dong4j@gmail.com
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2019.03.12 22:20
+ * @since 0.0.1
  */
 public final class PsiDocumentUtils {
-    private static MikState state = MikPersistenComponent.getInstance().getState();
+    /** state */
+    private static final MikState state = MikPersistenComponent.getInstance().getState();
 
     /**
      * 全文替换
@@ -55,6 +57,7 @@ public final class PsiDocumentUtils {
      * @param project  the project
      * @param document the document
      * @param string   the string
+     * @since 0.0.1
      */
     public static void commitAndSaveDocument(Project project, Document document, String string) {
         if (document != null) {
@@ -74,6 +77,7 @@ public final class PsiDocumentUtils {
      * @param project       the project
      * @param document      the document
      * @param markdownImage the markdown image
+     * @since 0.0.1
      */
     public static void commitAndSaveDocument(Project project,
                                              Document document,
@@ -100,6 +104,7 @@ public final class PsiDocumentUtils {
      *
      * @param marks  the marks
      * @param editor the editor
+     * @since 0.0.1
      */
     public static void insertDocument(String marks, Editor editor){
         Runnable r = () -> EditorModificationUtil.insertStringAtCaret(editor, marks);

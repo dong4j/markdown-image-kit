@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.util;
@@ -37,11 +36,14 @@ import javax.crypto.spec.DESKeySpec;
  * <p>Description: 加解密工具类</p>
  *
  * @author dong4j
- * @date 2018 -08-26 00:30
- * @email dong4j@gmail.com
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2018.08.26 00:30
+ * @since 0.0.1
  */
 public final class DES {
 
+    /** DES */
     private final static String DES = "DES";
 
     /**
@@ -50,6 +52,7 @@ public final class DES {
      * @param data 待加密字符串
      * @param key  加密私钥，长度不能够小于8位
      * @return 加密后的字节数组 ，一般结合Base64编码使用
+     * @since 0.0.1
      */
     public static String encrypt(String data, String key) {
         if (data != null) {
@@ -67,7 +70,8 @@ public final class DES {
      * key的长度必须是8的倍数，如果不是则用0补齐。
      *
      * @param key the key
-     * @return string
+     * @return string string
+     * @since 0.0.1
      */
     private static String fixKey(String key) {
         if (key == null || key.length() == 0) {
@@ -90,7 +94,8 @@ public final class DES {
      * 二行制转字符串
      *
      * @param b the b
-     * @return string
+     * @return string string
+     * @since 0.0.1
      */
     private static String byte2hex(byte[] b) {
         StringBuilder hs = new StringBuilder();
@@ -112,6 +117,7 @@ public final class DES {
      * @param key 解密私钥，长度不能够小于8位
      * @return 解密后的字节数组 string
      * @throws RuntimeException the runtime exception
+     * @since 0.0.1
      */
     public static byte[] encrypt(byte[] src, byte[] key) throws RuntimeException {
         try {
@@ -122,6 +128,14 @@ public final class DES {
         }
     }
 
+    /**
+     * Gets cipher *
+     *
+     * @param key  key
+     * @param type type
+     * @return the cipher
+     * @since 0.0.1
+     */
     private static Cipher getCipher(byte[] key, int type) {
         Cipher cipher;
         try {
@@ -149,6 +163,7 @@ public final class DES {
      * @param data the data
      * @param key  密钥
      * @return string string
+     * @since 0.0.1
      */
     public final static String decrypt(String data, String key) {
         key = fixKey(key);
@@ -162,6 +177,7 @@ public final class DES {
      * @param key 密钥，长度必须是8的倍数
      * @return 返回解密后的原始数据 byte [ ]
      * @throws RuntimeException the runtime exception
+     * @since 0.0.1
      */
     private static byte[] decrypt(byte[] src, byte[] key) throws RuntimeException {
         try {
@@ -172,6 +188,13 @@ public final class DES {
         }
     }
 
+    /**
+     * Hex 2 byte
+     *
+     * @param b b
+     * @return the byte [ ]
+     * @since 0.0.1
+     */
     private static byte[] hex2byte(byte[] b) {
         if ((b.length % 2) != 0) {
             throw new IllegalArgumentException();

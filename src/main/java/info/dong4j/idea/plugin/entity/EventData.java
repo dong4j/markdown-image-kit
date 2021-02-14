@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.entity;
@@ -44,23 +43,29 @@ import lombok.experimental.Accessors;
  * <p>Description: </p>
  *
  * @author dong4j
- * @email dong4j@gmail.com
- * @since 2019-03-22 21:01
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2021.02.14 18:40
+ * @since 2019.03.22 21:01
  */
 @Data
 @Accessors(chain = true)
 public class EventData {
+    /** Action event */
     private AnActionEvent actionEvent;
     /** 显示当前处理进度 */
     private ProgressIndicator indicator;
+    /** Project */
     private Project project;
+    /** Editor */
     private Editor editor;
+    /** Document */
     private Document document;
-    /** 待处理的数据*/
+    /** 待处理的数据 */
     private Map<Document, List<MarkdownImage>> waitingProcessMap;
-    /** 文件上传客户端*/
+    /** 文件上传客户端 */
     private OssClient client;
-    /** client name*/
+    /** client name */
     private String clientName;
     /** chain size */
     private int size;

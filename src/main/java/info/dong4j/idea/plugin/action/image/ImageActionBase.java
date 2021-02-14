@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.action.image;
@@ -46,7 +45,8 @@ import info.dong4j.idea.plugin.util.ImageUtils;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -61,20 +61,21 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: 图片 压缩, 直接上传后将 url 写入到 clipboard </p>
  *
  * @author dong4j
- * @email dong4j@gmail.com
- * @since 2019-03-26 15:32
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2021.02.14 18:40
+ * @since 2019.03.26 15:32
  */
 @Slf4j
 public abstract class ImageActionBase extends AnAction {
-    /**
-     * The constant STATE.
-     */
+    /** STATE */
     protected static final MikState STATE = MikPersistenComponent.getInstance().getState();
 
     /**
      * Gets icon.
      *
      * @return the icon
+     * @since 0.0.1
      */
     abstract protected Icon getIcon();
 
@@ -83,14 +84,27 @@ public abstract class ImageActionBase extends AnAction {
      *
      * @param event             the event
      * @param waitingProcessMap the waiting process map
+     * @since 0.0.1
      */
     abstract void buildChain(AnActionEvent event, Map<Document, List<MarkdownImage>> waitingProcessMap);
 
+    /**
+     * Update
+     *
+     * @param event event
+     * @since 0.0.1
+     */
     @Override
     public void update(@NotNull AnActionEvent event) {
-        ActionUtils.isAvailable(event, getIcon(), ImageContents.IMAGE_TYPE_NAME);
+        ActionUtils.isAvailable(event, this.getIcon(), ImageContents.IMAGE_TYPE_NAME);
     }
 
+    /**
+     * Action performed
+     *
+     * @param event event
+     * @since 0.0.1
+     */
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
         Map<String, File> imageMap = new HashMap<>(32);
@@ -98,32 +112,32 @@ public abstract class ImageActionBase extends AnAction {
 
         Map<Document, List<MarkdownImage>> waitingProcessMap = new HashMap<>(32);
 
-        final Project project = event.getProject();
+        Project project = event.getProject();
         if (project != null) {
             log.trace("project's base path = {}", project.getBasePath());
 
             // 如果选中编辑器
-            final DataContext dataContext = event.getDataContext();
+            DataContext dataContext = event.getDataContext();
 
-            final Editor editor = PlatformDataKeys.EDITOR.getData(dataContext);
+            Editor editor = PlatformDataKeys.EDITOR.getData(dataContext);
             if (null != editor) {
                 VirtualFile virtualFile = event.getData(PlatformDataKeys.VIRTUAL_FILE);
                 assert virtualFile != null;
-                buildWaitingProcessMap(waitingProcessMap, virtualFile);
+                this.buildWaitingProcessMap(waitingProcessMap, virtualFile);
             } else {
                 // 获取被选中的有文件和目录
-                final VirtualFile[] virtualFiles = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(dataContext);
+                VirtualFile[] virtualFiles = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(dataContext);
                 if (null != virtualFiles) {
                     for (VirtualFile rootFile : virtualFiles) {
                         if (ImageContents.IMAGE_TYPE_NAME.equals(rootFile.getFileType().getName())) {
-                            buildWaitingProcessMap(waitingProcessMap, rootFile);
+                            this.buildWaitingProcessMap(waitingProcessMap, rootFile);
 
                         }
                         // 如果是目录, 则递归获取所有 image 文件
                         if (rootFile.isDirectory()) {
                             List<VirtualFile> imageFiles = ImageUtils.recursivelyImageFile(rootFile);
                             for (VirtualFile subFile : imageFiles) {
-                                buildWaitingProcessMap(waitingProcessMap, subFile);
+                                this.buildWaitingProcessMap(waitingProcessMap, subFile);
                             }
                         }
                     }
@@ -131,7 +145,7 @@ public abstract class ImageActionBase extends AnAction {
             }
 
             if(waitingProcessMap.size() > 0){
-                buildChain(event, waitingProcessMap);
+                this.buildChain(event, waitingProcessMap);
             }
         }
     }
@@ -141,6 +155,7 @@ public abstract class ImageActionBase extends AnAction {
      *
      * @param waitingProcessMap the waiting process map
      * @param virtualFile       the virtual file
+     * @since 0.0.1
      */
     private void buildWaitingProcessMap(@NotNull Map<Document, List<MarkdownImage>> waitingProcessMap,
                                         @NotNull VirtualFile virtualFile) {
@@ -159,8 +174,10 @@ public abstract class ImageActionBase extends AnAction {
         markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
 
         waitingProcessMap.put(new MockDocument(), new ArrayList<MarkdownImage>() {
+            private static final long serialVersionUID = 5838886826856938689L;
+
             {
-                add(markdownImage);
+                this.add(markdownImage);
             }
         });
     }

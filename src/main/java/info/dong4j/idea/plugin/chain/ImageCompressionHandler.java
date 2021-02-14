@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.chain;
@@ -31,7 +30,9 @@ import info.dong4j.idea.plugin.util.ImageUtils;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Iterator;
@@ -44,23 +45,46 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: 图片压缩处理, 将 MarkdownImage 的文件修改 InputStream </p>
  *
  * @author dong4j
- * @email dong4j@gmail.com
- * @since 2019-03-28 09:23
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2021.02.14 18:40
+ * @since 2019.03.28 09:23
  */
 @Slf4j
 public class ImageCompressionHandler extends ActionHandlerAdapter {
+    /**
+     * Gets name *
+     *
+     * @return the name
+     * @since 0.0.1
+     */
     @Override
     public String getName() {
         return "图片压缩";
     }
 
+    /**
+     * Is enabled
+     *
+     * @param data data
+     * @return the boolean
+     * @since 0.0.1
+     */
     @Override
     public boolean isEnabled(EventData data) {
         return STATE.isCompress();
     }
 
+    /**
+     * Invoke
+     *
+     * @param data          data
+     * @param imageIterator image iterator
+     * @param markdownImage markdown image
+     * @since 0.0.1
+     */
     @Override
-    public void invoke(EventData data,  Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
+    public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
         String imageName = markdownImage.getImageName();
         if (markdownImage.getInputStream() == null) {
             log.trace("inputstream 为 null, remove markdownImage = {}", markdownImage);
@@ -88,6 +112,7 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
      * @param imageName    the image name
      * @param oldlength    the oldlength
      * @param newLength    the new length
+     * @since 0.0.1
      */
     private void buildConpress(@NotNull Map<String, String> compressInfo,
                                String imageName,
@@ -106,8 +131,9 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
     /**
      * byte(字节)根据长度转成kb(千字节)和mb(兆字节)
      *
-     * @param bytes
-     * @return
+     * @param bytes bytes
+     * @return string
+     * @since 0.0.1
      */
     @NotNull
     private static String bytesToKb(long bytes) {

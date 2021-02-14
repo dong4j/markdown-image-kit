@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.client;
@@ -44,8 +43,9 @@ import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
-import java.net.*;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Map;
 import java.util.Optional;
 
@@ -58,16 +58,22 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: </p>
  *
  * @author dong4j
- * @email dong4j@gmail.com
- * @since 2019-03-19 15:25
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2021.02.14 18:40
+ * @since 2019.03.19 15:25
  */
 @Slf4j
 @Client(CloudEnum.QINIU_CLOUD)
 public class QiniuOssClient implements OssClient {
+    /** DEAD_LINE */
     private static final long DEAD_LINE = 3600L * 1000 * 24 * 365 * 10;
 
+    /** token */
     private static String token;
+    /** ossClient */
     private static UploadManager ossClient = null;
+    /** domain */
     private static String domain;
 
     static {
@@ -76,6 +82,8 @@ public class QiniuOssClient implements OssClient {
 
     /**
      * 如果是第一次使用, ossClient == null
+     *
+     * @since 0.0.1
      */
     private static void init() {
         QiniuOssState qiniuOssState = MikPersistenComponent.getInstance().getState().getQiniuOssState();
@@ -97,6 +105,7 @@ public class QiniuOssClient implements OssClient {
      * Set domain.
      *
      * @param newDomain the new domain
+     * @since 0.0.1
      */
     private void setDomain(String newDomain) {
         domain = newDomain;
@@ -106,6 +115,7 @@ public class QiniuOssClient implements OssClient {
      * Set oss client.
      *
      * @param oss the oss
+     * @since 0.0.1
      */
     private void setOssClient(UploadManager oss) {
         ossClient = oss;
@@ -117,11 +127,18 @@ public class QiniuOssClient implements OssClient {
      * @param auth       the auth
      * @param bucketName the bucket name
      * @return the string
+     * @since 0.0.1
      */
     private static void buildToken(@NotNull Auth auth, String bucketName) {
         token = auth.uploadToken(bucketName, null, DEAD_LINE, null, true);
     }
 
+    /**
+     * Gets cloud type *
+     *
+     * @return the cloud type
+     * @since 0.0.1
+     */
     @Override
     public CloudEnum getCloudType() {
         return CloudEnum.QINIU_CLOUD;
@@ -131,18 +148,30 @@ public class QiniuOssClient implements OssClient {
      * Gets instance.
      *
      * @return the instance
+     * @since 0.0.1
      */
     @Contract(pure = true)
     public static QiniuOssClient getInstance() {
-        QiniuOssClient client = (QiniuOssClient)OssClient.INSTANCES.get(CloudEnum.QINIU_CLOUD);
-        if(client == null){
+        QiniuOssClient client = (QiniuOssClient) OssClient.INSTANCES.get(CloudEnum.QINIU_CLOUD);
+        if (client == null) {
             client = SingletonHandler.SINGLETON;
             OssClient.INSTANCES.put(CloudEnum.QINIU_CLOUD, client);
         }
         return client;
     }
 
+    /**
+     * <p>Company: 成都返空汇网络技术有限公司 </p>
+     * <p>Description: </p>
+     *
+     * @author dong4j
+     * @version 0.0.1
+     * @email "mailto:dong4j@gmail.com"
+     * @date 2021.02.14 18:40
+     * @since 0.0.1
+     */
     private static class SingletonHandler {
+        /** SINGLETON */
         private static final QiniuOssClient SINGLETON = new QiniuOssClient();
     }
 
@@ -152,6 +181,7 @@ public class QiniuOssClient implements OssClient {
      * @param inputStream the input stream
      * @param fileName    the file name
      * @return the string
+     * @since 0.0.1
      */
     @Override
     public String upload(InputStream inputStream, String fileName) {
@@ -166,6 +196,7 @@ public class QiniuOssClient implements OssClient {
      * @param fileName    the file name
      * @param jPanel      the j panel
      * @return the string
+     * @since 0.0.1
      */
     @Override
     public String upload(InputStream inputStream, String fileName, JPanel jPanel) {
@@ -196,6 +227,7 @@ public class QiniuOssClient implements OssClient {
      * @param endpoint    the endpoint
      * @param zoneIndex   the zone index
      * @return the string
+     * @since 0.0.1
      */
     @NotNull
     @Contract(pure = true)
@@ -241,6 +273,7 @@ public class QiniuOssClient implements OssClient {
      * @param inputStream the input stream
      * @param fileName    the file name
      * @return the string
+     * @since 0.0.1
      */
     public String upload(@NotNull UploadManager ossClient, InputStream inputStream, String fileName) {
         try {

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.chain;
@@ -42,15 +41,30 @@ import java.util.Map;
  * <p>Description: 替换原有标签</p>
  *
  * @author dong4j
- * @email dong4j@gmail.com
- * @since 2019-03-28 13:49
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2021.02.14 18:40
+ * @since 2019.03.28 13:49
  */
 public class ReplaceToDocument extends ActionHandlerAdapter {
+    /**
+     * Gets name *
+     *
+     * @return the name
+     * @since 0.0.1
+     */
     @Override
     public String getName() {
         return "替换原有标签";
     }
 
+    /**
+     * Execute
+     *
+     * @param data data
+     * @return the boolean
+     * @since 0.0.1
+     */
     @Override
     public boolean execute(EventData data) {
         ProgressIndicator indicator = data.getIndicator();
@@ -75,7 +89,6 @@ public class ReplaceToDocument extends ActionHandlerAdapter {
                     .replaceString(document.getLineStartOffset(markdownImage.getLineNumber()),
                                    document.getLineEndOffset(markdownImage.getLineNumber()),
                                    newLineText));
-
 
 
             }

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.notify;
@@ -42,8 +41,9 @@ import info.dong4j.idea.plugin.settings.ProjectSettingsPage;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
-import java.net.*;
+import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
@@ -56,11 +56,14 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: 上传后消息通知 </p>
  *
  * @author dong4j
- * @date 2019-03-22 22:57
- * @email dong4j@gmail.com
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2019.03.22 22:57
+ * @since 0.0.1
  */
 @Slf4j
 public class UploadNotification extends MikNotification {
+    /** UPLOAD_FINSHED */
     private static final String UPLOAD_FINSHED = "Upload Finshed";
 
     /**
@@ -69,6 +72,7 @@ public class UploadNotification extends MikNotification {
      * @param title   the title
      * @param content the content
      * @param type    the type
+     * @since 0.0.1
      */
     public UploadNotification(@NotNull String title,
                               @NotNull String content,
@@ -81,6 +85,7 @@ public class UploadNotification extends MikNotification {
      * 文件链接, 帮助链接, 设置链接
      *
      * @param project the project
+     * @since 0.0.1
      */
     public static void notifyUploadFailure(Project project) {
         notifyUploadFailure(new UploadException(""), project);
@@ -93,6 +98,7 @@ public class UploadNotification extends MikNotification {
      *
      * @param e       the e
      * @param project the project
+     * @since 0.0.1
      */
     public static void notifyUploadFailure(UploadException e, Project project) {
         String details = e.getMessage();
@@ -119,6 +125,7 @@ public class UploadNotification extends MikNotification {
      * @param fileNotFoundListMap   the file not found list map
      * @param uploadFailuredListMap the upload failured list map
      * @param project               the project
+     * @since 0.0.1
      */
     public static void notifyUploadFailure(Map<VirtualFile, List<String>> fileNotFoundListMap,
                                            Map<VirtualFile, List<String>> uploadFailuredListMap,
@@ -153,6 +160,14 @@ public class UploadNotification extends MikNotification {
         }), project);
     }
 
+    /**
+     * Build content
+     *
+     * @param listMap list map
+     * @param content content
+     * @param s       s
+     * @since 0.0.1
+     */
     private static void buildContent(Map<VirtualFile, List<String>> listMap, StringBuilder content, String s) {
         for (Map.Entry<VirtualFile, List<String>> entry : listMap.entrySet()) {
             String fileName = entry.getKey().getName();
@@ -168,6 +183,7 @@ public class UploadNotification extends MikNotification {
      * 上传完成后通知
      *
      * @param content the content
+     * @since 0.0.1
      */
     public static void notifyUploadFinshed(String content) {
         Notification notification = new Notification(MIK_NOTIFICATION_GROUP, null, NotificationType.INFORMATION);
@@ -182,6 +198,7 @@ public class UploadNotification extends MikNotification {
      *
      * @param project    the project
      * @param actionName the action name
+     * @since 0.0.1
      */
     public static void notifyConfigurableError(Project project, String actionName) {
         String content = "<p><a href=''>Configure " + actionName + " OSS</a></p><br />";

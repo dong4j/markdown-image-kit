@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.chain;
@@ -43,13 +42,22 @@ import lombok.Setter;
  * 需要 AnActionEvent(不是必须的) 和 Project
  *
  * @author dong4j
- * @email dong4j@gmail.com
- * @since 2019-03-27 22:51
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2021.02.14 18:40
+ * @since 0.0.1
  */
 @Setter
 public class ResolveMarkdownFileHandler extends ActionHandlerAdapter {
+    /** File filter */
     private MarkdownFileFilter fileFilter;
 
+    /**
+     * Gets name *
+     *
+     * @return the name
+     * @since 0.0.1
+     */
     @Override
     public String getName() {
         return "解析 Markdown 文件";
@@ -60,6 +68,7 @@ public class ResolveMarkdownFileHandler extends ActionHandlerAdapter {
      *
      * @param data the data
      * @return the boolean
+     * @since 0.0.1
      */
     @Override
     public boolean execute(EventData data) {
@@ -71,9 +80,9 @@ public class ResolveMarkdownFileHandler extends ActionHandlerAdapter {
             data.setWaitingProcessMap(waitingProcessMap);
         }
 
-        if (fileFilter != null) {
+        if (this.fileFilter != null) {
             PropertiesComponent propComp = PropertiesComponent.getInstance();
-            fileFilter.filter(waitingProcessMap, propComp.getValue(MarkdownFileFilter.FILTER_KEY));
+            this.fileFilter.filter(waitingProcessMap, propComp.getValue(MarkdownFileFilter.FILTER_KEY));
         }
 
         // 有数据才执行后面的 handler

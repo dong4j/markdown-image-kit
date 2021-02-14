@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.enums;
@@ -30,16 +29,27 @@ package info.dong4j.idea.plugin.enums;
  * <p>Description: ${description}</p>
  *
  * @author dong4j
- * @date 2019-03-25 14:15
- * @email dong4j@gmail.com
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2019.03.25 14:15
+ * @since 0.0.1
  */
 public enum HelpType {
+    /** Setting help type */
     SETTING("setting"),
+    /** Nottify help type */
     NOTTIFY("notify");
 
+    /** Where */
     public String where;
 
-    HelpType(String where){
+    /**
+     * Help type
+     *
+     * @param where where
+     * @since 0.0.1
+     */
+    HelpType(String where) {
         this.where = where;
     }
 }

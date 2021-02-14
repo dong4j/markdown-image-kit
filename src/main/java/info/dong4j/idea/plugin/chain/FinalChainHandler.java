@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.chain;
@@ -30,7 +29,7 @@ import com.intellij.openapi.editor.Document;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -39,15 +38,30 @@ import java.util.Map;
  * <p>Description: </p>
  *
  * @author dong4j
- * @email dong4j@gmail.com
- * @since 2019-03-28 17:33
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2021.02.14 18:40
+ * @since 2019.03.28 17:33
  */
 public class FinalChainHandler extends ActionHandlerAdapter {
+    /**
+     * Gets name *
+     *
+     * @return the name
+     * @since 0.0.1
+     */
     @Override
     public String getName() {
         return "扫尾工作";
     }
 
+    /**
+     * Is enabled
+     *
+     * @param data data
+     * @return the boolean
+     * @since 0.0.1
+     */
     @Override
     public boolean isEnabled(EventData data) {
         return STATE.isRename();
@@ -58,6 +72,7 @@ public class FinalChainHandler extends ActionHandlerAdapter {
      *
      * @param data the data
      * @return the boolean
+     * @since 0.0.1
      */
     @Override
     public boolean execute(EventData data) {

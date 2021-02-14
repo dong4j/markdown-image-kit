@@ -1,3 +1,27 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package info.dong4j.idea.plugin.util;
 
 import org.apache.commons.codec.binary.Base64;
@@ -9,8 +33,13 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -28,9 +57,10 @@ import javax.crypto.spec.SecretKeySpec;
  * https://helpcdn.aliyun.com/document_detail/31947.html
  *
  * @author dong4j
- * @version x.x.x
+ * @version 0.0.1
  * @email "mailto:dongshijie@fkhwl.com"
  * @date 2020.04.21 23:29
+ * @since 0.0.1
  */
 public class AliyunOssUtils {
     /** CHARSET_UTF8 */
@@ -48,6 +78,7 @@ public class AliyunOssUtils {
      * @param secretAccessKey secret access key
      * @return the oss obj
      * @throws IOException io exception
+     * @since 0.0.1
      */
     public static String getObject(String key, String ossBucket, String endpoint, String accessKeyId, String secretAccessKey) throws IOException {
         String signResourcePath = "/" + ossBucket + key;
@@ -76,6 +107,7 @@ public class AliyunOssUtils {
      * @param secretAccessKey secret access key
      * @return the string
      * @throws IOException io exception
+     * @since 0.0.1
      */
     public static String putObject(String key, InputStream content, String ossBucket, String endpoint, String accessKeyId,
                                    String secretAccessKey) throws IOException {
@@ -141,6 +173,7 @@ public class AliyunOssUtils {
      * @param head head
      * @return the string
      * @throws IOException io exception
+     * @since 0.0.1
      */
     public static String get(String url, Map<String, String> head) throws IOException {
         HttpClient client = HttpClients.createDefault();
@@ -160,6 +193,7 @@ public class AliyunOssUtils {
      * @param data data
      * @param key  key
      * @return the string
+     * @since 0.0.1
      */
     public static String hmacSha1(String data, String key) {
         try {
@@ -180,6 +214,7 @@ public class AliyunOssUtils {
      * @param date                  date
      * @param canonicalizedResource canonicalized resource
      * @return the string
+     * @since 0.0.1
      */
     public static String buildGetSignData(String date, String canonicalizedResource) {
         return "GET" + "\n" + "\n" + "\n"
@@ -193,6 +228,7 @@ public class AliyunOssUtils {
      * @param date                  date
      * @param canonicalizedResource canonicalized resource
      * @return the string
+     * @since 0.0.1
      */
     public static String buildPutSignData(String date, String canonicalizedResource) {
         return "PUT" + "\n" + "\n" + "\n"
@@ -204,6 +240,7 @@ public class AliyunOssUtils {
      * Gets gmt date *
      *
      * @return the gmt date
+     * @since 0.0.1
      */
     public static String getGMTDate() {
         Calendar cd = Calendar.getInstance();

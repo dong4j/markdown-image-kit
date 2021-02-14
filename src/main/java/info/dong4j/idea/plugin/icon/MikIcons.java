@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.icon;
@@ -36,22 +35,42 @@ import javax.swing.Icon;
  * <p>Description: {@link com.intellij.icons.AllIcons}</p>
  *
  * @author dong4j
- * @date 2019-03-13 21:10
- * @email dong4j@gmail.com
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2019.03.13 21:10
+ * @since 0.0.1
  */
 public class MikIcons {
+    /** ALIYUN_OSS */
     public static final Icon ALIYUN_OSS = IconLoader.getIcon("/icons/aliyun.png");
+    /** QINIU_OSS */
     public static final Icon QINIU_OSS = IconLoader.getIcon("/icons/qiniu.png");
+    /** WEIBO_OSS */
     public static final Icon WEIBO_OSS = IconLoader.getIcon("/icons/weibo.png");
+    /** COMPRESS */
     public static final Icon COMPRESS = IconLoader.getIcon("/icons/compress.png");
+    /** MOVE */
     public static final Icon MOVE = IconLoader.getIcon("/icons/move.png");
+    /** WANGYI */
     public static final Icon WANGYI = IconLoader.getIcon("/icons/wangyi.png");
+    /** BAIDU */
     public static final Icon BAIDU = IconLoader.getIcon("/icons/baidu.png");
+    /** IMGUR */
     public static final Icon IMGUR = IconLoader.getIcon("/icons/imgur.png");
+    /** SM_MS */
     public static final Icon SM_MS = IconLoader.getIcon("/icons/sm_ms.png");
+    /** YOUPAI */
     public static final Icon YOUPAI = IconLoader.getIcon("/icons/youpai.png");
+    /** JINGDONG */
     public static final Icon JINGDONG = IconLoader.getIcon("/icons/jingdong.png");
 
+    /**
+     * Load
+     *
+     * @param path path
+     * @return the icon
+     * @since 0.0.1
+     */
     @NotNull
     private static Icon load(String path) {
         return IconLoader.getIcon(path, MikIcons.class);

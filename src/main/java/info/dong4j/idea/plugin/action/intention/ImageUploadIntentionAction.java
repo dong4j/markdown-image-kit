@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.action.intention;
@@ -52,25 +51,43 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: alt + enter 处理单个标签上传, 完成后替换原有标签 </p>
  *
  * @author dong4j
- * @email dong4j@gmail.com
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2021.02.14 18:40
  * @see com.intellij.testIntegration.createTest.CreateTestAction
- * @since 2019-03-27 09:34
+ * @since 2019.03.27 09:34
  */
 @Slf4j
 public final class ImageUploadIntentionAction extends IntentionActionBase {
 
+    /**
+     * Gets message *
+     *
+     * @param clientName client name
+     * @return the message
+     * @since 0.0.1
+     */
     @NotNull
     @Override
     String getMessage(String clientName) {
         return MikBundle.message("mik.intention.upload.message", clientName);
     }
 
+    /**
+     * Invoke
+     *
+     * @param project project
+     * @param editor  editor
+     * @param element element
+     * @throws IncorrectOperationException incorrect operation exception
+     * @since 0.0.1
+     */
     @Override
     public void invoke(@NotNull Project project,
                        Editor editor,
                        @NotNull PsiElement element) throws IncorrectOperationException {
 
-        MarkdownImage matchImageMark = getMarkdownImage(editor);
+        MarkdownImage matchImageMark = this.getMarkdownImage(editor);
         if (matchImageMark == null) {
             return;
         }
@@ -80,10 +97,14 @@ public final class ImageUploadIntentionAction extends IntentionActionBase {
         }
 
         Map<Document, List<MarkdownImage>> waitingForMoveMap = new HashMap<Document, List<MarkdownImage>>(1) {
+            private static final long serialVersionUID = -1445021799207331254L;
+
             {
-                put(editor.getDocument(), new ArrayList<MarkdownImage>(1) {
+                this.put(editor.getDocument(), new ArrayList<MarkdownImage>(1) {
+                    private static final long serialVersionUID = 4482739561378065459L;
+
                     {
-                        add(matchImageMark);
+                        this.add(matchImageMark);
                     }
                 });
             }
@@ -91,11 +112,11 @@ public final class ImageUploadIntentionAction extends IntentionActionBase {
 
         EventData data = new EventData()
             .setProject(project)
-            .setClientName(getName())
-            .setClient(getClient())
+            .setClientName(this.getName())
+            .setClient(this.getClient())
             .setWaitingProcessMap(waitingForMoveMap);
 
         // 开启后台任务
-        new ActionTask(project, MikBundle.message("mik.action.upload.process", getName()), ActionManager.buildUploadChain(data)).queue();
+        new ActionTask(project, MikBundle.message("mik.action.upload.process", this.getName()), ActionManager.buildUploadChain(data)).queue();
     }
 }

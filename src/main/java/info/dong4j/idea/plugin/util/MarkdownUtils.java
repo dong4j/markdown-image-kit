@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.util;
@@ -51,7 +50,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -64,8 +64,10 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: </p>
  *
  * @author dong4j
- * @email dong4j@gmail.com
- * @since 2019-03-22 12:52
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2021.02.14 18:40
+ * @since 2019.03.22 12:52
  */
 @Slf4j
 public final class MarkdownUtils {
@@ -76,6 +78,7 @@ public final class MarkdownUtils {
      *
      * @param file the file
      * @return the boolean
+     * @since 0.0.1
      */
     @Contract("null -> false")
     static boolean isValidForFile(PsiFile file) {
@@ -95,6 +98,7 @@ public final class MarkdownUtils {
      *
      * @param file the file
      * @return the boolean
+     * @since 0.0.1
      */
     private static boolean isMardownFile(PsiFile file) {
         return file.getFileType().getName().equals(MarkdownContents.MARKDOWN_TYPE_NAME)
@@ -106,6 +110,7 @@ public final class MarkdownUtils {
      *
      * @param file the file
      * @return the boolean
+     * @since 0.0.1
      */
     public static boolean isMardownFile(VirtualFile file) {
         return file.getFileType().getName().equals(MarkdownContents.MARKDOWN_TYPE_NAME)
@@ -119,6 +124,7 @@ public final class MarkdownUtils {
      * @param document    the document          当前文本
      * @param virtualFile the virtual file      当前处理的文件
      * @return the list
+     * @since 0.0.1
      */
     private static List<MarkdownImage> getImageInfoFromFiles(Project project, Document document, VirtualFile virtualFile) {
         List<MarkdownImage> markdownImageList = new ArrayList<>();
@@ -154,6 +160,7 @@ public final class MarkdownUtils {
      * @param lineText    the line text    当前处理的文本行
      * @param line        the line         在文本中的行数
      * @return the markdown image
+     * @since 0.0.1
      */
     @Nullable
     public static MarkdownImage analysisImageMark(VirtualFile virtualFile, String lineText, int line) {
@@ -233,6 +240,7 @@ public final class MarkdownUtils {
      * @param project the project
      * @param mark    the mark
      * @return the boolean
+     * @since 0.0.1
      */
     public static boolean illegalImageMark(Project project, String mark) {
         // 整行数据是否有 markdown 标签
@@ -273,6 +281,7 @@ public final class MarkdownUtils {
      *
      * @param mark the mark     必须是正确的 markdown image 标签
      * @return the string
+     * @since 0.0.1
      */
     @NotNull
     @Contract(pure = true)
@@ -300,6 +309,7 @@ public final class MarkdownUtils {
      *
      * @param mark the mark
      * @return the string
+     * @since 0.0.1
      */
     @NotNull
     private static String getImagePath(String mark){
@@ -316,6 +326,7 @@ public final class MarkdownUtils {
      *
      * @param lineText the line text
      * @return the int [ ]
+     * @since 0.0.1
      */
     @Nullable
     private static int[] resolveText(String lineText) {
@@ -354,6 +365,7 @@ public final class MarkdownUtils {
      *
      * @param virtualFile the virtual file
      * @return the list
+     * @since 0.0.1
      */
     private static List<VirtualFile> recursivelyMarkdownFile(VirtualFile virtualFile) {
         List<VirtualFile> markdownFiles = new ArrayList<>();
@@ -394,6 +406,7 @@ public final class MarkdownUtils {
      * @param event   the event
      * @param project the project
      * @return the process markdown info    markdown image 信息
+     * @since 0.0.1
      */
     public static Map<Document, List<MarkdownImage>> getProcessMarkdownInfo(@NotNull AnActionEvent event,
                                                                             @NotNull Project project) {

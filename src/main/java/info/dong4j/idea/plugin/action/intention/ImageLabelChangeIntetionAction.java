@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.action.intention;
@@ -54,16 +53,34 @@ import java.util.Map;
  * <p>Description: 替换标签意图</p>
  *
  * @author dong4j
- * @email dong4j@gmail.com
- * @since 2019-03-29 12:44
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2021.02.14 18:40
+ * @since 0.0.1
  */
 public class ImageLabelChangeIntetionAction extends IntentionActionBase {
+    /**
+     * Gets message *
+     *
+     * @param clientName client name
+     * @return the message
+     * @since 0.0.1
+     */
     @NotNull
     @Override
     String getMessage(String clientName) {
         return MikBundle.message("mik.intention.change.message");
     }
 
+    /**
+     * Is available
+     *
+     * @param project project
+     * @param editor  editor
+     * @param element element
+     * @return the boolean
+     * @since 0.0.1
+     */
     @Override
     public boolean isAvailable(@NotNull Project project, Editor editor,
                                @NotNull PsiElement element) {
@@ -71,22 +88,35 @@ public class ImageLabelChangeIntetionAction extends IntentionActionBase {
         return super.isAvailable(project, editor, element) && STATE.isChangeToHtmlTag();
     }
 
+    /**
+     * Invoke
+     *
+     * @param project project
+     * @param editor  editor
+     * @param element element
+     * @throws IncorrectOperationException incorrect operation exception
+     * @since 0.0.1
+     */
     @Override
     public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element)
         throws IncorrectOperationException {
-        MarkdownImage markdownImage = getMarkdownImage(editor);
+        MarkdownImage markdownImage = this.getMarkdownImage(editor);
         if (markdownImage != null) {
             if (markdownImage.getLocation().name().equals(ImageLocationEnum.LOCAL.name())) {
                 return;
             }
 
             Map<Document, List<MarkdownImage>> waitingForMoveMap = new HashMap<Document, List<MarkdownImage>>(1) {
+                private static final long serialVersionUID = 2431958015276934209L;
+
                 {
-                    put(editor.getDocument(), new ArrayList<MarkdownImage>(1) {
+                    this.put(editor.getDocument(), new ArrayList<MarkdownImage>(1) {
+                        private static final long serialVersionUID = -9013015357454667709L;
+
                         {
                             // 手动设置为原始类型, 后面才能替换
                             markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
-                            add(markdownImage);
+                            this.add(markdownImage);
                         }
                     });
                 }
@@ -103,7 +133,7 @@ public class ImageLabelChangeIntetionAction extends IntentionActionBase {
                 .addHandler(new FinalChainHandler());
 
             // 开启后台任务
-            new ActionTask(project, MikBundle.message("mik.action.move.process", getName()),
+            new ActionTask(project, MikBundle.message("mik.action.move.process", this.getName()),
                            actionManager).queue();
         }
     }

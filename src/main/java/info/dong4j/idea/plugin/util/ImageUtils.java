@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.util;
@@ -63,8 +62,12 @@ import java.awt.image.FilteredImageSource;
 import java.awt.image.ImageFilter;
 import java.awt.image.ImageProducer;
 import java.awt.image.RGBImageFilter;
-import java.io.*;
-import java.net.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -79,8 +82,10 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: </p>
  *
  * @author dong4j
- * @date 2019-03-16 12:12
- * @email dong4j@gmail.com
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2019.03.16 12:12
+ * @since 0.0.1
  */
 @Slf4j
 public final class ImageUtils {
@@ -89,6 +94,7 @@ public final class ImageUtils {
      * Gets image from clipboard.
      *
      * @return the image from clipboard
+     * @since 0.0.1
      */
     @Nullable
     public static Image getImageFromClipboard() {
@@ -107,6 +113,7 @@ public final class ImageUtils {
      * Gets data from clipboard.
      *
      * @return the data from clipboard  map 中只有一对 kev-value
+     * @since 0.0.1
      */
     @Nullable
     public static Map<DataFlavor, Object> getDataFromClipboard() {
@@ -138,6 +145,7 @@ public final class ImageUtils {
      * 把文本设置到剪贴板（复制）
      *
      * @param text the text
+     * @since 0.0.1
      */
     public static void setStringToClipboard(String text) {
         // 获取系统剪贴板
@@ -155,6 +163,7 @@ public final class ImageUtils {
      * @param newWidth    the new width
      * @param newHeight   the new height
      * @return the buffered image
+     * @since 0.0.1
      */
     @Contract("null, _, _ -> null")
     public static BufferedImage scaleImage(BufferedImage sourceImage, int newWidth, int newHeight) {
@@ -180,6 +189,7 @@ public final class ImageUtils {
      * @param image  the image
      * @param file   the file
      * @param format the format
+     * @since 0.0.1
      */
     public static void save(BufferedImage image, File file, String format) {
         try {
@@ -195,6 +205,7 @@ public final class ImageUtils {
      *
      * @param cachedImageFile the cached image file
      * @return Could be <code>null</code> if the image could not be read from the file (because of whatever strange     reason).
+     * @since 0.0.1
      */
     @Contract("null -> null")
     static BufferedImage loadImageFromFile(File cachedImageFile) {
@@ -233,6 +244,7 @@ public final class ImageUtils {
      *
      * @param imageURL the image url
      * @return the buffered image
+     * @since 0.0.1
      */
     @Nullable
     public static BufferedImage loadImageFromURL(String imageURL) {
@@ -248,6 +260,7 @@ public final class ImageUtils {
      *
      * @param src the src
      * @return the buffered image
+     * @since 0.0.1
      */
     @Nullable
     public static BufferedImage toBufferedImage(Image src) {
@@ -277,6 +290,7 @@ public final class ImageUtils {
      * @param image        the image
      * @param cornerRadius the corner radius
      * @return the buffered image
+     * @since 0.0.1
      */
     public static BufferedImage makeRoundedCorner(@NotNull BufferedImage image, int cornerRadius) {
         int w = image.getWidth();
@@ -302,6 +316,7 @@ public final class ImageUtils {
      *
      * @param image the image
      * @return the buffered image
+     * @since 0.0.1
      */
     public static BufferedImage removeAlpha(@NotNull BufferedImage image) {
         BufferedImage bufferedImage = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_RGB);
@@ -319,14 +334,15 @@ public final class ImageUtils {
      *
      * @param image the image
      * @return the image
+     * @since 0.0.1
      */
     public static Image whiteToTransparent(@NotNull BufferedImage image) {
         ImageFilter filter = new RGBImageFilter() {
-            int markerRGB = JBColor.WHITE.getRGB() | 0xFF000000;
+            final int markerRGB = JBColor.WHITE.getRGB() | 0xFF000000;
 
             @Override
             public final int filterRGB(int x, int y, int rgb) {
-                if ((rgb | 0xFF000000) == markerRGB) {
+                if ((rgb | 0xFF000000) == this.markerRGB) {
                     // Mark the alpha bits as zero - transparent
                     return 0x00FFFFFF & rgb;
                 } else {
@@ -345,6 +361,7 @@ public final class ImageUtils {
      *
      * @param filePath the file path
      * @return the boolean
+     * @since 0.0.1
      */
     public static boolean isImageFile(String filePath) {
         return isImageFile(new File(filePath));
@@ -356,6 +373,7 @@ public final class ImageUtils {
      *
      * @param file the file
      * @return the boolean
+     * @since 0.0.1
      */
     private static boolean isImageFile(File file) {
         try {
@@ -372,6 +390,7 @@ public final class ImageUtils {
      * @param in      the in
      * @param out     the out
      * @param percent the percent
+     * @since 0.0.1
      */
     public static void compress(File in, File out, int percent) {
         try {
@@ -390,6 +409,7 @@ public final class ImageUtils {
      * @param in      the in
      * @param out     the out
      * @param percent the percent
+     * @since 0.0.1
      */
     public static void compress(InputStream in, OutputStream out, int percent) {
         try {
@@ -408,6 +428,7 @@ public final class ImageUtils {
      * @param in      the in
      * @param out     the out
      * @param percent the percent
+     * @since 0.0.1
      */
     public static void compress(InputStream in, File out, int percent) {
         try {
@@ -425,6 +446,7 @@ public final class ImageUtils {
      *
      * @param fileName the file name
      * @return String string
+     * @since 0.0.1
      */
     public static String getImageType(String fileName) {
         String extension = getFileExtension(fileName);
@@ -446,6 +468,7 @@ public final class ImageUtils {
      *
      * @param fileName the file name
      * @return the string
+     * @since 0.0.1
      */
     @NotNull
     public static String getFileExtension(@NotNull String fileName) {
@@ -458,6 +481,7 @@ public final class ImageUtils {
      * @param is the is
      * @return the file type
      * @throws IOException the io exception
+     * @since 0.0.1
      */
     @Nullable
     public static FileType getFileType(InputStream is) throws IOException {
@@ -486,6 +510,7 @@ public final class ImageUtils {
      *
      * @param fileName the file name
      * @return the file
+     * @since 0.0.1
      */
     @NotNull
     @Contract("_ -> new")
@@ -498,6 +523,7 @@ public final class ImageUtils {
      *
      * @param virtualFile the virtual file
      * @return the list
+     * @since 0.0.1
      */
     public static List<VirtualFile> recursivelyImageFile(VirtualFile virtualFile) {
         List<VirtualFile> imageFiles = new ArrayList<>();
@@ -535,6 +561,7 @@ public final class ImageUtils {
      *
      * @param file the file
      * @return the boolean
+     * @since 0.0.1
      */
     public static boolean isValidForFile(PsiFile file){
         if(file == null){
@@ -552,6 +579,7 @@ public final class ImageUtils {
      *
      * @param file the file
      * @return the boolean
+     * @since 0.0.1
      */
     private static boolean isImageFile(PsiFile file) {
         return ImageContents.IMAGE_TYPE_NAME.equals(file.getFileType().getName());
@@ -562,6 +590,7 @@ public final class ImageUtils {
      *
      * @param file the file
      * @return the boolean
+     * @since 0.0.1
      */
     public static boolean isImageFile(VirtualFile file) {
         return ImageContents.IMAGE_TYPE_NAME.equals(file.getFileType().getName());

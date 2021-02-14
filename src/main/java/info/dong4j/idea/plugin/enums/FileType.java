@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.enums;
@@ -30,8 +29,10 @@ package info.dong4j.idea.plugin.enums;
  * <p>Description: </p>
  *
  * @author dong4j
- * @date 2019-03-23 01:14
- * @email dong4j@gmail.com
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2019.03.23 01:14
+ * @since 0.0.1
  */
 public enum FileType {
 
@@ -175,24 +176,51 @@ public enum FileType {
      */
     MID("4D546864");
 
+    /** Value */
     private String value = "";
+    /** Ext */
     private String ext = "";
 
+    /**
+     * File type
+     *
+     * @param value value
+     * @param ext   ext
+     * @since 0.0.1
+     */
     FileType(String value, String ext) {
         this(value);
         this.ext = ext;
     }
 
+    /**
+     * File type
+     *
+     * @param value value
+     * @since 0.0.1
+     */
     FileType(String value) {
         this.value = value;
     }
 
+    /**
+     * Gets ext *
+     *
+     * @return the ext
+     * @since 0.0.1
+     */
     public String getExt() {
-        return ext;
+        return this.ext;
     }
 
+    /**
+     * Gets value *
+     *
+     * @return the value
+     * @since 0.0.1
+     */
     public String getValue() {
-        return value;
+        return this.value;
     }
 
 }

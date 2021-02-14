@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.chain;
@@ -34,8 +33,10 @@ import info.dong4j.idea.plugin.settings.MikState;
  * <p>Description: </p>
  *
  * @author dong4j
- * @email dong4j@gmail.com
- * @since 2019-03-22 18:35
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2021.02.14 18:40
+ * @since 2019.03.22 18:35
  */
 public interface IActionHandler {
     /**
@@ -47,6 +48,7 @@ public interface IActionHandler {
      * Gets name.
      *
      * @return the name
+     * @since 0.0.1
      */
     String getName();
 
@@ -55,6 +57,7 @@ public interface IActionHandler {
      *
      * @param data the data
      * @return 是否符合 boolean false 则当前 handler 不执行
+     * @since 0.0.1
      */
     boolean isEnabled(EventData data);
 
@@ -63,6 +66,7 @@ public interface IActionHandler {
      *
      * @param data the data
      * @return 是否阻止系统的事件传递 boolean  为 false 时后一个 handler 不自信, 整个 chain 中断
+     * @since 0.0.1
      */
     boolean execute(EventData data);
 }

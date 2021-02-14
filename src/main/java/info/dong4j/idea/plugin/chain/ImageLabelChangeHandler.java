@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.chain;
@@ -41,23 +40,47 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: 替换已上传的图片标签 </p>
  *
  * @author dong4j
- * @email dong4j@gmail.com
- * @since 2019-03-22 18:49
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2021.02.14 18:40
+ * @since 2019.03.22 18:49
  */
 @Slf4j
 public class ImageLabelChangeHandler extends ActionHandlerAdapter {
+    /** MESSAGE */
     private static final String MESSAGE = "自定义标签格式设置错误, 请重新设置";
 
+    /**
+     * Gets name *
+     *
+     * @return the name
+     * @since 0.0.1
+     */
     @Override
     public String getName() {
         return "标签替换";
     }
 
+    /**
+     * Is enabled
+     *
+     * @param data data
+     * @return the boolean
+     * @since 0.0.1
+     */
     @Override
     public boolean isEnabled(EventData data) {
         return STATE.isChangeToHtmlTag();
     }
 
+    /**
+     * Invoke
+     *
+     * @param data          data
+     * @param imageIterator image iterator
+     * @param markdownImage markdown image
+     * @since 0.0.1
+     */
     @Override
     public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
         // 如果是本地类型, 则不替换
@@ -67,7 +90,7 @@ public class ImageLabelChangeHandler extends ActionHandlerAdapter {
 
         // 只替换原始类型的标签, 避免全部替换(使用右键上传时, 根据类型替换为指定标签, 如果已经替换过则不处理)
         ImageMarkEnum currentMarkType = markdownImage.getImageMarkType();
-        if(ImageMarkEnum.ORIGINAL.equals(currentMarkType)){
+        if (ImageMarkEnum.ORIGINAL.equals(currentMarkType)) {
             change(markdownImage);
         }
     }
@@ -76,6 +99,7 @@ public class ImageLabelChangeHandler extends ActionHandlerAdapter {
      * Change.
      *
      * @param markdownImage the markdown image
+     * @since 0.0.1
      */
     public static void change(MarkdownImage markdownImage) {
         String finalMark;

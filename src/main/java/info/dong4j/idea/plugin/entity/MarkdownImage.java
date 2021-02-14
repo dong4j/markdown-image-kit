@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.entity;
@@ -30,7 +29,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 
-import java.io.*;
+import java.io.InputStream;
+import java.io.Serializable;
 
 import lombok.Data;
 
@@ -39,22 +39,25 @@ import lombok.Data;
  * <p>Description: </p>
  *
  * @author dong4j
- * @email dong4j@gmail.com
- * @since 2019-03-14 21:00
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2021.02.14 18:40
+ * @since 2019.03.14 21:00
  */
 @Data
 public class MarkdownImage implements Serializable {
+    /** serialVersionUID */
     private static final long serialVersionUID = -533088989259774894L;
 
     /** 对应的 document name */
     private String fileName;
     /** 图片名 */
     private String imageName;
-    /** 图片类型*/
+    /** 图片类型 */
     private String extension;
     /** 原始行文本 */
     private String originalLineText;
-    /** markdown image mark*/
+    /** markdown image mark */
     private String originalMark;
     /** 行数 */
     private int lineNumber;
@@ -70,10 +73,10 @@ public class MarkdownImage implements Serializable {
     private ImageLocationEnum location;
     /** 文本标签类型 */
     private ImageMarkEnum imageMarkType;
-    /** 图片文件流*/
+    /** 图片文件流 */
     private InputStream inputStream;
-    /** 最终需要插入到文本的标签*/
+    /** 最终需要插入到文本的标签 */
     private String finalMark;
-    /** 保存当前标签对应的 image file*/
+    /** 保存当前标签对应的 image file */
     private VirtualFile virtualFile;
 }

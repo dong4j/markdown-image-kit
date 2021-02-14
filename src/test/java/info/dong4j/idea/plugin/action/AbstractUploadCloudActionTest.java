@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.action;
@@ -42,7 +41,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.File;
 import java.util.Objects;
 
 /**
@@ -50,8 +49,8 @@ import java.util.Objects;
  * <p>Description: ${description}</p>
  *
  * @author dong4j
- * @date 2019-03-23 15:02
- * @email dong4j@gmail.com
+ * @date 2019.03.23 15:02
+ * @email "mailto:dong4j@gmail.com"
  */
 public class AbstractUploadCloudActionTest {
     public void actionPerformed(@NotNull AnActionEvent e) {
@@ -86,7 +85,7 @@ public class AbstractUploadCloudActionTest {
         VirtualFile virtualFileFromDocument = FileDocumentManager.getInstance().getFile(document);
 
         // 获取 document
-        getDocument(e);
+        this.getDocument(e);
     }
 
     /**

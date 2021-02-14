@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.settings;
@@ -42,12 +41,16 @@ import lombok.Data;
  * <p>Description: </p>
  *
  * @author dong4j
- * @email dong4j@gmail.com
- * @since 2019 -03-19 18:59
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2021.02.14 18:40
+ * @since 2019.03-19 18:59
  */
 @Data
 public abstract class OssState {
+    /** Passed test */
     private boolean passedTest = false;
+    /** Old and new auth info */
     private Map<String, String> oldAndNewAuthInfo = new HashMap<>(2);
 
     /**
@@ -56,6 +59,7 @@ public abstract class OssState {
      * @param state    the state
      * @param hashcode the hashcode
      * @param key      the key
+     * @since 0.0.1
      */
     public static void saveStatus(OssState state, int hashcode, String key) {
         state.setPassedTest(true);
@@ -66,6 +70,7 @@ public abstract class OssState {
      * Get state.
      *
      * @param cloudIndex the cloud index
+     * @since 0.0.1
      */
     public static void getState(int cloudIndex){
         CloudEnum cloudEnum = getCloudType(cloudIndex);
@@ -77,6 +82,7 @@ public abstract class OssState {
      *
      * @param cloudIndex the cloud index
      * @return the boolean
+     * @since 0.0.1
      */
     @Contract(pure = true)
     public static boolean getStatus(int cloudIndex) {
@@ -91,6 +97,7 @@ public abstract class OssState {
      *
      * @param cloudIndex the cloud index
      * @return the cloud enum
+     * @since 0.0.1
      */
     public static CloudEnum getCloudType(int cloudIndex) {
         Optional<CloudEnum> cloudType = EnumsUtils.getEnumObject(CloudEnum.class, e -> e.getIndex() == cloudIndex);
@@ -101,6 +108,7 @@ public abstract class OssState {
      * Get default cloud cloud enum.
      *
      * @return the cloud enum
+     * @since 0.0.1
      */
     public static CloudEnum getDefaultCloud() {
         Optional<CloudEnum> cloudType = EnumsUtils.getEnumObject(CloudEnum.class, e -> e.getIndex() == MikPersistenComponent.getInstance().getState().getCloudType());
@@ -112,6 +120,7 @@ public abstract class OssState {
      *
      * @param state the state
      * @return the boolean
+     * @since 0.0.1
      */
     public static boolean getStatus(OssState state) {
         boolean isPassedTest = state.isPassedTest();
@@ -126,6 +135,7 @@ public abstract class OssState {
      *
      * @param cloudEnum the cloud enum
      * @return the status
+     * @since 0.0.1
      */
     @Contract(pure = true)
     public static boolean getStatus(CloudEnum cloudEnum) {

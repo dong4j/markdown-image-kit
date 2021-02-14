@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.chain;
@@ -42,10 +41,10 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: </p>
  *
  * @author dong4j
- * @version x.x.x
- * @email dong4j @gmail.com
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
  * @date 2021.02.14 18:40
- * @since 2019 -03-29 16:10
+ * @since 0.0.1
  */
 @Slf4j
 public class ActionHandlerAdapter extends BaseActionHandler {
@@ -53,7 +52,7 @@ public class ActionHandlerAdapter extends BaseActionHandler {
      * Gets name *
      *
      * @return the name
-     * @since y.y.y
+     * @since 0.0.1
      */
     @Override
     public String getName() {
@@ -65,7 +64,7 @@ public class ActionHandlerAdapter extends BaseActionHandler {
      *
      * @param data data
      * @return the boolean
-     * @since y.y.y
+     * @since 0.0.1
      */
     @Override
     public boolean execute(EventData data) {
@@ -82,7 +81,7 @@ public class ActionHandlerAdapter extends BaseActionHandler {
                 indicator.setText2("Processing " + markdownImage.getImageName());
                 indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
 
-                invoke(data, imageIterator, markdownImage);
+                this.invoke(data, imageIterator, markdownImage);
             }
         }
         return true;
@@ -94,7 +93,7 @@ public class ActionHandlerAdapter extends BaseActionHandler {
      * @param data          data
      * @param imageIterator image iterator
      * @param markdownImage markdown image
-     * @since y.y.y
+     * @since 0.0.1
      */
     @Override
     protected void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {

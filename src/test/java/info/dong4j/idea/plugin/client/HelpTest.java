@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.client;
@@ -34,8 +33,8 @@ import org.junit.Test;
  * <p>Description: </p>
  *
  * @author dong4j
- * @email dong4j@gmail.com
- * @since 2019-03-25 13:20
+ * @email "mailto:dong4j@gmail.com"
+ * @since 2019.03.25 13:20
  */
 public class HelpTest {
 
@@ -59,7 +58,7 @@ public class HelpTest {
     @Test
     public void test() {
         try {
-            help("setting");
+            this.help("setting");
         } catch (Exception e) {
             e.printStackTrace();
         }

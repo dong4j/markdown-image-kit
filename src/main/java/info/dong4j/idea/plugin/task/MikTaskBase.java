@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.task;
@@ -43,20 +42,30 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: </p>
  *
  * @author dong4j
- * @email dong4j@gmail.com
- * @since 2019-03-27 23:03
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2021.02.14 18:40
+ * @since 0.0.1
  */
 @Slf4j
-public abstract class MikTaskBase extends Task.Backgroundable{
+public abstract class MikTaskBase extends Task.Backgroundable {
 
     /**
      * Instantiates a new Mik task base.
      *
      * @param project the project
-     * @param title   the title
+     * @param title the title
      */
-    private ActionManager manager;
+    private final ActionManager manager;
 
+    /**
+     * Mik task base
+     *
+     * @param project project
+     * @param title   title
+     * @param manager manager
+     * @since 0.0.1
+     */
     MikTaskBase(@Nullable Project project,
                 @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title,
                 ActionManager manager) {
@@ -65,13 +74,19 @@ public abstract class MikTaskBase extends Task.Backgroundable{
     }
 
 
+    /**
+     * Run
+     *
+     * @param indicator indicator
+     * @since 0.0.1
+     */
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         indicator.pushState();
         indicator.setIndeterminate(false);
         try {
             indicator.setFraction(0.0);
-            manager.invoke(indicator);
+            this.manager.invoke(indicator);
         } finally {
             indicator.setFraction(1.0);
             indicator.popState();
@@ -79,24 +94,45 @@ public abstract class MikTaskBase extends Task.Backgroundable{
     }
 
 
+    /**
+     * On cancel
+     *
+     * @since 0.0.1
+     */
     @Override
     public void onCancel() {
         log.trace("cancel callback");
     }
 
+    /**
+     * On success
+     *
+     * @since 0.0.1
+     */
     @Override
     public void onSuccess() {
         log.trace("success callback");
-        for(TaskCallback callback : manager.getCallbacks()){
+        for (TaskCallback callback : this.manager.getCallbacks()) {
             callback.onSuccess();
         }
     }
 
+    /**
+     * On finished
+     *
+     * @since 0.0.1
+     */
     @Override
     public void onFinished() {
         log.trace("finished callback");
     }
 
+    /**
+     * On throwable
+     *
+     * @param throwable throwable
+     * @since 0.0.1
+     */
     @Override
     public void onThrowable(@NotNull Throwable throwable) {
         super.onThrowable(throwable);

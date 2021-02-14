@@ -1,3 +1,27 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package info.dong4j.idea.plugin.util;
 
 import com.intellij.openapi.util.io.FileUtil;
@@ -19,7 +43,15 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -34,8 +66,8 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: ${description}</p>
  *
  * @author dong4j
- * @date 2019-03-17 16:45
- * @email dong4j@gmail.com
+ * @date 2019.03.17 16:45
+ * @email "mailto:dong4j@gmail.com"
  */
 @Slf4j
 public class ImageUtilsTest {
@@ -54,7 +86,7 @@ public class ImageUtilsTest {
      */
     @Test
     public void test2() {
-        final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         if (clipboard.isDataFlavorAvailable(DataFlavor.imageFlavor)) {
             try {
                 System.out.println(clipboard.getData(DataFlavor.imageFlavor));
@@ -179,7 +211,7 @@ public class ImageUtilsTest {
 
     @Test
     public void test4() {
-        final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         if (clipboard.isDataFlavorAvailable(DataFlavor.imageFlavor)) {
             try {
                 System.out.println(clipboard.getData(DataFlavor.imageFlavor));
@@ -210,7 +242,7 @@ public class ImageUtilsTest {
      * The type Image selection.
      */
     public static class ImageSelection implements Transferable {
-        private Image image;
+        private final Image image;
 
         /**
          * Instantiates a new Image selection.
@@ -219,19 +251,22 @@ public class ImageUtilsTest {
          */
         public ImageSelection(Image image) {this.image = image;}
 
+        @Override
         public DataFlavor[] getTransferDataFlavors() {
             return new DataFlavor[] {DataFlavor.imageFlavor};
         }
 
+        @Override
         public boolean isDataFlavorSupported(DataFlavor flavor) {
             return DataFlavor.imageFlavor.equals(flavor);
         }
 
+        @Override
         public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
             if (!DataFlavor.imageFlavor.equals(flavor)) {
                 throw new UnsupportedFlavorException(flavor);
             }
-            return image;
+            return this.image;
         }
     }
 

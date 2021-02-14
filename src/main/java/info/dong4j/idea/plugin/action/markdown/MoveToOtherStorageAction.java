@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.action.markdown;
@@ -62,25 +61,43 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: 图床迁移计划 这里是批量迁移处理, 处理对象为 markdown 或者 目录</p>
  *
  * @author dong4j
- * @email dong4j@gmail.com
- * @since 2019-03-15 20:41
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2021.02.14 18:40
+ * @since 0.0.1
  */
 @Slf4j
 public final class MoveToOtherStorageAction extends AnAction {
+    /** DOMAIN_DEFAULT_MESSAGE */
     private static final String DOMAIN_DEFAULT_MESSAGE = MikBundle.message("mik.panel.message.domain-field");
+    /** CONNECTION_TIMEOUT */
     private static final int CONNECTION_TIMEOUT = 5 * 1000;
+    /** READ_TIMEOUT */
     private static final int READ_TIMEOUT = 10 * 1000;
+    /** MOVE_ALL */
     private static final String MOVE_ALL = "ALL";
 
+    /**
+     * Update
+     *
+     * @param event event
+     * @since 0.0.1
+     */
     @Override
     public void update(@NotNull AnActionEvent event) {
         ActionUtils.isAvailable(event, AllIcons.Actions.Lightning, MarkdownContents.MARKDOWN_TYPE_NAME);
     }
 
+    /**
+     * Action performed
+     *
+     * @param event event
+     * @since 0.0.1
+     */
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
 
-        final Project project = event.getProject();
+        Project project = event.getProject();
         if (project != null) {
             MoveToOtherOssSettingsDialog dialog = showDialog();
             if (dialog == null) {
@@ -90,7 +107,7 @@ public final class MoveToOtherStorageAction extends AnAction {
             if (StringUtils.isBlank(domain)) {
                 return;
             }
-            if (!OssState.getStatus(dialog.getCloudComboBox().getSelectedIndex()- 1)) {
+            if (!OssState.getStatus(dialog.getCloudComboBox().getSelectedIndex() - 1)) {
                 return;
             }
 
@@ -120,6 +137,7 @@ public final class MoveToOtherStorageAction extends AnAction {
      * 组件 index 与 cloudType index 关系 差 1
      *
      * @return the move to other oss settings dialog
+     * @since 0.0.1
      */
     @Nullable
     private static MoveToOtherOssSettingsDialog showDialog() {
@@ -170,6 +188,7 @@ public final class MoveToOtherStorageAction extends AnAction {
      * @param builder the builder
      * @param dialog  the dialog
      * @param index   the index
+     * @since 0.0.1
      */
     private static void showMessage(@NotNull DialogBuilder builder,
                                     @NotNull MoveToOtherOssSettingsDialog dialog,

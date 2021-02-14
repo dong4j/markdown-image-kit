@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.action.image;
@@ -60,17 +59,32 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: 图片右键直接上传</p>
  *
  * @author dong4j
- * @email dong4j@gmail.com
- * @since 2019-03-26 15:36
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2021.02.14 18:40
+ * @since 2019.03.26 15:36
  */
 @Slf4j
 public final class ImageUploadAction extends ImageActionBase {
+    /**
+     * Gets icon *
+     *
+     * @return the icon
+     * @since 0.0.1
+     */
     @Contract(pure = true)
     @Override
     protected Icon getIcon() {
         return AllIcons.Debugger.Overhead;
     }
 
+    /**
+     * Build chain
+     *
+     * @param event             event
+     * @param waitingProcessMap waiting process map
+     * @since 0.0.1
+     */
     @Override
     protected void buildChain(AnActionEvent event, Map<Document, List<MarkdownImage>> waitingProcessMap) {
         // 使用默认 client

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.util;
@@ -28,8 +27,11 @@ package info.dong4j.idea.plugin.util;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
-import java.net.*;
+import java.io.File;
+import java.io.IOException;
+import java.net.JarURLConnection;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -44,8 +46,10 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: </p>
  *
  * @author dong4j
- * @date 2019-03-23 02:23
- * @email dong4j@gmail.com
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2019.03.23 02:23
+ * @since 0.0.1
  */
 @Slf4j
 public final class ClassUtils {
@@ -55,6 +59,7 @@ public final class ClassUtils {
      *
      * @param pkg the pkg
      * @return all class by package name
+     * @since 0.0.1
      */
     public static List<String> getAllClassByPackageName(@NotNull Package pkg) {
         String packageName = pkg.getName();
@@ -67,6 +72,7 @@ public final class ClassUtils {
      *
      * @param c the c
      * @return the all class by interface
+     * @since 0.0.1
      */
     static List<String> getAllClassByInterface(@NotNull Class<?> c) {
         List<String> returnClassList = new ArrayList<>();
@@ -88,6 +94,7 @@ public final class ClassUtils {
      * @param classLocation the class location
      * @param packageName   the package name
      * @return the string [ ]
+     * @since 0.0.1
      */
     @Nullable
     public static String[] getPackageAllClassName(String classLocation, @NotNull String packageName) {
@@ -107,7 +114,10 @@ public final class ClassUtils {
     /**
      * 从包package中获取所有的Class
      *
-     * @return
+     * @param packageName package name
+     * @param c           c
+     * @return classes
+     * @since 0.0.1
      */
     private static List<String> getClasses(@NotNull String packageName, @NotNull Class<?> c) {
         // 第一个class类的集合
@@ -183,12 +193,13 @@ public final class ClassUtils {
     /**
      * 以文件的形式来获取包下的所有Class
      *
-     * @param packageName
-     * @param packagePath
-     * @param recursive
-     * @param classes
+     * @param packageName package name
+     * @param packagePath package path
+     * @param recursive   recursive
+     * @param classes     classes
+     * @since 0.0.1
      */
-    private static void findAndAddClassesInPackageByFile(String packageName, String packagePath, final boolean recursive, List<String> classes) {
+    private static void findAndAddClassesInPackageByFile(String packageName, String packagePath, boolean recursive, List<String> classes) {
         // 获取此包的目录 建立一个File
         File dir = new File(packagePath);
         // 如果不存在或者 也不是目录就直接返回

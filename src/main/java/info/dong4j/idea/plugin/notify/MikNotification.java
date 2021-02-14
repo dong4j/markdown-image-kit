@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.notify;
@@ -44,7 +43,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
@@ -54,8 +53,10 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: </p>
  *
  * @author dong4j
- * @email dong4j@gmail.com
- * @since 2019-03-26 22:20
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2021.02.14 18:40
+ * @since 2019.03.26 22:20
  */
 @Slf4j
 public class MikNotification extends Notification {
@@ -67,9 +68,11 @@ public class MikNotification extends Notification {
      * The Upload notification group.
      */
     static final String MIK_NOTIFICATION_GROUP = "MIK Group";
+    /** MIK_NOTIFICATION_NONE_GROUP */
     private static final String MIK_NOTIFICATION_NONE_GROUP = "Image Kit Group";
     /** 注册到通知 */
     protected static final NotificationGroup NOTIFICATION_GROUP = new NotificationGroup(MIK_NOTIFICATION_GROUP, NotificationDisplayType.BALLOON, true, null, AllIcons.Gutter.Colors);
+    /** NOTIFICATION_NONE_GROUP */
     protected static final NotificationGroup NOTIFICATION_NONE_GROUP = new NotificationGroup(MIK_NOTIFICATION_NONE_GROUP, NotificationDisplayType.NONE, true, null, AllIcons.Debugger.ShowCurrentFrame);
 
     /**
@@ -78,6 +81,7 @@ public class MikNotification extends Notification {
      * @param title   the title
      * @param content the content
      * @param type    the type
+     * @since 0.0.1
      */
     MikNotification(@NotNull String title,
                     @NotNull String content,
@@ -90,6 +94,7 @@ public class MikNotification extends Notification {
      *
      * @param where the where
      * @return the string
+     * @since 0.0.1
      */
     public static String helpUrl(String where) {
         HttpClient client = new HttpClient();
@@ -114,6 +119,7 @@ public class MikNotification extends Notification {
      * Hide balloon.
      *
      * @param balloon the balloon
+     * @since 0.0.1
      */
     static void hideBalloon(Balloon balloon) {
         if (balloon != null) {
@@ -124,7 +130,9 @@ public class MikNotification extends Notification {
     /**
      * Notify compress info.
      *
-     * @param project the project
+     * @param project      the project
+     * @param compressInfo compress info
+     * @since 0.0.1
      */
     public static void notifyCompressInfo(Project project, Map<String, String> compressInfo) {
         StringBuilder content = new StringBuilder();

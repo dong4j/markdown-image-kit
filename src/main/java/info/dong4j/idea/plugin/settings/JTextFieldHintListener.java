@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.settings;
@@ -37,13 +36,24 @@ import javax.swing.JTextField;
  * <p>Description: </p>
  *
  * @author dong4j
- * @date 2019-03-14 10:38
- * @email dong4j@gmail.com
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2019.03.14 10:38
+ * @since 0.0.1
  */
 public class JTextFieldHintListener implements FocusListener {
-    private String hintText;
-    private JTextField textField;
+    /** Hint text */
+    private final String hintText;
+    /** Text field */
+    private final JTextField textField;
 
+    /**
+     * J text field hint listener
+     *
+     * @param jTextField j text field
+     * @param hintText   hint text
+     * @since 0.0.1
+     */
     public JTextFieldHintListener(JTextField jTextField, String hintText) {
         this.textField = jTextField;
         this.hintText = hintText;
@@ -52,23 +62,35 @@ public class JTextFieldHintListener implements FocusListener {
         jTextField.setForeground(JBColor.GRAY);
     }
 
+    /**
+     * Focus gained
+     *
+     * @param e e
+     * @since 0.0.1
+     */
     @Override
     public void focusGained(FocusEvent e) {
         // 获取焦点时，清空提示内容
-        String temp = textField.getText();
-        if (temp.equals(hintText)) {
-            textField.setText("");
-            textField.setForeground(JBColor.BLACK);
+        String temp = this.textField.getText();
+        if (temp.equals(this.hintText)) {
+            this.textField.setText("");
+            this.textField.setForeground(JBColor.BLACK);
         }
     }
 
+    /**
+     * Focus lost
+     *
+     * @param e e
+     * @since 0.0.1
+     */
     @Override
     public void focusLost(FocusEvent e) {
         // 失去焦点时，没有输入内容，显示提示内容
-        String temp = textField.getText();
+        String temp = this.textField.getText();
         if ("".equals(temp)) {
-            textField.setForeground(JBColor.GRAY);
-            textField.setText(hintText);
+            this.textField.setForeground(JBColor.GRAY);
+            this.textField.setText(this.hintText);
         }
     }
 }

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.util;
@@ -41,7 +40,7 @@ import info.dong4j.idea.plugin.settings.MikState;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.File;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -52,12 +51,15 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: </p>
  *
  * @author dong4j
- * @email dong4j@gmail.com
- * @since 2019-03-17 20:17
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2021.02.14 18:40
+ * @since 2019.03.17 20:17
  */
 @Slf4j
 public class UploadUtils {
-    private static MikState state = MikPersistenComponent.getInstance().getState();
+    /** state */
+    private static final MikState state = MikPersistenComponent.getInstance().getState();
 
     /**
      * 根据是否替换标签替换为最终的标签
@@ -68,10 +70,12 @@ public class UploadUtils {
      * 未开启标签替换:
      * 1. [](./imgs/a.png) --> ![](https://ws2.sinaimg.cn/large/a.jpg)
      * 2. ![](https://ws2.sinaimg.cn/large/a.jpg) --> ![](https://ws2.sinaimg.cn/large/a.jpg)
-     * 3. <a title='' href='https://ws2.sinaimg.cn/large/a.jpg' >![](https://ws2.sinaimg.cn/large/a.jpg)</a> -> <a title='' href='https://ws2.sinaimg.cn/large/a.jpg' >![](https://ws2.sinaimg.cn/large/a.jpg)</a>
+     * 3. <a title='' href='https://ws2.sinaimg.cn/large/a.jpg' >![](https://ws2.sinaimg.cn/large/a.jpg)</a>
+     * -> <a title='' href='https://ws2.sinaimg.cn/large/a.jpg' >![](https://ws2.sinaimg.cn/large/a.jpg)</a>
      * 开启标签替换 (按照设置的标签格式替换):
      * 1. [](./imgs/a.png) --> <a title='' href='https://ws2.sinaimg.cn/large/a.jpg' >![](https://ws2.sinaimg.cn/large/a.jpg)</a>
-     * 2. ![](https://ws2.sinaimg.cn/large/a.jpg) -> <a title='' href='https://ws2.sinaimg.cn/large/a.jpg' >![](https://ws2.sinaimg.cn/large/a.jpg)</a>
+     * 2. ![](https://ws2.sinaimg.cn/large/a.jpg) ->
+     * <a title='' href='https://ws2.sinaimg.cn/large/a.jpg' >![](https://ws2.sinaimg.cn/large/a.jpg)</a>
      * 3. 与设置的标签一样则不处理
      *
      * @param title     the title
@@ -79,6 +83,7 @@ public class UploadUtils {
      * @param original  the original     如果为 "", 则使用此字段
      * @param endString the end string
      * @return the final image mark
+     * @since 0.0.1
      */
     @NotNull
     public static String getFinalImageMark(String title, String imageUrl, String original, String endString) {
@@ -105,6 +110,7 @@ public class UploadUtils {
      * @param project the project
      * @param name    the name
      * @return the virtual file
+     * @since 0.0.1
      */
     public static VirtualFile searchVirtualFileByName(Project project, String name) {
         // Read access is allowed from event dispatch thread or inside read-action only (see com.intellij.openapi.application.Application.runReadAction())
@@ -122,6 +128,7 @@ public class UploadUtils {
      *
      * @param file the file
      * @return the virtual file
+     * @since 0.0.1
      */
     public static VirtualFile searchVirtualFile(File file) {
         return LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.chain;
@@ -35,8 +34,10 @@ import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 
-import java.io.*;
-import java.net.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -50,20 +51,26 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: </p>
  *
  * @author dong4j
- * @email dong4j@gmail.com
- * @since 2019-03-22 18:50
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2021.02.14 18:40
+ * @since 2019.03.22 18:50
  */
 @Slf4j
 public class ActionManager {
-    private List<IActionHandler> handlersChain = new LinkedList<>();
-    private List<TaskCallback> callbacks = new ArrayList<>();
+    /** Handlers chain */
+    private final List<IActionHandler> handlersChain = new LinkedList<>();
+    /** Callbacks */
+    private final List<TaskCallback> callbacks = new ArrayList<>();
 
-    private EventData data;
+    /** Data */
+    private final EventData data;
 
     /**
      * Instantiates a new Action manager.
      *
      * @param data the data
+     * @since 0.0.1
      */
     public ActionManager(EventData data) {
         this.data = data;
@@ -74,6 +81,7 @@ public class ActionManager {
      *
      * @param handler the handler
      * @return the action manager
+     * @since 0.0.1
      */
     public ActionManager addHandler(IActionHandler handler) {
         this.handlersChain.add(handler);
@@ -84,9 +92,10 @@ public class ActionManager {
      * Get callbacks list.
      *
      * @return the list
+     * @since 0.0.1
      */
     public List<TaskCallback> getCallbacks() {
-        return callbacks;
+        return this.callbacks;
     }
 
     /**
@@ -94,6 +103,7 @@ public class ActionManager {
      *
      * @param callback the callback
      * @return the action manager
+     * @since 0.0.1
      */
     public ActionManager addCallback(TaskCallback callback) {
         this.callbacks.add(callback);
@@ -104,22 +114,23 @@ public class ActionManager {
      * Invoke.
      *
      * @param indicator the indicator
+     * @since 0.0.1
      */
     public void invoke(ProgressIndicator indicator) {
         int totalProcessed = 0;
-        data.setIndicator(indicator);
-        data.setSize(handlersChain.size());
+        this.data.setIndicator(indicator);
+        this.data.setSize(this.handlersChain.size());
         int index = 0;
-        for (IActionHandler handler : handlersChain) {
-            data.setIndex(index++);
-            if (handler.isEnabled(data)) {
+        for (IActionHandler handler : this.handlersChain) {
+            this.data.setIndex(index++);
+            if (handler.isEnabled(this.data)) {
                 log.trace("invoke {}", handler.getName());
                 indicator.setText2(handler.getName());
-                if (!handler.execute(data)) {
+                if (!handler.execute(this.data)) {
                     break;
                 }
             }
-            indicator.setFraction(++totalProcessed * 1.0 / handlersChain.size());
+            indicator.setFraction(++totalProcessed * 1.0 / this.handlersChain.size());
         }
     }
 
@@ -128,6 +139,7 @@ public class ActionManager {
      *
      * @param data the data
      * @return the action manager
+     * @since 0.0.1
      */
     public static ActionManager buildUploadChain(EventData data) {
         return new ActionManager(data)
@@ -154,8 +166,9 @@ public class ActionManager {
      * 右键批量迁移是直接解析当前文件中的图片标签, 只需要处理用户指定的标签,其他全部过滤点
      * 意图迁移只需要解析光标所在行的标签, 当标签所在图床与设置图床一致则不处理
      *
-     * @param data    the data
+     * @param data the data
      * @return the action manager
+     * @since 0.0.1
      */
     public static ActionManager buildMoveImageChain(EventData data) {
         // 过滤掉 LOCAL 和用户输入不匹配的标签

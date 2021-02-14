@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.client;
@@ -43,7 +42,10 @@ import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
 import javax.swing.JPanel;
@@ -55,15 +57,19 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: </p>
  *
  * @author dong4j
- * @email dong4j@gmail.com
- * @since 2019-03-18 09:57
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2021.02.14 18:40
+ * @since 2019.03.18 09:57
  */
 @Slf4j
 @Client(CloudEnum.WEIBO_CLOUD)
 public class WeiboOssClient implements OssClient {
 
+    /** ossClient */
     private static WbpUploadRequest ossClient = null;
 
+    /** Weibo oss state */
     private final WeiboOssState weiboOssState = MikPersistenComponent.getInstance().getState().getWeiboOssState();
 
     static {
@@ -72,6 +78,8 @@ public class WeiboOssClient implements OssClient {
 
     /**
      * 如果是第一次使用, ossClient == null
+     *
+     * @since 0.0.1
      */
     private static void init() {
         WeiboOssState weiboOssState = MikPersistenComponent.getInstance().getState().getWeiboOssState();
@@ -86,6 +94,12 @@ public class WeiboOssClient implements OssClient {
         }
     }
 
+    /**
+     * Gets cloud type *
+     *
+     * @return the cloud type
+     * @since 0.0.1
+     */
     @Override
     public CloudEnum getCloudType() {
         return CloudEnum.WEIBO_CLOUD;
@@ -95,6 +109,7 @@ public class WeiboOssClient implements OssClient {
      * Set oss client.
      *
      * @param oss the oss
+     * @since 0.0.1
      */
     private void setOssClient(WbpUploadRequest oss) {
         ossClient = oss;
@@ -104,18 +119,30 @@ public class WeiboOssClient implements OssClient {
      * Gets instance.
      *
      * @return the instance
+     * @since 0.0.1
      */
     @Contract(pure = true)
     public static WeiboOssClient getInstance() {
-        WeiboOssClient client = (WeiboOssClient)OssClient.INSTANCES.get(CloudEnum.WEIBO_CLOUD);
-        if(client == null){
+        WeiboOssClient client = (WeiboOssClient) OssClient.INSTANCES.get(CloudEnum.WEIBO_CLOUD);
+        if (client == null) {
             client = WeiboOssClient.SingletonHandler.SINGLETON;
             OssClient.INSTANCES.put(CloudEnum.WEIBO_CLOUD, client);
         }
         return client;
     }
 
+    /**
+     * <p>Company: 成都返空汇网络技术有限公司 </p>
+     * <p>Description: </p>
+     *
+     * @author dong4j
+     * @version 0.0.1
+     * @email "mailto:dong4j@gmail.com"
+     * @date 2021.02.14 18:40
+     * @since 0.0.1
+     */
     private static class SingletonHandler {
+        /** SINGLETON */
         private static final WeiboOssClient SINGLETON = new WeiboOssClient();
     }
 
@@ -126,6 +153,7 @@ public class WeiboOssClient implements OssClient {
      * @param fileName    the file name
      * @return the string
      * @throws IOException the io exception
+     * @since 0.0.1
      */
     @Override
     public String upload(InputStream inputStream, String fileName) {
@@ -140,6 +168,7 @@ public class WeiboOssClient implements OssClient {
      * @param fileName    the file name
      * @return the string
      * @throws IOException the io exception
+     * @since 0.0.1
      */
     public String upload(WbpUploadRequest ossClient, InputStream inputStream, String fileName) {
         File file = ImageUtils.buildTempFile(fileName);
@@ -159,6 +188,7 @@ public class WeiboOssClient implements OssClient {
      * @param file      the file
      * @return the string
      * @throws IOException the io exception
+     * @since 0.0.1
      */
     public String upload(@NotNull WbpUploadRequest ossClient, File file) {
         String url = "";
@@ -183,6 +213,7 @@ public class WeiboOssClient implements OssClient {
      * @param fileName    the file name
      * @param jPanel      the j panel
      * @return the string
+     * @since 0.0.1
      */
     @Override
     public String upload(InputStream inputStream, String fileName, JPanel jPanel) {
@@ -201,6 +232,7 @@ public class WeiboOssClient implements OssClient {
      * @param username    the username
      * @param password    the password
      * @return the string
+     * @since 0.0.1
      */
     @NotNull
     @Contract(pure = true)

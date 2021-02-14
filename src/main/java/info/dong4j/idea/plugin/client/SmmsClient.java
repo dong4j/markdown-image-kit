@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.client;
@@ -43,7 +42,8 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.jetbrains.annotations.Contract;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 import javax.swing.JPanel;
@@ -55,20 +55,35 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: </p>
  *
  * @author dong4j
- * @email dong4j@gmail.com
- * @since 2019 -04-01 09:21
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2021.02.14 18:40
+ * @since 2019.04.01 09:21
  */
 @Slf4j
 @Client(CloudEnum.SM_MS_CLOUD)
 public class SmmsClient implements OssClient {
+    /** UPLOAD_URL */
     private static final String UPLOAD_URL = "https://sm.ms/api/v2/upload";
+    /** client */
     private static Client client;
 
+    /**
+     * Smms client
+     *
+     * @since 0.0.1
+     */
     @Contract(pure = true)
     private SmmsClient() {
 
     }
 
+    /**
+     * Gets cloud type *
+     *
+     * @return the cloud type
+     * @since 0.0.1
+     */
     @Override
     public CloudEnum getCloudType() {
         return CloudEnum.SM_MS_CLOUD;
@@ -78,18 +93,30 @@ public class SmmsClient implements OssClient {
      * Gets instance.
      *
      * @return the instance
+     * @since 0.0.1
      */
     @Contract(pure = true)
     public static SmmsClient getInstance() {
-        SmmsClient client = (SmmsClient)OssClient.INSTANCES.get(CloudEnum.SM_MS_CLOUD);
-        if(client == null){
+        SmmsClient client = (SmmsClient) OssClient.INSTANCES.get(CloudEnum.SM_MS_CLOUD);
+        if (client == null) {
             client = SingletonHandler.SINGLETON;
             OssClient.INSTANCES.put(CloudEnum.SM_MS_CLOUD, client);
         }
         return client;
     }
 
+    /**
+     * <p>Company: 成都返空汇网络技术有限公司 </p>
+     * <p>Description: </p>
+     *
+     * @author dong4j
+     * @version 0.0.1
+     * @email "mailto:dong4j@gmail.com"
+     * @date 2021.02.14 18:40
+     * @since 0.0.1
+     */
     private static class SingletonHandler {
+        /** SINGLETON */
         private static final SmmsClient SINGLETON = new SmmsClient();
     }
 
@@ -99,6 +126,7 @@ public class SmmsClient implements OssClient {
      * @param inputStream the input stream
      * @param fileName    the file name
      * @return the string
+     * @since 0.0.1
      */
     @Override
     public String upload(InputStream inputStream, String fileName) {
@@ -116,19 +144,32 @@ public class SmmsClient implements OssClient {
      * @param fileName    the file name
      * @param jPanel      the j panel
      * @return the string
+     * @since 0.0.1
      */
     @Override
     public String upload(InputStream inputStream, String fileName, JPanel jPanel) {
         return "";
     }
 
+    /**
+     * <p>Company: 成都返空汇网络技术有限公司 </p>
+     * <p>Description: </p>
+     *
+     * @author dong4j
+     * @version 0.0.1
+     * @email "mailto:dong4j@gmail.com"
+     * @date 2021.02.14 18:40
+     * @since 0.0.1
+     */
     private static class Client {
+        /** Client */
         private final CloseableHttpClient client;
 
         /**
          * Instantiates a new Client.
          *
          * @throws IOException the io exception
+         * @since 0.0.1
          */
         Client() {
             HttpClientBuilder builder = HttpClients.custom();
@@ -143,6 +184,7 @@ public class SmmsClient implements OssClient {
          * @param inputStream the input stream
          * @param fileName    the file name
          * @return the string
+         * @since 0.0.1
          */
         public String upload(InputStream inputStream, String fileName) {
             try {

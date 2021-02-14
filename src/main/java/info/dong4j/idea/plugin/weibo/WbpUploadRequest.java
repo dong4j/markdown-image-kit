@@ -1,3 +1,27 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package info.dong4j.idea.plugin.weibo;
 
 import com.google.gson.Gson;
@@ -13,7 +37,10 @@ import info.dong4j.idea.plugin.weibo.http.WbpHttpResponse;
 
 import org.apache.commons.lang.StringUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -36,26 +63,47 @@ import static java.net.HttpURLConnection.HTTP_OK;
  * <p>Description: </p>
  *
  * @author echisan
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2018.06.14 22:31
  * @update dong4j
- * @date 2018-06-14 22:31
+ * @since 0.0.1
  */
 @Slf4j
 public class WbpUploadRequest implements UploadRequest {
+    /** IMAGE_EXTENSION */
     private static final Set<String> IMAGE_EXTENSION = new HashSet<>(3);
     /** 重连1次, cookies 过期后自动获取 cookie */
-    private static AtomicInteger tryLoginCount = new AtomicInteger(1);
-    private WbpHttpRequest wbpHttpRequest;
+    private static final AtomicInteger tryLoginCount = new AtomicInteger(1);
+    /** Wbp http request */
+    private final WbpHttpRequest wbpHttpRequest;
+    /** Pre login result */
     private volatile String preLoginResult;
-    private String username;
-    private String password;
+    /** Username */
+    private final String username;
+    /** Password */
+    private final String password;
 
+    /**
+     * Wbp upload request
+     *
+     * @param wbpHttpRequest wbp http request
+     * @param username       username
+     * @param password       password
+     * @since 0.0.1
+     */
     WbpUploadRequest(WbpHttpRequest wbpHttpRequest, String username, String password) {
         this.wbpHttpRequest = wbpHttpRequest;
-        initImageExtensionSet();
+        this.initImageExtensionSet();
         this.username = username;
         this.password = password;
     }
 
+    /**
+     * Init image extension set
+     *
+     * @since 0.0.1
+     */
     private void initImageExtensionSet() {
         IMAGE_EXTENSION.add("jpg");
         IMAGE_EXTENSION.add("gif");
@@ -63,27 +111,50 @@ public class WbpUploadRequest implements UploadRequest {
     }
 
 
+    /**
+     * Upload b 64
+     *
+     * @param base64 base 64
+     * @return the wbp http response
+     * @throws IOException io exception
+     * @since 0.0.1
+     */
     private WbpHttpResponse uploadB64(String base64) throws IOException {
         String uploadUrl = "http://picupload.service.weibo.com/interface/pic_upload.php?" +
                            "ori=1&mime=image%2Fjpeg&data=base64&url=0&markpos=1&logo=&nick=0&marks=1&app=miniblog";
-        return wbpHttpRequest.doPostMultiPart(uploadUrl, getUploadHeader(), base64);
+        return this.wbpHttpRequest.doPostMultiPart(uploadUrl, this.getUploadHeader(), base64);
     }
 
+    /**
+     * Parse body json
+     *
+     * @param body body
+     * @return the string
+     * @since 0.0.1
+     */
     private String parseBodyJson(String body) {
         int i = body.indexOf("</script>");
         return body.substring(i + 9);
     }
 
+    /**
+     * Upload
+     *
+     * @param image image
+     * @return the upload response
+     * @throws IOException io exception
+     * @since 0.0.1
+     */
     @Override
     public UploadResponse upload(File image) throws IOException {
 
         // 判断是否已经登陆
-        checkLogin();
+        this.checkLogin();
 
-        String base64image = imageToBase64(image);
+        String base64image = this.imageToBase64(image);
         WbpUploadResponse uploadResponse = new WbpUploadResponse();
 
-        WbpHttpResponse httpResponse = uploadB64(base64image);
+        WbpHttpResponse httpResponse = this.uploadB64(base64image);
 
         // 如果返回的不是200,则直接上传就失败了
         if (httpResponse.getStatusCode() != HTTP_OK) {
@@ -93,13 +164,13 @@ public class WbpUploadRequest implements UploadRequest {
         }
 
         // 检查返回的json数据
-        String s = parseBodyJson(httpResponse.getBody());
+        String s = this.parseBodyJson(httpResponse.getBody());
         UploadResp uploadResp = new Gson().fromJson(s, UploadResp.class);
 
         int retCode = uploadResp.getData().getPics().getPic_1().getRet();
         if (retCode == -1) {
-            if (tryReLogin()) {
-                return upload(image);
+            if (this.tryReLogin()) {
+                return this.upload(image);
             } else {
                 uploadResponse.setResult(UploadResponse.ResultStatus.FAILED);
                 return uploadResponse;
@@ -121,13 +192,20 @@ public class WbpUploadRequest implements UploadRequest {
     }
 
 
+    /**
+     * Login
+     *
+     * @throws IOException          io exception
+     * @throws LoginFailedException login failed exception
+     * @since 0.0.1
+     */
     private synchronized void login() throws IOException, LoginFailedException {
-        preLogin();
+        this.preLogin();
         String loginUrl = "https://login.sina.com.cn/sso/login.php?client=ssologin.js(v1.4.19)";
-        PreLogin preLogin = new Gson().fromJson(preLoginResult, PreLogin.class);
+        PreLogin preLogin = new Gson().fromJson(this.preLoginResult, PreLogin.class);
 
         // 根据微博加密js中密码拼接的方法
-        String pwd = preLogin.getServertime() + "\t" + preLogin.getNonce() + "\n" + password;
+        String pwd = preLogin.getServertime() + "\t" + preLogin.getNonce() + "\n" + this.password;
 
         Map<String, String> params = new HashMap<>(20);
         params.put("encoding", "UTF-8");
@@ -153,12 +231,12 @@ public class WbpUploadRequest implements UploadRequest {
             log.trace("登陆失败，原因：密码加密失败", new LoginFailedException());
         }
         params.put("sr", "1920*1080");
-        params.put("su", Base64.getEncoder().encodeToString(username.getBytes()));
+        params.put("su", Base64.getEncoder().encodeToString(this.username.getBytes()));
         params.put("url", "https://weibo.com/ajaxlogin.php?framelogin=1&callback=parent.sinaSSOController.feedBackUrlCallBack");
         params.put("useticket", "1");
         params.put("vsnf", "1");
 
-        WbpHttpResponse wbpHttpResponse = wbpHttpRequest.doPost(loginUrl, getLoginHeader(), params);
+        WbpHttpResponse wbpHttpResponse = this.wbpHttpRequest.doPost(loginUrl, this.getLoginHeader(), params);
 
         if (wbpHttpResponse.getStatusCode() == HTTP_OK) {
 
@@ -185,6 +263,13 @@ public class WbpUploadRequest implements UploadRequest {
         }
     }
 
+    /**
+     * Pre login
+     *
+     * @throws IOException          io exception
+     * @throws LoginFailedException login failed exception
+     * @since 0.0.1
+     */
     private void preLogin() throws IOException, LoginFailedException {
         String username = Base64.getEncoder().encodeToString(this.username.getBytes());
         String preLoginUrl = "https://login.sina.com.cn/sso/prelogin.php";
@@ -196,15 +281,22 @@ public class WbpUploadRequest implements UploadRequest {
         params.put("checkpin", "1");
         params.put("_", String.valueOf(System.currentTimeMillis()));
 
-        WbpHttpResponse wbpHttpResponse = wbpHttpRequest.doGet(preLoginUrl, getPreLoginHeader(), params);
+        WbpHttpResponse wbpHttpResponse = this.wbpHttpRequest.doGet(preLoginUrl, this.getPreLoginHeader(), params);
         if (wbpHttpResponse.getStatusCode() == HTTP_OK) {
-            preLoginResult = wbpHttpResponse.getBody();
+            this.preLoginResult = wbpHttpResponse.getBody();
         }
-        if (preLoginResult == null) {
+        if (this.preLoginResult == null) {
             throw new LoginFailedException("weibo prelogin failed!");
         }
     }
 
+    /**
+     * Image to base 64
+     *
+     * @param imageFile image file
+     * @return the string
+     * @since 0.0.1
+     */
     private String imageToBase64(File imageFile) {
         String base64Image = "";
         try (FileInputStream imageInFile = new FileInputStream(imageFile)) {
@@ -221,13 +313,27 @@ public class WbpUploadRequest implements UploadRequest {
         return base64Image;
     }
 
+    /**
+     * Check login
+     *
+     * @throws IOException          io exception
+     * @throws LoginFailedException login failed exception
+     * @since 0.0.1
+     */
     private void checkLogin() throws IOException, LoginFailedException {
         CookieContext instance = CookieContext.getInstance();
         if (StringUtils.isBlank(instance.getCOOKIE())) {
-            login();
+            this.login();
         }
     }
 
+    /**
+     * Try re login
+     *
+     * @return the boolean
+     * @throws LoginFailedException login failed exception
+     * @since 0.0.1
+     */
     private synchronized boolean tryReLogin() throws LoginFailedException {
         // 先判断是否已经到了冷却时间
         if (tryLoginCount.getAndAdd(1) < 2) {
@@ -239,13 +345,26 @@ public class WbpUploadRequest implements UploadRequest {
         return false;
     }
 
+    /**
+     * Gets pre login header *
+     *
+     * @return the pre login header
+     * @since 0.0.1
+     */
     private Map<String, String> getPreLoginHeader() {
         Map<String, String> header = new HashMap<>(2);
         header.put("Referer", "https://weibo.com/");
-        header.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.79 Safari/537.36");
+        header.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.79 " +
+                                 "Safari/537.36");
         return header;
     }
 
+    /**
+     * Gets login header *
+     *
+     * @return the login header
+     * @since 0.0.1
+     */
     private Map<String, String> getLoginHeader() {
         Map<String, String> header = new HashMap<>(6);
         header.put("Referer", "https://weibo.com/");
@@ -257,6 +376,12 @@ public class WbpUploadRequest implements UploadRequest {
         return header;
     }
 
+    /**
+     * Gets upload header *
+     *
+     * @return the upload header
+     * @since 0.0.1
+     */
     private Map<String, String> getUploadHeader() {
         Map<String, String> header = new HashMap<>(4);
         header.put("Host", "picupload.service.weibo.com");

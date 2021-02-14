@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.action.markdown;
@@ -49,8 +48,10 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: 右键上传到 OSS </p>
  *
  * @author dong4j
- * @date 2019-03-14 17:15
- * @email dong4j@gmail.com
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2019.03.14 17:15
+ * @since 0.0.1
  */
 @Slf4j
 public abstract class UploadActionBase extends AnAction {
@@ -58,6 +59,7 @@ public abstract class UploadActionBase extends AnAction {
      * Gets icon.
      *
      * @return the icon
+     * @since 0.0.1
      */
     abstract protected Icon getIcon();
 
@@ -65,6 +67,7 @@ public abstract class UploadActionBase extends AnAction {
      * action 是否为可用状态
      *
      * @return the boolean
+     * @since 0.0.1
      */
     abstract boolean isAvailable();
 
@@ -72,6 +75,7 @@ public abstract class UploadActionBase extends AnAction {
      * 获取 action name
      *
      * @return the name
+     * @since 0.0.1
      */
     abstract String getName();
 
@@ -82,33 +86,35 @@ public abstract class UploadActionBase extends AnAction {
      * b. 如果文件是 markdown 才可用
      *
      * @param event the event
+     * @since 0.0.1
      */
     @Override
     public void update(@NotNull AnActionEvent event) {
-        ActionUtils.isAvailable(event, getIcon(), MarkdownContents.MARKDOWN_TYPE_NAME);
+        ActionUtils.isAvailable(event, this.getIcon(), MarkdownContents.MARKDOWN_TYPE_NAME);
     }
 
     /**
      * 所有子类都走这个逻辑, 做一些前置判断和解析 markdown image mark
      *
      * @param event the an action event
+     * @since 0.0.1
      */
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
         // 先刷新一次, 避免才添加的文件未被添加的 VFS 中, 导致找不到文件的问题
         VirtualFileManager.getInstance().syncRefresh();
 
-        final Project project = event.getProject();
+        Project project = event.getProject();
         if (project != null) {
             EventData data = new EventData()
                 .setActionEvent(event)
                 .setProject(project)
                 // 使用子类的具体 client
-                .setClient(getClient())
-                .setClientName(getName());
+                .setClient(this.getClient())
+                .setClientName(this.getName());
 
             // 开启后台任务
-            new ActionTask(project, MikBundle.message("mik.action.upload.process", getName()), ActionManager.buildUploadChain(data)).queue();
+            new ActionTask(project, MikBundle.message("mik.action.upload.process", this.getName()), ActionManager.buildUploadChain(data)).queue();
         }
     }
 
@@ -116,6 +122,7 @@ public abstract class UploadActionBase extends AnAction {
      * 获取具体上传的客户端, 委托给后台任务执行
      *
      * @return the oss client
+     * @since 0.0.1
      */
     abstract OssClient getClient();
 }

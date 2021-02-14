@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.client;
@@ -37,7 +36,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
 import javax.swing.JPanel;
@@ -49,10 +49,10 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: 右键上传一次或者点击测试按钮时初始化一次</p>
  *
  * @author dong4j
- * @version x.x.x
- * @email dong4j @gmail.com
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
  * @date 2020.04.25 17:05
- * @since 2019 -03-18 09:57
+ * @since 2019.03.18 09:57
  */
 @Slf4j
 @Client(CloudEnum.ALIYUN_CLOUD)
@@ -81,6 +81,8 @@ public class AliyunOssClient implements OssClient {
 
     /**
      * 如果是第一次使用, ossClient == null
+     *
+     * @since 0.0.1
      */
     private static void init() {
         AliyunOssState aliyunOssState = MikPersistenComponent.getInstance().getState().getAliyunOssState();
@@ -103,6 +105,7 @@ public class AliyunOssClient implements OssClient {
      * 3. 不会有线程安全问题;
      *
      * @return the instance
+     * @since 0.0.1
      */
     @Contract(pure = true)
     public static AliyunOssClient getInstance() {
@@ -118,9 +121,10 @@ public class AliyunOssClient implements OssClient {
      * 使用缓存的 map 映射获取已初始化的 client, 避免创建多个实例
      *
      * @author dong4j
-     * @version x.x.x
+     * @version 0.0.1
      * @email "mailto:dongshijie@fkhwl.com"
      * @date 2020.04.25 17:05
+     * @since 0.0.1
      */
     private static class SingletonHandler {
         /** SINGLETON */
@@ -131,6 +135,7 @@ public class AliyunOssClient implements OssClient {
      * Gets cloud type *
      *
      * @return the cloud type
+     * @since 0.0.1
      */
     @Override
     public CloudEnum getCloudType() {
@@ -145,6 +150,7 @@ public class AliyunOssClient implements OssClient {
      * @param fileName    the file name
      * @param jPanel      the j panel
      * @return the string
+     * @since 0.0.1
      */
     @Override
     public String upload(InputStream inputStream, String fileName, JPanel jPanel) {
@@ -176,6 +182,7 @@ public class AliyunOssClient implements OssClient {
      * @param endpoint        the endpoint
      * @param filedir         the temp file dir
      * @return the string
+     * @since 0.0.1
      */
     private String upload(InputStream inputStream,
                           String fileName,
@@ -214,6 +221,7 @@ public class AliyunOssClient implements OssClient {
      * @param instream instream
      * @param fileName file name
      * @return 出错返回 "" ,唯一MD5数字签名
+     * @since 0.0.1
      */
     @Override
     public String upload(@NotNull InputStream instream,

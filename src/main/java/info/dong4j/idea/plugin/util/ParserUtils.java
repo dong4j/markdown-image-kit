@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.util;
@@ -36,10 +35,17 @@ import java.util.Map;
  * <p>Description:替换字符串中 ${} 或者 {} 等占位符的工具类</p>
  *
  * @author dong4j
- * @date 2018 -08-15 10:27
- * @email dong4j@gmail.com
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2018.08.15 10:27
+ * @since 0.0.1
  */
 public final class ParserUtils {
+    /**
+     * Parser utils
+     *
+     * @since 0.0.1
+     */
     @Contract(" -> fail")
     private ParserUtils() {
         throw new RuntimeException("Tool class does not support instantiation");
@@ -51,6 +57,7 @@ public final class ParserUtils {
      * @param text the text
      * @param args the args
      * @return the string
+     * @since 0.0.1
      */
     public static String parse0(String text, Object... args) {
         return parse("${", "}", text, args);
@@ -64,6 +71,7 @@ public final class ParserUtils {
      * @param text       the text           包含占位符的字符串
      * @param args       the args           被替换的参数
      * @return string string
+     * @since 0.0.1
      */
     @Contract("_, _, _, null -> param3")
     public static String parse(String openToken, String closeToken, String text, Object... args) {
@@ -82,7 +90,7 @@ public final class ParserUtils {
         if (start == -1) {
             return text;
         }
-        final StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
         StringBuilder expression = null;
         while (start > -1) {
             if (start > 0 && src[start - 1] == '\\') {
@@ -137,6 +145,7 @@ public final class ParserUtils {
      * @param text the text
      * @param args the args
      * @return the string
+     * @since 0.0.1
      */
     public static String parse1(String text, Object... args) {
         return parse("{", "}", text, args);
@@ -149,6 +158,7 @@ public final class ParserUtils {
      * @param title the title
      * @param path  the path
      * @return the string
+     * @since 0.0.1
      */
     public static String parse2(String text, String title, String path) {
         return text.replaceAll("\\$\\{title}", title).replaceAll("\\$\\{path}", path);
@@ -159,6 +169,7 @@ public final class ParserUtils {
      *
      * @param text the text
      * @return the map describe = xxx; file = yyy
+     * @since 0.0.1
      */
     @NotNull
     @Contract("_ -> new")
@@ -169,8 +180,10 @@ public final class ParserUtils {
         String describe = text.substring(start + 2, end);
         String file = text.substring(text.indexOf("(") + 1, text.indexOf(")"));
         return new HashMap<String, String>(1) {
+            private static final long serialVersionUID = 6465853189583120987L;
+
             {
-                put(describe, file);
+                this.put(describe, file);
             }
         };
     }

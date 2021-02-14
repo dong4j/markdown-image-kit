@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2021 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package info.dong4j.idea.plugin.action.intention;
@@ -55,8 +54,10 @@ import lombok.extern.slf4j.Slf4j;
  * 使用设置后的默认 OSS 客户端
  *
  * @author dong4j
- * @email dong4j@gmail.com
- * @since 2019-03-27 13:28
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2021.02.14 18:40
+ * @since 2019.03.27 13:28
  */
 @Slf4j
 public abstract class IntentionActionBase extends PsiElementBaseIntentionAction {
@@ -70,6 +71,7 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
      *
      * @param clientName the client name
      * @return the message
+     * @since 0.0.1
      */
     abstract String getMessage(String clientName);
 
@@ -77,50 +79,74 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
      * 使用设置的默认 client
      *
      * @return the oss client
+     * @since 0.0.1
      */
     protected OssClient getClient() {
-        return ClientUtils.getClient(getCloudType());
+        return ClientUtils.getClient(this.getCloudType());
     }
 
     /**
      * 获取设置的默认客户端名称
      *
      * @return the string
+     * @since 0.0.1
      */
     protected String getName() {
-        return getCloudType().title;
+        return this.getCloudType().title;
     }
 
     /**
      * 获取设置的默认客户端类型, 如果设置的不可用, 则使用 sm.ms
      *
      * @return the cloud enum
+     * @since 0.0.1
      */
     protected CloudEnum getCloudType() {
         CloudEnum cloudEnum = OssState.getCloudType(STATE.getCloudType());
         return OssState.getStatus(cloudEnum) ? cloudEnum : CloudEnum.SM_MS_CLOUD;
     }
 
+    /**
+     * Gets text *
+     *
+     * @return the text
+     * @since 0.0.1
+     */
     @Nls
     @NotNull
     @Override
     public String getText() {
-        return getMessage(getCloudType().title);
+        return this.getMessage(this.getCloudType().title);
     }
 
+    /**
+     * Gets family name *
+     *
+     * @return the family name
+     * @since 0.0.1
+     */
     @Nls
     @NotNull
     @Override
     public String getFamilyName() {
-        return getText();
+        return this.getText();
     }
 
+    /**
+     * Is available
+     *
+     * @param project project
+     * @param editor  editor
+     * @param element element
+     * @return the boolean
+     * @since 0.0.1
+     */
     @Override
     public boolean isAvailable(@NotNull Project project, Editor editor,
                                @NotNull PsiElement element) {
 
 
-        if (MarkdownUtils.illegalImageMark(project, getLineText(editor))) {
+        if (MarkdownUtils.illegalImageMark(project, this.getLineText(editor))) {
             return false;
         }
 
@@ -137,6 +163,7 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
      *
      * @param editor the editor
      * @return the string
+     * @since 0.0.1
      */
     private String getLineText(@NotNull Editor editor) {
         int documentLine = editor.getDocument().getLineNumber(editor.getCaretModel().getOffset());
@@ -150,13 +177,20 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
         return text;
     }
 
+    /**
+     * Gets markdown image *
+     *
+     * @param editor editor
+     * @return the markdown image
+     * @since 0.0.1
+     */
     @Nullable
     MarkdownImage getMarkdownImage(Editor editor) {
         Document document = editor.getDocument();
         int documentLine = document.getLineNumber(editor.getCaretModel().getOffset());
         VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
 
-        MarkdownImage matchImageMark = MarkdownUtils.analysisImageMark(virtualFile, getLineText(editor), documentLine);
+        MarkdownImage matchImageMark = MarkdownUtils.analysisImageMark(virtualFile, this.getLineText(editor), documentLine);
         return matchImageMark;
     }
 }
