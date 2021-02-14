@@ -121,7 +121,7 @@ public enum ImageMediaType {
      * Image media type
      *
      * @param contentType content type
-     * @since y.y.y
+     * @since 1.1.0
      */
     ImageMediaType(@NonNls String contentType) {
         this.contentType = contentType;
@@ -131,7 +131,7 @@ public enum ImageMediaType {
      * To string
      *
      * @return the string
-     * @since y.y.y
+     * @since 1.1.0
      */
     @Override
     public String toString() {
