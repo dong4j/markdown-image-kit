@@ -70,6 +70,4 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok:1.18.18'
     testCompile 'junit:junit:4.13.1'
     compile 'net.coobird:thumbnailator:0.4.13'
-    compile 'org.apache.httpcomponents:httpcore:4.4.14'
 }
-
