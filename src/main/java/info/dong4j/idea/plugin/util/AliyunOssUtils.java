@@ -247,9 +247,7 @@ public class AliyunOssUtils {
     public static String getGMTDate() {
         Calendar cd = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.US);
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT+8:00"));
-        String dateString = sdf.format(cd.getTime());
-        System.out.println(dateString);
-        return dateString;
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return sdf.format(cd.getTime());
     }
 }

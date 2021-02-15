@@ -80,7 +80,7 @@
         <li>Refactor dependencies, delete apache dependencies, reduce plug-in size</li>
       </ul>
       <ul>
-        <li>移除 com.intellij.modules.java, 支持 WebStorm, PyCharm, GoLand 等非 IDE</li>
+        <li>移除 com.intellij.modules.java, 支持 WebStorm, PyCharm, GoLand 等 IDE</li>
         <li>重构依赖, 删除 apache 相关依赖, 减少插件体积</li>
        </ul>
       <br/>

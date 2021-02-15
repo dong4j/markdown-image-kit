@@ -83,6 +83,8 @@ import lombok.extern.slf4j.Slf4j;
 public class ProjectSettingsPage implements SearchableConfigurable, Configurable.NoScroll {
     /** TEST_FILE_NAME */
     private static final String TEST_FILE_NAME = "mik.png";
+    /** helperDoc */
+    private static final String HELPER_DOC = "https://help.aliyun.com/document_detail/31836.html";
     /** Config */
     private final MikPersistenComponent config;
     /** My main panel */
@@ -337,7 +339,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                 ProjectSettingsPage.this.setExampleText(false);
             }
         };
-
         DocumentAdapter customDocumentAdapter = new DocumentAdapter() {
             @Override
             protected void textChanged(@NotNull DocumentEvent e) {
@@ -352,44 +353,65 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         // 设置 aliyunOssFileDirTextField 输入的监听
         this.aliyunOssFileDirTextField.getDocument().addDocumentListener(documentAdapter);
 
+        this.change(customDocumentAdapter, this.config.getState().getAliyunOssState().getIsCustomEndpoint());
+
         // 设置 customEndpointCheckBox 监听
         this.customEndpointCheckBox.addChangeListener(e -> {
             JCheckBox checkBox = (JCheckBox) e.getSource();
-            this.customEndpointTextField.setEnabled(checkBox.isSelected());
-            this.customEndpointHelper.setEnabled(checkBox.isSelected());
-            this.aliyunOssEndpointTextField.setEnabled(!checkBox.isSelected());
-            this.aliyunOssBucketNameTextField.setEnabled(!checkBox.isSelected());
-            this.aliyunOssFileDirTextField.setEnabled(!checkBox.isSelected());
-
-            String helperDoc = "https://help.aliyun.com/document_detail/31836.html";
-            if (checkBox.isSelected()) {
-                // 设置帮助文档链接
-                this.customEndpointHelper.setText("<html><a href='" + helperDoc + "'>自定义 Endpoint 帮助文档</a></html>");
-                // 设置链接颜色
-                this.customEndpointHelper.setForeground(JBColor.WHITE);
-                // 设置鼠标样式
-                this.customEndpointHelper.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                // 设置提示文字
-                this.customEndpointHelper.addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-                        try {
-                            Desktop.getDesktop().browse(new URI(helperDoc));
-                        } catch (Exception ignored) {
-                        }
-                    }
-                });
-
-                // 开启自定义 endpoint 时, example 修改为自定义 endpoint
-                this.customEndpointTextField.getDocument().addDocumentListener(customDocumentAdapter);
-            } else {
-                this.customEndpointHelper.setText("");
-            }
-
-            // 重置 example
-            this.setExampleText(checkBox.isSelected());
+            this.change(customDocumentAdapter, checkBox.isSelected());
         });
 
+    }
+
+    /**
+     * Change
+     *
+     * @param customDocumentAdapter custom document adapter
+     * @param isSelected            is selected
+     * @since 1.1.0
+     */
+    private void change(DocumentAdapter customDocumentAdapter, boolean isSelected) {
+        this.customEndpointTextField.setEnabled(isSelected);
+        this.customEndpointHelper.setEnabled(isSelected);
+        this.aliyunOssEndpointTextField.setEnabled(!isSelected);
+        this.aliyunOssBucketNameTextField.setEnabled(!isSelected);
+        this.aliyunOssFileDirTextField.setEnabled(!isSelected);
+
+        if (isSelected) {
+            this.showCustomEndpointHelper(HELPER_DOC);
+            // 开启自定义 endpoint 时, example 修改为自定义 endpoint
+            this.customEndpointTextField.getDocument().addDocumentListener(customDocumentAdapter);
+        } else {
+            this.customEndpointHelper.setText("");
+        }
+
+        // 重置 example
+        this.setExampleText(isSelected);
+    }
+
+    /**
+     * Show custom endpoint helper
+     *
+     * @param helperDoc helper doc
+     * @since 1.1.0
+     */
+    private void showCustomEndpointHelper(String helperDoc) {
+        // 设置帮助文档链接
+        this.customEndpointHelper.setText("<html><a href='" + helperDoc + "'>自定义 Endpoint 帮助文档</a></html>");
+        // 设置链接颜色
+        this.customEndpointHelper.setForeground(JBColor.WHITE);
+        // 设置鼠标样式
+        this.customEndpointHelper.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        // 设置提示文字
+        this.customEndpointHelper.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                try {
+                    Desktop.getDesktop().browse(new URI(helperDoc));
+                } catch (Exception ignored) {
+                }
+            }
+        });
     }
 
     /**
@@ -453,6 +475,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     /**
      * 实时更新此字段
      *
+     * @param isCustom is custom
      * @since 0.0.1
      */
     private void setExampleText(boolean isCustom) {
@@ -568,7 +591,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.showSelectCloudMessage(state.getCloudType());
 
         this.defaultCloudCheckBox.addActionListener(e -> {
-            System.out.println("勾选复选框 type = " + state.getTempCloudType());
             this.showSelectCloudMessage(state.getTempCloudType());
             this.defaultCloudComboBox.setEnabled(this.defaultCloudCheckBox.isSelected());
         });
@@ -604,7 +626,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      * @since 0.0.1
      */
     private void showSelectCloudMessage(int cloudType) {
-        System.out.println("showSelectCloudMessage type = " + cloudType);
         if (this.defaultCloudCheckBox.isSelected()) {
             boolean isClientEnable = OssState.getStatus(cloudType);
             this.customMessage.setText(isClientEnable ? "" : "当前 OSS 不可用, 将使用 sm.ms 作为默认图床");
@@ -1146,6 +1167,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.aliyunOssAccessSecretKeyTextField.setText(DES.decrypt(aliyunOssAccessSecreKey, MikState.ALIYUN));
         this.aliyunOssEndpointTextField.setText(aliyunOssState.getEndpoint());
         this.aliyunOssFileDirTextField.setText(aliyunOssState.getFiledir());
+
+        this.customEndpointCheckBox.setSelected(aliyunOssState.getIsCustomEndpoint());
+        this.customEndpointTextField.setText(aliyunOssState.getCustomEndpoint());
     }
 
     /**
