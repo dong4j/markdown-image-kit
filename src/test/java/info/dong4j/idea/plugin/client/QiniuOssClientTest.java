@@ -213,7 +213,7 @@ public class QiniuOssClientTest extends LightPlatformTestCase {
      * @throws FileNotFoundException file not found exception
      * @since 1.1.0
      */
-    public void test1() throws FileNotFoundException {
+    public void test1() throws Exception {
         QiniuOssClient qiniuOssClient = QiniuOssClient.getInstance();
         String url = qiniuOssClient.upload(new FileInputStream(new File("/Users/dong4j/Downloads/我可要开始皮了.png")), "我可要开始皮了.png");
         log.info(url);

@@ -102,17 +102,17 @@ public class HttpUploadFile {
         try {
             URL url = new URL(urlStr);
             conn = (HttpURLConnection) url.openConnection();
-            conn.setConnectTimeout(5000);
-            conn.setReadTimeout(30000);
+            conn.setConnectTimeout(3000);
+            conn.setReadTimeout(5000);
             conn.setDoOutput(true);
             conn.setDoInput(true);
             conn.setUseCaches(false);
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Connection", "Keep-Alive");
             conn.setRequestProperty("User-Agent",
-                    "Mozilla/5.0 (Windows; U; Windows NT 6.1; zh-CN; rv:1.9.2.6)");
+                                    "Mozilla/5.0 (Windows; U; Windows NT 6.1; zh-CN; rv:1.9.2.6)");
             conn.setRequestProperty("Content-Type",
-                    "multipart/form-data; boundary=" + BOUNDARY);
+                                    "multipart/form-data; boundary=" + BOUNDARY);
             OutputStream out = new DataOutputStream(conn.getOutputStream());
             // text
             if (textMap != null) {

@@ -126,7 +126,7 @@ public class TencentOssClient implements OssClient {
      * @since 1.1.0
      */
     @Override
-    public String upload(InputStream inputStream, String fileName, JPanel jPanel) {
+    public String upload(InputStream inputStream, String fileName, JPanel jPanel) throws Exception {
         return null;
     }
 

@@ -33,6 +33,7 @@ import info.dong4j.idea.plugin.util.DES;
 import info.dong4j.idea.plugin.util.QcloudCosUtils;
 import info.dong4j.idea.plugin.util.StringUtils;
 
+import org.apache.http.util.Asserts;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -139,7 +140,7 @@ public class TencentOssClient implements OssClient {
      * @since 0.0.1
      */
     @Override
-    public String upload(InputStream inputStream, String fileName) {
+    public String upload(InputStream inputStream, String fileName) throws Exception {
         // 拼接 url = <BucketName-APPID>.cos.region_name.myqcloud.com/key
         return QcloudCosUtils.putObject("/" + fileName,
                                         inputStream,
@@ -160,18 +161,23 @@ public class TencentOssClient implements OssClient {
      * @since 0.0.1
      */
     @Override
-    public String upload(InputStream inputStream, String fileName, JPanel jPanel) {
+    public String upload(InputStream inputStream, String fileName, JPanel jPanel) throws Exception {
         Map<String, String> map = this.getTestFieldText(jPanel);
         String bucketName = map.get("bucketName");
         String accessKey = map.get("accessKey");
-        String accessSecretKey = map.get("secretKey");
+        String secretKey = map.get("secretKey");
         String regionName = map.get("regionName");
+
+        Asserts.notBlank(bucketName, "Bucket 必填");
+        Asserts.notBlank(accessKey, "Access Key 必填");
+        Asserts.notBlank(secretKey, "Secret Key 必填");
+        Asserts.notBlank(regionName, "RegionName 必填");
 
         return this.upload(inputStream,
                            fileName,
                            bucketName,
                            accessKey,
-                           accessSecretKey,
+                           secretKey,
                            regionName);
     }
 
@@ -194,7 +200,7 @@ public class TencentOssClient implements OssClient {
                          String bucketName,
                          String accessKey,
                          String secretKey,
-                         String regionName) {
+                         String regionName) throws Exception {
 
         TencentOssClient.bucketName = bucketName;
         TencentOssClient.regionName = regionName;

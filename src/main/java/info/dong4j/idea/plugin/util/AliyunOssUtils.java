@@ -120,45 +120,40 @@ public class AliyunOssUtils {
         HttpURLConnection connection;
         StringBuffer sbuffer;
 
-        try {
-            //添加 请求内容
-            connection = (HttpURLConnection) putUrl.openConnection();
-            //设置http连接属性
-            connection.setDoOutput(true);
-            connection.setRequestMethod("PUT");
-            //设置请求头
-            connection.setRequestProperty("Date", date);
-            connection.setRequestProperty("Authorization", authorization);
+        //添加 请求内容
+        connection = (HttpURLConnection) putUrl.openConnection();
+        //设置http连接属性
+        connection.setDoOutput(true);
+        connection.setRequestMethod("PUT");
+        //设置请求头
+        connection.setRequestProperty("Date", date);
+        connection.setRequestProperty("Authorization", authorization);
 
-            connection.setReadTimeout(10000);
-            connection.setConnectTimeout(10000);
-            connection.connect();
-            OutputStream out = connection.getOutputStream();
+        connection.setReadTimeout(5000);
+        connection.setConnectTimeout(3000);
+        connection.connect();
+
+        try (OutputStream out = connection.getOutputStream()) {
             IOUtils.copy(content, out);
-            out.flush();
-            out.close();
-            //读取响应
+            // 读取响应
             if (connection.getResponseCode() == 200) {
-                // 从服务器获得一个输入流
-                InputStreamReader inputStream = new InputStreamReader(connection.getInputStream());
-                BufferedReader reader = new BufferedReader(inputStream);
+                try (InputStreamReader inputStream = new InputStreamReader(connection.getInputStream());
+                     BufferedReader reader = new BufferedReader(inputStream)) {
+                    String lines;
+                    sbuffer = new StringBuffer();
 
-                String lines;
-                sbuffer = new StringBuffer("");
-
-                while ((lines = reader.readLine()) != null) {
-                    lines = new String(lines.getBytes(), StandardCharsets.UTF_8);
-                    sbuffer.append(lines);
+                    while ((lines = reader.readLine()) != null) {
+                        lines = new String(lines.getBytes(), StandardCharsets.UTF_8);
+                        sbuffer.append(lines);
+                    }
                 }
-                reader.close();
             } else {
-                //连接失败
+                // 连接失败
                 return "";
             }
-            //断开连接
+        } finally {
+            // 断开连接
             connection.disconnect();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
         return key;
     }

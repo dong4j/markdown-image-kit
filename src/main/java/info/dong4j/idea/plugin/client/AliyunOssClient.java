@@ -33,10 +33,10 @@ import info.dong4j.idea.plugin.util.AliyunOssUtils;
 import info.dong4j.idea.plugin.util.DES;
 import info.dong4j.idea.plugin.util.StringUtils;
 
+import org.apache.http.util.Asserts;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
@@ -153,20 +153,25 @@ public class AliyunOssClient implements OssClient {
      * @since 0.0.1
      */
     @Override
-    public String upload(InputStream inputStream, String fileName, JPanel jPanel) {
+    public String upload(InputStream inputStream, String fileName, JPanel jPanel) throws Exception {
         Map<String, String> map = this.getTestFieldText(jPanel);
 
         String bucketName = map.get("bucketName");
         String accessKey = map.get("accessKey");
-        String accessSecretKey = map.get("secretKey");
+        String secretKey = map.get("secretKey");
         String endpoint = map.get("endpoint");
         String filedir = map.get("filedir");
+
+        Asserts.notBlank(bucketName, "Bucket 必填");
+        Asserts.notBlank(accessKey, "Access Key 必填");
+        Asserts.notBlank(secretKey, "Secret Key 必填");
+        Asserts.notBlank(endpoint, "Endpoint 必填");
 
         return this.upload(inputStream,
                            fileName,
                            bucketName,
                            accessKey,
-                           accessSecretKey,
+                           secretKey,
                            endpoint,
                            filedir);
     }
@@ -190,7 +195,7 @@ public class AliyunOssClient implements OssClient {
                           String accessKey,
                           String accessSecretKey,
                           String endpoint,
-                          String filedir) {
+                          String filedir) throws Exception {
 
         filedir = StringUtils.isBlank(filedir) ? "" : filedir + "/";
 
@@ -225,23 +230,18 @@ public class AliyunOssClient implements OssClient {
      */
     @Override
     public String upload(@NotNull InputStream instream,
-                         @NotNull String fileName) {
-        try {
-            String key = filedir + fileName;
-            if (!key.startsWith("/")) {
-                key = "/" + key;
-            }
-            AliyunOssUtils.putObject(key,
-                                     instream,
-                                     bucketName,
-                                     endpoint,
-                                     accessKey,
-                                     accessSecretKey);
-            return "https://" + bucketName + "." + endpoint + "/" + filedir + fileName;
-        } catch (IOException e) {
-            log.trace("", e);
+                         @NotNull String fileName) throws Exception {
+        String key = filedir + fileName;
+        if (!key.startsWith("/")) {
+            key = "/" + key;
         }
-        return "";
+        AliyunOssUtils.putObject(key,
+                                 instream,
+                                 bucketName,
+                                 endpoint,
+                                 accessKey,
+                                 accessSecretKey);
+        return "https://" + bucketName + "." + endpoint + "/" + filedir + fileName;
     }
 
 }

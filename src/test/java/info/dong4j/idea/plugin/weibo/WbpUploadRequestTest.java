@@ -48,7 +48,7 @@ public class WbpUploadRequestTest {
      * @since 1.1.0
      */
     @Test
-    public void build() throws IOException {
+    public void build() throws Exception {
         WbpUploadRequest request = new UploadRequestBuilder()
             .setAcount(System.getProperty("username"), System.getProperty("password"))
             .build();

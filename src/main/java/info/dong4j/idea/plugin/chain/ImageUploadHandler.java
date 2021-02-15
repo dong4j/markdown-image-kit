@@ -88,13 +88,17 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
             return;
         }
 
-        if(StringUtils.isBlank(imageName) || markdownImage.getInputStream() == null){
+        if (StringUtils.isBlank(imageName) || markdownImage.getInputStream() == null) {
             log.trace("inputstream 为 null 或者 imageName 为 null, remove markdownImage = {}", markdownImage);
             imageIterator.remove();
             return;
         }
 
-        String imageUrl = data.getClient().upload(markdownImage.getInputStream(), markdownImage.getImageName());
+        String imageUrl = null;
+        try {
+            imageUrl = data.getClient().upload(markdownImage.getInputStream(), markdownImage.getImageName());
+        } catch (Exception ignored) {
+        }
         if (StringUtils.isBlank(imageUrl)) {
             imageUrl = "upload error";
             markdownImage.setLocation(ImageLocationEnum.LOCAL);

@@ -124,7 +124,7 @@ public class TencentOssClientTest {
             this.upload();
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             log.trace("", e);
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -135,7 +135,7 @@ public class TencentOssClientTest {
      * @throws FileNotFoundException file not found exception
      * @since 1.1.0
      */
-    private void upload() throws FileNotFoundException {
+    private void upload() throws Exception {
         OssClient uploader = OssClient.INSTANCES.get(CloudEnum.TENCENT_CLOUD);
         log.info("{}", uploader.getName());
         String url = uploader.upload(new FileInputStream(new File("/Users/dong4j/Downloads/xu.png")), "x2.png");
@@ -149,7 +149,7 @@ public class TencentOssClientTest {
      * @since 1.1.0
      */
     @Test
-    public void test_web_api() throws FileNotFoundException {
+    public void test_web_api() throws Exception {
 
         // key 必须使用 / 为前缀
         String putResult = QcloudCosUtils.putObject("/yguy.jpg",
@@ -546,8 +546,8 @@ public class TencentOssClientTest {
                 connection.setRequestMethod("PUT");
                 connection.setRequestProperty("Content-Length", content.available() + "");
 
-                connection.setReadTimeout(10000);//设置读取超时时间
-                connection.setConnectTimeout(10000);//设置连接超时时间
+                connection.setReadTimeout(5000);//设置读取超时时间
+                connection.setConnectTimeout(3000);//设置连接超时时间
                 connection.connect();
                 OutputStream out = connection.getOutputStream();
                 IOUtils.copy(content, out);

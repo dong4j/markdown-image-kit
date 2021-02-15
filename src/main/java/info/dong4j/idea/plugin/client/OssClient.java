@@ -81,7 +81,7 @@ public interface OssClient {
      * @return the string
      * @since 0.0.1
      */
-    String upload(InputStream inputStream, String fileName);
+    String upload(InputStream inputStream, String fileName) throws Exception;
 
     /**
      * "Upload Test" 按钮反射调用
@@ -90,9 +90,10 @@ public interface OssClient {
      * @param fileName    the file name
      * @param jPanel      the j panel
      * @return the string
+     * @throws Exception exception
      * @since 0.0.1
      */
-    String upload(InputStream inputStream, String fileName, JPanel jPanel);
+    String upload(InputStream inputStream, String fileName, JPanel jPanel) throws Exception;
 
     /**
      * 需要设置 JTextField 的 name 属性

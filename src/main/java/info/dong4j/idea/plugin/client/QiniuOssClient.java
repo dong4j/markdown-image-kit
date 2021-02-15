@@ -40,6 +40,7 @@ import info.dong4j.idea.plugin.util.DES;
 import info.dong4j.idea.plugin.util.EnumsUtils;
 import info.dong4j.idea.plugin.util.StringUtils;
 
+import org.apache.http.util.Asserts;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -184,7 +185,7 @@ public class QiniuOssClient implements OssClient {
      * @since 0.0.1
      */
     @Override
-    public String upload(InputStream inputStream, String fileName) {
+    public String upload(InputStream inputStream, String fileName) throws Exception {
         return this.upload(ossClient, inputStream, fileName);
     }
 
@@ -199,13 +200,18 @@ public class QiniuOssClient implements OssClient {
      * @since 0.0.1
      */
     @Override
-    public String upload(InputStream inputStream, String fileName, JPanel jPanel) {
+    public String upload(InputStream inputStream, String fileName, JPanel jPanel) throws Exception {
         Map<String, String> map = this.getTestFieldText(jPanel);
         int zoneIndex = Integer.parseInt(map.get("zoneIndex"));
         String bucketName = map.get("bucketName");
         String accessKey = map.get("accessKey");
         String secretKey = map.get("secretKey");
         String endpoint = map.get("domain");
+
+        Asserts.notBlank(bucketName, "Bucket 必填");
+        Asserts.notBlank(accessKey, "Access Key 必填");
+        Asserts.notBlank(secretKey, "Secret Key 必填");
+        Asserts.notBlank(endpoint, "Domain 必填");
 
         return this.upload(inputStream,
                            fileName,
@@ -237,7 +243,7 @@ public class QiniuOssClient implements OssClient {
                          String accessKey,
                          String secretKey,
                          String endpoint,
-                         int zoneIndex) {
+                         int zoneIndex) throws Exception {
 
 
         QiniuOssClient qiniuOssClient = QiniuOssClient.getInstance();
@@ -275,7 +281,7 @@ public class QiniuOssClient implements OssClient {
      * @return the string
      * @since 0.0.1
      */
-    public String upload(@NotNull UploadManager ossClient, InputStream inputStream, String fileName) {
+    public String upload(@NotNull UploadManager ossClient, InputStream inputStream, String fileName) throws Exception {
         try {
             ossClient.put(inputStream, fileName, token, null, null);
             // 拼接 url, 需要正确配置域名 (https://developer.qiniu.com/fusion/kb/1322/how-to-configure-cname-domain-name)

@@ -156,7 +156,7 @@ public class WeiboOssClient implements OssClient {
      * @since 0.0.1
      */
     @Override
-    public String upload(InputStream inputStream, String fileName) {
+    public String upload(InputStream inputStream, String fileName) throws Exception {
         return this.upload(ossClient, inputStream, fileName);
     }
 
@@ -170,15 +170,10 @@ public class WeiboOssClient implements OssClient {
      * @throws IOException the io exception
      * @since 0.0.1
      */
-    public String upload(WbpUploadRequest ossClient, InputStream inputStream, String fileName) {
+    public String upload(WbpUploadRequest ossClient, InputStream inputStream, String fileName) throws Exception {
         File file = ImageUtils.buildTempFile(fileName);
-        try {
-            FileUtil.copy(inputStream, new FileOutputStream(file));
-            return this.upload(ossClient, file);
-        } catch (IOException e) {
-            log.trace("", e);
-        }
-        return "";
+        FileUtil.copy(inputStream, new FileOutputStream(file));
+        return this.upload(ossClient, file);
     }
 
     /**
@@ -190,17 +185,12 @@ public class WeiboOssClient implements OssClient {
      * @throws IOException the io exception
      * @since 0.0.1
      */
-    public String upload(@NotNull WbpUploadRequest ossClient, File file) {
+    public String upload(@NotNull WbpUploadRequest ossClient, File file) throws Exception {
         String url = "";
-        UploadResponse response;
-        try {
-            // 微博上传处理不了 fileName, 因为会自动随机处理
-            response = ossClient.upload(file);
-            if (response.getResult().equals(UploadResponse.ResultStatus.SUCCESS)) {
-                url = response.getImageInfo().getLarge();
-            }
-        } catch (IOException e) {
-            log.trace("", e);
+        // 微博上传处理不了 fileName, 因为会自动随机处理
+        UploadResponse response = ossClient.upload(file);
+        if (response.getResult().equals(UploadResponse.ResultStatus.SUCCESS)) {
+            url = response.getImageInfo().getLarge();
         }
         return url;
     }
@@ -216,7 +206,7 @@ public class WeiboOssClient implements OssClient {
      * @since 0.0.1
      */
     @Override
-    public String upload(InputStream inputStream, String fileName, JPanel jPanel) {
+    public String upload(InputStream inputStream, String fileName, JPanel jPanel) throws Exception {
         Map<String, String> map = this.getTestFieldText(jPanel);
         String username = map.get("username");
         String password = map.get("password");
@@ -239,7 +229,7 @@ public class WeiboOssClient implements OssClient {
     private String upload(InputStream inputStream,
                           String fileName,
                           String username,
-                          String password) {
+                          String password) throws Exception {
 
         WeiboOssClient weiboOssClient = WeiboOssClient.getInstance();
         CookieContext.getInstance().deleteCookie();

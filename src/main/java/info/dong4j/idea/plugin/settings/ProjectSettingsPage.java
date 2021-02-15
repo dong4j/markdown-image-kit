@@ -358,7 +358,14 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             CloudEnum cloudEnum = OssState.getCloudType(index);
             OssClient client = ClientUtils.getClient(cloudEnum);
             if (client != null) {
-                String url = client.upload(inputStream, TEST_FILE_NAME, (JPanel) this.authorizationTabbedPanel.getComponentAt(index));
+                String url;
+                try {
+                    url = client.upload(inputStream, TEST_FILE_NAME, (JPanel) this.authorizationTabbedPanel.getComponentAt(index));
+                } catch (Exception exception) {
+                    this.testMessage.setForeground(JBColor.RED);
+                    this.testMessage.setText("Error: " + exception.getMessage());
+                    return;
+                }
                 if (StringUtils.isNotBlank(url)) {
                     this.testMessage.setForeground(JBColor.GREEN);
                     this.testMessage.setText("Upload Succeed");

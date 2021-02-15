@@ -429,43 +429,39 @@ public class QcloudCosUtils {
         URL url = new URL(path);
         HttpURLConnection connection;
         StringBuffer sbuffer;
-        try {
-            //添加 请求内容
-            connection = (HttpURLConnection) url.openConnection();
-            //设置http连接属性
-            connection.setDoOutput(true);
-            connection.setDoInput(true);
-            connection.setRequestMethod("PUT");
-            connection.setRequestProperty("Content-Length", content.available() + "");
 
-            connection.setReadTimeout(10000);//设置读取超时时间
-            connection.setConnectTimeout(10000);//设置连接超时时间
-            connection.connect();
-            OutputStream out = connection.getOutputStream();
+        //添加 请求内容
+        connection = (HttpURLConnection) url.openConnection();
+        //设置http连接属性
+        connection.setDoOutput(true);
+        connection.setDoInput(true);
+        connection.setRequestMethod("PUT");
+        connection.setRequestProperty("Content-Length", content.available() + "");
+
+        connection.setReadTimeout(5000);//设置读取超时时间
+        connection.setConnectTimeout(3000);//设置连接超时时间
+        connection.connect();
+
+        try (OutputStream out = connection.getOutputStream()) {
             IOUtils.copy(content, out);
-
-            out.flush();
-            out.close();
             //读取响应
             if (connection.getResponseCode() == 200) {
                 // 从服务器获得一个输入流
-                InputStreamReader inputStream = new InputStreamReader(connection.getInputStream());
-                BufferedReader reader = new BufferedReader(inputStream);
+                try (InputStreamReader inputStream = new InputStreamReader(connection.getInputStream());
+                     BufferedReader reader = new BufferedReader(inputStream)) {
+                    String lines;
+                    sbuffer = new StringBuffer();
 
-                String lines;
-                sbuffer = new StringBuffer("");
-
-                while ((lines = reader.readLine()) != null) {
-
-                    lines = new String(lines.getBytes(), StandardCharsets.UTF_8);
-                    sbuffer.append(lines);
+                    while ((lines = reader.readLine()) != null) {
+                        lines = new String(lines.getBytes(), StandardCharsets.UTF_8);
+                        sbuffer.append(lines);
+                    }
+                    return getUrl(backet, regionName, key);
                 }
-                reader.close();
-                return getUrl(backet, regionName, key);
             }
+        } finally {
             //断开连接
             connection.disconnect();
-        } catch (IOException ignored) {
         }
         return "";
     }
@@ -487,29 +483,25 @@ public class QcloudCosUtils {
                                    String backet,
                                    String regionName,
                                    String secretId,
-                                   String secretKey) {
-        try {
-            Date dateS = new Date();
-            Date dateE = new Date();
-            dateE.setTime(dateS.getTime() + 3600L * 1000 * 24 * 365 * 10);
+                                   String secretKey) throws Exception {
+        Date dateS = new Date();
+        Date dateE = new Date();
+        dateE.setTime(dateS.getTime() + 3600L * 1000 * 24 * 365 * 10);
 
-            String qSignAlgorithm = "sha1";
-            String qSignTime = getSecondTimestamp(dateS) + ";" + getSecondTimestamp(dateE);
-            String qKeyTime = getSecondTimestamp(dateS) + ";" + getSecondTimestamp(dateE);
+        String qSignAlgorithm = "sha1";
+        String qSignTime = getSecondTimestamp(dateS) + ";" + getSecondTimestamp(dateE);
+        String qKeyTime = getSecondTimestamp(dateS) + ";" + getSecondTimestamp(dateE);
 
 
-            String signKey = genHMAC(secretKey, qKeyTime);
-            String httpString = PUT + "\n" + key + "\n\n\n";
-            String stringToSign = qSignAlgorithm + "\n" + qSignTime + "\n" + shaEncode(httpString) + "\n";
-            String signature = genHMAC(signKey, stringToSign);
+        String signKey = genHMAC(secretKey, qKeyTime);
+        String httpString = PUT + "\n" + key + "\n\n\n";
+        String stringToSign = qSignAlgorithm + "\n" + qSignTime + "\n" + shaEncode(httpString) + "\n";
+        String signature = genHMAC(signKey, stringToSign);
 
-            String url = getUrl(backet, regionName, key) + "?q-sign-algorithm=" + qSignAlgorithm + "&q-ak=" + secretId +
-                         "&q-sign-time=" + qSignTime + "&q-key-time=" + qKeyTime + "&q-header-list=&q-url-param-list=&q-signature" +
-                         "=" + signature;
+        String url = getUrl(backet, regionName, key) + "?q-sign-algorithm=" + qSignAlgorithm + "&q-ak=" + secretId +
+                     "&q-sign-time=" + qSignTime + "&q-key-time=" + qKeyTime + "&q-header-list=&q-url-param-list=&q-signature" +
+                     "=" + signature;
 
-            return getUploadInformation(url, content, key, backet, regionName);
-        } catch (Exception ex) {
-            return "";
-        }
+        return getUploadInformation(url, content, key, backet, regionName);
     }
 }

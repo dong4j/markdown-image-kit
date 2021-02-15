@@ -52,7 +52,7 @@ public class AliyunOssClientTest extends LightPlatformTestCase {
      * @since 1.1.0
      */
     // @Test
-    public void test() throws FileNotFoundException {
+    public void test() throws Exception {
         AliyunOssClient aliyunOssClient = AliyunOssClient.getInstance();
         String url = aliyunOssClient.upload(new FileInputStream(new File("/Users/dong4j/Downloads/我可要开始皮了.png")), "我可要开始皮了.png");
         log.info(url);

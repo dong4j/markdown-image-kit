@@ -129,7 +129,7 @@ public class SmmsClient implements OssClient {
      * @since 0.0.1
      */
     @Override
-    public String upload(InputStream inputStream, String fileName) {
+    public String upload(InputStream inputStream, String fileName) throws Exception {
         if (client == null) {
             client = new Client();
         }
@@ -147,7 +147,7 @@ public class SmmsClient implements OssClient {
      * @since 0.0.1
      */
     @Override
-    public String upload(InputStream inputStream, String fileName, JPanel jPanel) {
+    public String upload(InputStream inputStream, String fileName, JPanel jPanel) throws Exception {
         return "";
     }
 
@@ -186,29 +186,25 @@ public class SmmsClient implements OssClient {
          * @return the string
          * @since 0.0.1
          */
-        public String upload(InputStream inputStream, String fileName) {
-            try {
-                HttpEntity reqEntity = MultipartEntityBuilder.create()
-                    .addBinaryBody("smfile", inputStream, ContentType.DEFAULT_BINARY, fileName)
-                    .build();
+        public String upload(InputStream inputStream, String fileName) throws Exception {
+            HttpEntity reqEntity = MultipartEntityBuilder.create()
+                .addBinaryBody("smfile", inputStream, ContentType.DEFAULT_BINARY, fileName)
+                .build();
 
-                HttpPost post = new HttpPost(UPLOAD_URL);
-                post.setEntity(reqEntity);
+            HttpPost post = new HttpPost(UPLOAD_URL);
+            post.setEntity(reqEntity);
 
-                HttpResponse response = this.client.execute(post);
+            HttpResponse response = this.client.execute(post);
 
-                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                    byte[] res = EntityUtils.toByteArray(response.getEntity());
-                    String result = IOUtils.toString(res, StandardCharsets.UTF_8.name());
-                    SmmsResult smmsResult = new Gson().fromJson(result, SmmsResult.class);
-                    log.trace("{}", smmsResult);
-                    if (smmsResult.getData() == null) {
-                        return smmsResult.getMessage();
-                    }
-                    return smmsResult.getData().getUrl();
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                byte[] res = EntityUtils.toByteArray(response.getEntity());
+                String result = IOUtils.toString(res, StandardCharsets.UTF_8.name());
+                SmmsResult smmsResult = new Gson().fromJson(result, SmmsResult.class);
+                log.trace("{}", smmsResult);
+                if (smmsResult.getData() == null) {
+                    return smmsResult.getMessage();
                 }
-            } catch (Exception e) {
-                log.trace("", e);
+                return smmsResult.getData().getUrl();
             }
             return "";
         }

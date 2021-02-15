@@ -127,7 +127,7 @@ public class BaiduOssClient implements OssClient {
      * @since 0.0.1
      */
     @Override
-    public String upload(InputStream inputStream, String fileName) {
+    public String upload(InputStream inputStream, String fileName) throws Exception {
         return this.upload(ossClient, inputStream, fileName);
     }
 
@@ -142,7 +142,7 @@ public class BaiduOssClient implements OssClient {
      * @since 0.0.1
      */
     @Override
-    public String upload(InputStream inputStream, String fileName, JPanel jPanel) {
+    public String upload(InputStream inputStream, String fileName, JPanel jPanel) throws Exception {
         Map<String, String> map = this.getTestFieldText(jPanel);
         String bucketName = map.get("bucketName");
         String accessKey = map.get("accessKey");

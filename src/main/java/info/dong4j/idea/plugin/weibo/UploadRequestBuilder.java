@@ -64,7 +64,7 @@ public class UploadRequestBuilder {
      * @return the wbp upload request
      * @since 0.0.1
      */
-    public WbpUploadRequest build() {
+    public WbpUploadRequest build() throws Exception {
         WbpHttpRequest request = new DefaultWbpHttpRequest();
         if (StringUtils.isBlank(this.username)) {
             throw new IllegalArgumentException("用户名不能为空!");
