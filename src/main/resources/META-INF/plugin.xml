@@ -78,14 +78,20 @@
       <ul>
         <li>Delete com.intellij.modules.java, support WebStorm, PyCharm, GoLand</li>
         <li>Refactor dependencies, delete apache dependencies, reduce plug-in size</li>
+      </ul>
+      <ul>
+        <li>移除 com.intellij.modules.java, 支持 WebStorm, PyCharm, GoLand 等非 IDE</li>
+        <li>重构依赖, 删除 apache 相关依赖, 减少插件体积</li>
+       </ul>
+      <br/>
+      <p>1.0.0-RELEASE</p>
+      <ul>
         <li>Delete the Qcloud SDK, upload pictures using REST API</li>
         <li>Delete Aliyun SDK, upload pictures using REST API</li>
         <li>Fix sm.ms upload failure</li>
         <li>Fix bulk upload warning</li>
       </ul>
       <ul>
-        <li>移除 com.intellij.modules.java, 支持 WebStorm, PyCharm, GoLand 等非 IDE</li>
-        <li>重构依赖, 删除 apache 相关依赖, 减少插件体积</li>
         <li>删除 Qcloud SDK, 使用 API 上传图片</li>
         <li>删除 Aliyun SDK, 使用 API 上传图片</li>
         <li>修复 sm.ms 上传失败的问题</li>
@@ -146,8 +152,8 @@
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
     on how to target different products -->
+    <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
-    <!--<depends>com.intellij.modules.java</depends>-->
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- clipboard -->

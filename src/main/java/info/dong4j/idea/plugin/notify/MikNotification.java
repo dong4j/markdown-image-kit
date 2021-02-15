@@ -68,6 +68,8 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class MikNotification extends Notification {
+    /** ABOUT_BLANK */
+    public static final String ABOUT_BLANK = "about:blank";
     /**
      * The Help url.
      */
@@ -144,7 +146,7 @@ public class MikNotification extends Notification {
             }
         }
         if (helpResult == null) {
-            return "about:blank";
+            return ABOUT_BLANK;
         }
 
         return helpResult.getUrl();

@@ -390,7 +390,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.helpButton.addActionListener(e -> {
             // 打开浏览器到帮助页面
             String url = MikNotification.helpUrl(HelpType.SETTING.where);
-            BrowserUtil.browse(url);
+            if (!url.equals(MikNotification.ABOUT_BLANK)) {
+                BrowserUtil.browse(url);
+            }
         });
     }
 
