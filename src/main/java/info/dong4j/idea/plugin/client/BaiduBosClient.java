@@ -25,11 +25,11 @@
 package info.dong4j.idea.plugin.client;
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
-import info.dong4j.idea.plugin.settings.AliyunOssState;
+import info.dong4j.idea.plugin.settings.BaiduBosState;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
-import info.dong4j.idea.plugin.util.AliyunOssUtils;
+import info.dong4j.idea.plugin.util.BaiduBosUtils;
 import info.dong4j.idea.plugin.util.DES;
 import info.dong4j.idea.plugin.util.StringUtils;
 
@@ -46,18 +46,19 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Company: no company</p>
- * <p>Description: 右键上传一次或者点击测试按钮时初始化一次</p>
- * todo-dong4j : (2021.02.16 01:27) [与 BaiduBosClient 一起重构]
+ * <p>Description: 百度云</p>
+ * todo-dong4j : (2021.02.16 01:27) [与 AliyunOssClient 一起重构]
  *
  * @author dong4j
  * @version 0.0.1
  * @email "mailto:dong4j@gmail.com"
- * @date 2020.04.25 17:05
- * @since 2019.03.18 09:57
+ * @date 2021.02.14 18:40
+ * @since 2019.07.08 17:07
  */
 @Slf4j
-@Client(CloudEnum.ALIYUN_CLOUD)
-public class AliyunOssClient implements OssClient {
+@Client(CloudEnum.BAIDU_CLOUD)
+public class BaiduBosClient implements OssClient {
+
     /** URL_PROTOCOL_HTTPS */
     public static final String URL_PROTOCOL_HTTPS = "https";
     /** URL_PROTOCOL_HTTP */
@@ -88,11 +89,11 @@ public class AliyunOssClient implements OssClient {
      * @since 0.0.1
      */
     private static void init() {
-        AliyunOssState aliyunOssState = MikPersistenComponent.getInstance().getState().getAliyunOssState();
-        accessKey = aliyunOssState.getAccessKey();
-        accessSecretKey = DES.decrypt(aliyunOssState.getAccessSecretKey(), MikState.ALIYUN);
-        endpoint = aliyunOssState.getEndpoint();
-        String tempFileDir = aliyunOssState.getFiledir();
+        BaiduBosState baiduBosState = MikPersistenComponent.getInstance().getState().getBaiduBosState();
+        accessKey = baiduBosState.getAccessKey();
+        accessSecretKey = DES.decrypt(baiduBosState.getAccessSecretKey(), MikState.BAIDU);
+        endpoint = baiduBosState.getEndpoint();
+        String tempFileDir = baiduBosState.getFiledir();
         filedir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";
 
     }
@@ -111,11 +112,11 @@ public class AliyunOssClient implements OssClient {
      * @since 0.0.1
      */
     @Contract(pure = true)
-    public static AliyunOssClient getInstance() {
-        AliyunOssClient client = (AliyunOssClient) OssClient.INSTANCES.get(CloudEnum.ALIYUN_CLOUD);
+    public static BaiduBosClient getInstance() {
+        BaiduBosClient client = (BaiduBosClient) OssClient.INSTANCES.get(CloudEnum.BAIDU_CLOUD);
         if (client == null) {
-            client = SingletonHandler.SINGLETON;
-            OssClient.INSTANCES.put(CloudEnum.ALIYUN_CLOUD, client);
+            client = BaiduBosClient.SingletonHandler.SINGLETON;
+            OssClient.INSTANCES.put(CloudEnum.BAIDU_CLOUD, client);
         }
         return client;
     }
@@ -131,7 +132,7 @@ public class AliyunOssClient implements OssClient {
      */
     private static class SingletonHandler {
         /** SINGLETON */
-        private static final AliyunOssClient SINGLETON = new AliyunOssClient();
+        private static final BaiduBosClient SINGLETON = new BaiduBosClient();
     }
 
     /**
@@ -142,7 +143,7 @@ public class AliyunOssClient implements OssClient {
      */
     @Override
     public CloudEnum getCloudType() {
-        return CloudEnum.ALIYUN_CLOUD;
+        return CloudEnum.BAIDU_CLOUD;
     }
 
     /**
@@ -208,16 +209,16 @@ public class AliyunOssClient implements OssClient {
 
         filedir = StringUtils.isBlank(filedir) ? "" : filedir + "/";
 
-        AliyunOssClient.filedir = filedir;
-        AliyunOssClient.bucketName = bucketName;
-        AliyunOssClient.accessKey = accessKey;
-        AliyunOssClient.accessSecretKey = accessSecretKey;
-        AliyunOssClient.endpoint = endpoint;
-        AliyunOssClient.customEndpoint = customEndpoint;
-        AliyunOssClient.isCustomEndpoint = isCustomEndpoint;
+        BaiduBosClient.filedir = filedir;
+        BaiduBosClient.bucketName = bucketName;
+        BaiduBosClient.accessKey = accessKey;
+        BaiduBosClient.accessSecretKey = accessSecretKey;
+        BaiduBosClient.endpoint = endpoint;
+        BaiduBosClient.customEndpoint = customEndpoint;
+        BaiduBosClient.isCustomEndpoint = isCustomEndpoint;
 
-        AliyunOssClient aliyunOssClient = AliyunOssClient.getInstance();
-        String url = aliyunOssClient.upload(inputStream, fileName);
+        BaiduBosClient baiduBosClient = BaiduBosClient.getInstance();
+        String url = baiduBosClient.upload(inputStream, fileName);
 
         if (StringUtils.isNotBlank(url)) {
             int hashcode = bucketName.hashCode() +
@@ -248,19 +249,18 @@ public class AliyunOssClient implements OssClient {
         if (!key.startsWith("/")) {
             key = "/" + key;
         }
-        AliyunOssUtils.putObject(key,
-                                 instream,
-                                 bucketName,
-                                 endpoint,
-                                 accessKey,
-                                 accessSecretKey,
-                                 isCustomEndpoint,
-                                 customEndpoint);
+        BaiduBosUtils.putObject(key,
+                                instream,
+                                bucketName,
+                                endpoint,
+                                accessKey,
+                                accessSecretKey,
+                                isCustomEndpoint,
+                                customEndpoint);
 
         if (isCustomEndpoint) {
             return "https://" + customEndpoint + "/" + filedir + fileName;
         }
         return "https://" + bucketName + "." + endpoint + "/" + filedir + fileName;
     }
-
 }

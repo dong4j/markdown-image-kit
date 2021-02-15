@@ -45,6 +45,8 @@ public class MikState {
     public static final String WEIBOKEY = "ekjgbpiq!g34o@erberb.erbmkv.c;,ergw_.";
     /** ALIYUN */
     public static final String ALIYUN = "awj7@piq!g3jo@er_erb.erbsrxhc!,wr.w_1";
+    /** BAIDU */
+    public static final String BAIDU = "efweg23142f!@23q4t=23rtfw_23tr1!2r.123";
     /** QINIU */
     public static final String QINIU = "gerb2.erhgds'5yf@4ybtree!43h34hbd4_";
     /** TENCENT */
@@ -59,6 +61,7 @@ public class MikState {
     private WeiboOssState weiboOssState;
     /** Aliyun oss state */
     private AliyunOssState aliyunOssState;
+    private BaiduBosState baiduBosState;
     /** Qiniu oss state */
     private QiniuOssState qiniuOssState;
     /** Tencent oss state */
@@ -100,6 +103,7 @@ public class MikState {
      */
     public MikState() {
         this.aliyunOssState = new AliyunOssState();
+        this.baiduBosState = new BaiduBosState();
         this.qiniuOssState = new QiniuOssState();
         this.weiboOssState = new WeiboOssState();
         this.tencentOssState = new TencentOssState();

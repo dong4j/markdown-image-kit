@@ -50,8 +50,8 @@ public enum CloudEnum {
     TENCENT_CLOUD(3, "腾讯云", "info.dong4j.idea.plugin.client.TencentOssClient"),
     /** Wangyi cloud cloud enum */
     WANGYI_CLOUD(4, "网易云", ""),
-    /** Baidu cloud  @see  info.dong4j.idea.plugin.client.BaiduOssClient */
-    BAIDU_CLOUD(5, "百度云", "info.dong4j.idea.plugin.client.BaiduOssClient"),
+    /** Baidu cloud  @see  info.dong4j.idea.plugin.client.BaiduBosClient */
+    BAIDU_CLOUD(5, "百度云", "info.dong4j.idea.plugin.client.BaiduBosClient"),
     /** Jingdong cloud cloud enum */
     JINGDONG_CLOUD(6, "京东云", ""),
     /** Youpai cloud cloud enum */

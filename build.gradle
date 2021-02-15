@@ -72,4 +72,6 @@ dependencies {
     compile 'net.coobird:thumbnailator:0.4.13'
     // https://mvnrepository.com/artifact/com.aliyun.oss/aliyun-sdk-oss
     testCompile group: 'com.aliyun.oss', name: 'aliyun-sdk-oss', version: '3.8.1'
+    // https://mvnrepository.com/artifact/com.baidubce/bce-java-sdk
+    testCompile group: 'com.baidubce', name: 'bce-java-sdk', version: '0.10.153'
 }

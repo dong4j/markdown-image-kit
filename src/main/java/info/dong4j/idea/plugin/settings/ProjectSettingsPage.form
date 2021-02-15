@@ -166,7 +166,7 @@
                   <text value="Final URL:"/>
                 </properties>
               </component>
-              <component id="b883c" class="javax.swing.JTextField" binding="exampleTextField">
+              <component id="b883c" class="javax.swing.JTextField" binding="aliyunOssExampleTextField">
                 <constraints>
                   <grid row="6" column="1" row-span="1" col-span="8" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="-1"/>
@@ -235,7 +235,7 @@
                   <text value="/"/>
                 </properties>
               </component>
-              <component id="dd029" class="javax.swing.JCheckBox" binding="customEndpointCheckBox" default-binding="true">
+              <component id="dd029" class="javax.swing.JCheckBox" binding="aliyunOssCustomEndpointCheckBox" default-binding="true">
                 <constraints>
                   <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
                 </constraints>
@@ -244,7 +244,7 @@
                   <text value=" Custom Endpoint:"/>
                 </properties>
               </component>
-              <component id="2fd43" class="javax.swing.JTextField" binding="customEndpointTextField">
+              <component id="2fd43" class="javax.swing.JTextField" binding="aliyunOssCustomEndpointTextField">
                 <constraints>
                   <grid row="5" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="-1"/>
@@ -256,7 +256,7 @@
                   <name value="customEndpoint"/>
                 </properties>
               </component>
-              <component id="e9baf" class="javax.swing.JLabel" binding="customEndpointHelper">
+              <component id="e9baf" class="javax.swing.JLabel" binding="aliyunOssCustomEndpointHelper">
                 <constraints>
                   <grid row="5" column="5" row-span="1" col-span="4" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -606,77 +606,197 @@
               </hspacer>
             </children>
           </grid>
-          <grid id="bff96" layout-manager="GridLayoutManager" row-count="8" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="49425" binding="baiduBosAuthorizationPanel" layout-manager="GridLayoutManager" row-count="9" column-count="9" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <tabbedpane title="百度云"/>
             </constraints>
-            <properties/>
-            <border type="none"/>
+            <properties>
+              <toolTipText value=""/>
+            </properties>
+            <border type="none" title=""/>
             <children>
-              <component id="ebce4" class="javax.swing.JLabel">
+              <component id="d519" class="javax.swing.JLabel">
                 <constraints>
-                  <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="String[] allCloud = new String[] {&quot;百度云&quot;, &quot;京东云&quot;, &quot;又拍云&quot;, &quot;sm.ms&quot;, &quot;imgur&quot;, &quot;Ucloud&quot;, &quot;QingCloud&quot;, &quot;自定义&quot;};"/>
+                  <text value="Bucket:"/>
                 </properties>
               </component>
-              <component id="ee398" class="javax.swing.JLabel">
+              <component id="f49e" class="javax.swing.JTextField" binding="baiduBosBucketNameTextField">
+                <constraints>
+                  <grid row="1" column="1" row-span="1" col-span="8" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <name value="bucketName"/>
+                  <text value=""/>
+                  <toolTipText value=""/>
+                </properties>
+              </component>
+              <component id="2b1b6" class="javax.swing.JLabel">
                 <constraints>
                   <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="StringBuilder stringBuilder = new StringBuilder();"/>
+                  <text value="Access Key:"/>
                 </properties>
               </component>
-              <component id="12b3e" class="javax.swing.JLabel">
+              <component id="1e608" class="javax.swing.JTextField" binding="baiduBosAccessKeyTextField">
+                <constraints>
+                  <grid row="2" column="1" row-span="1" col-span="8" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <name value="accessKey"/>
+                </properties>
+              </component>
+              <component id="ac077" class="javax.swing.JLabel">
                 <constraints>
                   <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="for (String s : allCloud) {"/>
+                  <text value="Secret Key:"/>
                 </properties>
               </component>
-              <component id="75915" class="javax.swing.JLabel">
+              <component id="e042d" class="javax.swing.JLabel">
                 <constraints>
-                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="4" use-parent-layout="false"/>
+                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="stringBuilder.append(&quot;next&quot;).append(&quot; &quot;);"/>
+                  <text value="Endpoint:"/>
                 </properties>
               </component>
-              <component id="8972c" class="javax.swing.JLabel">
+              <component id="40666" class="javax.swing.JTextField" binding="baiduBosEndpointTextField">
                 <constraints>
-                  <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="4" use-parent-layout="false"/>
+                  <grid row="4" column="1" row-span="1" col-span="6" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
                 </constraints>
                 <properties>
-                  <text value="System.out.println(String.format(&quot;「%s」 \tsee you %sversion.&quot;, s, stringBuilder));"/>
+                  <name value="endpoint"/>
+                  <text value=""/>
                 </properties>
               </component>
-              <component id="e15ce" class="javax.swing.JLabel">
+              <hspacer id="b6118">
+                <constraints>
+                  <grid row="8" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </hspacer>
+              <component id="dfb93" class="javax.swing.JLabel">
                 <constraints>
                   <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="}"/>
+                  <text value="Final URL:"/>
                 </properties>
               </component>
-              <vspacer id="494f1">
+              <component id="92def" class="javax.swing.JTextField" binding="baiduBosExampleTextField">
                 <constraints>
-                  <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                  <grid row="6" column="1" row-span="1" col-span="8" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
                 </constraints>
-              </vspacer>
-              <vspacer id="2c15d">
+                <properties>
+                  <editable value="false"/>
+                  <enabled value="false"/>
+                  <name value="exampleText"/>
+                  <text value=""/>
+                </properties>
+              </component>
+              <hspacer id="43e6">
                 <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
-                </constraints>
-              </vspacer>
-              <hspacer id="73be8">
-                <constraints>
-                  <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="8" column="2" row-span="1" col-span="3" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
               </hspacer>
+              <hspacer id="fd3c5">
+                <constraints>
+                  <grid row="8" column="5" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </hspacer>
+              <hspacer id="2248">
+                <constraints>
+                  <grid row="8" column="6" row-span="1" col-span="3" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </hspacer>
+              <vspacer id="7534a">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </vspacer>
+              <vspacer id="2cf3a">
+                <constraints>
+                  <grid row="7" column="2" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </vspacer>
+              <component id="ab8ba" class="javax.swing.JPasswordField" binding="baiduBosAccessSecretKeyTextField">
+                <constraints>
+                  <grid row="3" column="1" row-span="1" col-span="8" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <name value="secretKey"/>
+                </properties>
+              </component>
+              <component id="56d31" class="javax.swing.JTextField" binding="baiduBosFileDirTextField">
+                <constraints>
+                  <grid row="4" column="8" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <name value="filedir"/>
+                  <text value=""/>
+                </properties>
+              </component>
+              <component id="cae78" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="4" column="7" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                    <preferred-size width="15" height="14"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <text value="/"/>
+                </properties>
+              </component>
+              <component id="236a5" class="javax.swing.JCheckBox" binding="baiduBosCustomEndpointCheckBox">
+                <constraints>
+                  <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <name value="isCustomEndpoint"/>
+                  <text value=" Custom Endpoint:"/>
+                </properties>
+              </component>
+              <component id="adfb1" class="javax.swing.JTextField" binding="baiduBosCustomEndpointTextField">
+                <constraints>
+                  <grid row="5" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <editable value="true"/>
+                  <enabled value="false"/>
+                  <name value="customEndpoint"/>
+                </properties>
+              </component>
+              <component id="77766" class="javax.swing.JLabel" binding="baiduBosCustomEndpointHelper">
+                <constraints>
+                  <grid row="5" column="5" row-span="1" col-span="4" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <background color="-13882309"/>
+                  <enabled value="false"/>
+                  <text value="                              "/>
+                </properties>
+                <clientProperties>
+                  <html.disable class="java.lang.Boolean" value="false"/>
+                </clientProperties>
+              </component>
             </children>
           </grid>
           <grid id="11090" layout-manager="GridLayoutManager" row-count="8" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">

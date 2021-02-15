@@ -156,7 +156,7 @@ public abstract class OssState {
             case WANGYI_CLOUD:
                 return false;
             case BAIDU_CLOUD:
-                return false;
+                return getStatus(state.getBaiduBosState());
             case JINGDONG_CLOUD:
                 return false;
             case YOUPAI_CLOUD:
