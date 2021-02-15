@@ -38,9 +38,9 @@ import lombok.NoArgsConstructor;
  * @date 2019.03.19 19:55
  * @since 0.0.1
  */
-@EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class AliyunOssState extends OssState {
     /** Endpoint */
     private String endpoint = "";
@@ -52,4 +52,8 @@ public class AliyunOssState extends OssState {
     private String bucketName = "";
     /** Filedir */
     private String filedir = "";
+    /** Custom endpoint */
+    private String customEndpoint = "";
+    /** Is custom endpoint */
+    private Boolean isCustomEndpoint = false;
 }

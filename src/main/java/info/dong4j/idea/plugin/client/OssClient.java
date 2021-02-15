@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -104,12 +105,15 @@ public interface OssClient {
      */
     @NotNull
     default Map<String, String> getTestFieldText(JPanel jPanel) {
-        Map<String, String> fieldMap = new HashMap<>(10);
+        Map<String, String> fieldMap = new HashMap<>(8);
         Component[] components = jPanel.getComponents();
         for (Component c : components) {
             if (c instanceof JTextField) {
                 JTextField textField = (JTextField) c;
                 fieldMap.put(textField.getName(), textField.getText());
+            } else if (c instanceof JCheckBox) {
+                JCheckBox checkBox = (JCheckBox) c;
+                fieldMap.put(checkBox.getName(), checkBox.isSelected() + "");
             }
         }
         return fieldMap;

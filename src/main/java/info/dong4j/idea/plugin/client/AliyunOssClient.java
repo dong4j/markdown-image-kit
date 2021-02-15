@@ -74,6 +74,10 @@ public class AliyunOssClient implements OssClient {
     private static String accessSecretKey;
     /** endpoint */
     private static String endpoint;
+    /** customEndpoint */
+    private static boolean isCustomEndpoint;
+    /** customEndpoint */
+    private static String customEndpoint;
 
     static {
         init();
@@ -161,6 +165,8 @@ public class AliyunOssClient implements OssClient {
         String secretKey = map.get("secretKey");
         String endpoint = map.get("endpoint");
         String filedir = map.get("filedir");
+        String customEndpoint = map.get("customEndpoint");
+        boolean isCustomEndpoint = Boolean.parseBoolean(map.get("isCustomEndpoint"));
 
         Asserts.notBlank(bucketName, "Bucket 必填");
         Asserts.notBlank(accessKey, "Access Key 必填");
@@ -173,7 +179,9 @@ public class AliyunOssClient implements OssClient {
                            accessKey,
                            secretKey,
                            endpoint,
-                           filedir);
+                           filedir,
+                           isCustomEndpoint,
+                           customEndpoint);
     }
 
     /**
@@ -195,7 +203,9 @@ public class AliyunOssClient implements OssClient {
                           String accessKey,
                           String accessSecretKey,
                           String endpoint,
-                          String filedir) throws Exception {
+                          String filedir,
+                          boolean isCustomEndpoint,
+                          String customEndpoint) throws Exception {
 
         filedir = StringUtils.isBlank(filedir) ? "" : filedir + "/";
 
@@ -204,6 +214,8 @@ public class AliyunOssClient implements OssClient {
         AliyunOssClient.accessKey = accessKey;
         AliyunOssClient.accessSecretKey = accessSecretKey;
         AliyunOssClient.endpoint = endpoint;
+        AliyunOssClient.customEndpoint = customEndpoint;
+        AliyunOssClient.isCustomEndpoint = isCustomEndpoint;
 
         AliyunOssClient aliyunOssClient = AliyunOssClient.getInstance();
         String url = aliyunOssClient.upload(inputStream, fileName);
@@ -240,7 +252,13 @@ public class AliyunOssClient implements OssClient {
                                  bucketName,
                                  endpoint,
                                  accessKey,
-                                 accessSecretKey);
+                                 accessSecretKey,
+                                 isCustomEndpoint,
+                                 customEndpoint);
+
+        if (isCustomEndpoint) {
+            return "https://" + customEndpoint + "/" + filedir + fileName;
+        }
         return "https://" + bucketName + "." + endpoint + "/" + filedir + fileName;
     }
 

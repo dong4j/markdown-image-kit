@@ -45,8 +45,13 @@ import info.dong4j.idea.plugin.util.StringUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.InputStream;
+import java.net.URI;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -107,6 +112,13 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JTextField aliyunOssEndpointTextField;
     /** Aliyun oss file dir text field */
     private JTextField aliyunOssFileDirTextField;
+    /** 是否启用自定义域名 */
+    private JCheckBox customEndpointCheckBox;
+    /** 自定义域名 */
+    private JTextField customEndpointTextField;
+    /** 自定义域名帮助文档 */
+    private JLabel customEndpointHelper;
+
     /** Example text field */
     private JTextField exampleTextField;
     /** qiniuOssAuthorizationPanel group */
@@ -133,7 +145,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     /** globalUploadPanel group */
     private JPanel globalUploadPanel;
     /** Default cloud combo box */
-    private JComboBox defaultCloudComboBox;
+    private JComboBox<?> defaultCloudComboBox;
 
     /** Change to html tag check box */
     private JCheckBox changeToHtmlTagCheckBox;
@@ -158,7 +170,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     /** Rename check box */
     private JCheckBox renameCheckBox;
     /** File name suffix box field */
-    private JComboBox fileNameSuffixBoxField;
+    private JComboBox<?> fileNameSuffixBoxField;
 
     /** 按钮 group */
     private JButton testButton;
@@ -189,7 +201,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JTextField tencentRegionNameTextField;
     /** Custom message */
     private JLabel customMessage;
-
 
     /** todo-dong4j : (2019年03月20日 13:25) [测试输入验证用] */
     private JTextField myPort;
@@ -318,31 +329,67 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.aliyunOssAccessSecretKeyTextField.setText(DES.decrypt(aliyunOssAccessSecretKey, MikState.ALIYUN));
 
         // 处理当 aliyunOssFileDirTextField.getText() 为 空字符时, 不拼接 "/
-        this.setExampleText();
+        this.setExampleText(false);
+
+        DocumentAdapter documentAdapter = new DocumentAdapter() {
+            @Override
+            protected void textChanged(@NotNull DocumentEvent e) {
+                ProjectSettingsPage.this.setExampleText(false);
+            }
+        };
+
+        DocumentAdapter customDocumentAdapter = new DocumentAdapter() {
+            @Override
+            protected void textChanged(@NotNull DocumentEvent e) {
+                ProjectSettingsPage.this.setExampleText(true);
+            }
+        };
 
         // 监听 aliyunOssBucketNameTextField
-        this.aliyunOssBucketNameTextField.getDocument().addDocumentListener(new DocumentAdapter() {
-            @Override
-            protected void textChanged(@NotNull DocumentEvent e) {
-                ProjectSettingsPage.this.setExampleText();
-            }
-        });
-
+        this.aliyunOssBucketNameTextField.getDocument().addDocumentListener(documentAdapter);
         // 监听 aliyunOssEndpointTextField
-        this.aliyunOssEndpointTextField.getDocument().addDocumentListener(new DocumentAdapter() {
-            @Override
-            protected void textChanged(@NotNull DocumentEvent e) {
-                ProjectSettingsPage.this.setExampleText();
+        this.aliyunOssEndpointTextField.getDocument().addDocumentListener(documentAdapter);
+        // 设置 aliyunOssFileDirTextField 输入的监听
+        this.aliyunOssFileDirTextField.getDocument().addDocumentListener(documentAdapter);
+
+        // 设置 customEndpointCheckBox 监听
+        this.customEndpointCheckBox.addChangeListener(e -> {
+            JCheckBox checkBox = (JCheckBox) e.getSource();
+            this.customEndpointTextField.setEnabled(checkBox.isSelected());
+            this.customEndpointHelper.setEnabled(checkBox.isSelected());
+            this.aliyunOssEndpointTextField.setEnabled(!checkBox.isSelected());
+            this.aliyunOssBucketNameTextField.setEnabled(!checkBox.isSelected());
+            this.aliyunOssFileDirTextField.setEnabled(!checkBox.isSelected());
+
+            String helperDoc = "https://help.aliyun.com/document_detail/31836.html";
+            if (checkBox.isSelected()) {
+                // 设置帮助文档链接
+                this.customEndpointHelper.setText("<html><a href='" + helperDoc + "'>自定义 Endpoint 帮助文档</a></html>");
+                // 设置链接颜色
+                this.customEndpointHelper.setForeground(JBColor.WHITE);
+                // 设置鼠标样式
+                this.customEndpointHelper.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                // 设置提示文字
+                this.customEndpointHelper.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        try {
+                            Desktop.getDesktop().browse(new URI(helperDoc));
+                        } catch (Exception ignored) {
+                        }
+                    }
+                });
+
+                // 开启自定义 endpoint 时, example 修改为自定义 endpoint
+                this.customEndpointTextField.getDocument().addDocumentListener(customDocumentAdapter);
+            } else {
+                this.customEndpointHelper.setText("");
             }
+
+            // 重置 example
+            this.setExampleText(checkBox.isSelected());
         });
 
-        // 设置 aliyunOssFileDirTextField 输入的监听
-        this.aliyunOssFileDirTextField.getDocument().addDocumentListener(new DocumentAdapter() {
-            @Override
-            protected void textChanged(@NotNull DocumentEvent e) {
-                ProjectSettingsPage.this.setExampleText();
-            }
-        });
     }
 
     /**
@@ -408,12 +455,22 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      *
      * @since 0.0.1
      */
-    private void setExampleText() {
-        String fileDir = StringUtils.isBlank(this.aliyunOssFileDirTextField.getText().trim()) ? "" :
-                         "/" + this.aliyunOssFileDirTextField.getText().trim();
-        String endpoint = this.aliyunOssEndpointTextField.getText().trim();
-        String backetName = this.aliyunOssBucketNameTextField.getText().trim();
-        String url = AliyunOssClient.URL_PROTOCOL_HTTPS + "://" + backetName + "." + endpoint;
+    private void setExampleText(boolean isCustom) {
+        String fileDir;
+        String url;
+        if (isCustom) {
+            fileDir = StringUtils.isBlank(this.aliyunOssFileDirTextField.getText().trim()) ? "" :
+                      "/" + this.aliyunOssFileDirTextField.getText().trim();
+            url = AliyunOssClient.URL_PROTOCOL_HTTPS + "://" + this.customEndpointTextField.getText();
+
+        } else {
+            fileDir = StringUtils.isBlank(this.aliyunOssFileDirTextField.getText().trim()) ? "" :
+                      "/" + this.aliyunOssFileDirTextField.getText().trim();
+            String endpoint = this.aliyunOssEndpointTextField.getText().trim();
+            String backetName = this.aliyunOssBucketNameTextField.getText().trim();
+            url = AliyunOssClient.URL_PROTOCOL_HTTPS + "://" + backetName + "." + endpoint;
+            this.exampleTextField.setText(url + fileDir + "/" + TEST_FILE_NAME);
+        }
         this.exampleTextField.setText(url + fileDir + "/" + TEST_FILE_NAME);
     }
 
@@ -500,7 +557,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         boolean isDefaultCloudCheck = state.isDefaultCloudCheck();
         this.defaultCloudCheckBox.setSelected(isDefaultCloudCheck);
         // 没有设置默认图床, 则显示提示消息
-        if(!isDefaultCloudCheck){
+        if (!isDefaultCloudCheck) {
             this.customMessage.setText("未设置默认图床时, 将使用 sm.ms 作为默认图床");
         } else {
             this.customMessage.setText(OssState.getStatus(state.getCloudType()) ? "" : "当前 OSS 不可用, 将使用 sm.ms 作为默认图床");
@@ -517,7 +574,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         });
 
         this.defaultCloudComboBox.addActionListener(e -> {
-            JComboBox jComboBox = (JComboBox) e.getSource();
+            JComboBox<?> jComboBox = (JComboBox<?>) e.getSource();
             int currentSelectIndex = jComboBox.getSelectedIndex();
             System.out.println("选择下来列表 type = " + currentSelectIndex);
             this.showSelectCloudMessage(currentSelectIndex);
@@ -621,11 +678,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             Object sourceObject = e.getSource();
             if (sourceObject instanceof JRadioButton) {
                 JRadioButton sourceButton = (JRadioButton) sourceObject;
-                if (ImageMarkEnum.CUSTOM.text.equals(sourceButton.getText())) {
-                    this.customHtmlTypeTextField.setEnabled(true);
-                } else {
-                    this.customHtmlTypeTextField.setEnabled(false);
-                }
+                this.customHtmlTypeTextField.setEnabled(ImageMarkEnum.CUSTOM.text.equals(sourceButton.getText()));
             }
         };
         button.addActionListener(actionListener);
@@ -721,12 +774,16 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         }
         String endpoint = this.aliyunOssEndpointTextField.getText().trim();
         String filedir = this.aliyunOssFileDirTextField.getText().trim();
+        String customEndpoint = this.customEndpointTextField.getText().trim();
+        boolean isCustomEndpoint = this.customEndpointCheckBox.isSelected();
 
         return bucketName.equals(aliyunOssState.getBucketName())
                && accessKey.equals(aliyunOssState.getAccessKey())
                && secretKey.equals(aliyunOssState.getAccessSecretKey())
                && endpoint.equals(aliyunOssState.getEndpoint())
-               && filedir.equals(aliyunOssState.getFiledir());
+               && filedir.equals(aliyunOssState.getFiledir())
+               && aliyunOssState.getIsCustomEndpoint() == isCustomEndpoint
+               && customEndpoint.equals(aliyunOssState.getCustomEndpoint());
     }
 
     /**
@@ -901,6 +958,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         String accessKey = this.aliyunOssAccessKeyTextField.getText().trim();
         String accessSecretKey = new String(this.aliyunOssAccessSecretKeyTextField.getPassword());
         String endpoint = this.aliyunOssEndpointTextField.getText().trim();
+        String customEndpoint = this.customEndpointTextField.getText().trim();
+        boolean isCustomEndpoint = this.customEndpointCheckBox.isSelected();
+
         // 需要在加密之前计算 hashcode
         int hashcode = bucketName.hashCode() +
                        accessKey.hashCode() +
@@ -916,6 +976,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         aliyunOssState.setAccessKey(accessKey);
         aliyunOssState.setAccessSecretKey(accessSecretKey);
         aliyunOssState.setEndpoint(endpoint);
+        aliyunOssState.setCustomEndpoint(customEndpoint);
+        aliyunOssState.setIsCustomEndpoint(isCustomEndpoint);
         aliyunOssState.setFiledir(this.aliyunOssFileDirTextField.getText().trim());
     }
 

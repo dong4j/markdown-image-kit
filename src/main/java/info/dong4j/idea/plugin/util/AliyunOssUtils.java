@@ -96,25 +96,35 @@ public class AliyunOssUtils {
     /**
      * Put oss obj string
      *
-     * @param key             key
-     * @param content         content
-     * @param ossBucket       oss bucket
-     * @param endpoint        endpoint
-     * @param accessKeyId     access key id
-     * @param secretAccessKey secret access key
+     * @param key              key
+     * @param content          content
+     * @param ossBucket        oss bucket
+     * @param endpoint         endpoint
+     * @param accessKeyId      access key id
+     * @param secretAccessKey  secret access key
+     * @param isCustomEndpoint is custom endpoint
+     * @param customEndpoint   custom endpoint
      * @return the string
      * @throws IOException io exception
      * @since 0.0.1
      */
-    public static String putObject(String key, InputStream content, String ossBucket, String endpoint, String accessKeyId,
-                                   String secretAccessKey) throws IOException {
+    public static String putObject(String key,
+                                   InputStream content,
+                                   String ossBucket,
+                                   String endpoint,
+                                   String accessKeyId,
+                                   String secretAccessKey,
+                                   boolean isCustomEndpoint,
+                                   String customEndpoint) throws IOException {
         String date = getGMTDate();
-
         String signResourcePath = "/" + ossBucket + key;
-        String connectUrl = "http://" + ossBucket + "." + endpoint;
-
         String signature = (hmacSha1(buildPutSignData(date, signResourcePath), secretAccessKey));
         String authorization = "OSS " + accessKeyId + ":" + signature;
+
+        String connectUrl = "https://" + ossBucket + "." + endpoint;
+        if (isCustomEndpoint) {
+            connectUrl = "http://" + customEndpoint;
+        }
 
         URL putUrl = new URL(connectUrl + key);
         HttpURLConnection connection;
@@ -146,10 +156,10 @@ public class AliyunOssUtils {
                         lines = new String(lines.getBytes(), StandardCharsets.UTF_8);
                         sbuffer.append(lines);
                     }
+                    System.out.println(sbuffer);
                 }
             } else {
-                // 连接失败
-                return "";
+                throw new RuntimeException(connection.getResponseCode() + " " + connection.getResponseMessage());
             }
         } finally {
             // 断开连接
@@ -237,7 +247,9 @@ public class AliyunOssUtils {
     public static String getGMTDate() {
         Calendar cd = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.US);
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        return sdf.format(cd.getTime());
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT+8:00"));
+        String dateString = sdf.format(cd.getTime());
+        System.out.println(dateString);
+        return dateString;
     }
 }

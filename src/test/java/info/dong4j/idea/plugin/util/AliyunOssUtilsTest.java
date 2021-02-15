@@ -26,7 +26,6 @@ package info.dong4j.idea.plugin.util;
 
 import org.junit.Test;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
@@ -64,11 +63,13 @@ public class AliyunOssUtilsTest {
 
         // key 必须使用 / 为前缀
         String putResult = AliyunOssUtils.putObject("/dddd.jpg",
-                                                    new FileInputStream(new File("/Users/dong4j/Downloads/mik.png")),
+                                                    new FileInputStream("/Users/dong4j/Downloads/xu.png"),
                                                     bucketName,
-                                                    "oss-cn-hangzhou.aliyuncs.com/",
+                                                    "oss-cn-hangzhou.aliyuncs.com",
                                                     secretId,
-                                                    secretKey);
+                                                    secretKey,
+                                                    false,
+                                                    null);
         System.out.println("putResult:" + putResult);
     }
 

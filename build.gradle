@@ -70,4 +70,6 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok:1.18.18'
     testCompile 'junit:junit:4.13.1'
     compile 'net.coobird:thumbnailator:0.4.13'
+    // https://mvnrepository.com/artifact/com.aliyun.oss/aliyun-sdk-oss
+    testCompile group: 'com.aliyun.oss', name: 'aliyun-sdk-oss', version: '3.8.1'
 }
