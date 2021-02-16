@@ -36,7 +36,7 @@ import info.dong4j.idea.plugin.settings.MikState;
  * @version 0.0.1
  * @email "mailto:dong4j@gmail.com"
  * @date 2021.02.14 18:40
- * @since 2019.03.22 18:35
+ * @since 0.0.1
  */
 public interface IActionHandler {
     /**

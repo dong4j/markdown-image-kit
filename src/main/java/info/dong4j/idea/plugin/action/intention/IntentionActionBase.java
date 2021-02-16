@@ -57,7 +57,7 @@ import lombok.extern.slf4j.Slf4j;
  * @version 0.0.1
  * @email "mailto:dong4j@gmail.com"
  * @date 2021.02.14 18:40
- * @since 2019.03.27 13:28
+ * @since 0.0.1
  */
 @Slf4j
 public abstract class IntentionActionBase extends PsiElementBaseIntentionAction {

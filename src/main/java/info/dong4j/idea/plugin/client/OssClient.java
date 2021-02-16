@@ -50,7 +50,7 @@ import javax.swing.JTextField;
  * @version 0.0.1
  * @email "mailto:dong4j@gmail.com"
  * @date 2021.02.14 18:40
- * @since 2019.03.20 11:52
+ * @since 0.0.1
  */
 public interface OssClient {
     /** 用于反射调用时的缓存 <className, client>, 容量为实现类个数 */

@@ -39,7 +39,7 @@ import java.util.Map;
  * @version 0.0.1
  * @email "mailto:dong4j@gmail.com"
  * @date 2021.02.14 18:40
- * @since 2019.03.27 23:55
+ * @since 0.0.1
  */
 public interface MarkdownFileFilter {
     /** FILTER_KEY */

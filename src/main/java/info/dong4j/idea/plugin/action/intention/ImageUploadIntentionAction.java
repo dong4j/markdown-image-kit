@@ -55,7 +55,7 @@ import lombok.extern.slf4j.Slf4j;
  * @email "mailto:dong4j@gmail.com"
  * @date 2021.02.14 18:40
  * @see com.intellij.testIntegration.createTest.CreateTestAction
- * @since 2019.03.27 09:34
+ * @since 0.0.1
  */
 @Slf4j
 public final class ImageUploadIntentionAction extends IntentionActionBase {

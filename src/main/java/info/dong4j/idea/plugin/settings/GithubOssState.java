@@ -22,21 +22,37 @@
  * SOFTWARE.
  */
 
-package info.dong4j.idea.plugin.content;
+package info.dong4j.idea.plugin.settings;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 /**
- * <p>Company: no company</p>
- * <p>Description: </p>
+ * <p>Company: 成都返空汇网络技术有限公司</p>
+ * <p>Description:  </p>
  *
  * @author dong4j
- * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2021.02.14 18:40
- * @since 0.0.1
+ * @version 1.0.0
+ * @email "mailto:dong4j@fkhwl.com"
+ * @date 2021.02.16 20:49
+ * @since 1.3.0
  */
-public interface MarkdownContents {
-    /** markdown 文件后缀 */
-    String MARKDOWN_FILE_SUFIX = ".md";
-    /** markdown file type, 必须安装了 markdown 插件才能识别为此类型 */
-    String MARKDOWN_TYPE_NAME = "Markdown";
+@Data
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+public class GithubOssState extends OssState {
+
+    /** Endpoint */
+    private String repos = "";
+    /** Access key */
+    private String branch = "";
+    /** Access secret key */
+    private String token = "";
+    /** Filedir */
+    private String filedir = "";
+    /** Custom endpoint */
+    private String customEndpoint = "";
+    /** Is custom endpoint */
+    private Boolean isCustomEndpoint = false;
 }

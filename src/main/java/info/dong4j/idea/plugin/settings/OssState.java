@@ -44,7 +44,7 @@ import lombok.Data;
  * @version 0.0.1
  * @email "mailto:dong4j@gmail.com"
  * @date 2021.02.14 18:40
- * @since 2019.03-19 18:59
+ * @since 0.0.1
  */
 @Data
 public abstract class OssState {
@@ -64,17 +64,6 @@ public abstract class OssState {
     public static void saveStatus(OssState state, int hashcode, String key) {
         state.setPassedTest(true);
         state.getOldAndNewAuthInfo().put(key, String.valueOf(hashcode));
-    }
-
-    /**
-     * Get state.
-     *
-     * @param cloudIndex the cloud index
-     * @since 0.0.1
-     */
-    public static void getState(int cloudIndex){
-        CloudEnum cloudEnum = getCloudType(cloudIndex);
-
     }
 
     /**
@@ -169,6 +158,8 @@ public abstract class OssState {
                 return false;
             case QING_CLOUD:
                 return false;
+            case GITHUB:
+                return getStatus(state.getGithubOssState());
             case CUSTOMIZE:
                 return false;
             default:

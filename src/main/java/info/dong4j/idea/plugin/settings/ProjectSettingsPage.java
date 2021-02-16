@@ -36,6 +36,7 @@ import info.dong4j.idea.plugin.enums.HelpType;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.enums.ZoneEnum;
 import info.dong4j.idea.plugin.notify.MikNotification;
+import info.dong4j.idea.plugin.swing.JTextFieldHintListener;
 import info.dong4j.idea.plugin.util.ClientUtils;
 import info.dong4j.idea.plugin.util.DES;
 import info.dong4j.idea.plugin.util.StringUtils;
@@ -80,7 +81,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     /** Config */
     private final MikPersistenComponent config;
 
-    private JScrollPane jScrollPane;
     /** My main panel */
     private JPanel myMainPanel;
 
@@ -145,7 +145,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JLabel baiduBosCustomEndpointHelper;
     /** Baidu bosxample text field */
     private JTextField baiduBosExampleTextField;
-
     //endregion
 
     //region qiniuOss
@@ -182,6 +181,27 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JPasswordField tencentSecretKeyTextField;
     /** Tencent region name text field */
     private JTextField tencentRegionNameTextField;
+    //endregion
+
+    //region gitHub
+    /** Git hub authorization panel */
+    private JPanel githubAuthorizationPanel;
+    /** Git hub repos text field */
+    private JTextField githubReposTextField;
+    /** Git hub branch text field */
+    private JTextField githubBranchTextField;
+    /** Git hub token text field */
+    private JPasswordField githubTokenTextField;
+    /** Git hub file dir text field */
+    private JTextField githubFileDirTextField;
+    /** Git hub custom endpoint check box */
+    private JCheckBox githubCustomEndpointCheckBox;
+    /** Git hubs custom endpoint text field */
+    private JTextField githubCustomEndpointTextField;
+    /** Git hub custom endpoint helper */
+    private JLabel githubCustomEndpointHelper;
+    /** Git hub example text field */
+    private JTextField githubExampleTextField;
     //endregion
 
     /** 按钮 group */
@@ -264,6 +284,17 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                                                                         this.baiduBosExampleTextField);
     //endregion
 
+    //region GitHubSetting
+    private final GithubSetting githubSetting = new GithubSetting(this.githubReposTextField,
+                                                                  this.githubBranchTextField,
+                                                                  this.githubTokenTextField,
+                                                                  this.githubFileDirTextField,
+                                                                  this.githubCustomEndpointCheckBox,
+                                                                  this.githubCustomEndpointTextField,
+                                                                  this.githubCustomEndpointHelper,
+                                                                  this.githubExampleTextField);
+    //endregion
+
     /** todo-dong4j : (2019年03月20日 13:25) [测试输入验证用] */
     private JTextField myPort;
 
@@ -289,8 +320,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     @Override
     public JComponent createComponent() {
         this.initFromSettings();
-        this.jScrollPane = new JScrollPane(this.myMainPanel);
-        return this.jScrollPane;
+        return new JScrollPane(this.myMainPanel);
     }
 
     /**
@@ -376,8 +406,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         });
 
         this.aliyunOssSetting.init(this.config.getState().getAliyunOssState());
-
         this.baiduBosSetting.init(this.config.getState().getBaiduBosState());
+        this.githubSetting.init(this.config.getState().getGithubOssState());
 
         this.initWeiboOssAuthenticationPanel();
         this.initQiniuOssAuthenticationPanel(state);
@@ -442,7 +472,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             }
         });
     }
-
 
     /**
      * 初始化 weibo oss 认证相关设置
@@ -716,8 +745,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         log.trace("isModified invoke");
         MikState state = this.config.getState();
 
-        return !(this.aliyunOssSetting.isModified()
-                 && this.baiduBosSetting.isModified()
+        return !(this.aliyunOssSetting.isModified(state.getAliyunOssState())
+                 && this.baiduBosSetting.isModified(state.getBaiduBosState())
+                 && this.githubSetting.isModified(state.getGithubOssState())
                  && this.isWeiboAuthModified(state)
                  && this.isQiniuAuthModified(state)
                  && this.isTencentAuthModified(state)
@@ -879,8 +909,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         log.trace("apply invoke");
         MikState state = this.config.getState();
 
-        this.aliyunOssSetting.apply();
-        this.baiduBosSetting.apply();
+        this.aliyunOssSetting.apply(state.getAliyunOssState());
+        this.baiduBosSetting.apply(state.getBaiduBosState());
+        this.githubSetting.apply(state.getGithubOssState());
         this.applyQiniuAuthConfigs(state);
         this.applyTencentAuthConfigs(state);
         this.applyGeneralConfigs(state);
@@ -1034,6 +1065,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
 
         this.aliyunOssSetting.reset(state.getAliyunOssState());
         this.baiduBosSetting.reset(state.getBaiduBosState());
+        this.githubSetting.reset(state.getGithubOssState());
 
         this.resetQiniuunConfigs(state);
         this.resetWeiboConfigs(state);

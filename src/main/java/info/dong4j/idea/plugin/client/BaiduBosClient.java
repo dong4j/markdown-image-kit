@@ -48,7 +48,7 @@ import lombok.extern.slf4j.Slf4j;
  * @version 0.0.1
  * @email "mailto:dong4j@gmail.com"
  * @date 2021.02.14 18:40
- * @since 2019.07.08 17:07
+ * @since 0.0.1
  */
 @Slf4j
 @Client(CloudEnum.BAIDU_CLOUD)

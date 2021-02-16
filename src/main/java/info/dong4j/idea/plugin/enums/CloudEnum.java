@@ -62,8 +62,10 @@ public enum CloudEnum {
     U_CLOUD(9, "Ucloud", ""),
     /** Qing cloud cloud enum */
     QING_CLOUD(10, "QingCloud", ""),
+    /** Github cloud enum */
+    GITHUB(11, "GitHub", "info.dong4j.idea.plugin.client.GithubClient"),
     /** Customize cloud enum */
-    CUSTOMIZE(11, "自定义", "");
+    CUSTOMIZE(12, "自定义", "");
 
     /** Index */
     public int index;

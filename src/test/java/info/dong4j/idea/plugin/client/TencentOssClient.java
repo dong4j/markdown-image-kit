@@ -45,7 +45,7 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0.0
  * @email "mailto:dong4j@gmail.com"
  * @date 2021.02.14 22:44
- * @since 2019.07.08 16:39
+ * @since 0.0.1
  */
 @Slf4j
 public class TencentOssClient implements OssClient {

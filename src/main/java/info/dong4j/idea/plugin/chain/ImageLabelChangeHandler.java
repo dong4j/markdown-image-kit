@@ -43,7 +43,7 @@ import lombok.extern.slf4j.Slf4j;
  * @version 0.0.1
  * @email "mailto:dong4j@gmail.com"
  * @date 2021.02.14 18:40
- * @since 2019.03.22 18:49
+ * @since 0.0.1
  */
 @Slf4j
 public class ImageLabelChangeHandler extends ActionHandlerAdapter {

@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package info.dong4j.idea.plugin.settings;
+package info.dong4j.idea.plugin.swing;
 
 import com.intellij.ui.JBColor;
 
@@ -63,7 +63,7 @@ public class JTextFieldHintListener implements FocusListener {
     }
 
     /**
-     * Focus gained
+     * 焦点获得
      *
      * @param e e
      * @since 0.0.1
@@ -79,7 +79,7 @@ public class JTextFieldHintListener implements FocusListener {
     }
 
     /**
-     * Focus lost
+     * 焦点失去
      *
      * @param e e
      * @since 0.0.1

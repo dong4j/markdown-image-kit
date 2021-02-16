@@ -63,6 +63,8 @@ public class MikIcons {
     public static final Icon YOUPAI = IconLoader.getIcon("/icons/youpai.png");
     /** JINGDONG */
     public static final Icon JINGDONG = IconLoader.getIcon("/icons/jingdong.png");
+    /** GITHUB */
+    public static final Icon GITHUB = IconLoader.getIcon("/icons/github.png");
 
     /**
      * Load

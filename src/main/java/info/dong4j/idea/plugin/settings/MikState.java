@@ -51,6 +51,8 @@ public class MikState {
     public static final String QINIU = "gerb2.erhgds'5yf@4ybtree!43h34hbd4_";
     /** TENCENT */
     public static final String TENCENT = "xg13g143fvsdklo)2,m.we_123vds12e!#41c";
+    /** GITHUB */
+    public static final String GITHUB = "ewrg23e!3t@2i_324ugfvz2r29_hfvgdfbd23";
 
     /** OLD_HASH_KEY */
     public static final String OLD_HASH_KEY = "old";
@@ -67,6 +69,8 @@ public class MikState {
     private QiniuOssState qiniuOssState;
     /** Tencent oss state */
     private TencentOssState tencentOssState;
+    /** Git hub oss state */
+    private GithubOssState githubOssState;
 
     /** 是否替换标签 */
     private boolean changeToHtmlTag = false;
@@ -108,5 +112,6 @@ public class MikState {
         this.qiniuOssState = new QiniuOssState();
         this.weiboOssState = new WeiboOssState();
         this.tencentOssState = new TencentOssState();
+        this.githubOssState = new GithubOssState();
     }
 }

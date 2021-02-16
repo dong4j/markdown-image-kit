@@ -36,7 +36,7 @@ import java.util.function.Supplier;
  * @version 0.0.1
  * @email "mailto:dong4j@gmail.com"
  * @date 2021.02.14 18:40
- * @since 2019.03.13 10:54
+ * @since 0.0.1
  */
 public class UploadException extends RuntimeException implements Supplier<UploadException> {
     /** serialVersionUID */

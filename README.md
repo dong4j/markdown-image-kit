@@ -142,4 +142,4 @@ java.lang.Throwable: Element component@ImageManagerSetting.option.WeiboOssState.
 ## TODO
 
 1. 完成生效的图床集成
-2. 添加 GitHub 图床
+2. 添加 Github 图床

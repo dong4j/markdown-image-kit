@@ -28,6 +28,7 @@ import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.JBColor;
 
 import info.dong4j.idea.plugin.client.AbstractOssClient;
+import info.dong4j.idea.plugin.swing.JTextFieldHintListener;
 import info.dong4j.idea.plugin.util.DES;
 import info.dong4j.idea.plugin.util.StringUtils;
 
@@ -52,96 +53,115 @@ import javax.swing.event.DocumentEvent;
  * @author dong4j
  * @version 1.0.0
  * @email "mailto:dong4j@fkhwl.com"
- * @date 2021.02.16 13:12
- * @since 1.1.0
+ * @date 2021.02.16 00:32
+ * @since 1.3.0
  */
-public abstract class AbstractOssSetting {
+public class GithubSetting {
+    /** BAIDU_HELPER_DOC formatter:off*/
+    private static final String HELPER_DOC = "https://docs.github.com/en/github/working-with-github-pages/configuring-a-custom-domain-for-your-github-pages-site";
+    /** formatter:on GITHUB_API */
+    private static final String GITHUB_API = "https://api.github.com";
 
-    /** Aliyun oss bucket name text field */
-    private final JTextField bucketNameTextField;
-    /** Aliyun oss access key text field */
-    private final JTextField accessKeyTextField;
-    /** Aliyun oss access secret key text field */
-    private final JPasswordField accessSecretKeyTextField;
-    /** Aliyun oss endpoint text field */
-    private final JTextField endpointTextField;
-    /** Aliyun oss file dir text field */
+    /** Repos text field */
+    private final JTextField reposTextField;
+    /** Branch text field */
+    private final JTextField branchTextField;
+    /** Token text field */
+    private final JPasswordField tokenTextField;
+    /** File dir text field */
     private final JTextField fileDirTextField;
-    /** 是否启用自定义域名 */
+    /** Custom endpoint check box */
     private final JCheckBox customEndpointCheckBox;
-    /** 自定义域名 */
+    /** Custom endpoint text field */
     private final JTextField customEndpointTextField;
-    /** 自定义域名帮助文档 */
+    /** Custom endpoint helper */
     private final JLabel customEndpointHelper;
     /** Example text field */
     private final JTextField exampleTextField;
 
     /**
-     * Abstract oss setting
+     * Baidu bos setting
      *
-     * @param bucketNameTextField      bucket name text field
-     * @param accessKeyTextField       access key text field
-     * @param accessSecretKeyTextField access secret key text field
-     * @param endpointTextField        endpoint text field
-     * @param fileDirTextField         file dir text field
-     * @param customEndpointCheckBox   custom endpoint check box
-     * @param customEndpointTextField  custom endpoint text field
-     * @param customEndpointHelper     custom endpoint helper
-     * @param exampleTextField         example text field
-     * @since 1.1.0
+     * @param reposTextField          repos text field
+     * @param branchTextField         branch text field
+     * @param tokenTextField          token text field
+     * @param fileDirTextField        file dir text field
+     * @param customEndpointCheckBox  custom endpoint check box
+     * @param customEndpointTextField custom endpoint text field
+     * @param customEndpointHelper    custom endpoint helper
+     * @param exampleTextField        example text field
+     * @since 1.3.0
      */
-    public AbstractOssSetting(JTextField bucketNameTextField,
-                              JTextField accessKeyTextField,
-                              JPasswordField accessSecretKeyTextField,
-                              JTextField endpointTextField,
-                              JTextField fileDirTextField,
-                              JCheckBox customEndpointCheckBox,
-                              JTextField customEndpointTextField,
-                              JLabel customEndpointHelper,
-                              JTextField exampleTextField) {
+    public GithubSetting(JTextField reposTextField,
+                         JTextField branchTextField,
+                         JPasswordField tokenTextField,
+                         JTextField fileDirTextField,
+                         JCheckBox customEndpointCheckBox,
+                         JTextField customEndpointTextField,
+                         JLabel customEndpointHelper,
+                         JTextField exampleTextField) {
 
-        this.bucketNameTextField = bucketNameTextField;
-        this.accessKeyTextField = accessKeyTextField;
-        this.accessSecretKeyTextField = accessSecretKeyTextField;
-        this.endpointTextField = endpointTextField;
+        this.reposTextField = reposTextField;
+        this.branchTextField = branchTextField;
+        this.tokenTextField = tokenTextField;
         this.fileDirTextField = fileDirTextField;
         this.customEndpointCheckBox = customEndpointCheckBox;
         this.customEndpointTextField = customEndpointTextField;
         this.customEndpointHelper = customEndpointHelper;
         this.exampleTextField = exampleTextField;
+
+    }
+
+    /**
+     * Gets help doc *
+     *
+     * @return the help doc
+     * @since 1.3.0
+     */
+    protected String getHelpDoc() {
+        return HELPER_DOC;
+    }
+
+    /**
+     * Gets key *
+     *
+     * @return the key
+     * @since 1.3.0
+     */
+    protected String getKey() {
+        return MikState.GITHUB;
     }
 
     /**
      * 初始化 oss 认证相关设置
      *
      * @param state state
-     * @since 0.0.1
+     * @since 1.3.0
      */
-    protected void init(AbstractExtendOssState state) {
-        String aliyunOssAccessSecretKey = state.getAccessSecretKey();
-        this.accessSecretKeyTextField.setText(DES.decrypt(aliyunOssAccessSecretKey, this.getKey()));
+    protected void init(GithubOssState state) {
+        String token = state.getToken();
+        this.tokenTextField.setText(DES.decrypt(token, this.getKey()));
 
-        // 处理当 aliyunOssFileDirTextField.getText() 为 空字符时, 不拼接 "/
         this.setExampleText(false);
 
         DocumentAdapter documentAdapter = new DocumentAdapter() {
             @Override
             protected void textChanged(@NotNull DocumentEvent e) {
-                AbstractOssSetting.this.setExampleText(false);
+                GithubSetting.this.setExampleText(false);
             }
         };
         DocumentAdapter customDocumentAdapter = new DocumentAdapter() {
             @Override
             protected void textChanged(@NotNull DocumentEvent e) {
-                AbstractOssSetting.this.setExampleText(true);
+                GithubSetting.this.setExampleText(true);
             }
         };
 
-        // 监听 aliyunOssBucketNameTextField
-        this.bucketNameTextField.getDocument().addDocumentListener(documentAdapter);
-        // 监听 aliyunOssEndpointTextField
-        this.endpointTextField.getDocument().addDocumentListener(documentAdapter);
-        // 设置 aliyunOssFileDirTextField 输入的监听
+        if (StringUtils.isBlank(this.reposTextField.getText().trim())) {
+            this.reposTextField.addFocusListener(new JTextFieldHintListener(this.reposTextField, "格式: owner/repos"));
+        }
+
+        this.reposTextField.getDocument().addDocumentListener(documentAdapter);
         this.fileDirTextField.getDocument().addDocumentListener(documentAdapter);
 
         this.change(customDocumentAdapter, state.getIsCustomEndpoint());
@@ -158,18 +178,15 @@ public abstract class AbstractOssSetting {
      *
      * @param customDocumentAdapter custom document adapter
      * @param isSelected            is selected
-     * @since 1.1.0
+     * @since 1.3.0
      */
     private void change(DocumentAdapter customDocumentAdapter, boolean isSelected) {
         this.customEndpointTextField.setEnabled(isSelected);
         this.customEndpointHelper.setEnabled(isSelected);
-        this.endpointTextField.setEnabled(!isSelected);
-        this.bucketNameTextField.setEnabled(!isSelected);
         this.fileDirTextField.setEnabled(!isSelected);
         this.showCustomEndpointHelper();
 
         if (isSelected) {
-            // 开启自定义 endpoint 时, example 修改为自定义 endpoint
             this.customEndpointTextField.getDocument().addDocumentListener(customDocumentAdapter);
         }
 
@@ -181,7 +198,7 @@ public abstract class AbstractOssSetting {
      * 实时更新此字段
      *
      * @param isCustom is custom
-     * @since 0.0.1
+     * @since 1.3.0
      */
     private void setExampleText(boolean isCustom) {
         String fileDir;
@@ -194,9 +211,8 @@ public abstract class AbstractOssSetting {
         } else {
             fileDir = StringUtils.isBlank(this.fileDirTextField.getText().trim()) ? "" :
                       "/" + this.fileDirTextField.getText().trim();
-            String endpoint = this.endpointTextField.getText().trim();
-            String backetName = this.bucketNameTextField.getText().trim();
-            url = AbstractOssClient.URL_PROTOCOL_HTTPS + "://" + backetName + "." + endpoint;
+            String repos = this.reposTextField.getText().trim();
+            url = GITHUB_API + "/repos/" + repos + "/contents";
             this.exampleTextField.setText(url + fileDir + "/" + ProjectSettingsPage.TEST_FILE_NAME);
         }
         this.exampleTextField.setText(url + fileDir + "/" + ProjectSettingsPage.TEST_FILE_NAME);
@@ -205,7 +221,7 @@ public abstract class AbstractOssSetting {
     /**
      * Show custom endpoint helper
      *
-     * @since 1.1.0
+     * @since 1.3.0
      */
     private void showCustomEndpointHelper() {
         // 设置帮助文档链接
@@ -219,7 +235,7 @@ public abstract class AbstractOssSetting {
             @Override
             public void mouseClicked(MouseEvent e) {
                 try {
-                    Desktop.getDesktop().browse(new URI(AbstractOssSetting.this.getHelpDoc()));
+                    Desktop.getDesktop().browse(new URI(GithubSetting.this.getHelpDoc()));
                 } catch (Exception ignored) {
                 }
             }
@@ -230,24 +246,22 @@ public abstract class AbstractOssSetting {
      * Is modified
      *
      * @return the boolean
-     * @since 1.1.0
+     * @since 1.3.0
      */
-    protected boolean isModified(AbstractExtendOssState state) {
-        String bucketName = this.bucketNameTextField.getText().trim();
-        String accessKey = this.accessKeyTextField.getText().trim();
-        String secretKey = new String(this.accessSecretKeyTextField.getPassword());
-        if (StringUtils.isNotBlank(secretKey)) {
-            secretKey = DES.encrypt(secretKey, this.getKey());
+    boolean isModified(GithubOssState state) {
+        String repos = this.reposTextField.getText().trim();
+        String branch = this.branchTextField.getText().trim();
+        String token = new String(this.tokenTextField.getPassword());
+        if (StringUtils.isNotBlank(token)) {
+            token = DES.encrypt(token, this.getKey());
         }
-        String endpoint = this.endpointTextField.getText().trim();
         String filedir = this.fileDirTextField.getText().trim();
         String customEndpoint = this.customEndpointTextField.getText().trim();
         boolean isCustomEndpoint = this.customEndpointCheckBox.isSelected();
 
-        return bucketName.equals(state.getBucketName())
-               && accessKey.equals(state.getAccessKey())
-               && secretKey.equals(state.getAccessSecretKey())
-               && endpoint.equals(state.getEndpoint())
+        return repos.equals(state.getRepos())
+               && branch.equals(state.getBranch())
+               && token.equals(state.getToken())
                && filedir.equals(state.getFiledir())
                && state.getIsCustomEndpoint() == isCustomEndpoint
                && customEndpoint.equals(state.getCustomEndpoint());
@@ -256,33 +270,30 @@ public abstract class AbstractOssSetting {
     /**
      * Apply
      *
-     * @since 1.1.0
+     * @since 1.3.0
      */
-    protected void apply(AbstractExtendOssState state) {
-        String bucketName = this.bucketNameTextField.getText().trim();
-        String accessKey = this.accessKeyTextField.getText().trim();
-        String accessSecretKey = new String(this.accessSecretKeyTextField.getPassword());
-        String endpoint = this.endpointTextField.getText().trim();
+    void apply(GithubOssState state) {
+        String repos = this.reposTextField.getText().trim();
+        String branch = this.branchTextField.getText().trim();
+        String token = new String(this.tokenTextField.getPassword());
         String customEndpoint = this.customEndpointTextField.getText().trim();
         boolean isCustomEndpoint = this.customEndpointCheckBox.isSelected();
 
         // 需要在加密之前计算 hashcode
-        int hashcode = bucketName.hashCode() +
-                       accessKey.hashCode() +
-                       accessSecretKey.hashCode() +
-                       endpoint.hashCode() +
+        int hashcode = repos.hashCode() +
+                       token.hashCode() +
+                       branch.hashCode() +
                        (customEndpoint + isCustomEndpoint).hashCode();
 
         OssState.saveStatus(state, hashcode, MikState.NEW_HASH_KEY);
 
-        if (StringUtils.isNotBlank(accessSecretKey)) {
-            accessSecretKey = DES.encrypt(accessSecretKey, this.getKey());
+        if (StringUtils.isNotBlank(token)) {
+            token = DES.encrypt(token, this.getKey());
         }
 
-        state.setBucketName(bucketName);
-        state.setAccessKey(accessKey);
-        state.setAccessSecretKey(accessSecretKey);
-        state.setEndpoint(endpoint);
+        state.setRepos(repos);
+        state.setBranch(branch);
+        state.setToken(token);
         state.setCustomEndpoint(customEndpoint);
         state.setIsCustomEndpoint(isCustomEndpoint);
         state.setFiledir(this.fileDirTextField.getText().trim());
@@ -292,34 +303,16 @@ public abstract class AbstractOssSetting {
      * Reset
      *
      * @param state state
-     * @since 1.1.0
+     * @since 1.3.0
      */
-    protected void reset(AbstractExtendOssState state) {
-        state = state;
-        this.bucketNameTextField.setText(state.getBucketName());
-        this.accessKeyTextField.setText(state.getAccessKey());
-        String aliyunOssAccessSecreKey = state.getAccessSecretKey();
-        this.accessSecretKeyTextField.setText(DES.decrypt(aliyunOssAccessSecreKey, this.getKey()));
-        this.endpointTextField.setText(state.getEndpoint());
+    void reset(GithubOssState state) {
+        this.reposTextField.setText(state.getRepos());
+        this.branchTextField.setText(state.getBranch());
+        String token = state.getToken();
+        this.tokenTextField.setText(DES.decrypt(token, this.getKey()));
         this.fileDirTextField.setText(state.getFiledir());
 
         this.customEndpointCheckBox.setSelected(state.getIsCustomEndpoint());
         this.customEndpointTextField.setText(state.getCustomEndpoint());
     }
-
-    /**
-     * Gets help doc *
-     *
-     * @return the help doc
-     * @since 1.1.0
-     */
-    protected abstract String getHelpDoc();
-
-    /**
-     * Gets key *
-     *
-     * @return the key
-     * @since 1.1.0
-     */
-    protected abstract String getKey();
 }
