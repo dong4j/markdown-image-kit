@@ -166,10 +166,10 @@ public class TencentOssClient implements OssClient {
         String secretKey = map.get("secretKey");
         String regionName = map.get("regionName");
 
-        Asserts.notBlank(bucketName, "Bucket 必填");
-        Asserts.notBlank(accessKey, "Access Key 必填");
-        Asserts.notBlank(secretKey, "Secret Key 必填");
-        Asserts.notBlank(regionName, "RegionName 必填");
+        Asserts.notBlank(bucketName, "Bucket");
+        Asserts.notBlank(accessKey, "Access Key");
+        Asserts.notBlank(secretKey, "Secret Key");
+        Asserts.notBlank(regionName, "RegionName");
 
         return this.upload(inputStream,
                            fileName,

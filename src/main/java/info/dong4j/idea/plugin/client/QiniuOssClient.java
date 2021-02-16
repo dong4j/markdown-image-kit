@@ -208,10 +208,10 @@ public class QiniuOssClient implements OssClient {
         String secretKey = map.get("secretKey");
         String endpoint = map.get("domain");
 
-        Asserts.notBlank(bucketName, "Bucket 必填");
-        Asserts.notBlank(accessKey, "Access Key 必填");
-        Asserts.notBlank(secretKey, "Secret Key 必填");
-        Asserts.notBlank(endpoint, "Domain 必填");
+        Asserts.notBlank(bucketName, "Bucket");
+        Asserts.notBlank(accessKey, "Access Key");
+        Asserts.notBlank(secretKey, "Secret Key");
+        Asserts.notBlank(endpoint, "Domain");
 
         return this.upload(inputStream,
                            fileName,

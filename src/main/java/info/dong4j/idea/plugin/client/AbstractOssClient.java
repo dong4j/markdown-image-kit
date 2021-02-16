@@ -91,10 +91,10 @@ public abstract class AbstractOssClient implements OssClient {
         String customEndpoint = map.get("customEndpoint");
         boolean isCustomEndpoint = Boolean.parseBoolean(map.get("isCustomEndpoint"));
 
-        Asserts.notBlank(bucketName, "Bucket 必填");
-        Asserts.notBlank(accessKey, "Access Key 必填");
-        Asserts.notBlank(secretKey, "Secret Key 必填");
-        Asserts.notBlank(endpoint, "Endpoint 必填");
+        Asserts.notBlank(bucketName, "Bucket");
+        Asserts.notBlank(accessKey, "Access Key");
+        Asserts.notBlank(secretKey, "Secret Key");
+        Asserts.notBlank(endpoint, "Endpoint");
 
         return this.upload(inputStream,
                            fileName,
