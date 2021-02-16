@@ -201,6 +201,9 @@
         <action id="TencentObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadTencentCloudAction"
                 popup="true" text="上传到腾讯云">
         </action>
+        <action id="BaiduObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadBaiduCloudAction"
+                popup="true" text="上传到百度云">
+        </action>
         <action id="ImageCompressAction" class="info.dong4j.idea.plugin.action.image.ImageCompressAction"
                 popup="true" text="图片压缩">
         </action>
@@ -224,6 +227,7 @@
             <reference ref="AliyunObjectStorageServiceAction"/>
             <reference ref="QiniuObjectStorageServiceAction"/>
             <reference ref="TencentObjectStorageServiceAction"/>
+            <reference ref="BaiduObjectStorageServiceAction"/>
             <separator/>
             <reference ref="ImageCompressAction"/>
             <reference ref="ImageUploadAction"/>
@@ -244,6 +248,7 @@
             <reference ref="AliyunObjectStorageServiceAction"/>
             <reference ref="QiniuObjectStorageServiceAction"/>
             <reference ref="TencentObjectStorageServiceAction"/>
+            <reference ref="BaiduObjectStorageServiceAction"/>
             <separator/>
             <reference ref="ImageCompressAction"/>
             <reference ref="ImageUploadAction"/>
