@@ -1,5 +1,5 @@
 <?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg t="1587810767977" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="8807"
+<svg t="1587810712619" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="8551"
      data-darkreader-inline-fill="" width="80" height="80">
     <defs>
         <style type="text/css">[data-darkreader-inline-fill] { fill: var(--darkreader-inline-fill) !important; }
@@ -8,6 +8,8 @@
             font-weight: normal; font-style: normal; }
         </style>
     </defs>
-    <path d="M96 672v-341.333333h85.333333l128 128 128-128h85.333334v341.333333h-85.333334v-220.586667l-128 128-128-128v220.586667h-85.333333m597.333333-341.333333h128v170.666666h106.666667l-170.666667 192-170.666666-192h106.666666z"
-          fill="#42A5F5" p-id="8808" data-darkreader-inline-fill="" style="--darkreader-inline-fill:#1b5a8b;"></path>
+    <path d="M34.133333 34.133333m136.533334 0l682.666666 0q136.533333 0 136.533334 136.533334l0 682.666666q0 136.533333-136.533334 136.533334l-682.666666 0q-136.533333 0-136.533334-136.533334l0-682.666666q0-136.533333 136.533334-136.533334Z"
+          fill="#FFFFFF" p-id="8552" data-darkreader-inline-fill="" style="--darkreader-inline-fill:#1a1b1a;"></path>
+    <path d="M263.0656 376.388267h19.012267a34.133333 34.133333 0 0 1 25.258666 11.1616l92.2624 101.4784 92.228267-101.4784a34.133333 34.133333 0 0 1 25.258667-11.1616h19.0464a34.133333 34.133333 0 0 1 34.133333 34.133333v250.299733a34.133333 34.133333 0 1 1-68.266667 0v-178.176l-102.4 112.64-102.4-112.64v178.176a34.133333 34.133333 0 1 1-68.266666 0v-250.299733a34.133333 34.133333 0 0 1 34.133333-34.133333z m460.117333 3.2768h21.333334a34.133333 34.133333 0 0 1 34.133333 34.133333v134.007467H853.333333l-91.579733 129.570133a34.133333 34.133333 0 0 1-55.773867 0L614.4 547.805867h74.683733v-134.007467a34.133333 34.133333 0 0 1 34.133334-34.133333z"
+          fill="#516378" opacity=".75" p-id="8553" data-darkreader-inline-fill="" style="--darkreader-inline-fill:#404851;"></path>
 </svg>
