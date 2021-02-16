@@ -56,7 +56,7 @@ public class MoveToOtherOssSettingsDialog extends JDialog {
     /** Domain */
     private JTextField domain;
     /** Cloud combo box */
-    private JComboBox cloudComboBox;
+    private JComboBox<?> cloudComboBox;
     /** Move panel */
     private JPanel movePanel;
     /** Domain label */
