@@ -120,7 +120,6 @@ public class AliyunOssUtils {
         String signResourcePath = "/" + ossBucket + key;
         String signature = (hmacSha1(buildPutSignData(date, signResourcePath), secretAccessKey));
         String authorization = "OSS " + accessKeyId + ":" + signature;
-        System.out.println(authorization);
 
         String connectUrl = "https://" + ossBucket + "." + endpoint;
         if (isCustomEndpoint) {

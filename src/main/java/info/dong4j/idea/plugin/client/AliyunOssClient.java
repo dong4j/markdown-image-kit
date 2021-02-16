@@ -25,29 +25,24 @@
 package info.dong4j.idea.plugin.client;
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
+import info.dong4j.idea.plugin.settings.AbstractExtendOssState;
 import info.dong4j.idea.plugin.settings.AliyunOssState;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
-import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.util.AliyunOssUtils;
 import info.dong4j.idea.plugin.util.DES;
 import info.dong4j.idea.plugin.util.StringUtils;
 
-import org.apache.http.util.Asserts;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
-
-import javax.swing.JPanel;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Company: no company</p>
  * <p>Description: 右键上传一次或者点击测试按钮时初始化一次</p>
- * todo-dong4j : (2021.02.16 01:27) [与 BaiduBosClient 一起重构]
  *
  * @author dong4j
  * @version 0.0.1
@@ -57,26 +52,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Client(CloudEnum.ALIYUN_CLOUD)
-public class AliyunOssClient implements OssClient {
-    /** URL_PROTOCOL_HTTPS */
-    public static final String URL_PROTOCOL_HTTPS = "https";
-    /** URL_PROTOCOL_HTTP */
-    private static final String URL_PROTOCOL_HTTP = "http";
-
-    /** bucketName */
-    private static String bucketName;
-    /** filedir */
-    private static String filedir;
-    /** accessKey */
-    private static String accessKey;
-    /** accessSecretKey */
-    private static String accessSecretKey;
-    /** endpoint */
-    private static String endpoint;
-    /** customEndpoint */
-    private static boolean isCustomEndpoint;
-    /** customEndpoint */
-    private static String customEndpoint;
+public class AliyunOssClient extends AbstractOssClient {
 
     static {
         init();
@@ -94,7 +70,6 @@ public class AliyunOssClient implements OssClient {
         endpoint = aliyunOssState.getEndpoint();
         String tempFileDir = aliyunOssState.getFiledir();
         filedir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";
-
     }
 
     /**
@@ -121,6 +96,48 @@ public class AliyunOssClient implements OssClient {
     }
 
     /**
+     * Gets client *
+     *
+     * @return the client
+     * @since 1.1.0
+     */
+    @Override
+    protected AbstractOssClient getClient() {
+        return getInstance();
+    }
+
+    /**
+     * Put objects
+     *
+     * @param key      key
+     * @param instream instream
+     * @throws IOException io exception
+     * @since 1.1.0
+     */
+    @Override
+    protected void putObjects(String key, InputStream instream) throws IOException {
+        AliyunOssUtils.putObject(key,
+                                 instream,
+                                 bucketName,
+                                 endpoint,
+                                 accessKey,
+                                 accessSecretKey,
+                                 isCustomEndpoint,
+                                 customEndpoint);
+    }
+
+    /**
+     * Gets state *
+     *
+     * @return the state
+     * @since 1.1.0
+     */
+    @Override
+    protected AbstractExtendOssState getState() {
+        return MikPersistenComponent.getInstance().getState().getAliyunOssState();
+    }
+
+    /**
      * 使用缓存的 map 映射获取已初始化的 client, 避免创建多个实例
      *
      * @author dong4j
@@ -143,124 +160,6 @@ public class AliyunOssClient implements OssClient {
     @Override
     public CloudEnum getCloudType() {
         return CloudEnum.ALIYUN_CLOUD;
-    }
-
-    /**
-     * 直接从面板组件上获取最新配置, 不使用 state
-     * {@link info.dong4j.idea.plugin.settings.ProjectSettingsPage#testAndHelpListener()}
-     *
-     * @param inputStream the input stream
-     * @param fileName    the file name
-     * @param jPanel      the j panel
-     * @return the string
-     * @since 0.0.1
-     */
-    @Override
-    public String upload(InputStream inputStream, String fileName, JPanel jPanel) throws Exception {
-        Map<String, String> map = this.getTestFieldText(jPanel);
-
-        String bucketName = map.get("bucketName");
-        String accessKey = map.get("accessKey");
-        String secretKey = map.get("secretKey");
-        String endpoint = map.get("endpoint");
-        String filedir = map.get("filedir");
-        String customEndpoint = map.get("customEndpoint");
-        boolean isCustomEndpoint = Boolean.parseBoolean(map.get("isCustomEndpoint"));
-
-        Asserts.notBlank(bucketName, "Bucket 必填");
-        Asserts.notBlank(accessKey, "Access Key 必填");
-        Asserts.notBlank(secretKey, "Secret Key 必填");
-        Asserts.notBlank(endpoint, "Endpoint 必填");
-
-        return this.upload(inputStream,
-                           fileName,
-                           bucketName,
-                           accessKey,
-                           secretKey,
-                           endpoint,
-                           filedir,
-                           isCustomEndpoint,
-                           customEndpoint);
-    }
-
-    /**
-     * test 按钮点击事件后请求, 成功后保留 client, paste 或者 右键 上传时使用
-     *
-     * @param inputStream     the input stream
-     * @param fileName        the file name
-     * @param bucketName      the bucketName name
-     * @param accessKey       the access key
-     * @param accessSecretKey the access secret key
-     * @param endpoint        the endpoint
-     * @param filedir         the temp file dir
-     * @return the string
-     * @since 0.0.1
-     */
-    private String upload(InputStream inputStream,
-                          String fileName,
-                          String bucketName,
-                          String accessKey,
-                          String accessSecretKey,
-                          String endpoint,
-                          String filedir,
-                          boolean isCustomEndpoint,
-                          String customEndpoint) throws Exception {
-
-        filedir = StringUtils.isBlank(filedir) ? "" : filedir + "/";
-
-        AliyunOssClient.filedir = filedir;
-        AliyunOssClient.bucketName = bucketName;
-        AliyunOssClient.accessKey = accessKey;
-        AliyunOssClient.accessSecretKey = accessSecretKey;
-        AliyunOssClient.endpoint = endpoint;
-        AliyunOssClient.customEndpoint = customEndpoint;
-        AliyunOssClient.isCustomEndpoint = isCustomEndpoint;
-
-        AliyunOssClient aliyunOssClient = AliyunOssClient.getInstance();
-        String url = aliyunOssClient.upload(inputStream, fileName);
-
-        if (StringUtils.isNotBlank(url)) {
-            int hashcode = bucketName.hashCode() +
-                           accessKey.hashCode() +
-                           accessSecretKey.hashCode() +
-                           endpoint.hashCode() +
-                           (customEndpoint + isCustomEndpoint).hashCode();
-
-            OssState.saveStatus(MikPersistenComponent.getInstance().getState().getAliyunOssState(),
-                                hashcode,
-                                MikState.OLD_HASH_KEY);
-        }
-        return url;
-    }
-
-    /**
-     * 上传到OSS服务器  如果同名文件会覆盖服务器上的
-     *
-     * @param instream instream
-     * @param fileName file name
-     * @return 出错返回 "" ,唯一MD5数字签名
-     * @since 0.0.1
-     */
-    @Override
-    public String upload(@NotNull InputStream instream,
-                         @NotNull String fileName) throws Exception {
-        String key = filedir + fileName;
-        if (!key.startsWith("/")) {
-            key = "/" + key;
-        }
-        AliyunOssUtils.putObject(key,
-                                 instream,
-                                 bucketName,
-                                 endpoint,
-                                 accessKey,
-                                 accessSecretKey,
-                                 isCustomEndpoint,
-                                 customEndpoint);
-
-        if (isCustomEndpoint) {
-            return "https://" + customEndpoint + "/" + filedir + fileName;
-        }
-        return "https://" + bucketName + "." + endpoint + "/" + filedir + fileName;
     }
 
 }

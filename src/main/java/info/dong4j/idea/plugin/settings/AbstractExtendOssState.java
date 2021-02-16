@@ -29,18 +29,32 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
- * <p>Company: no company</p>
- * <p>Description: </p>
+ * <p>Company: 成都返空汇网络技术有限公司</p>
+ * <p>Description:  </p>
  *
  * @author dong4j
- * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2019.03.19 19:55
- * @since 0.0.1
+ * @version 1.0.0
+ * @email "mailto:dong4j@fkhwl.com"
+ * @date 2021.02.16 13:16
+ * @since 1.1.0
  */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class AliyunOssState extends AbstractExtendOssState {
+public abstract class AbstractExtendOssState extends OssState {
 
+    /** Endpoint */
+    private String endpoint = "";
+    /** Access key */
+    private String accessKey = "";
+    /** Access secret key */
+    private String accessSecretKey = "";
+    /** Bucket name */
+    private String bucketName = "";
+    /** Filedir */
+    private String filedir = "";
+    /** Custom endpoint */
+    private String customEndpoint = "";
+    /** Is custom endpoint */
+    private Boolean isCustomEndpoint = false;
 }

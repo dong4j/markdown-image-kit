@@ -24,26 +24,10 @@
 
 package info.dong4j.idea.plugin.settings;
 
-import com.intellij.ui.DocumentAdapter;
-import com.intellij.ui.JBColor;
-
-import info.dong4j.idea.plugin.client.AliyunOssClient;
-import info.dong4j.idea.plugin.util.DES;
-import info.dong4j.idea.plugin.util.StringUtils;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.awt.Cursor;
-import java.awt.Desktop;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.net.URI;
-
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
 
 /**
  * <p>Company: 成都返空汇网络技术有限公司</p>
@@ -56,30 +40,25 @@ import javax.swing.event.DocumentEvent;
  * @date 2021.02.16 00:28
  * @since 1.1.0
  */
-public class AliyunOssSetting {
+public class AliyunOssSetting extends AbstractOssSetting {
     /** helperDoc */
     private static final String ALIYUN_HELPER_DOC = "https://help.aliyun.com/document_detail/31836.html";
 
-    private AliyunOssState state;
-    /** Aliyun oss bucket name text field */
-    private final JTextField bucketNameTextField;
-    /** Aliyun oss access key text field */
-    private final JTextField accessKeyTextField;
-    /** Aliyun oss access secret key text field */
-    private final JPasswordField accessSecretKeyTextField;
-    /** Aliyun oss endpoint text field */
-    private final JTextField endpointTextField;
-    /** Aliyun oss file dir text field */
-    private final JTextField fileDirTextField;
-    /** 是否启用自定义域名 */
-    private final JCheckBox customEndpointCheckBox;
-    /** 自定义域名 */
-    private final JTextField customEndpointTextField;
-    /** 自定义域名帮助文档 */
-    private final JLabel customEndpointHelper;
-    /** Example text field */
-    private final JTextField exampleTextField;
 
+    /**
+     * Aliyun oss setting
+     *
+     * @param bucketNameTextField      bucket name text field
+     * @param accessKeyTextField       access key text field
+     * @param accessSecretKeyTextField access secret key text field
+     * @param endpointTextField        endpoint text field
+     * @param fileDirTextField         file dir text field
+     * @param customEndpointCheckBox   custom endpoint check box
+     * @param customEndpointTextField  custom endpoint text field
+     * @param customEndpointHelper     custom endpoint helper
+     * @param exampleTextField         example text field
+     * @since 1.1.0
+     */
     public AliyunOssSetting(JTextField bucketNameTextField,
                             JTextField accessKeyTextField,
                             JPasswordField accessSecretKeyTextField,
@@ -90,193 +69,37 @@ public class AliyunOssSetting {
                             JLabel customEndpointHelper,
                             JTextField exampleTextField) {
 
-        this.bucketNameTextField = bucketNameTextField;
-        this.accessKeyTextField = accessKeyTextField;
-        this.accessSecretKeyTextField = accessSecretKeyTextField;
-        this.endpointTextField = endpointTextField;
-        this.fileDirTextField = fileDirTextField;
-        this.customEndpointCheckBox = customEndpointCheckBox;
-        this.customEndpointTextField = customEndpointTextField;
-        this.customEndpointHelper = customEndpointHelper;
-        this.exampleTextField = exampleTextField;
+        super(bucketNameTextField,
+              accessKeyTextField,
+              accessSecretKeyTextField,
+              endpointTextField,
+              fileDirTextField,
+              customEndpointCheckBox,
+              customEndpointTextField,
+              customEndpointHelper,
+              exampleTextField);
     }
 
     /**
-     * 初始化 aliyun oss 认证相关设置
+     * Gets help doc *
      *
-     * @since 0.0.1
-     */
-    void init(AliyunOssState state) {
-        this.state = state;
-        String aliyunOssAccessSecretKey = this.state.getAccessSecretKey();
-        this.accessSecretKeyTextField.setText(DES.decrypt(aliyunOssAccessSecretKey, MikState.ALIYUN));
-
-        // 处理当 aliyunOssFileDirTextField.getText() 为 空字符时, 不拼接 "/
-        this.setExampleText(false);
-
-        DocumentAdapter documentAdapter = new DocumentAdapter() {
-            @Override
-            protected void textChanged(@NotNull DocumentEvent e) {
-                AliyunOssSetting.this.setExampleText(false);
-            }
-        };
-        DocumentAdapter customDocumentAdapter = new DocumentAdapter() {
-            @Override
-            protected void textChanged(@NotNull DocumentEvent e) {
-                AliyunOssSetting.this.setExampleText(true);
-            }
-        };
-
-        // 监听 aliyunOssBucketNameTextField
-        this.bucketNameTextField.getDocument().addDocumentListener(documentAdapter);
-        // 监听 aliyunOssEndpointTextField
-        this.endpointTextField.getDocument().addDocumentListener(documentAdapter);
-        // 设置 aliyunOssFileDirTextField 输入的监听
-        this.fileDirTextField.getDocument().addDocumentListener(documentAdapter);
-
-        this.change(customDocumentAdapter, this.state.getIsCustomEndpoint());
-
-        // 设置 customEndpointCheckBox 监听
-        this.customEndpointCheckBox.addChangeListener(e -> {
-            JCheckBox checkBox = (JCheckBox) e.getSource();
-            this.change(customDocumentAdapter, checkBox.isSelected());
-        });
-    }
-
-    /**
-     * Change
-     *
-     * @param customDocumentAdapter custom document adapter
-     * @param isSelected            is selected
+     * @return the help doc
      * @since 1.1.0
      */
-    private void change(DocumentAdapter customDocumentAdapter, boolean isSelected) {
-        this.customEndpointTextField.setEnabled(isSelected);
-        this.customEndpointHelper.setEnabled(isSelected);
-        this.endpointTextField.setEnabled(!isSelected);
-        this.bucketNameTextField.setEnabled(!isSelected);
-        this.fileDirTextField.setEnabled(!isSelected);
-
-        if (isSelected) {
-            this.showCustomEndpointHelper();
-            // 开启自定义 endpoint 时, example 修改为自定义 endpoint
-            this.customEndpointTextField.getDocument().addDocumentListener(customDocumentAdapter);
-        } else {
-            this.customEndpointHelper.setText("");
-        }
-
-        // 重置 example
-        this.setExampleText(isSelected);
+    @Override
+    protected String getHelpDoc() {
+        return ALIYUN_HELPER_DOC;
     }
 
     /**
-     * 实时更新此字段
+     * Gets key *
      *
-     * @param isCustom is custom
-     * @since 0.0.1
-     */
-    private void setExampleText(boolean isCustom) {
-        String fileDir;
-        String url;
-        if (isCustom) {
-            fileDir = StringUtils.isBlank(this.fileDirTextField.getText().trim()) ? "" :
-                      "/" + this.fileDirTextField.getText().trim();
-            url = AliyunOssClient.URL_PROTOCOL_HTTPS + "://" + this.customEndpointTextField.getText();
-
-        } else {
-            fileDir = StringUtils.isBlank(this.fileDirTextField.getText().trim()) ? "" :
-                      "/" + this.fileDirTextField.getText().trim();
-            String endpoint = this.endpointTextField.getText().trim();
-            String backetName = this.bucketNameTextField.getText().trim();
-            url = AliyunOssClient.URL_PROTOCOL_HTTPS + "://" + backetName + "." + endpoint;
-            this.exampleTextField.setText(url + fileDir + "/" + ProjectSettingsPage.TEST_FILE_NAME);
-        }
-        this.exampleTextField.setText(url + fileDir + "/" + ProjectSettingsPage.TEST_FILE_NAME);
-    }
-
-    /**
-     * Show custom endpoint helper
-     *
+     * @return the key
      * @since 1.1.0
      */
-    private void showCustomEndpointHelper() {
-        // 设置帮助文档链接
-        this.customEndpointHelper.setText("<html><a href='" + ALIYUN_HELPER_DOC + "'>自定义 Endpoint 帮助文档</a></html>");
-        // 设置链接颜色
-        this.customEndpointHelper.setForeground(JBColor.WHITE);
-        // 设置鼠标样式
-        this.customEndpointHelper.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        // 设置提示文字
-        this.customEndpointHelper.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                try {
-                    Desktop.getDesktop().browse(new URI(ALIYUN_HELPER_DOC));
-                } catch (Exception ignored) {
-                }
-            }
-        });
+    @Override
+    protected String getKey() {
+        return MikState.ALIYUN;
     }
 
-    boolean isModified() {
-        String bucketName = this.bucketNameTextField.getText().trim();
-        String accessKey = this.accessKeyTextField.getText().trim();
-        String secretKey = new String(this.accessSecretKeyTextField.getPassword());
-        if (StringUtils.isNotBlank(secretKey)) {
-            secretKey = DES.encrypt(secretKey, MikState.ALIYUN);
-        }
-        String endpoint = this.endpointTextField.getText().trim();
-        String filedir = this.fileDirTextField.getText().trim();
-        String customEndpoint = this.customEndpointTextField.getText().trim();
-        boolean isCustomEndpoint = this.customEndpointCheckBox.isSelected();
-
-        return bucketName.equals(this.state.getBucketName())
-               && accessKey.equals(this.state.getAccessKey())
-               && secretKey.equals(this.state.getAccessSecretKey())
-               && endpoint.equals(this.state.getEndpoint())
-               && filedir.equals(this.state.getFiledir())
-               && this.state.getIsCustomEndpoint() == isCustomEndpoint
-               && customEndpoint.equals(this.state.getCustomEndpoint());
-    }
-
-    void apply() {
-        String bucketName = this.bucketNameTextField.getText().trim();
-        String accessKey = this.accessKeyTextField.getText().trim();
-        String accessSecretKey = new String(this.accessSecretKeyTextField.getPassword());
-        String endpoint = this.endpointTextField.getText().trim();
-        String customEndpoint = this.customEndpointTextField.getText().trim();
-        boolean isCustomEndpoint = this.customEndpointCheckBox.isSelected();
-
-        // 需要在加密之前计算 hashcode
-        int hashcode = bucketName.hashCode() +
-                       accessKey.hashCode() +
-                       accessSecretKey.hashCode() +
-                       endpoint.hashCode();
-        OssState.saveStatus(this.state, hashcode, MikState.NEW_HASH_KEY);
-
-        if (StringUtils.isNotBlank(accessSecretKey)) {
-            accessSecretKey = DES.encrypt(accessSecretKey, MikState.ALIYUN);
-        }
-
-        this.state.setBucketName(bucketName);
-        this.state.setAccessKey(accessKey);
-        this.state.setAccessSecretKey(accessSecretKey);
-        this.state.setEndpoint(endpoint);
-        this.state.setCustomEndpoint(customEndpoint);
-        this.state.setIsCustomEndpoint(isCustomEndpoint);
-        this.state.setFiledir(this.fileDirTextField.getText().trim());
-    }
-
-    public void reset(AliyunOssState state) {
-        this.state = state;
-        this.bucketNameTextField.setText(this.state.getBucketName());
-        this.accessKeyTextField.setText(this.state.getAccessKey());
-        String aliyunOssAccessSecreKey = this.state.getAccessSecretKey();
-        this.accessSecretKeyTextField.setText(DES.decrypt(aliyunOssAccessSecreKey, MikState.ALIYUN));
-        this.endpointTextField.setText(this.state.getEndpoint());
-        this.fileDirTextField.setText(this.state.getFiledir());
-
-        this.customEndpointCheckBox.setSelected(this.state.getIsCustomEndpoint());
-        this.customEndpointTextField.setText(this.state.getCustomEndpoint());
-    }
 }

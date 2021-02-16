@@ -60,8 +60,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Client(CloudEnum.TENCENT_CLOUD)
 public class TencentOssClient implements OssClient {
-    /** isAuth */
-    private static boolean isAuth = false;
     /** bucketName */
     private static String bucketName;
     /** regionName */
@@ -220,7 +218,6 @@ public class TencentOssClient implements OssClient {
             OssState.saveStatus(MikPersistenComponent.getInstance().getState().getTencentOssState(),
                                 hashcode,
                                 MikState.OLD_HASH_KEY);
-            isAuth = true;
         }
         return url;
     }

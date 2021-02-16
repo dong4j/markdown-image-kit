@@ -61,6 +61,7 @@ public class MikState {
     private WeiboOssState weiboOssState;
     /** Aliyun oss state */
     private AliyunOssState aliyunOssState;
+    /** Baidu bos state */
     private BaiduBosState baiduBosState;
     /** Qiniu oss state */
     private QiniuOssState qiniuOssState;

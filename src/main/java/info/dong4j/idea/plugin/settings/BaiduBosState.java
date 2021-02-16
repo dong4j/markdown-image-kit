@@ -41,19 +41,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class BaiduBosState extends OssState {
-    /** Endpoint */
-    private String endpoint = "";
-    /** Access key */
-    private String accessKey = "";
-    /** Access secret key */
-    private String accessSecretKey = "";
-    /** Bucket name */
-    private String bucketName = "";
-    /** Filedir */
-    private String filedir = "";
-    /** Custom endpoint */
-    private String customEndpoint = "";
-    /** Is custom endpoint */
-    private Boolean isCustomEndpoint = false;
+public class BaiduBosState extends AbstractExtendOssState {
+
 }
