@@ -55,6 +55,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
@@ -78,6 +79,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
 
     /** Config */
     private final MikPersistenComponent config;
+
+    private JScrollPane jScrollPane;
     /** My main panel */
     private JPanel myMainPanel;
 
@@ -237,9 +240,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JCheckBox defaultCloudCheckBox;
     //endregion
 
-    /** todo-dong4j : (2019年03月20日 13:25) [测试输入验证用] */
-    private JTextField myPort;
-
+    //region AliyunOssSetting
     private final AliyunOssSetting aliyunOssSetting = new AliyunOssSetting(this.aliyunOssBucketNameTextField,
                                                                            this.aliyunOssAccessKeyTextField,
                                                                            this.aliyunOssAccessSecretKeyTextField,
@@ -249,7 +250,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                                                                            this.aliyunOssCustomEndpointTextField,
                                                                            this.aliyunOssCustomEndpointHelper,
                                                                            this.aliyunOssExampleTextField);
+    //endregion
 
+    //region BaiduBosSetting
     private final BaiduBosSetting baiduBosSetting = new BaiduBosSetting(this.baiduBosBucketNameTextField,
                                                                         this.baiduBosAccessKeyTextField,
                                                                         this.baiduBosAccessSecretKeyTextField,
@@ -259,6 +262,10 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                                                                         this.baiduBosCustomEndpointTextField,
                                                                         this.baiduBosCustomEndpointHelper,
                                                                         this.baiduBosExampleTextField);
+    //endregion
+
+    /** todo-dong4j : (2019年03月20日 13:25) [测试输入验证用] */
+    private JTextField myPort;
 
     /**
      * Project settings page
@@ -282,7 +289,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     @Override
     public JComponent createComponent() {
         this.initFromSettings();
-        return this.myMainPanel;
+        this.jScrollPane = new JScrollPane(this.myMainPanel);
+        return this.jScrollPane;
     }
 
     /**
