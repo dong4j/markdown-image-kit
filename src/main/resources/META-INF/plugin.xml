@@ -74,7 +74,15 @@
     ]]></description>
 
     <change-notes><![CDATA[
-     <p>1.1.0-RELEASE</p>
+      <p>1.2.0-RELEASE</p>
+      <ul>
+        <li>add baidu bos</li>
+      </ul>
+      <ul>
+        <li>添加百度云图床</li>
+       </ul>
+      <br/>
+      <p>1.1.0-RELEASE</p>
       <ul>
         <li>Delete com.intellij.modules.java, support WebStorm, PyCharm, GoLand</li>
         <li>Refactor dependencies, delete apache dependencies, reduce plug-in size</li>
