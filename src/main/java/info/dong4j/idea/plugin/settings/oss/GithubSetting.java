@@ -178,6 +178,17 @@ public class GithubSetting implements OssSetting<GithubOssState> {
             JCheckBox checkBox = (JCheckBox) e.getSource();
             this.change(customDocumentAdapter, checkBox.isSelected());
         });
+
+        // 设置提示文字
+        this.customEndpointHelper.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                try {
+                    Desktop.getDesktop().browse(new URI(GithubSetting.this.getHelpDoc()));
+                } catch (Exception ignored) {
+                }
+            }
+        });
     }
 
     /**
@@ -237,16 +248,6 @@ public class GithubSetting implements OssSetting<GithubOssState> {
         this.customEndpointHelper.setForeground(JBColor.WHITE);
         // 设置鼠标样式
         this.customEndpointHelper.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        // 设置提示文字
-        this.customEndpointHelper.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                try {
-                    Desktop.getDesktop().browse(new URI(GithubSetting.this.getHelpDoc()));
-                } catch (Exception ignored) {
-                }
-            }
-        });
     }
 
     /**
