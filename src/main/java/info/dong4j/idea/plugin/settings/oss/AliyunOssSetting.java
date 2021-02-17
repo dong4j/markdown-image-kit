@@ -22,7 +22,9 @@
  * SOFTWARE.
  */
 
-package info.dong4j.idea.plugin.settings;
+package info.dong4j.idea.plugin.settings.oss;
+
+import info.dong4j.idea.plugin.settings.MikState;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -32,20 +34,20 @@ import javax.swing.JTextField;
 /**
  * <p>Company: 成都返空汇网络技术有限公司</p>
  * <p>Description:  </p>
- * todo-dong4j : (2021.02.16 01:27) [与 AliyunOssSetting 一起重构]
+ * todo-dong4j : (2021.02.16 01:27) [与 BaiduBosSetting 一起重构]
  *
  * @author dong4j
  * @version 1.0.0
  * @email "mailto:dong4j@fkhwl.com"
- * @date 2021.02.16 00:32
+ * @date 2021.02.16 00:28
  * @since 1.1.0
  */
-public class BaiduBosSetting extends AbstractOssSetting {
-    /** BAIDU_HELPER_DOC */
-    private static final String BAIDU_HELPER_DOC = "https://cloud.baidu.com/doc/BOS/s/ckaqihkra";
-
+public class AliyunOssSetting extends AbstractOssSetting<AliyunOssState> {
+    /** helperDoc */
+    private static final String ALIYUN_HELPER_DOC = "https://help.aliyun.com/document_detail/31836.html";
+    
     /**
-     * Baidu bos setting
+     * Aliyun oss setting
      *
      * @param bucketNameTextField      bucket name text field
      * @param accessKeyTextField       access key text field
@@ -58,15 +60,15 @@ public class BaiduBosSetting extends AbstractOssSetting {
      * @param exampleTextField         example text field
      * @since 1.1.0
      */
-    public BaiduBosSetting(JTextField bucketNameTextField,
-                           JTextField accessKeyTextField,
-                           JPasswordField accessSecretKeyTextField,
-                           JTextField endpointTextField,
-                           JTextField fileDirTextField,
-                           JCheckBox customEndpointCheckBox,
-                           JTextField customEndpointTextField,
-                           JLabel customEndpointHelper,
-                           JTextField exampleTextField) {
+    public AliyunOssSetting(JTextField bucketNameTextField,
+                            JTextField accessKeyTextField,
+                            JPasswordField accessSecretKeyTextField,
+                            JTextField endpointTextField,
+                            JTextField fileDirTextField,
+                            JCheckBox customEndpointCheckBox,
+                            JTextField customEndpointTextField,
+                            JLabel customEndpointHelper,
+                            JTextField exampleTextField) {
 
         super(bucketNameTextField,
               accessKeyTextField,
@@ -87,7 +89,7 @@ public class BaiduBosSetting extends AbstractOssSetting {
      */
     @Override
     protected String getHelpDoc() {
-        return BAIDU_HELPER_DOC;
+        return ALIYUN_HELPER_DOC;
     }
 
     /**
@@ -98,7 +100,7 @@ public class BaiduBosSetting extends AbstractOssSetting {
      */
     @Override
     protected String getKey() {
-        return MikState.BAIDU;
+        return MikState.ALIYUN;
     }
 
 }

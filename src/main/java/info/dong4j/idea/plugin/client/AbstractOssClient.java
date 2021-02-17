@@ -24,9 +24,9 @@
 
 package info.dong4j.idea.plugin.client;
 
-import info.dong4j.idea.plugin.settings.AbstractExtendOssState;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
+import info.dong4j.idea.plugin.settings.oss.AbstractExtendOssState;
 import info.dong4j.idea.plugin.util.StringUtils;
 
 import org.apache.http.util.Asserts;

@@ -26,6 +26,12 @@ package info.dong4j.idea.plugin.settings;
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.SuffixEnum;
+import info.dong4j.idea.plugin.settings.oss.AliyunOssState;
+import info.dong4j.idea.plugin.settings.oss.BaiduBosState;
+import info.dong4j.idea.plugin.settings.oss.GithubOssState;
+import info.dong4j.idea.plugin.settings.oss.QiniuOssState;
+import info.dong4j.idea.plugin.settings.oss.TencentOssState;
+import info.dong4j.idea.plugin.settings.oss.WeiboOssState;
 
 import lombok.Data;
 

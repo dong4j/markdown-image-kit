@@ -26,6 +26,8 @@ package info.dong4j.idea.plugin.swing;
 
 import com.intellij.ui.JBColor;
 
+import info.dong4j.idea.plugin.util.StringUtils;
+
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
@@ -57,9 +59,7 @@ public class JTextFieldHintListener implements FocusListener {
     public JTextFieldHintListener(JTextField jTextField, String hintText) {
         this.textField = jTextField;
         this.hintText = hintText;
-        // 默认直接显示
-        jTextField.setText(hintText);
-        jTextField.setForeground(JBColor.GRAY);
+        init(jTextField, hintText);
     }
 
     /**
@@ -92,5 +92,32 @@ public class JTextFieldHintListener implements FocusListener {
             this.textField.setForeground(JBColor.GRAY);
             this.textField.setText(this.hintText);
         }
+    }
+
+    /**
+     * Init
+     *
+     * @param jTextField j text field
+     * @param hintText   hint text
+     * @since 1.4.0
+     */
+    public static void init(JTextField jTextField, String hintText) {
+        if (StringUtils.isBlank(jTextField.getText().trim())) {
+            // 默认直接显示
+            jTextField.setText(hintText);
+            jTextField.setForeground(JBColor.GRAY);
+        }
+    }
+
+    /**
+     * 获取真实的 text
+     *
+     * @param jTextField j text field
+     * @param hintText   hint text
+     * @return the string
+     * @since 1.4.0
+     */
+    public static String getRealText(JTextField jTextField, String hintText) {
+        return jTextField.getText().trim().equals(hintText) ? "" : jTextField.getText().trim();
     }
 }

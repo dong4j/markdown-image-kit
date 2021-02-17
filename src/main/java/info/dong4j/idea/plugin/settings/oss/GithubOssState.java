@@ -22,7 +22,9 @@
  * SOFTWARE.
  */
 
-package info.dong4j.idea.plugin.settings;
+package info.dong4j.idea.plugin.settings.oss;
+
+import info.dong4j.idea.plugin.settings.OssState;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -35,22 +37,20 @@ import lombok.NoArgsConstructor;
  * @author dong4j
  * @version 1.0.0
  * @email "mailto:dong4j@fkhwl.com"
- * @date 2021.02.16 13:16
- * @since 1.1.0
+ * @date 2021.02.16 20:49
+ * @since 1.3.0
  */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public abstract class AbstractExtendOssState extends OssState {
+public class GithubOssState extends OssState {
 
     /** Endpoint */
-    private String endpoint = "";
+    private String repos = "";
     /** Access key */
-    private String accessKey = "";
+    private String branch = "";
     /** Access secret key */
-    private String accessSecretKey = "";
-    /** Bucket name */
-    private String bucketName = "";
+    private String token = "";
     /** Filedir */
     private String filedir = "";
     /** Custom endpoint */

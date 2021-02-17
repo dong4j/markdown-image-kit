@@ -22,37 +22,37 @@
  * SOFTWARE.
  */
 
-package info.dong4j.idea.plugin.settings;
+package info.dong4j.idea.plugin.settings.oss;
+
+import info.dong4j.idea.plugin.enums.ZoneEnum;
+import info.dong4j.idea.plugin.settings.OssState;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
- * <p>Company: 成都返空汇网络技术有限公司</p>
- * <p>Description:  </p>
+ * <p>Company: no company</p>
+ * <p>Description: </p>
  *
  * @author dong4j
- * @version 1.0.0
- * @email "mailto:dong4j@fkhwl.com"
- * @date 2021.02.16 20:49
- * @since 1.3.0
+ * @version 0.0.1
+ * @email "mailto:dong4j@gmail.com"
+ * @date 2019.03.19 19:55
+ * @since 0.0.1
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-public class GithubOssState extends OssState {
-
+public class QiniuOssState extends OssState {
     /** Endpoint */
-    private String repos = "";
+    private String endpoint = "";
     /** Access key */
-    private String branch = "";
+    private String accessKey = "";
     /** Access secret key */
-    private String token = "";
-    /** Filedir */
-    private String filedir = "";
-    /** Custom endpoint */
-    private String customEndpoint = "";
-    /** Is custom endpoint */
-    private Boolean isCustomEndpoint = false;
+    private String accessSecretKey = "";
+    /** Bucket name */
+    private String bucketName = "";
+    /** Zone index */
+    private int zoneIndex = ZoneEnum.EAST_CHINA.index;
 }

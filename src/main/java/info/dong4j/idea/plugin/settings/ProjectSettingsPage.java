@@ -34,11 +34,15 @@ import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.HelpType;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
-import info.dong4j.idea.plugin.enums.ZoneEnum;
 import info.dong4j.idea.plugin.notify.MikNotification;
+import info.dong4j.idea.plugin.settings.oss.AliyunOssSetting;
+import info.dong4j.idea.plugin.settings.oss.BaiduBosSetting;
+import info.dong4j.idea.plugin.settings.oss.GithubSetting;
+import info.dong4j.idea.plugin.settings.oss.QiniuOssSetting;
+import info.dong4j.idea.plugin.settings.oss.TencentOssSetting;
+import info.dong4j.idea.plugin.settings.oss.WeiboOssSetting;
 import info.dong4j.idea.plugin.swing.JTextFieldHintListener;
 import info.dong4j.idea.plugin.util.ClientUtils;
-import info.dong4j.idea.plugin.util.DES;
 import info.dong4j.idea.plugin.util.StringUtils;
 
 import org.jetbrains.annotations.Nls;
@@ -76,7 +80,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ProjectSettingsPage implements SearchableConfigurable, Configurable.NoScroll {
     /** TEST_FILE_NAME */
-    static final String TEST_FILE_NAME = "mik.png";
+    public static final String TEST_FILE_NAME = "mik.png";
 
     /** Config */
     private final MikPersistenComponent config;
@@ -260,6 +264,10 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JCheckBox defaultCloudCheckBox;
     //endregion
 
+    //region WeiboOssSetting
+    private final WeiboOssSetting weiboOssSetting = new WeiboOssSetting(this.weiboUserNameTextField, this.weiboPasswordField);
+    //endregion
+
     //region AliyunOssSetting
     private final AliyunOssSetting aliyunOssSetting = new AliyunOssSetting(this.aliyunOssBucketNameTextField,
                                                                            this.aliyunOssAccessKeyTextField,
@@ -293,6 +301,27 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                                                                   this.githubCustomEndpointTextField,
                                                                   this.githubCustomEndpointHelper,
                                                                   this.githubExampleTextField);
+    //endregion
+
+    //region QiniuOssSetting
+    private final QiniuOssSetting qiniuOssSetting = new QiniuOssSetting(this.qiniuOssBucketNameTextField,
+                                                                        this.qiniuOssAccessKeyTextField,
+                                                                        this.qiniuOssAccessSecretKeyTextField,
+                                                                        this.qiniuOssUpHostTextField,
+                                                                        this.qiniuOssEastChinaRadioButton,
+                                                                        this.qiniuOssNortChinaRadioButton,
+                                                                        this.qiniuOssSouthChinaRadioButton,
+                                                                        this.qiniuOssNorthAmeriaRadioButton,
+                                                                        this.zoneIndexTextFiled,
+                                                                        this.testButton,
+                                                                        this.testMessage);
+    //endregion
+
+    //region TencentOssSetting
+    private final TencentOssSetting tencentOssSetting = new TencentOssSetting(this.tencentBacketNameTextField,
+                                                                              this.tencentAccessKeyTextField,
+                                                                              this.tencentSecretKeyTextField,
+                                                                              this.tencentRegionNameTextField);
     //endregion
 
     /** todo-dong4j : (2019年03月20日 13:25) [测试输入验证用] */
@@ -405,13 +434,13 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             log.trace("change {}", this.authorizationTabbedPanel.getTitleAt(this.authorizationTabbedPanel.getSelectedIndex()));
         });
 
+        this.weiboOssSetting.init(this.config.getState().getWeiboOssState());
         this.aliyunOssSetting.init(this.config.getState().getAliyunOssState());
         this.baiduBosSetting.init(this.config.getState().getBaiduBosState());
         this.githubSetting.init(this.config.getState().getGithubOssState());
+        this.qiniuOssSetting.init(this.config.getState().getQiniuOssState());
+        this.tencentOssSetting.init(this.config.getState().getTencentOssState());
 
-        this.initWeiboOssAuthenticationPanel();
-        this.initQiniuOssAuthenticationPanel(state);
-        this.initTencentOssAuthorizationPanelPanel(state);
         this.testAndHelpListener();
     }
 
@@ -471,79 +500,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                 BrowserUtil.browse(url);
             }
         });
-    }
-
-    /**
-     * 初始化 weibo oss 认证相关设置
-     *
-     * @since 0.0.1
-     */
-    private void initWeiboOssAuthenticationPanel() {
-        this.weiboUserNameTextField.setText(this.config.getState().getWeiboOssState().getUserName());
-        this.weiboPasswordField.setText(DES.decrypt(this.config.getState().getWeiboOssState().getPassword(), MikState.WEIBOKEY));
-    }
-
-    /**
-     * 初始化 qiniu oss 认证相关设置
-     *
-     * @param state state
-     * @since 0.0.1
-     */
-    private void initQiniuOssAuthenticationPanel(@NotNull MikState state) {
-        QiniuOssState qiniuOssState = state.getQiniuOssState();
-        this.qiniuOssAccessSecretKeyTextField.setText(DES.decrypt(qiniuOssState.getAccessSecretKey(), MikState.QINIU));
-
-        this.qiniuOssUpHostTextField.addFocusListener(new JTextFieldHintListener(this.qiniuOssUpHostTextField, "http(s)://domain/"));
-
-        ButtonGroup group = new ButtonGroup();
-        this.qiniuOssEastChinaRadioButton.setMnemonic(ZoneEnum.EAST_CHINA.index);
-        this.qiniuOssNortChinaRadioButton.setMnemonic(ZoneEnum.NORT_CHINA.index);
-        this.qiniuOssSouthChinaRadioButton.setMnemonic(ZoneEnum.SOUTH_CHINA.index);
-        this.qiniuOssNorthAmeriaRadioButton.setMnemonic(ZoneEnum.NORTH_AMERIA.index);
-        this.addZoneRadioButton(group, this.qiniuOssEastChinaRadioButton);
-        this.addZoneRadioButton(group, this.qiniuOssNortChinaRadioButton);
-        this.addZoneRadioButton(group, this.qiniuOssSouthChinaRadioButton);
-        this.addZoneRadioButton(group, this.qiniuOssNorthAmeriaRadioButton);
-
-        this.qiniuOssEastChinaRadioButton.setSelected(qiniuOssState.getZoneIndex() == this.qiniuOssEastChinaRadioButton.getMnemonic());
-        this.qiniuOssNortChinaRadioButton.setSelected(qiniuOssState.getZoneIndex() == this.qiniuOssNortChinaRadioButton.getMnemonic());
-        this.qiniuOssSouthChinaRadioButton.setSelected(qiniuOssState.getZoneIndex() == this.qiniuOssSouthChinaRadioButton.getMnemonic());
-        this.qiniuOssNorthAmeriaRadioButton.setSelected(qiniuOssState.getZoneIndex() == this.qiniuOssNorthAmeriaRadioButton.getMnemonic());
-    }
-
-    /**
-     * 处理被选中的 zone 单选框
-     *
-     * @param group  the group
-     * @param button the button
-     * @since 0.0.1
-     */
-    private void addZoneRadioButton(@NotNull ButtonGroup group, JRadioButton button) {
-        group.add(button);
-        ActionListener actionListener = e -> {
-            Object sourceObject = e.getSource();
-            if (sourceObject instanceof JRadioButton) {
-                JRadioButton sourceButton = (JRadioButton) sourceObject;
-                this.zoneIndexTextFiled.setText(String.valueOf(sourceButton.getMnemonic()));
-                this.testMessage.setText("");
-                this.testButton.setText("Test Upload");
-            }
-        };
-        button.addActionListener(actionListener);
-    }
-
-    /**
-     * 初始化 tencent oss 认证相关设置
-     *
-     * @param state state
-     * @since 0.0.1
-     */
-    private void initTencentOssAuthorizationPanelPanel(MikState state) {
-        TencentOssState tencentOssState = state.getTencentOssState();
-        this.tencentSecretKeyTextField.setText(DES.decrypt(tencentOssState.getSecretKey(), MikState.TENCENT));
-        this.tencentAccessKeyTextField.setText(tencentOssState.getAccessKey());
-        this.tencentRegionNameTextField.setText(tencentOssState.getRegionName());
-        this.tencentBacketNameTextField.setText(tencentOssState.getBucketName());
     }
 
     /**
@@ -748,83 +704,12 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         return !(this.aliyunOssSetting.isModified(state.getAliyunOssState())
                  && this.baiduBosSetting.isModified(state.getBaiduBosState())
                  && this.githubSetting.isModified(state.getGithubOssState())
-                 && this.isWeiboAuthModified(state)
-                 && this.isQiniuAuthModified(state)
-                 && this.isTencentAuthModified(state)
+                 && this.weiboOssSetting.isModified(state.getWeiboOssState())
+                 && this.qiniuOssSetting.isModified(state.getQiniuOssState())
+                 && this.tencentOssSetting.isModified(state.getTencentOssState())
                  && this.isGeneralModified(state)
                  && this.isClipboardModified(state)
         );
-    }
-
-    /**
-     * Is weibo auth modified
-     *
-     * @param state state
-     * @return the boolean
-     * @since 0.0.1
-     */
-    private boolean isWeiboAuthModified(@NotNull MikState state) {
-        WeiboOssState weiboOssState = state.getWeiboOssState();
-        String weiboUsername = this.weiboUserNameTextField.getText().trim();
-        String weiboPassword = new String(this.weiboPasswordField.getPassword());
-        if (StringUtils.isNotBlank(weiboPassword)) {
-            weiboPassword = DES.encrypt(weiboPassword, MikState.WEIBOKEY);
-        }
-        return weiboUsername.equals(weiboOssState.getUserName())
-               && weiboPassword.equals(weiboOssState.getPassword());
-    }
-
-    /**
-     * Is qiniu auth modified
-     *
-     * @param state state
-     * @return the boolean
-     * @since 0.0.1
-     */
-    private boolean isQiniuAuthModified(@NotNull MikState state) {
-        QiniuOssState qiniuOssState = state.getQiniuOssState();
-        String bucketName = this.qiniuOssBucketNameTextField.getText().trim();
-        String accessKey = this.qiniuOssAccessKeyTextField.getText().trim();
-        String secretKey = new String(this.qiniuOssAccessSecretKeyTextField.getPassword());
-        if (StringUtils.isNotBlank(secretKey)) {
-            secretKey = DES.encrypt(secretKey, MikState.QINIU);
-        }
-        // todo-dong4j : (2019年03月19日 21:01) [重构为 domain]
-        String endpoint = this.qiniuOssUpHostTextField.getText().trim();
-        // todo-dong4j : (2019年03月19日 21:13) [zone]
-        int zoneIndex = Integer.parseInt(this.zoneIndexTextFiled.getText());
-
-        return bucketName.equals(qiniuOssState.getBucketName())
-               && accessKey.equals(qiniuOssState.getAccessKey())
-               && secretKey.equals(qiniuOssState.getAccessSecretKey())
-               && zoneIndex == qiniuOssState.getZoneIndex()
-               && endpoint.equals(qiniuOssState.getEndpoint());
-    }
-
-    /**
-     * Is tencent auth modified
-     *
-     * @param state state
-     * @return the boolean
-     * @since 0.0.1
-     */
-    private boolean isTencentAuthModified(@NotNull MikState state) {
-        TencentOssState tencentOssState = state.getTencentOssState();
-        String secretKey = new String(this.tencentSecretKeyTextField.getPassword());
-
-        if (StringUtils.isNotBlank(secretKey)) {
-            secretKey = DES.encrypt(secretKey, MikState.QINIU);
-        }
-
-        String bucketName = this.tencentBacketNameTextField.getText().trim();
-        String accessKey = this.tencentAccessKeyTextField.getText().trim();
-
-        String regionName = this.tencentRegionNameTextField.getText().trim();
-
-        return bucketName.equals(tencentOssState.getBucketName())
-               && accessKey.equals(tencentOssState.getAccessKey())
-               && secretKey.equals(tencentOssState.getSecretKey())
-               && regionName.equals(tencentOssState.getRegionName());
     }
 
     /**
@@ -912,44 +797,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.aliyunOssSetting.apply(state.getAliyunOssState());
         this.baiduBosSetting.apply(state.getBaiduBosState());
         this.githubSetting.apply(state.getGithubOssState());
-        this.applyQiniuAuthConfigs(state);
-        this.applyTencentAuthConfigs(state);
+        this.qiniuOssSetting.apply(state.getQiniuOssState());
+        this.tencentOssSetting.apply(state.getTencentOssState());
+        this.weiboOssSetting.apply(state.getWeiboOssState());
         this.applyGeneralConfigs(state);
         this.applyClipboardConfigs(state);
-        this.applyWeiboAuthConfigs(state);
-    }
-
-    /**
-     * Apply qiniu auth configs
-     *
-     * @param state state
-     * @since 0.0.1
-     */
-    private void applyQiniuAuthConfigs(@NotNull MikState state) {
-        QiniuOssState qiniuOssState = state.getQiniuOssState();
-        // todo-dong4j : (2019年03月19日 21:01) [重构为 domain]
-        String endpoint = this.qiniuOssUpHostTextField.getText().trim();
-        // todo-dong4j : (2019年03月19日 21:13) [zone]
-        String bucketName = this.qiniuOssBucketNameTextField.getText().trim();
-        String accessKey = this.qiniuOssAccessKeyTextField.getText().trim();
-        String secretKey = new String(this.qiniuOssAccessSecretKeyTextField.getPassword());
-        int zoneIndex = Integer.parseInt(this.zoneIndexTextFiled.getText());
-        // 需要在加密之前计算 hashcode
-        int hashcode = bucketName.hashCode() +
-                       accessKey.hashCode() +
-                       secretKey.hashCode() +
-                       zoneIndex +
-                       endpoint.hashCode();
-        OssState.saveStatus(qiniuOssState, hashcode, MikState.NEW_HASH_KEY);
-
-        if (StringUtils.isNotBlank(secretKey)) {
-            secretKey = DES.encrypt(secretKey, MikState.QINIU);
-        }
-        qiniuOssState.setBucketName(bucketName);
-        qiniuOssState.setAccessKey(accessKey);
-        qiniuOssState.setAccessSecretKey(secretKey);
-        qiniuOssState.setEndpoint(endpoint);
-        qiniuOssState.setZoneIndex(zoneIndex);
     }
 
     /**
@@ -1000,60 +852,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     /**
-     * Apply weibo auth configs
-     *
-     * @param state state
-     * @since 0.0.1
-     */
-    private void applyWeiboAuthConfigs(@NotNull MikState state) {
-        WeiboOssState weiboOssState = state.getWeiboOssState();
-        // 处理 weibo 保存时的逻辑 (保存之前必须通过测试, 右键菜单才可用)
-        String username = this.weiboUserNameTextField.getText().trim();
-        String password = new String(this.weiboPasswordField.getPassword());
-        // 需要在加密之前计算 hashcode
-        int hashcode = username.hashCode() + password.hashCode();
-        OssState.saveStatus(weiboOssState, hashcode, MikState.NEW_HASH_KEY);
-
-        if (StringUtils.isNotBlank(password)) {
-            password = DES.encrypt(password, MikState.WEIBOKEY);
-        }
-
-        weiboOssState.setUserName(username);
-        weiboOssState.setPassword(password);
-    }
-
-    /**
-     * Apply tencent auth configs
-     *
-     * @param state state
-     * @since 0.0.1
-     */
-    private void applyTencentAuthConfigs(@NotNull MikState state) {
-        TencentOssState tencentOssState = state.getTencentOssState();
-
-        String accessKey = this.tencentAccessKeyTextField.getText().trim();
-        String secretKey = new String(this.tencentSecretKeyTextField.getPassword());
-        String regionName = this.tencentRegionNameTextField.getText().trim();
-        String bucketName = this.tencentBacketNameTextField.getText().trim();
-        // 需要在加密之前计算 hashcode
-        int hashcode = bucketName.hashCode() +
-                       accessKey.hashCode() +
-                       secretKey.hashCode() +
-                       regionName.hashCode();
-
-        OssState.saveStatus(tencentOssState, hashcode, MikState.NEW_HASH_KEY);
-
-        if (StringUtils.isNotBlank(secretKey)) {
-            secretKey = DES.encrypt(secretKey, MikState.TENCENT);
-        }
-
-        tencentOssState.setAccessKey(accessKey);
-        tencentOssState.setSecretKey(secretKey);
-        tencentOssState.setRegionName(regionName);
-        tencentOssState.setBucketName(bucketName);
-    }
-
-    /**
      * 撤回是调用
      *
      * @since 0.0.1
@@ -1066,54 +864,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.aliyunOssSetting.reset(state.getAliyunOssState());
         this.baiduBosSetting.reset(state.getBaiduBosState());
         this.githubSetting.reset(state.getGithubOssState());
-
-        this.resetQiniuunConfigs(state);
-        this.resetWeiboConfigs(state);
-        this.resetTencentConfigs(state);
+        this.tencentOssSetting.reset(state.getTencentOssState());
+        this.qiniuOssSetting.reset(state.getQiniuOssState());
+        this.weiboOssSetting.reset(state.getWeiboOssState());
         this.resetGeneralCOnfigs(state);
         this.resetClipboardConfigs(state);
-    }
-
-    /**
-     * Reset qiniuun configs
-     *
-     * @param state state
-     * @since 0.0.1
-     */
-    private void resetQiniuunConfigs(@NotNull MikState state) {
-        QiniuOssState qiniuOssState = state.getQiniuOssState();
-        this.qiniuOssBucketNameTextField.setText(qiniuOssState.getBucketName());
-        this.qiniuOssAccessKeyTextField.setText(qiniuOssState.getAccessKey());
-        String accessSecretKey = qiniuOssState.getAccessSecretKey();
-        this.qiniuOssAccessSecretKeyTextField.setText(DES.decrypt(accessSecretKey, MikState.QINIU));
-        this.qiniuOssUpHostTextField.setText(qiniuOssState.getEndpoint());
-        this.zoneIndexTextFiled.setText(String.valueOf(qiniuOssState.getZoneIndex()));
-    }
-
-    /**
-     * Reset weibo configs
-     *
-     * @param state state
-     * @since 0.0.1
-     */
-    private void resetWeiboConfigs(@NotNull MikState state) {
-        WeiboOssState weiboOssState = state.getWeiboOssState();
-        this.weiboUserNameTextField.setText(weiboOssState.getUserName());
-        this.weiboPasswordField.setText(DES.decrypt(weiboOssState.getPassword(), MikState.WEIBOKEY));
-    }
-
-    /**
-     * Reset tencent configs
-     *
-     * @param state state
-     * @since 0.0.1
-     */
-    private void resetTencentConfigs(@NotNull MikState state) {
-        TencentOssState tencentOssState = state.getTencentOssState();
-        this.tencentAccessKeyTextField.setText(tencentOssState.getAccessKey());
-        this.tencentRegionNameTextField.setText(tencentOssState.getRegionName());
-        this.tencentBacketNameTextField.setText(tencentOssState.getBucketName());
-        this.tencentSecretKeyTextField.setText(DES.decrypt(tencentOssState.getSecretKey(), MikState.TENCENT));
     }
 
     /**
