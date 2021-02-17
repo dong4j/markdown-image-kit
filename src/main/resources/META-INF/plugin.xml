@@ -74,6 +74,14 @@
     ]]></description>
 
     <change-notes><![CDATA[
+      <p>1.5.0-RELEASE</p>
+      <ul>
+        <li>Add custom image bed support, <a href="https://github.com/dong4j/mik-help">API demo</a> </li>
+      </ul>
+      <ul>
+        <li>添加自定义图床支持, <a href="https://github.com/dong4j/mik-help">API 示例</a></li>
+      </ul>
+      <br/>
       <p>1.4.0-RELEASE</p>
       <ul>
         <li>support gitee</li>

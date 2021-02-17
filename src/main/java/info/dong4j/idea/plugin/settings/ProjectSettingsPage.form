@@ -8,7 +8,7 @@
     <properties>
       <autoscrolls value="true"/>
       <minimumSize width="200" height="400"/>
-      <preferredSize width="695" height="830"/>
+      <preferredSize width="695" height="890"/>
     </properties>
     <border type="none" title="    Authorization Settings" noi18n="true"/>
     <children>
