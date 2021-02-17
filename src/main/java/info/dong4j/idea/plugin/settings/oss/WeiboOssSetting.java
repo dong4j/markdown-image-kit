@@ -72,8 +72,8 @@ public class WeiboOssSetting implements OssSetting<WeiboOssState> {
      */
     @Override
     public void init(WeiboOssState weiboOssState) {
-        this.weiboUserNameTextField.setText(weiboOssState.getUserName());
-        this.weiboPasswordField.setText(DES.decrypt(weiboOssState.getPassword(), MikState.WEIBOKEY));
+        this.weiboUserNameTextField.setText(weiboOssState.getUsername());
+        this.weiboPasswordField.setText(DES.decrypt(weiboOssState.getSecretkey(), MikState.WEIBOKEY));
     }
 
     /**
@@ -90,8 +90,8 @@ public class WeiboOssSetting implements OssSetting<WeiboOssState> {
         if (StringUtils.isNotBlank(weiboPassword)) {
             weiboPassword = DES.encrypt(weiboPassword, MikState.WEIBOKEY);
         }
-        return weiboUsername.equals(state.getUserName())
-               && weiboPassword.equals(state.getPassword());
+        return weiboUsername.equals(state.getUsername())
+               && weiboPassword.equals(state.getSecretkey());
     }
 
     /**
@@ -113,8 +113,8 @@ public class WeiboOssSetting implements OssSetting<WeiboOssState> {
             password = DES.encrypt(password, MikState.WEIBOKEY);
         }
 
-        state.setUserName(username);
-        state.setPassword(password);
+        state.setUsername(username);
+        state.setSecretkey(password);
     }
 
     /**
@@ -125,7 +125,7 @@ public class WeiboOssSetting implements OssSetting<WeiboOssState> {
      */
     @Override
     public void reset(WeiboOssState state) {
-        this.weiboUserNameTextField.setText(state.getUserName());
-        this.weiboPasswordField.setText(DES.decrypt(state.getPassword(), MikState.WEIBOKEY));
+        this.weiboUserNameTextField.setText(state.getUsername());
+        this.weiboPasswordField.setText(DES.decrypt(state.getSecretkey(), MikState.WEIBOKEY));
     }
 }

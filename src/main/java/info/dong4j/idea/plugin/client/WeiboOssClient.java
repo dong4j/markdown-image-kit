@@ -83,8 +83,8 @@ public class WeiboOssClient implements OssClient {
      */
     private static void init() {
         WeiboOssState weiboOssState = MikPersistenComponent.getInstance().getState().getWeiboOssState();
-        String username = weiboOssState.getUserName();
-        String password = DES.decrypt(weiboOssState.getPassword(), MikState.WEIBOKEY);
+        String username = weiboOssState.getUsername();
+        String password = DES.decrypt(weiboOssState.getSecretkey(), MikState.WEIBOKEY);
 
         try {
             ossClient = new UploadRequestBuilder()
