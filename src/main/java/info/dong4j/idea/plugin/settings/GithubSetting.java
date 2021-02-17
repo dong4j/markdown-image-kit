@@ -161,6 +161,10 @@ public class GithubSetting {
             this.reposTextField.addFocusListener(new JTextFieldHintListener(this.reposTextField, "格式: owner/repos"));
         }
 
+        if (StringUtils.isBlank(this.branchTextField.getText().trim())) {
+            this.branchTextField.addFocusListener(new JTextFieldHintListener(this.reposTextField, "使用 main 代替 master"));
+        }
+
         this.reposTextField.getDocument().addDocumentListener(documentAdapter);
         this.fileDirTextField.getDocument().addDocumentListener(documentAdapter);
 

@@ -110,9 +110,6 @@ public class GithubUtils {
         try (DataOutputStream dos = new DataOutputStream(connection.getOutputStream())) {
             String content = Base64Utils.encodeToString(FileUtil.adaptiveLoadBytes(fileStream));
 
-            // 主分支兼容处理
-            branch = StringUtils.isNotBlank(branch) && branch.equals("master") ? "main" : branch;
-
             GithubRequest request = GithubRequest.builder()
                 .message("markdown-image-kit uploaded")
                 .branch(branch)

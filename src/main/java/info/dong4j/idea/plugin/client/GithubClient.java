@@ -212,7 +212,8 @@ public class GithubClient implements OssClient {
 
         GithubClient.repos = repos;
         GithubClient.filedir = filedir;
-        GithubClient.branch = branch;
+        // 主分支兼容处理
+        GithubClient.branch = StringUtils.isNotBlank(branch) && branch.equals("master") ? "main" : branch;
         GithubClient.token = token;
         GithubClient.customEndpoint = customEndpoint;
         GithubClient.isCustomEndpoint = isCustomEndpoint;
