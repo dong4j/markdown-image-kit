@@ -95,19 +95,25 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
         }
 
         String imageUrl = null;
+
         try {
             imageUrl = data.getClient().upload(markdownImage.getInputStream(), markdownImage.getImageName());
         } catch (Exception ignored) {
         }
+
+        String mark;
+        // 如果上传失败, 则只修改 ![], 避免丢失原始格式
         if (StringUtils.isBlank(imageUrl)) {
-            imageUrl = "upload error";
+            mark = "![upload error](" + markdownImage.getPath() + ")";
             markdownImage.setLocation(ImageLocationEnum.LOCAL);
+        } else {
+            mark = "![](" + imageUrl + ")";
+            markdownImage.setPath(imageUrl);
+            markdownImage.setLocation(ImageLocationEnum.NETWORK);
         }
-        String mark = "![](" + imageUrl + ")";
+
         markdownImage.setOriginalLineText(mark);
         markdownImage.setOriginalMark(mark);
-        markdownImage.setPath(imageUrl);
-        markdownImage.setLocation(ImageLocationEnum.NETWORK);
         markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
         markdownImage.setFinalMark(mark);
     }
