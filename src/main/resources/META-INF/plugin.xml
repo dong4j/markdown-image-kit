@@ -54,6 +54,9 @@
         <li>The bed migration plan, the free flow is used up? It is not ok to move to another free map bed;</li>
     </ul>
     <br/>
+    <p>Warning: if you synchronize the settings of the IDE to github/gitee, please set the repository to private, otherwise the key may be exposed</p>
+    <br/>
+    <br/>
     <br/>
     <p><b>Markdown Image Kit</b> 是一款在 IDEA 中方便高效得管理 Markdown 文档图片的插件.</p>
     <p>在 IntelliJ IDEA 中写作(主要是技术文档), 配图成了一个大问题, 我们需要借助其他 APP 来完成这一操作.</p>
@@ -70,6 +73,9 @@
         <li>图床迁移计划, 免费流量用完了? 迁移到另一个免费图床不就 ok 了;</li>
     </ul>
     <br/>
+    <p>警告, 如果将 IDE 的设置同步到 github/gitee, 请将仓库设置为私有, 否则有可能暴露密钥.</p>
+    <br/>
+    <br/>
     <br/>
     ]]></description>
 
@@ -77,9 +83,13 @@
       <p>1.5.0-RELEASE</p>
       <ul>
         <li>Add custom image bed support, <a href="https://github.com/dong4j/mik-help">API demo</a> </li>
+        <li>Fix the problem that the settings page may not be opened after the old version is updated</li>
+        <li>Fix the problem of IDEA Core errors caused by sensitive fields</li>
       </ul>
       <ul>
         <li>添加自定义图床支持, <a href="https://github.com/dong4j/mik-help">API 示例</a></li>
+        <li>修复老版本更新后可能打不开设置页的问题</li>
+        <li>修复敏感字段导致 IDEA Core 错误的问题</li>
       </ul>
       <br/>
       <p>1.4.0-RELEASE</p>
