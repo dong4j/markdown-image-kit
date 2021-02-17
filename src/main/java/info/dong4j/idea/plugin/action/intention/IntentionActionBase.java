@@ -190,7 +190,6 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
         int documentLine = document.getLineNumber(editor.getCaretModel().getOffset());
         VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
 
-        MarkdownImage matchImageMark = MarkdownUtils.analysisImageMark(virtualFile, this.getLineText(editor), documentLine);
-        return matchImageMark;
+        return MarkdownUtils.analysisImageMark(virtualFile, this.getLineText(editor), documentLine);
     }
 }

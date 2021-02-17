@@ -215,6 +215,9 @@
         <action id="GithubObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadGithubCloudAction"
                 popup="true" text="上传到 GitHub">
         </action>
+        <action id="GiteeObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadGiteeCloudAction"
+                popup="true" text="上传到 Gitee">
+        </action>
 
         <action id="ImageCompressAction" class="info.dong4j.idea.plugin.action.image.ImageCompressAction"
                 popup="true" text="图片压缩">
@@ -241,6 +244,7 @@
             <reference ref="TencentObjectStorageServiceAction"/>
             <reference ref="BaiduObjectStorageServiceAction"/>
             <reference ref="GithubObjectStorageServiceAction"/>
+            <reference ref="GiteeObjectStorageServiceAction"/>
             <separator/>
             <reference ref="ImageCompressAction"/>
             <reference ref="ImageUploadAction"/>
@@ -263,6 +267,7 @@
             <reference ref="TencentObjectStorageServiceAction"/>
             <reference ref="BaiduObjectStorageServiceAction"/>
             <reference ref="GithubObjectStorageServiceAction"/>
+            <reference ref="GiteeObjectStorageServiceAction"/>
             <separator/>
             <reference ref="ImageCompressAction"/>
             <reference ref="ImageUploadAction"/>

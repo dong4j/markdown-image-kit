@@ -115,7 +115,7 @@ public class AliyunOssClient extends AbstractOssClient {
      * @since 1.1.0
      */
     @Override
-    protected void putObjects(String key, InputStream instream) throws IOException {
+    protected void putObjects(String key, InputStream instream) throws Exception {
         AliyunOssUtils.putObject(key,
                                  instream,
                                  bucketName,

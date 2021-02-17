@@ -79,6 +79,7 @@
                 <item value="Ucloud"/>
                 <item value="QingCloud"/>
                 <item value="GitHub"/>
+                <item value="Gitee"/>
                 <item value="自定义"/>
               </model>
             </properties>

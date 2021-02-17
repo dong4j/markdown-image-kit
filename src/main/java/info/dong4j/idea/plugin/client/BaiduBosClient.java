@@ -141,7 +141,7 @@ public class BaiduBosClient extends AbstractOssClient {
      * @since 1.1.0
      */
     @Override
-    protected void putObjects(String key, InputStream instream) throws IOException {
+    protected void putObjects(String key, InputStream instream) throws Exception {
         BaiduBosUtils.putObject(key,
                                 instream,
                                 bucketName,

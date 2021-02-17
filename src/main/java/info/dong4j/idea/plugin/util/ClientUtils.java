@@ -144,15 +144,11 @@ public final class ClientUtils {
                 Client clientAn = clz.getAnnotation(Client.class);
                 // 被 @Client 标记过的 client 才执行 getInstance 静态方法
                 if (clientAn != null) {
-                    try {
-                        Method method = clz.getMethod("getInstance");
-                        method.invoke(null);
-                        client = OssClient.INSTANCES.get(cloudEnum);
-                    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                        log.trace("", e);
-                    }
+                    Method method = clz.getMethod("getInstance");
+                    method.invoke(null);
+                    client = OssClient.INSTANCES.get(cloudEnum);
                 }
-            } catch (ClassNotFoundException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

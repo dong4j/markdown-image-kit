@@ -160,6 +160,8 @@ public abstract class OssState {
                 return false;
             case GITHUB:
                 return getStatus(state.getGithubOssState());
+            case GITEE:
+                return getStatus(state.getGiteeOssState());
             case CUSTOMIZE:
                 return false;
             default:

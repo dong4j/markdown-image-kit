@@ -39,17 +39,17 @@ import javax.swing.JTextField;
  * @version 1.0.0
  * @email "mailto:dong4j@fkhwl.com"
  * @date 2021.02.16 00:32
- * @since 1.3.0
+ * @since 1.4.0
  */
-public class GithubSetting extends AbstractOpenOssSetting<GithubOssState> {
+public class GiteeSetting extends AbstractOpenOssSetting<GiteeOssState> {
     /** BAIDU_HELPER_DOC formatter:off */
-private static final String HELPER_DOC = "https://docs.github.com/en/github/working-with-github-pages/configuring-a-custom-domain-for-your-github-pages-site";
+    private static final String HELPER_DOC = "https://gitee.com/help/articles/4228";
     /** formatter:on GITHUB_API */
-    private static final String GITHUB_API = "https://api.github.com";
+    private static final String GITEE_API = "https://gitee.com/api/v5";
     /** REPOS_HINT */
     private static final String REPOS_HINT = "格式: owner/repos";
     /** BRANCH_HINT */
-    private static final String BRANCH_HINT = "使用 main 代替 master";
+    private static final String BRANCH_HINT = "与 GitHub 不同, master 就是 master";
 
     /**
      * Baidu bos setting
@@ -64,14 +64,14 @@ private static final String HELPER_DOC = "https://docs.github.com/en/github/work
      * @param exampleTextField        example text field
      * @since 1.3.0
      */
-    public GithubSetting(JTextField reposTextField,
-                         JTextField branchTextField,
-                         JPasswordField tokenTextField,
-                         JTextField fileDirTextField,
-                         JCheckBox customEndpointCheckBox,
-                         JTextField customEndpointTextField,
-                         JLabel customEndpointHelper,
-                         JTextField exampleTextField) {
+    public GiteeSetting(JTextField reposTextField,
+                        JTextField branchTextField,
+                        JPasswordField tokenTextField,
+                        JTextField fileDirTextField,
+                        JCheckBox customEndpointCheckBox,
+                        JTextField customEndpointTextField,
+                        JLabel customEndpointHelper,
+                        JTextField exampleTextField) {
 
         super(reposTextField,
               branchTextField,
@@ -105,7 +105,7 @@ private static final String HELPER_DOC = "https://docs.github.com/en/github/work
      */
     @Override
     protected String getKey() {
-        return MikState.GITHUB;
+        return MikState.GITEE;
     }
 
     /**
@@ -116,7 +116,6 @@ private static final String HELPER_DOC = "https://docs.github.com/en/github/work
      */
     @Override
     protected String api() {
-        return GITHUB_API;
+        return GITEE_API;
     }
-
 }

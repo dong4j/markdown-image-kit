@@ -65,7 +65,7 @@ public class BaiduBosUtils {
                                    String accessKeyId,
                                    String secretAccessKey,
                                    boolean isCustomEndpoint,
-                                   String customEndpoint) throws IOException {
+                                   String customEndpoint) throws Exception {
         return AliyunOssUtils.putObject(key, content, ossBucket, endpoint, accessKeyId, secretAccessKey, isCustomEndpoint, customEndpoint);
         // // 1. UTC 时间
         // String date = getUTCDate();

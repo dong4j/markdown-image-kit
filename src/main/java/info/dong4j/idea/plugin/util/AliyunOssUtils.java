@@ -115,7 +115,7 @@ public class AliyunOssUtils {
                                    String accessKeyId,
                                    String secretAccessKey,
                                    boolean isCustomEndpoint,
-                                   String customEndpoint) throws IOException {
+                                   String customEndpoint) throws Exception {
         String date = getGMTDate();
         String signResourcePath = "/" + ossBucket + key;
         String signature = (hmacSha1(buildPutSignData(date, signResourcePath), secretAccessKey));

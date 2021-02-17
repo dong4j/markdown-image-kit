@@ -22,11 +22,11 @@
  * SOFTWARE.
  */
 
-package info.dong4j.idea.plugin.settings.oss;
+package info.dong4j.idea.plugin.util;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import info.dong4j.idea.plugin.enums.CloudEnum;
+
+import junit.framework.TestCase;
 
 /**
  * <p>Company: 成都返空汇网络技术有限公司</p>
@@ -35,12 +35,12 @@ import lombok.NoArgsConstructor;
  * @author dong4j
  * @version 1.0.0
  * @email "mailto:dong4j@fkhwl.com"
- * @date 2021.02.16 20:49
- * @since 1.3.0
+ * @date 2021.02.17 16:45
+ * @since 1.4.0
  */
-@Data
-@NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-public class GithubOssState extends AbstractOpenOssState {
+public class ClientUtilsTest extends TestCase {
 
+    public void test() {
+        ClientUtils.getClient(CloudEnum.GITEE);
+    }
 }

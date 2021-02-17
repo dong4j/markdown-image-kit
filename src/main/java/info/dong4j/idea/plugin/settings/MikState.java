@@ -28,6 +28,7 @@ import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.SuffixEnum;
 import info.dong4j.idea.plugin.settings.oss.AliyunOssState;
 import info.dong4j.idea.plugin.settings.oss.BaiduBosState;
+import info.dong4j.idea.plugin.settings.oss.GiteeOssState;
 import info.dong4j.idea.plugin.settings.oss.GithubOssState;
 import info.dong4j.idea.plugin.settings.oss.QiniuOssState;
 import info.dong4j.idea.plugin.settings.oss.TencentOssState;
@@ -59,6 +60,8 @@ public class MikState {
     public static final String TENCENT = "xg13g143fvsdklo)2,m.we_123vds12e!#41c";
     /** GITHUB */
     public static final String GITHUB = "ewrg23e!3t@2i_324ugfvz2r29_hfvgdfbd23";
+    /** GITEE */
+    public static final String GITEE = "ewgkrblkjgbj@T*&!B_wlkjvbjhavt87112fsd";
 
     /** OLD_HASH_KEY */
     public static final String OLD_HASH_KEY = "old";
@@ -77,6 +80,8 @@ public class MikState {
     private TencentOssState tencentOssState;
     /** Git hub oss state */
     private GithubOssState githubOssState;
+    /** Gitee oss state */
+    private GiteeOssState GiteeOssState;
 
     /** 是否替换标签 */
     private boolean changeToHtmlTag = false;
@@ -119,5 +124,6 @@ public class MikState {
         this.weiboOssState = new WeiboOssState();
         this.tencentOssState = new TencentOssState();
         this.githubOssState = new GithubOssState();
+        this.GiteeOssState = new GiteeOssState();
     }
 }

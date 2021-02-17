@@ -25,6 +25,7 @@
 package info.dong4j.idea.plugin.util;
 
 import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,18 +38,19 @@ import lombok.Data;
 /**
  * <p>Company: 成都返空汇网络技术有限公司 </p>
  * <p>Description: </p>
+ * https://gitee.com/api/v5/swagger#/postV5ReposOwnerRepoContentsPath
  *
  * @author dong4j
  * @version 1.0.0
  * @email "mailto:dong4j@gmail.com"
  * @date 2020.04.21 23:29
- * @since 1.3.0
+ * @since 1.4.0
  */
-public class GithubUtils {
-    /** GITHUB_API */
-    private static final String GITHUB_API = "https://api.github.com";
+public class GiteeUtils {
+    /** GITEE_API */
+    private static final String GITEE_API = "https://gitee.com/api/v5";
     /** DOWNLOAD_URL */
-    private static final String DOWNLOAD_URL = "https://raw.githubusercontent.com/{owner}/{repos}/{branch}{path}";
+    private static final String DOWNLOAD_URL = "https://gitee.com/{owner}/{repos}/raw/{branch}{path}";
 
     /**
      * Put oss obj string
@@ -68,8 +70,8 @@ public class GithubUtils {
                                  String branch,
                                  String token) throws Exception {
 
-        String url = GITHUB_API + "/repos/" + repos + "/contents" + key;
-        new GithubOpenAPI().create(url, content, token, branch);
+        String url = GITEE_API + "/repos/" + repos + "/contents" + key;
+        new GiteeOpenAPI().create(url, content, token, branch);
     }
 
     /**
@@ -82,7 +84,7 @@ public class GithubUtils {
      * @date 2021.02.17 15:42
      * @since 1.4.0
      */
-    private static class GithubOpenAPI implements OpenAPI {
+    private static class GiteeOpenAPI implements OpenAPI {
 
         /**
          * Build request
@@ -95,11 +97,12 @@ public class GithubUtils {
          */
         @Override
         public String buildRequest(String branch, String content, String token) {
-            return new Gson().toJson(GithubRequest.builder()
-                                         .message("markdown-image-kit uploaded")
-                                         .branch(branch)
-                                         .content(content)
-                                         .build());
+            return new Gson().toJson((GiteeRequest.builder()
+                .message("markdown-image-kit uploaded")
+                .branch(branch)
+                .content(content)
+                .token(token)
+                .build()));
         }
 
         /**
@@ -115,11 +118,11 @@ public class GithubUtils {
         public HttpURLConnection getHttpURLConnection(String url, String token) throws IOException {
             URL realUrl = new URL(url);
             HttpURLConnection connection = (HttpURLConnection) realUrl.openConnection();
-            connection.setConnectTimeout(5000);
-            connection.setReadTimeout(10000);
-            connection.setRequestMethod("PUT");
-            connection.setRequestProperty("Content-Type", "application/vnd.github.v3+json");
-            connection.setRequestProperty("Authorization", "token " + token);
+            connection.setConnectTimeout(3000);
+            connection.setReadTimeout(5000);
+            // 设置
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
             connection.setRequestProperty("User-Agent", "markdown-image-kit");
             return connection;
         }
@@ -132,12 +135,12 @@ public class GithubUtils {
      * @author dong4j
      * @version 1.0.0
      * @email "mailto:dong4j@fkhwl.com"
-     * @date 2021.02.16 20:17
-     * @since 1.3.0
+     * @date 2021.02.17 15:28
+     * @since 1.4.0
      */
     @Data
     @Builder
-    private static class GithubRequest {
+    private static class GiteeRequest {
         /** Message */
         private String message;
         /** Branch */
@@ -146,6 +149,10 @@ public class GithubUtils {
         private String content;
         /** Sha */
         private String sha;
+        /** Token */
+        @SerializedName(value = "access_token")
+        private String token;
     }
+
 
 }

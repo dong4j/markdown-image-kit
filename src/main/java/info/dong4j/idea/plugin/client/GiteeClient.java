@@ -28,12 +28,11 @@ import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.oss.AbstractOpenOssState;
-import info.dong4j.idea.plugin.settings.oss.GithubOssState;
+import info.dong4j.idea.plugin.settings.oss.GiteeOssState;
 import info.dong4j.idea.plugin.util.DES;
-import info.dong4j.idea.plugin.util.GithubUtils;
+import info.dong4j.idea.plugin.util.GiteeUtils;
 import info.dong4j.idea.plugin.util.StringUtils;
 
-import org.apache.http.util.Asserts;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -52,11 +51,11 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0.0
  * @email "mailto:dong4j@gmail.com"
  * @date 2020.04.22 01:17
- * @since 1.3.0
+ * @since 1.4.0
  */
 @Slf4j
-@Client(CloudEnum.GITHUB)
-public class GithubClient extends AbstractOpenClient {
+@Client(CloudEnum.GITEE)
+public class GiteeClient extends AbstractOpenClient {
 
     static {
         init();
@@ -66,13 +65,13 @@ public class GithubClient extends AbstractOpenClient {
      * 如果是第一次使用, ossClient == null, 使用持久化配置初始化
      * 1. 如果是第一次设置, 获取的持久化配置为 null, 则初始化 ossClient 失败
      *
-     * @since 1.3.0
+     * @since 1.4.0
      */
     private static void init() {
-        GithubOssState state = MikPersistenComponent.getInstance().getState().getGithubOssState();
+        GiteeOssState state = MikPersistenComponent.getInstance().getState().getGiteeOssState();
         repos = state.getRepos();
         branch = state.getBranch();
-        token = DES.decrypt(state.getToken(), MikState.GITHUB);
+        token = DES.decrypt(state.getToken(), MikState.GITEE);
         String tempFileDir = state.getFiledir();
         filedir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";
     }
@@ -81,14 +80,14 @@ public class GithubClient extends AbstractOpenClient {
      * Gets instance.
      *
      * @return the instance
-     * @since 1.3.0
+     * @since 1.4.0
      */
     @Contract(pure = true)
-    public static GithubClient getInstance() {
-        GithubClient client = (GithubClient) OssClient.INSTANCES.get(CloudEnum.GITHUB);
+    public static GiteeClient getInstance() {
+        GiteeClient client = (GiteeClient) OssClient.INSTANCES.get(CloudEnum.GITEE);
         if (client == null) {
             client = SingletonHandler.SINGLETON;
-            OssClient.INSTANCES.put(CloudEnum.GITHUB, client);
+            OssClient.INSTANCES.put(CloudEnum.GITEE, client);
         }
         return client;
     }
@@ -112,7 +111,23 @@ public class GithubClient extends AbstractOpenClient {
      */
     @Override
     protected AbstractOpenOssState getState() {
-        return MikPersistenComponent.getInstance().getState().getGithubOssState();
+        return MikPersistenComponent.getInstance().getState().getGiteeOssState();
+    }
+
+    /**
+     * Put objects
+     *
+     * @param key      key
+     * @param instream instream
+     * @since 1.3.0
+     */
+    @Override
+    protected void putObjects(String key, InputStream instream) throws Exception {
+        GiteeUtils.putObject(key,
+                             instream,
+                             repos,
+                             branch,
+                             token);
     }
 
     /**
@@ -122,51 +137,22 @@ public class GithubClient extends AbstractOpenClient {
      * @version 0.0.1
      * @email "mailto:dong4j@gmail.com"
      * @date 2020.04.22 01:17
-     * @since 1.3.0
+     * @since 1.4.0
      */
     private static class SingletonHandler {
         /** SINGLETON */
-        private static final GithubClient SINGLETON = new GithubClient();
+        private static final GiteeClient SINGLETON = new GiteeClient();
     }
 
     /**
      * 实现接口, 获取当前 client type
      *
      * @return the cloud typed
-     * @since 1.3.0
-     */
-    @Override
-    public CloudEnum getCloudType() {
-        return CloudEnum.GITHUB;
-    }
-
-    /**
-     * Process branch
-     *
-     * @param branch branch
-     * @return the string
      * @since 1.4.0
      */
     @Override
-    protected String processBranch(String branch) {
-        return StringUtils.isNotBlank(branch) && branch.equals("master") ? "main" : branch;
-    }
-
-    /**
-     * Put objects
-     *
-     * @param key      key
-     * @param instream instream
-     * @throws Exception exception
-     * @since 1.3.0
-     */
-    @Override
-    protected void putObjects(String key, InputStream instream) throws Exception {
-        GithubUtils.putObject(key,
-                              instream,
-                              repos,
-                              branch,
-                              token);
+    public CloudEnum getCloudType() {
+        return CloudEnum.GITEE;
     }
 
     /**
@@ -179,18 +165,8 @@ public class GithubClient extends AbstractOpenClient {
     @Override
     @NotNull
     public String buildImageUrl(String key) {
-        return "https://raw.githubusercontent.com/" + repos + "/" + branch + key;
-    }
-
-    /**
-     * Check
-     *
-     * @param branch
-     * @since 1.4.0
-     */
-    @Override
-    protected void check(String branch) {
-        Asserts.check(!branch.equals("master"), "error branch name");
+        // https://gitee.com/{owner}/{repos}/raw/{branch}{path};
+        return "https://gitee.com/" + repos + "/raw/" + branch + key;
     }
 
 }

@@ -37,6 +37,7 @@ import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.notify.MikNotification;
 import info.dong4j.idea.plugin.settings.oss.AliyunOssSetting;
 import info.dong4j.idea.plugin.settings.oss.BaiduBosSetting;
+import info.dong4j.idea.plugin.settings.oss.GiteeSetting;
 import info.dong4j.idea.plugin.settings.oss.GithubSetting;
 import info.dong4j.idea.plugin.settings.oss.QiniuOssSetting;
 import info.dong4j.idea.plugin.settings.oss.TencentOssSetting;
@@ -208,6 +209,27 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JTextField githubExampleTextField;
     //endregion
 
+    //region gitee
+    /** Git hub authorization panel */
+    private JPanel giteeAuthorizationPanel;
+    /** Git hub repos text field */
+    private JTextField giteeReposTextField;
+    /** Git hub branch text field */
+    private JTextField giteeBranchTextField;
+    /** Git hub token text field */
+    private JPasswordField giteeTokenTextField;
+    /** Git hub file dir text field */
+    private JTextField giteeFileDirTextField;
+    /** Git hub custom endpoint check box */
+    private JCheckBox giteeCustomEndpointCheckBox;
+    /** Git hubs custom endpoint text field */
+    private JTextField giteeCustomEndpointTextField;
+    /** Git hub custom endpoint helper */
+    private JLabel giteeCustomEndpointHelper;
+    /** Git hub example text field */
+    private JTextField giteeExampleTextField;
+    //endregion
+
     /** 按钮 group */
     private JButton testButton;
     /** Test message */
@@ -301,6 +323,17 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                                                                   this.githubCustomEndpointTextField,
                                                                   this.githubCustomEndpointHelper,
                                                                   this.githubExampleTextField);
+    //endregion
+
+    //region GiteeSetting
+    private final GiteeSetting giteeSetting = new GiteeSetting(this.giteeReposTextField,
+                                                               this.giteeBranchTextField,
+                                                               this.giteeTokenTextField,
+                                                               this.giteeFileDirTextField,
+                                                               this.giteeCustomEndpointCheckBox,
+                                                               this.giteeCustomEndpointTextField,
+                                                               this.giteeCustomEndpointHelper,
+                                                               this.giteeExampleTextField);
     //endregion
 
     //region QiniuOssSetting
@@ -438,6 +471,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.aliyunOssSetting.init(this.config.getState().getAliyunOssState());
         this.baiduBosSetting.init(this.config.getState().getBaiduBosState());
         this.githubSetting.init(this.config.getState().getGithubOssState());
+        this.giteeSetting.init(this.config.getState().getGiteeOssState());
         this.qiniuOssSetting.init(this.config.getState().getQiniuOssState());
         this.tencentOssSetting.init(this.config.getState().getTencentOssState());
 
@@ -477,6 +511,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                             this.customMessage.setText("");
                         }
                     }
+                    // 主动保存
+                    this.apply();
                     if (log.isTraceEnabled()) {
                         BrowserUtil.browse(url);
                     }
@@ -704,6 +740,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         return !(this.aliyunOssSetting.isModified(state.getAliyunOssState())
                  && this.baiduBosSetting.isModified(state.getBaiduBosState())
                  && this.githubSetting.isModified(state.getGithubOssState())
+                 && this.giteeSetting.isModified(state.getGiteeOssState())
                  && this.weiboOssSetting.isModified(state.getWeiboOssState())
                  && this.qiniuOssSetting.isModified(state.getQiniuOssState())
                  && this.tencentOssSetting.isModified(state.getTencentOssState())
@@ -797,6 +834,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.aliyunOssSetting.apply(state.getAliyunOssState());
         this.baiduBosSetting.apply(state.getBaiduBosState());
         this.githubSetting.apply(state.getGithubOssState());
+        this.giteeSetting.apply(state.getGiteeOssState());
         this.qiniuOssSetting.apply(state.getQiniuOssState());
         this.tencentOssSetting.apply(state.getTencentOssState());
         this.weiboOssSetting.apply(state.getWeiboOssState());
@@ -864,6 +902,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.aliyunOssSetting.reset(state.getAliyunOssState());
         this.baiduBosSetting.reset(state.getBaiduBosState());
         this.githubSetting.reset(state.getGithubOssState());
+        this.giteeSetting.reset(state.getGiteeOssState());
         this.tencentOssSetting.reset(state.getTencentOssState());
         this.qiniuOssSetting.reset(state.getQiniuOssState());
         this.weiboOssSetting.reset(state.getWeiboOssState());
