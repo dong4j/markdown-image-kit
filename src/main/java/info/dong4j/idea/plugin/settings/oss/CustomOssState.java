@@ -22,36 +22,34 @@
  * SOFTWARE.
  */
 
-package info.dong4j.idea.plugin.enums;
+package info.dong4j.idea.plugin.settings.oss;
+
+import info.dong4j.idea.plugin.settings.OssState;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 /**
  * <p>Company: no company</p>
- * <p>Description: ${description}</p>
+ * <p>Description: </p>
  *
  * @author dong4j
  * @version 0.0.1
  * @email "mailto:dong4j@gmail.com"
- * @date 2019.03.25 14:15
+ * @date 2021.02.14 18:40
  * @since 0.0.1
  */
-public enum HelpType {
-    /** Setting help type */
-    SETTING("setting"),
-    /** Nottify help type */
-    NOTTIFY("notify"),
-    /** Custom help type */
-    CUSTOM("custom");
-
-    /** Where */
-    public String where;
-
-    /**
-     * Help type
-     *
-     * @param where where
-     * @since 0.0.1
-     */
-    HelpType(String where) {
-        this.where = where;
-    }
+@EqualsAndHashCode(callSuper = true)
+@Data
+@NoArgsConstructor
+public class CustomOssState extends OssState {
+    /** api */
+    private String api = "http://127.0.0.1:8080/upload";
+    /** requestKey */
+    private String requestKey = "";
+    /** responseUrlPath */
+    private String responseUrlPath = "";
+    /** httpMethod */
+    private String httpMethod = "POST";
 }

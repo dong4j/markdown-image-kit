@@ -71,5 +71,4 @@ dependencies {
     testCompile 'junit:junit:4.13.1'
     compile 'net.coobird:thumbnailator:0.4.13'
     testCompile group: 'com.aliyun.oss', name: 'aliyun-sdk-oss', version: '3.8.1'
-    testCompile group: 'com.baidubce', name: 'bce-java-sdk', version: '0.10.153'
 }

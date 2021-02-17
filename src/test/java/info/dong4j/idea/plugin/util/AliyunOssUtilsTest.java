@@ -59,7 +59,7 @@ public class AliyunOssUtilsTest {
      * @since 1.1.0
      */
     @Test
-    public void test_1() throws IOException {
+    public void test_1() throws Exception {
 
         // key 必须使用 / 为前缀
         String putResult = AliyunOssUtils.putObject("/dddd.jpg",

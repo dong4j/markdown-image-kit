@@ -67,7 +67,7 @@ public enum CloudEnum {
     /** Gitee cloud enum */
     GITEE(12, "Gitee", "info.dong4j.idea.plugin.client.GiteeClient"),
     /** Customize cloud enum */
-    CUSTOMIZE(13, "自定义", "");
+    CUSTOMIZE(13, "自定义", "info.dong4j.idea.plugin.client.CustomOssClient");
 
     /** Index */
     public int index;

@@ -68,6 +68,8 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class MikNotification extends Notification {
+    /** CUSTOM_OSS_API_DEMO */
+    public static final String CUSTOM_OSS_API_DEMO = "https://github.com/dong4j/mik-help";
     /** ABOUT_BLANK */
     public static final String ABOUT_BLANK = "about:blank";
     /**
@@ -111,6 +113,9 @@ public class MikNotification extends Notification {
      * @since 0.0.1
      */
     public static String helpUrl(String where) {
+        if ("custom".equals(where)) {
+            return CUSTOM_OSS_API_DEMO;
+        }
         HelpResult helpResult = null;
 
         HttpClientBuilder builder = HttpClients.custom();

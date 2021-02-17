@@ -28,6 +28,7 @@ import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.SuffixEnum;
 import info.dong4j.idea.plugin.settings.oss.AliyunOssState;
 import info.dong4j.idea.plugin.settings.oss.BaiduBosState;
+import info.dong4j.idea.plugin.settings.oss.CustomOssState;
 import info.dong4j.idea.plugin.settings.oss.GiteeOssState;
 import info.dong4j.idea.plugin.settings.oss.GithubOssState;
 import info.dong4j.idea.plugin.settings.oss.QiniuOssState;
@@ -81,7 +82,9 @@ public class MikState {
     /** Git hub oss state */
     private GithubOssState githubOssState;
     /** Gitee oss state */
-    private GiteeOssState GiteeOssState;
+    private GiteeOssState giteeOssState;
+    /** Custom oss state */
+    private CustomOssState customOssState;
 
     /** 是否替换标签 */
     private boolean changeToHtmlTag = false;
@@ -124,6 +127,7 @@ public class MikState {
         this.weiboOssState = new WeiboOssState();
         this.tencentOssState = new TencentOssState();
         this.githubOssState = new GithubOssState();
-        this.GiteeOssState = new GiteeOssState();
+        this.giteeOssState = new GiteeOssState();
+        this.customOssState = new CustomOssState();
     }
 }

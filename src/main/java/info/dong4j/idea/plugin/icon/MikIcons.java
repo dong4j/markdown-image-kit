@@ -67,6 +67,8 @@ public class MikIcons {
     public static final Icon GITHUB = IconLoader.getIcon("/icons/github.png");
     /** GITEE */
     public static final Icon GITEE = IconLoader.getIcon("/icons/gitee.png");
+    /** CUSTOM */
+    public static final Icon CUSTOM = IconLoader.getIcon("/icons/custom.png");
 
     /**
      * Load

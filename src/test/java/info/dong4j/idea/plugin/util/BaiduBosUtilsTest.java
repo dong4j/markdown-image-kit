@@ -59,7 +59,7 @@ public class BaiduBosUtilsTest {
      * @since 1.1.0
      */
     @Test
-    public void test_1() throws IOException {
+    public void test_1() throws Exception {
 
         // key 必须使用 / 为前缀
         String putResult = BaiduBosUtils.putObject("/c/xu.jpg",

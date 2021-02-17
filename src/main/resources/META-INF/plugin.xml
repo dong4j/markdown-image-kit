@@ -28,7 +28,7 @@
     <version>1.0.0</version>
     <vendor email="dong4j@gmail.com" url="https://github.com/dong4j/markdown-image-kit">dong4j</vendor>
     <!--http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html-->
-    <idea-version since-build="183"/>
+    <idea-version since-build="191"/>
 
     <description><![CDATA[
     <h1>Markdown Image Kit</h1>
@@ -232,6 +232,9 @@
         <action id="GiteeObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadGiteeCloudAction"
                 popup="true" text="上传到 Gitee">
         </action>
+        <action id="CustomObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadCustomCloudAction"
+                popup="true" text="上传到自定义图床">
+        </action>
 
         <action id="ImageCompressAction" class="info.dong4j.idea.plugin.action.image.ImageCompressAction"
                 popup="true" text="图片压缩">
@@ -259,6 +262,7 @@
             <reference ref="BaiduObjectStorageServiceAction"/>
             <reference ref="GithubObjectStorageServiceAction"/>
             <reference ref="GiteeObjectStorageServiceAction"/>
+            <reference ref="CustomObjectStorageServiceAction"/>
             <separator/>
             <reference ref="ImageCompressAction"/>
             <reference ref="ImageUploadAction"/>
@@ -282,6 +286,7 @@
             <reference ref="BaiduObjectStorageServiceAction"/>
             <reference ref="GithubObjectStorageServiceAction"/>
             <reference ref="GiteeObjectStorageServiceAction"/>
+            <reference ref="CustomObjectStorageServiceAction"/>
             <separator/>
             <reference ref="ImageCompressAction"/>
             <reference ref="ImageUploadAction"/>

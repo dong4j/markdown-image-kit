@@ -41,7 +41,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Company: no company</p>
- * <p>Description: 上传到阿里 OSS 事件</p>
+ * <p>Description: 上传到 gitee 事件</p>
  *
  * @author dong4j
  * @version 1.0.0

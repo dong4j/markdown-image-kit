@@ -37,6 +37,7 @@ import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.notify.MikNotification;
 import info.dong4j.idea.plugin.settings.oss.AliyunOssSetting;
 import info.dong4j.idea.plugin.settings.oss.BaiduBosSetting;
+import info.dong4j.idea.plugin.settings.oss.CustomOssSetting;
 import info.dong4j.idea.plugin.settings.oss.GiteeSetting;
 import info.dong4j.idea.plugin.settings.oss.GithubSetting;
 import info.dong4j.idea.plugin.settings.oss.QiniuOssSetting;
@@ -209,6 +210,14 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JTextField githubExampleTextField;
     //endregion
 
+    //region custom
+    private JPanel customAuthorizationPanel;
+    private JTextField customApiTextField;
+    private JTextField requestKeyTextField;
+    private JTextField responseUrlPathTextField;
+    private JTextField httpMethodTextField;
+    //endregion
+
     //region gitee
     /** Git hub authorization panel */
     private JPanel giteeAuthorizationPanel;
@@ -282,7 +291,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JTextField whereToCopyTextField;
     /** Upload and replace check box */
     private JCheckBox uploadAndReplaceCheckBox;
-    /** 自定义默认图床 */
+    /** Default cloud check box */
     private JCheckBox defaultCloudCheckBox;
     //endregion
 
@@ -355,6 +364,13 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                                                                               this.tencentAccessKeyTextField,
                                                                               this.tencentSecretKeyTextField,
                                                                               this.tencentRegionNameTextField);
+    //endregion
+
+    //region CustomOssSetting
+    private final CustomOssSetting customOssSetting = new CustomOssSetting(this.customApiTextField,
+                                                                           this.requestKeyTextField,
+                                                                           this.responseUrlPathTextField,
+                                                                           this.httpMethodTextField);
     //endregion
 
     /** todo-dong4j : (2019年03月20日 13:25) [测试输入验证用] */
@@ -456,15 +472,24 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      * @since 0.0.1
      */
     private void initAuthorizationTabbedPanel(@NotNull MikState state) {
+        int defaultCloudIndex = state.getCloudType() == CloudEnum.SM_MS_CLOUD.index
+                                ? CloudEnum.WEIBO_CLOUD.index
+                                : state.getCloudType();
         // 打开设置页时默认选中默认上传图床
-        this.authorizationTabbedPanel.setSelectedIndex(state.getCloudType() == CloudEnum.SM_MS_CLOUD.index ? CloudEnum.WEIBO_CLOUD.index
-                                                                                                           : state.getCloudType());
+        this.authorizationTabbedPanel.setSelectedIndex(defaultCloudIndex);
+
+        // 处理 help 按钮
+        this.helpButton.setText("Help & " + OssState.getCloudType(defaultCloudIndex).getTitle());
+
         this.authorizationTabbedPanel.addChangeListener(e -> {
             // 清理 test 信息
             this.testMessage.setText("");
             this.testButton.setText("Test Upload");
             // 获得指定索引的选项卡标签
-            log.trace("change {}", this.authorizationTabbedPanel.getTitleAt(this.authorizationTabbedPanel.getSelectedIndex()));
+            int selectedIndex = this.authorizationTabbedPanel.getSelectedIndex();
+            log.trace("change {}", this.authorizationTabbedPanel.getTitleAt(selectedIndex));
+            CloudEnum cloudType = OssState.getCloudType(selectedIndex);
+            this.helpButton.setText("Help & " + cloudType.getTitle());
         });
 
         this.weiboOssSetting.init(this.config.getState().getWeiboOssState());
@@ -474,6 +499,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.giteeSetting.init(this.config.getState().getGiteeOssState());
         this.qiniuOssSetting.init(this.config.getState().getQiniuOssState());
         this.tencentOssSetting.init(this.config.getState().getTencentOssState());
+        this.customOssSetting.init(this.config.getState().getCustomOssState());
 
         this.testAndHelpListener();
     }
@@ -530,8 +556,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
 
         // help button 监听
         this.helpButton.addActionListener(e -> {
-            // 打开浏览器到帮助页面
-            String url = MikNotification.helpUrl(HelpType.SETTING.where);
+            String url = MikNotification.helpUrl(HelpType.CUSTOM.where);
+            CloudEnum cloudType = OssState.getCloudType(this.authorizationTabbedPanel.getSelectedIndex());
+            if (cloudType != CloudEnum.CUSTOMIZE) {
+                url = MikNotification.helpUrl(HelpType.SETTING.where);
+            }
             if (!url.equals(MikNotification.ABOUT_BLANK)) {
                 BrowserUtil.browse(url);
             }
@@ -744,6 +773,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                  && this.weiboOssSetting.isModified(state.getWeiboOssState())
                  && this.qiniuOssSetting.isModified(state.getQiniuOssState())
                  && this.tencentOssSetting.isModified(state.getTencentOssState())
+                 && this.customOssSetting.isModified(state.getCustomOssState())
                  && this.isGeneralModified(state)
                  && this.isClipboardModified(state)
         );
@@ -838,6 +868,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.qiniuOssSetting.apply(state.getQiniuOssState());
         this.tencentOssSetting.apply(state.getTencentOssState());
         this.weiboOssSetting.apply(state.getWeiboOssState());
+        this.customOssSetting.apply(state.getCustomOssState());
         this.applyGeneralConfigs(state);
         this.applyClipboardConfigs(state);
     }
@@ -906,6 +937,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.tencentOssSetting.reset(state.getTencentOssState());
         this.qiniuOssSetting.reset(state.getQiniuOssState());
         this.weiboOssSetting.reset(state.getWeiboOssState());
+        this.customOssSetting.reset(state.getCustomOssState());
         this.resetGeneralCOnfigs(state);
         this.resetClipboardConfigs(state);
     }
