@@ -26,7 +26,9 @@ package info.dong4j.idea.plugin.util;
 
 import java.security.SecureRandom;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
@@ -165,9 +167,14 @@ public final class DES {
      * @return string string
      * @since 0.0.1
      */
-    public final static String decrypt(String data, String key) {
+    public static String decrypt(String data, String key) {
         key = fixKey(key);
-        return new String(decrypt(hex2byte(data.getBytes()), key.getBytes()));
+        try {
+            byte[] decrypt = decrypt(hex2byte(data.getBytes()), key.getBytes());
+            return new String(decrypt);
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     /**
@@ -179,13 +186,9 @@ public final class DES {
      * @throws RuntimeException the runtime exception
      * @since 0.0.1
      */
-    private static byte[] decrypt(byte[] src, byte[] key) throws RuntimeException {
-        try {
-            Cipher cipher = getCipher(key, Cipher.DECRYPT_MODE);
-            return cipher.doFinal(src);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    private static byte[] decrypt(byte[] src, byte[] key) throws BadPaddingException, IllegalBlockSizeException {
+        Cipher cipher = getCipher(key, Cipher.DECRYPT_MODE);
+        return cipher.doFinal(src);
     }
 
     /**
