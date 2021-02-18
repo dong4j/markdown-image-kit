@@ -22,38 +22,60 @@
  * SOFTWARE.
  */
 
-package info.dong4j.idea.plugin.client;
+package info.dong4j.idea.plugin.util;
 
-import com.intellij.testFramework.LightPlatformTestCase;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-
-import lombok.extern.slf4j.Slf4j;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 /**
- * <p>Company: no company</p>
- * <p>Description: ${description}</p>
+ * URL安全的Base64编码和解码
  *
  * @author dong4j
  * @version 1.0.0
- * @email "mailto:dong4j@gmail.com"
- * @date 2019.03.19 15:35
- * @since 1.1.0
+ * @email "mailto:dong4j@fkhwl.com"
+ * @date 2021.02.18 22:35
+ * @since 1.6.1
  */
-@Slf4j
-public class QiniuOssClientTest extends LightPlatformTestCase {
+public final class UrlSafeBase64 {
 
     /**
-     * Test 1
+     * Url safe base 64
      *
-     * @throws FileNotFoundException file not found exception
-     * @since 1.1.0
+     * @since 1.6.1
      */
-    public void test1() throws Exception {
-        QiniuOssClient qiniuOssClient = QiniuOssClient.getInstance();
-        String url = qiniuOssClient.upload(new FileInputStream(new File("/Users/dong4j/Downloads/我可要开始皮了.png")), "我可要开始皮了.png");
-        log.info(url);
+    private UrlSafeBase64() {
+    }   // don't instantiate
+
+    /**
+     * 编码字符串
+     *
+     * @param data 待编码字符串
+     * @return 结果字符串 string
+     * @since 1.6.1
+     */
+    public static String encodeToString(String data) {
+        return encodeToString(data.getBytes(StandardCharsets.UTF_8));
+    }
+
+    /**
+     * 编码数据
+     *
+     * @param data 字节数组
+     * @return 结果字符串 string
+     * @since 1.6.1
+     */
+    public static String encodeToString(byte[] data) {
+        return Base64.getUrlEncoder().encodeToString(data);
+    }
+
+    /**
+     * 解码数据
+     *
+     * @param data 编码过的字符串
+     * @return 原始数据 byte [ ]
+     * @since 1.6.1
+     */
+    public static byte[] decode(String data) {
+        return Base64.getUrlDecoder().decode(data);
     }
 }

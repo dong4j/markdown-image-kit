@@ -25,6 +25,7 @@
 package info.dong4j.idea.plugin.util;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * <p>Company: 成都返空汇网络技术有限公司</p>
@@ -142,6 +143,34 @@ public class StringUtils {
      */
     public static String defaultIfEmpty(String str, String defaultStr) {
         return isEmpty(str) ? defaultStr : str;
+    }
+
+    /**
+     * Utf 8 bytes
+     *
+     * @param data data
+     * @return the byte [ ]
+     * @since 1.6.1
+     */
+    public static byte[] utf8Bytes(String data) {
+        return data.getBytes(StandardCharsets.UTF_8);
+    }
+
+    /**
+     * In string array
+     *
+     * @param s     s
+     * @param array array
+     * @return the boolean
+     * @since 1.6.1
+     */
+    public static boolean inStringArray(String s, String[] array) {
+        for (String x : array) {
+            if (x.equals(s)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

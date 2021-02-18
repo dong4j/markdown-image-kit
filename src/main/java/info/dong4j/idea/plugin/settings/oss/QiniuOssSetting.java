@@ -145,6 +145,7 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
         this.qiniuOssNortChinaRadioButton.setMnemonic(ZoneEnum.NORT_CHINA.index);
         this.qiniuOssSouthChinaRadioButton.setMnemonic(ZoneEnum.SOUTH_CHINA.index);
         this.qiniuOssNorthAmeriaRadioButton.setMnemonic(ZoneEnum.NORTH_AMERIA.index);
+
         this.addZoneRadioButton(group, this.qiniuOssEastChinaRadioButton);
         this.addZoneRadioButton(group, this.qiniuOssNortChinaRadioButton);
         this.addZoneRadioButton(group, this.qiniuOssSouthChinaRadioButton);

@@ -24,8 +24,6 @@
 
 package info.dong4j.idea.plugin.enums;
 
-import com.qiniu.common.Zone;
-
 import org.jetbrains.annotations.Contract;
 
 /**
@@ -41,35 +39,35 @@ import org.jetbrains.annotations.Contract;
 public enum ZoneEnum {
     /** East china zone enum */
     // 区域名称：z0 华东  z1 华北  z2 华南  na0 北美  as0 东南亚
-    EAST_CHINA(0, "华东", Zone.zone0()),
+    EAST_CHINA(0, "华东", "upload.qiniup.com"),
     /** Nort china zone enum */
-    NORT_CHINA(1, "华北", Zone.zone1()),
+    NORT_CHINA(1, "华北", "upload-z1.qiniup.com"),
     /** South china zone enum */
-    SOUTH_CHINA(2, "华南", Zone.zone2()),
+    SOUTH_CHINA(2, "华南", "upload-na0.qiniup.com"),
     /** North ameria zone enum */
-    NORTH_AMERIA(3, "北美", Zone.zoneNa0()),
+    NORTH_AMERIA(3, "北美", "upload-as0.qiniup.com"),
     /** Southeast asia zone enum */
-    SOUTHEAST_ASIA(4, "东南亚", Zone.zoneAs0());
+    SOUTHEAST_ASIA(4, "东南亚", "upload-as0.qiniup.com");
 
     /** Index */
     public int index;
     /** Name */
     public String name;
     /** Zone */
-    public Zone zone;
+    public String host;
 
     /**
      * Zone enum
      *
      * @param index index
      * @param name  name
-     * @param zone  zone
+     * @param host  host
      * @since 0.0.1
      */
-    ZoneEnum(int index, String name, Zone zone) {
+    ZoneEnum(int index, String name, String host) {
         this.index = index;
         this.name = name;
-        this.zone = zone;
+        this.host = host;
     }
 
     /**
@@ -101,7 +99,7 @@ public enum ZoneEnum {
      * @since 0.0.1
      */
     @Contract(pure = true)
-    public Zone getZone() {
-        return this.zone;
+    public String getHost() {
+        return this.host;
     }
 }

@@ -24,10 +24,11 @@
 
 package info.dong4j.idea.plugin.util;
 
-import org.junit.Test;
+import junit.framework.TestCase;
 
 import java.io.FileInputStream;
-import java.io.IOException;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Company: 成都返空汇网络技术有限公司</p>
@@ -35,40 +36,32 @@ import java.io.IOException;
  *
  * @author dong4j
  * @version 1.0.0
- * @email "mailto:dong4j@gmail.com"
- * @date 2020.04.25 16:36
- * @since 1.1.0
+ * @email "mailto:dong4j@fkhwl.com"
+ * @date 2021.02.18 18:47
+ * @since 1.6.1
  */
-public class BaiduBosUtilsTest {
+@Slf4j
+public class QiniuOssUtilsTest extends TestCase {
     /** secretId */
     private static final String secretId = System.getProperty("secretId");
     /** secretKey */
     private static final String secretKey = System.getProperty("secretKey");
     /** bucketName */
     private static final String bucketName = System.getProperty("bucketName");
-    // private static final String ossBucket = "xxx";
-    // private static final String accessKeyId = "xxx";
-    // private static final String secretAccessKey = "xxx";
 
     /**
-     * Test 1
+     * Test
      *
-     * @throws IOException io exception
-     * @since 1.1.0
+     * @throws Exception exception
+     * @since 1.6.1
      */
-    @Test
-    public void test_1() throws Exception {
-
+    public void test() throws Exception {
         // key 必须使用 / 为前缀
-        String putResult = BaiduBosUtils.putObject("/c/xu.jpg",
-                                                   new FileInputStream("/Users/dong4j/Downloads/xu.png"),
-                                                   bucketName,
-                                                   "bj.bcebos.com",
-                                                   secretId,
-                                                   secretKey,
-                                                   false,
-                                                   null);
-        System.out.println("putResult:" + putResult);
+        QiniuOssUtils.putObject("xu.jpg",
+                                new FileInputStream("/Users/dong4j/Downloads/xu.png"),
+                                bucketName,
+                                "upload.qiniup.com",
+                                secretId,
+                                secretKey);
     }
-
 }

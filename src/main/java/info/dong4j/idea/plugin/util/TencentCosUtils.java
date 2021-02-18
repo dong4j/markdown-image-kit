@@ -72,7 +72,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 0.0.1
  */
 @Slf4j
-public class QcloudCosUtils {
+public class TencentCosUtils {
     /** LINE_SEPARATOR */
     public static final String LINE_SEPARATOR = "\n";
     /** Q_SIGN_ALGORITHM_KEY */
@@ -476,6 +476,7 @@ public class QcloudCosUtils {
      * @param secretId   secret id
      * @param secretKey  secret key
      * @return the string
+     * @throws Exception exception
      * @since 0.0.1
      */
     public static String putObject(String key,

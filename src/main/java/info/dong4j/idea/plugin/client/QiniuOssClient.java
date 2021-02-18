@@ -24,12 +24,6 @@
 
 package info.dong4j.idea.plugin.client;
 
-import com.qiniu.common.QiniuException;
-import com.qiniu.http.Response;
-import com.qiniu.storage.Configuration;
-import com.qiniu.storage.UploadManager;
-import com.qiniu.util.Auth;
-
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.ZoneEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
@@ -39,6 +33,7 @@ import info.dong4j.idea.plugin.settings.oss.QiniuOssSetting;
 import info.dong4j.idea.plugin.settings.oss.QiniuOssState;
 import info.dong4j.idea.plugin.util.EnumsUtils;
 import info.dong4j.idea.plugin.util.PasswordManager;
+import info.dong4j.idea.plugin.util.QiniuOssUtils;
 import info.dong4j.idea.plugin.util.StringUtils;
 
 import org.apache.http.util.Asserts;
@@ -46,7 +41,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import java.util.Optional;
@@ -58,6 +52,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * <p>Company: no company</p>
  * <p>Description: </p>
+ * https://developer.qiniu.com/fusion/kb/1322/how-to-configure-cname-domain-name
  *
  * @author dong4j
  * @version 0.0.1
@@ -70,13 +65,12 @@ import lombok.extern.slf4j.Slf4j;
 public class QiniuOssClient implements OssClient {
     /** DEAD_LINE */
     private static final long DEAD_LINE = 3600L * 1000 * 24 * 365 * 10;
-
-    /** token */
-    private static String token;
-    /** ossClient */
-    private static UploadManager ossClient = null;
     /** domain */
-    private static String domain;
+    private static String endpoint;
+    private static String host;
+    private static String accessKey;
+    private static String secretKey;
+    private static String bucketName;
 
     static {
         init();
@@ -89,50 +83,13 @@ public class QiniuOssClient implements OssClient {
      */
     private static void init() {
         QiniuOssState qiniuOssState = MikPersistenComponent.getInstance().getState().getQiniuOssState();
-        domain = qiniuOssState.getEndpoint();
-        String accessKey = qiniuOssState.getAccessKey();
-        String secretKey = PasswordManager.getPassword(QiniuOssSetting.CREDENTIAL_ATTRIBUTES);
-        String bucketName = qiniuOssState.getBucketName();
+        endpoint = qiniuOssState.getEndpoint();
+        accessKey = qiniuOssState.getAccessKey();
+        secretKey = PasswordManager.getPassword(QiniuOssSetting.CREDENTIAL_ATTRIBUTES);
+        bucketName = qiniuOssState.getBucketName();
 
         Optional<ZoneEnum> zone = EnumsUtils.getEnumObject(ZoneEnum.class, e -> e.getIndex() == qiniuOssState.getZoneIndex());
-        try {
-            Configuration cfg = new Configuration(zone.orElse(ZoneEnum.EAST_CHINA).zone);
-            ossClient = new UploadManager(cfg);
-            buildToken(Auth.create(accessKey, secretKey), bucketName);
-        } catch (Exception ignored) {
-        }
-    }
-
-    /**
-     * Set domain.
-     *
-     * @param newDomain the new domain
-     * @since 0.0.1
-     */
-    private void setDomain(String newDomain) {
-        domain = newDomain;
-    }
-
-    /**
-     * Set oss client.
-     *
-     * @param oss the oss
-     * @since 0.0.1
-     */
-    private void setOssClient(UploadManager oss) {
-        ossClient = oss;
-    }
-
-    /**
-     * Build token string.
-     *
-     * @param auth       the auth
-     * @param bucketName the bucket name
-     * @return the string
-     * @since 0.0.1
-     */
-    private static void buildToken(@NotNull Auth auth, String bucketName) {
-        token = auth.uploadToken(bucketName, null, DEAD_LINE, null, true);
+        host = zone.orElse(ZoneEnum.EAST_CHINA).host;
     }
 
     /**
@@ -187,7 +144,16 @@ public class QiniuOssClient implements OssClient {
      */
     @Override
     public String upload(InputStream inputStream, String fileName) throws Exception {
-        return this.upload(ossClient, inputStream, fileName);
+        QiniuOssUtils.putObject(fileName, inputStream, bucketName, host, accessKey, secretKey);
+
+        URL url = new URL(endpoint);
+        log.trace("getUserInfo = {}", url.getUserInfo());
+        if (StringUtils.isBlank(url.getPath())) {
+            endpoint = endpoint + "/";
+        } else {
+            endpoint = endpoint.endsWith("/") ? endpoint : endpoint + "/";
+        }
+        return endpoint + fileName;
     }
 
     /**
@@ -246,18 +212,16 @@ public class QiniuOssClient implements OssClient {
                          String endpoint,
                          int zoneIndex) throws Exception {
 
-
-        QiniuOssClient qiniuOssClient = QiniuOssClient.getInstance();
         Optional<ZoneEnum> zone = EnumsUtils.getEnumObject(ZoneEnum.class, e -> e.getIndex() == zoneIndex);
-        Configuration cfg = new Configuration(zone.orElse(ZoneEnum.EAST_CHINA).zone);
-        UploadManager ossClient = new UploadManager(cfg);
-        Auth auth = Auth.create(accessKey, secretKey);
-        // 重新生成 token
-        QiniuOssClient.buildToken(auth, bucketName);
+        QiniuOssClient.host = zone.orElse(ZoneEnum.EAST_CHINA).host;
+        QiniuOssClient.bucketName = bucketName;
+        QiniuOssClient.accessKey = accessKey;
+        QiniuOssClient.secretKey = secretKey;
+        QiniuOssClient.endpoint = endpoint;
 
-        qiniuOssClient.setDomain(endpoint);
+        QiniuOssClient client = QiniuOssClient.getInstance();
 
-        String url = qiniuOssClient.upload(ossClient, inputStream, fileName);
+        String url = client.upload(inputStream, fileName);
 
         if (StringUtils.isNotBlank(url)) {
             int hashcode = bucketName.hashCode() +
@@ -265,46 +229,12 @@ public class QiniuOssClient implements OssClient {
                            secretKey.hashCode() +
                            endpoint.hashCode() +
                            zoneIndex;
+            // 更新可用状态
             OssState.saveStatus(MikPersistenComponent.getInstance().getState().getQiniuOssState(),
                                 hashcode,
                                 MikState.OLD_HASH_KEY);
-            qiniuOssClient.setOssClient(ossClient);
         }
         return url;
-    }
-
-    /**
-     * Upload string.
-     *
-     * @param ossClient   the oss client
-     * @param inputStream the input stream
-     * @param fileName    the file name
-     * @return the string
-     * @since 0.0.1
-     */
-    public String upload(@NotNull UploadManager ossClient, InputStream inputStream, String fileName) throws Exception {
-        try {
-            ossClient.put(inputStream, fileName, token, null, null);
-            // 拼接 url, 需要正确配置域名 (https://developer.qiniu.com/fusion/kb/1322/how-to-configure-cname-domain-name)
-            URL url = new URL(domain);
-            log.trace("getUserInfo = {}", url.getUserInfo());
-            if (StringUtils.isBlank(url.getPath())) {
-                domain = domain + "/";
-            } else {
-                domain = domain.endsWith("/") ? domain : domain + "/";
-            }
-            return domain + fileName;
-        } catch (QiniuException ex) {
-            Response r = ex.response;
-            log.trace(r.toString());
-            try {
-                log.trace(r.bodyString());
-            } catch (QiniuException ignored) {
-            }
-        } catch (MalformedURLException e) {
-            log.trace("", e);
-        }
-        return "";
     }
 
 }
