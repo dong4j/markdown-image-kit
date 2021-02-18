@@ -44,15 +44,15 @@
 
 ### 图床迁移
 
-![](https://ws4.sinaimg.cn/large/eca7e314gy1g1k4n0baxyg212s0mqdp3.gif)
+![](https://dong4j-imgs.oss-cn-hangzhou.aliyuncs.com/aaa/MIK-wu5NqZ.gif)
 
 ### 标签替换
 
-![](https://ws2.sinaimg.cn/large/eca7e314gy1g1k4onvf0yg212s0mqdr0.gif)
+![](https://dong4j-imgs.oss-cn-hangzhou.aliyuncs.com/aaa/MIK-sPmXWd.gif)
 
 ### 上传到不同图床
 
-![](https://ws1.sinaimg.cn/large/eca7e314gy1g1k4uynr3lg212s0mq4qp.gif)
+![](https://dong4j-imgs.oss-cn-hangzhou.aliyuncs.com/aaa/MIK-3az5GQ.gif)
 
 ## 详细设置
 
@@ -140,3 +140,9 @@ java.lang.Throwable: Element component@ImageManagerSetting.option.WeiboOssState.
 打开上面的文件, 删除 `<component name="ImageManagerSetting">` 节点
 
 ![](https://dong4j-imgs.oss-cn-hangzhou.aliyuncs.com/aaa/MIK-C8LUI4.png)
+
+![](https://dong4j-imgs.oss-cn-hangzhou.aliyuncs.com/aaa/MIK-xsWVla.png)
+
+![](https://dong4j-imgs.oss-cn-hangzhou.aliyuncs.com/aaa/MIK-Bh2e1v.png)
+
+![](https://dong4j-imgs.oss-cn-hangzhou.aliyuncs.com/aaa/MIK-FcmTXv.png)
