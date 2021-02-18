@@ -2,9 +2,9 @@
 
 > 审核已通过, 可直接在 `plugin` 中搜索 `Markdown Image Kit` 下载
 
-![](https://dong4j-imgs.oss-cn-hangzhou.aliyuncs.com/oDE4Cl.png)
+![](https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/oDE4Cl.png)
 
-`Markdown Image Kit` 是一款在 IDEA 中方便高效得管理 Markdown 文档图片的插件. 
+`Markdown Image Kit` 是一款在 IDEA 中方便高效得管理 Markdown 文档图片的插件.
 
 在 IntelliJ IDEA 中写作(主要是技术文档), 配图成了一个大问题, 我们需要借助其他 APP 来完成这一操作.
 
@@ -24,43 +24,43 @@
 
 ### 复制粘贴直接输出 image mark
 
-![](https://dong4j-imgs.oss-cn-hangzhou.aliyuncs.com/save-image.gif)
+![](https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/save-image.gif)
 
 ### 复制粘贴直接上传到 OSS
 
-![](https://dong4j-imgs.oss-cn-hangzhou.aliyuncs.com/paste-upload.gif)
+![](https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/paste-upload.gif)
 
 ### 复制本地图片直接上传
 
-![](https://dong4j-imgs.oss-cn-hangzhou.aliyuncs.com/local-image-upload.gif)
+![](https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/local-image-upload.gif)
 
 ### 单个标签上传
 
-![](https://dong4j-imgs.oss-cn-hangzhou.aliyuncs.com/single-upload.gif)
+![](https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/single-upload.gif)
 
 ### 批量上传
 
-![](https://dong4j-imgs.oss-cn-hangzhou.aliyuncs.com/multi-upload.gif)
+![](https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/multi-upload.gif)
 
 ### 图床迁移
 
-![](https://dong4j-imgs.oss-cn-hangzhou.aliyuncs.com/aaa/MIK-wu5NqZ.gif)
+![](https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/MIK-wu5NqZ.gif)
 
 ### 标签替换
 
-![](https://dong4j-imgs.oss-cn-hangzhou.aliyuncs.com/aaa/MIK-sPmXWd.gif)
+![](https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/MIK-sPmXWd.gif)
 
 ### 上传到不同图床
 
-![](https://dong4j-imgs.oss-cn-hangzhou.aliyuncs.com/aaa/MIK-3az5GQ.gif)
+![](https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/MIK-3az5GQ.gif)
 
 ## 详细设置
 
-![](https://dong4j-imgs.oss-cn-hangzhou.aliyuncs.com/6PRHrK.png)
+![](https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/6PRHrK.png)
 
 ### Clipboard 监控
 
-![](https://dong4j-imgs.oss-cn-hangzhou.aliyuncs.com/1mY3we.png)
+![](https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/1mY3we.png)
 
 如果开启了 `复制图片到目录`, 则会监控 Clipboard 中是否有 Image 类型的文件.
 
@@ -72,7 +72,7 @@
 
 ### OSS 设置
 
-![](https://dong4j-imgs.oss-cn-hangzhou.aliyuncs.com/S5pISR.png)
+![](https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/S5pISR.png)
 
 第一版暂时只集成了 `微博图床`, `阿里云`, `七牛云`, 后期会慢慢集成其他图床.
 
@@ -83,7 +83,7 @@
 
 ### 全局设置
 
-![](https://dong4j-imgs.oss-cn-hangzhou.aliyuncs.com/6bqMQc.png)
+![](https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/6bqMQc.png)
 
 #### 设置默认图床
 
@@ -139,10 +139,10 @@ java.lang.Throwable: Element component@ImageManagerSetting.option.WeiboOssState.
 
 打开上面的文件, 删除 `<component name="ImageManagerSetting">` 节点
 
-![](https://dong4j-imgs.oss-cn-hangzhou.aliyuncs.com/aaa/MIK-C8LUI4.png)
+![](https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/MIK-C8LUI4.png)
 
-![](https://dong4j-imgs.oss-cn-hangzhou.aliyuncs.com/aaa/MIK-xsWVla.png)
+![](https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/MIK-xsWVla.png)
 
-![](https://dong4j-imgs.oss-cn-hangzhou.aliyuncs.com/aaa/MIK-Bh2e1v.png)
+![](https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/MIK-Bh2e1v.png)
 
-![](https://dong4j-imgs.oss-cn-hangzhou.aliyuncs.com/aaa/MIK-FcmTXv.png)
+![](https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/MIK-FcmTXv.png)
