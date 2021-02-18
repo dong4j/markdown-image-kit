@@ -53,6 +53,12 @@ intellij {
     sameSinceUntilBuild false
 }
 
+patchPluginXml {
+    version "${project.version}"
+    pluginDescription(file('includes/pluginDescription.html').text)
+    changeNotes(file('includes/pluginChanges.html').text)
+}
+
 publishPlugin {
     token = System.getenv("publishToken")
     channels publishChannels
