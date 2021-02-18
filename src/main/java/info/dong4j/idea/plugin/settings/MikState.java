@@ -33,6 +33,7 @@ import info.dong4j.idea.plugin.settings.oss.GiteeOssState;
 import info.dong4j.idea.plugin.settings.oss.GithubOssState;
 import info.dong4j.idea.plugin.settings.oss.QiniuOssState;
 import info.dong4j.idea.plugin.settings.oss.TencentOssState;
+import info.dong4j.idea.plugin.settings.oss.WangyiOssState;
 import info.dong4j.idea.plugin.settings.oss.WeiboOssState;
 
 import lombok.Data;
@@ -65,6 +66,8 @@ public class MikState {
     private QiniuOssState qiniuOssState;
     /** Tencent oss state */
     private TencentOssState tencentOssState;
+    /** Wangyi oss state */
+    private WangyiOssState wangyiOssState;
     /** Git hub oss state */
     private GithubOssState githubOssState;
     /** Gitee oss state */
@@ -115,5 +118,6 @@ public class MikState {
         this.githubOssState = new GithubOssState();
         this.giteeOssState = new GiteeOssState();
         this.customOssState = new CustomOssState();
+        this.wangyiOssState = new WangyiOssState();
     }
 }

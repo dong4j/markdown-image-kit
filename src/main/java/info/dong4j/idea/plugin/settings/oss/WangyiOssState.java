@@ -22,24 +22,17 @@
  * SOFTWARE.
  */
 
-package info.dong4j.idea.plugin.action.markdown;
+package info.dong4j.idea.plugin.settings.oss;
 
-import info.dong4j.idea.plugin.client.AliyunOssClient;
-import info.dong4j.idea.plugin.client.OssClient;
-import info.dong4j.idea.plugin.enums.CloudEnum;
+import info.dong4j.idea.plugin.settings.OssState;
 
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import javax.swing.Icon;
-
-import icons.MikIcons;
-import lombok.extern.slf4j.Slf4j;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 /**
  * <p>Company: no company</p>
- * <p>Description: 上传到阿里 OSS 事件</p>
+ * <p>Description: </p>
  *
  * @author dong4j
  * @version 0.0.1
@@ -47,44 +40,9 @@ import lombok.extern.slf4j.Slf4j;
  * @date 2021.02.14 18:40
  * @since 0.0.1
  */
-@Slf4j
-public final class UploadAliyunCloudAction extends UploadActionBase {
+@EqualsAndHashCode(callSuper = true)
+@Data
+@NoArgsConstructor
+public class WangyiOssState extends OssState {
 
-    /**
-     * Gets icon *
-     *
-     * @return the icon
-     * @since 0.0.1
-     */
-    @NotNull
-    @Contract(pure = true)
-    @Override
-    protected Icon getIcon() {
-        return MikIcons.ALIYUN_OSS;
-    }
-
-    /**
-     * Gets name *
-     *
-     * @return the name
-     * @since 0.0.1
-     */
-    @Nullable
-    @Contract(pure = true)
-    @Override
-    String getName() {
-        return CloudEnum.ALIYUN_CLOUD.title;
-    }
-
-    /**
-     * Gets client *
-     *
-     * @return the client
-     * @since 0.0.1
-     */
-    @Contract(pure = true)
-    @Override
-    OssClient getClient() {
-        return AliyunOssClient.getInstance();
-    }
 }

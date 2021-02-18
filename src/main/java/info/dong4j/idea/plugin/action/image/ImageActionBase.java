@@ -96,7 +96,7 @@ public abstract class ImageActionBase extends AnAction {
      */
     @Override
     public void update(@NotNull AnActionEvent event) {
-        ActionUtils.isAvailable(event, this.getIcon(), ImageContents.IMAGE_TYPE_NAME);
+        ActionUtils.isAvailable(true, event, this.getIcon(), ImageContents.IMAGE_TYPE_NAME);
     }
 
     /**

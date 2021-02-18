@@ -62,31 +62,50 @@
 
     <actions>
         <action id="SmmsObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadSmmsCloudAction"
-                popup="true" text="上传到 sm.ms">
+                popup="true" text="SM.MS">
         </action>
         <action id="WeiboObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadWeiboCloudAction"
-                popup="true" text="上传到微博">
+                popup="true" text="微博">
         </action>
         <action id="AliyunObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadAliyunCloudAction"
-                popup="true" text="上传到阿里云">
+                popup="true" text="阿里云">
         </action>
         <action id="QiniuObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadQiniuCloudAction"
-                popup="true" text="上传到七牛云">
+                popup="true" text="七牛云">
         </action>
         <action id="TencentObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadTencentCloudAction"
-                popup="true" text="上传到腾讯云">
+                popup="true" text="腾讯云">
+        </action>
+        <action id="WangyiObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadWangyiCloudAction"
+                popup="true" text="网易云">
         </action>
         <action id="BaiduObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadBaiduCloudAction"
-                popup="true" text="上传到百度云">
+                popup="true" text="百度云">
+        </action>
+        <action id="JingdongObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadJingdongCloudAction"
+                popup="true" text="京东云">
+        </action>
+        <action id="YoupaiObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadYoupaiCloudAction"
+                popup="true" text="又拍云">
+        </action>
+        <action id="ImgurObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadImgurCloudAction"
+                popup="true" text="Imgur">
+        </action>
+        <action id="UcloudObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadUcloudCloudAction"
+                popup="true" text="Ucloud">
+        </action>
+        <action id="QingcloudObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadQingcloudCloudAction"
+                popup="true" text="青云">
         </action>
         <action id="GithubObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadGithubCloudAction"
-                popup="true" text="上传到 GitHub">
+                popup="true" text="GitHub">
         </action>
         <action id="GiteeObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadGiteeCloudAction"
-                popup="true" text="上传到 Gitee">
+                popup="true" text="Gitee">
+
         </action>
         <action id="CustomObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadCustomCloudAction"
-                popup="true" text="上传到自定义图床">
+                popup="true" text="自定义">
         </action>
 
         <action id="ImageCompressAction" class="info.dong4j.idea.plugin.action.image.ImageCompressAction"
@@ -96,11 +115,11 @@
                 popup="true" text="图片上传">
         </action>
         <action id="MoveToOtherStorageAction" class="info.dong4j.idea.plugin.action.markdown.MoveToOtherStorageAction"
-                popup="true" text="图床迁移计划">
+                popup="true" text="图床迁移">
         </action>
 
         <action id="ChangeLabelAction" class="info.dong4j.idea.plugin.action.markdown.ChangeLabelAction"
-                popup="true" text="替换所有标签">
+                popup="true" text="替换标签">
         </action>
 
 
@@ -112,7 +131,13 @@
             <reference ref="AliyunObjectStorageServiceAction"/>
             <reference ref="QiniuObjectStorageServiceAction"/>
             <reference ref="TencentObjectStorageServiceAction"/>
+            <reference ref="WangyiObjectStorageServiceAction"/>
             <reference ref="BaiduObjectStorageServiceAction"/>
+            <reference ref="JingdongObjectStorageServiceAction"/>
+            <reference ref="YoupaiObjectStorageServiceAction"/>
+            <reference ref="ImgurObjectStorageServiceAction"/>
+            <reference ref="UcloudObjectStorageServiceAction"/>
+            <reference ref="QingcloudObjectStorageServiceAction"/>
             <reference ref="GithubObjectStorageServiceAction"/>
             <reference ref="GiteeObjectStorageServiceAction"/>
             <reference ref="CustomObjectStorageServiceAction"/>
@@ -136,7 +161,13 @@
             <reference ref="AliyunObjectStorageServiceAction"/>
             <reference ref="QiniuObjectStorageServiceAction"/>
             <reference ref="TencentObjectStorageServiceAction"/>
+            <reference ref="WangyiObjectStorageServiceAction"/>
             <reference ref="BaiduObjectStorageServiceAction"/>
+            <reference ref="JingdongObjectStorageServiceAction"/>
+            <reference ref="YoupaiObjectStorageServiceAction"/>
+            <reference ref="ImgurObjectStorageServiceAction"/>
+            <reference ref="UcloudObjectStorageServiceAction"/>
+            <reference ref="QingcloudObjectStorageServiceAction"/>
             <reference ref="GithubObjectStorageServiceAction"/>
             <reference ref="GiteeObjectStorageServiceAction"/>
             <reference ref="CustomObjectStorageServiceAction"/>

@@ -27,15 +27,13 @@ package info.dong4j.idea.plugin.action.markdown;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.client.WeiboOssClient;
 import info.dong4j.idea.plugin.enums.CloudEnum;
-import info.dong4j.idea.plugin.icon.MikIcons;
-import info.dong4j.idea.plugin.settings.MikPersistenComponent;
-import info.dong4j.idea.plugin.settings.OssState;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+import icons.MikIcons;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -60,18 +58,6 @@ public final class UploadWeiboCloudAction extends UploadActionBase {
     @Override
     protected Icon getIcon() {
         return MikIcons.WEIBO_OSS;
-    }
-
-    /**
-     * Is available
-     *
-     * @return the boolean
-     * @since 0.0.1
-     */
-    @Contract(pure = true)
-    @Override
-    boolean isAvailable() {
-        return OssState.getStatus(MikPersistenComponent.getInstance().getState().getWeiboOssState());
     }
 
     /**

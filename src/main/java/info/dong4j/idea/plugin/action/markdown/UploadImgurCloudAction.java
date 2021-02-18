@@ -24,7 +24,6 @@
 
 package info.dong4j.idea.plugin.action.markdown;
 
-import info.dong4j.idea.plugin.client.AliyunOssClient;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 
@@ -48,7 +47,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 0.0.1
  */
 @Slf4j
-public final class UploadAliyunCloudAction extends UploadActionBase {
+public final class UploadImgurCloudAction extends UploadActionBase {
 
     /**
      * Gets icon *
@@ -60,7 +59,19 @@ public final class UploadAliyunCloudAction extends UploadActionBase {
     @Contract(pure = true)
     @Override
     protected Icon getIcon() {
-        return MikIcons.ALIYUN_OSS;
+        return MikIcons.IMGUR;
+    }
+
+    /**
+     * Is available
+     *
+     * @return the boolean
+     * @since 0.0.1
+     */
+    @Contract(pure = true)
+    @Override
+    boolean available() {
+        return false;
     }
 
     /**
@@ -73,7 +84,7 @@ public final class UploadAliyunCloudAction extends UploadActionBase {
     @Contract(pure = true)
     @Override
     String getName() {
-        return CloudEnum.ALIYUN_CLOUD.title;
+        return CloudEnum.IMGUR_CLOUD.title;
     }
 
     /**
@@ -85,6 +96,6 @@ public final class UploadAliyunCloudAction extends UploadActionBase {
     @Contract(pure = true)
     @Override
     OssClient getClient() {
-        return AliyunOssClient.getInstance();
+        return null;
     }
 }

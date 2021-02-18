@@ -71,7 +71,7 @@ public final class ChangeLabelAction extends AnAction {
      */
     @Override
     public void update(@NotNull AnActionEvent event) {
-        ActionUtils.isAvailable(event, AllIcons.Actions.ListChanges, MarkdownContents.MARKDOWN_TYPE_NAME);
+        ActionUtils.isAvailable(true, event, AllIcons.Actions.ListChanges, MarkdownContents.MARKDOWN_TYPE_NAME);
     }
 
     /**

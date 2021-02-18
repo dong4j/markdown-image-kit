@@ -85,7 +85,7 @@ public final class MoveToOtherStorageAction extends AnAction {
      */
     @Override
     public void update(@NotNull AnActionEvent event) {
-        ActionUtils.isAvailable(event, AllIcons.Actions.Lightning, MarkdownContents.MARKDOWN_TYPE_NAME);
+        ActionUtils.isAvailable(true, event, AllIcons.Actions.Lightning, MarkdownContents.MARKDOWN_TYPE_NAME);
     }
 
     /**
