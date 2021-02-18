@@ -25,6 +25,7 @@
 plugins {
     // 1. 编译, 测试插件 (Java, Groovy,Scala, War 等)
     id 'java'
+    id "io.freefair.lombok" version "5.3.0"
     // Java 是Gradle的核心插件, 是内置的, 内置插件不需要配置依赖路径
     id 'org.jetbrains.intellij' version '0.4.18'
 }
@@ -53,6 +54,21 @@ intellij {
     sameSinceUntilBuild false
 }
 
+lombok {
+    version = "1.18.18"
+    generateLombokConfig.enabled = false
+}
+
+buildPlugin {
+    doLast {
+        copy {
+            from 'build/distributions'
+            include "${rootProject.name}-${project.version}.zip"
+            into "/Users/dong4j/Downloads"
+        }
+    }
+}
+
 patchPluginXml {
     version "${project.version}"
     pluginDescription(file('includes/pluginDescription.html').text)
@@ -66,14 +82,18 @@ publishPlugin {
 
 // 声明依赖使用下面的闭包
 dependencies {
-    compile('com.qiniu:qiniu-java-sdk:7.2.28') {
+    implementation('com.qiniu:qiniu-java-sdk:7.2.28') {
         exclude group: 'com.google.code.gson', module: 'gson'
     }
-    annotationProcessor 'org.projectlombok:lombok:1.18.18'
-    compileOnly 'org.projectlombok:lombok:1.18.18'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.18'
-    testCompileOnly 'org.projectlombok:lombok:1.18.18'
-    testCompile 'junit:junit:4.13.1'
-    compile 'net.coobird:thumbnailator:0.4.13'
-    testCompile group: 'com.aliyun.oss', name: 'aliyun-sdk-oss', version: '3.8.1'
+    implementation 'net.coobird:thumbnailator:0.4.13'
+
+    testImplementation(
+            'junit:junit:4.13',
+            'org.mockito:mockito-core:3.3.3',
+            'org.powermock:powermock-api-mockito2:2.0.5',
+            'org.powermock:powermock-core:2.0.5',
+            'org.assertj:assertj-core:3.15.0',
+            'org.assertj:assertj-swing-junit:3.9.2',
+            'com.aliyun.oss:aliyun-sdk-oss:3.8.1'
+    )
 }
