@@ -49,20 +49,6 @@ import lombok.Data;
  */
 @Data
 public class MikState {
-    /** 加密盐值 */
-    public static final String WEIBOKEY = "ekjgbpiq!g34o@erberb.erbmkv.c;,ergw_.";
-    /** ALIYUN */
-    public static final String ALIYUN = "awj7@piq!g3jo@er_erb.erbsrxhc!,wr.w_1";
-    /** BAIDU */
-    public static final String BAIDU = "efweg23142f!@23q4t=23rtfw_23tr1!2r.123";
-    /** QINIU */
-    public static final String QINIU = "gerb2.erhgds'5yf@4ybtree!43h34hbd4_";
-    /** TENCENT */
-    public static final String TENCENT = "xg13g143fvsdklo)2,m.we_123vds12e!#41c";
-    /** GITHUB */
-    public static final String GITHUB = "ewrg23e!3t@2i_324ugfvz2r29_hfvgdfbd23";
-    /** GITEE */
-    public static final String GITEE = "ewgkrblkjgbj@T*&!B_wlkjvbjhavt87112fsd";
 
     /** OLD_HASH_KEY */
     public static final String OLD_HASH_KEY = "old";

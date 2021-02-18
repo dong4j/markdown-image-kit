@@ -28,8 +28,9 @@ import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
+import info.dong4j.idea.plugin.settings.oss.TencentOssSetting;
 import info.dong4j.idea.plugin.settings.oss.TencentOssState;
-import info.dong4j.idea.plugin.util.DES;
+import info.dong4j.idea.plugin.util.PasswordManager;
 import info.dong4j.idea.plugin.util.QcloudCosUtils;
 import info.dong4j.idea.plugin.util.StringUtils;
 
@@ -83,7 +84,7 @@ public class TencentOssClient implements OssClient {
         TencentOssState tencentOssState = MikPersistenComponent.getInstance().getState().getTencentOssState();
         bucketName = tencentOssState.getBucketName();
         accessKey = tencentOssState.getAccessKey();
-        accessSecretKey = DES.decrypt(tencentOssState.getSecretKey(), MikState.TENCENT);
+        accessSecretKey = PasswordManager.getPassword(TencentOssSetting.CREDENTIAL_ATTRIBUTES);
         regionName = tencentOssState.getRegionName();
 
     }

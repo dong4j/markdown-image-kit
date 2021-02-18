@@ -24,12 +24,13 @@
 
 package info.dong4j.idea.plugin.settings.oss;
 
+import com.intellij.credentialStore.CredentialAttributes;
+
 import info.dong4j.idea.plugin.enums.ZoneEnum;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.swing.JTextFieldHintListener;
-import info.dong4j.idea.plugin.util.DES;
-import info.dong4j.idea.plugin.util.StringUtils;
+import info.dong4j.idea.plugin.util.PasswordManager;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -53,7 +54,13 @@ import javax.swing.JTextField;
  * @since 1.4.0
  */
 public class QiniuOssSetting implements OssSetting<QiniuOssState> {
+    /** CREDENTIAL_ATTRIBUTES */
+    public static final CredentialAttributes CREDENTIAL_ATTRIBUTES =
+        PasswordManager.buildCredentialAttributes(QiniuOssSetting.class.getName(),
+                                                  "QINIUOSS_SETTINGS_PASSWORD_KEY",
+                                                  QiniuOssSetting.class);
 
+    /** DOMAIN_HINT */
     private static final String DOMAIN_HINT = "http(s)://domain/";
 
     /** Qiniu oss bucket name text field */
@@ -91,6 +98,8 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
      * @param qiniuOssSouthChinaRadioButton    qiniu oss south china radio button
      * @param qiniuOssNorthAmeriaRadioButton   qiniu oss north ameria radio button
      * @param zoneIndexTextFiled               zone index text filed
+     * @param testButton                       test button
+     * @param testMessage                      test message
      * @since 1.4.0
      */
     public QiniuOssSetting(JTextField qiniuOssBucketNameTextField,
@@ -127,7 +136,7 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
      */
     @Override
     public void init(QiniuOssState state) {
-        this.qiniuOssAccessSecretKeyTextField.setText(DES.decrypt(state.getAccessSecretKey(), MikState.QINIU));
+        this.qiniuOssAccessSecretKeyTextField.setText(PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES));
 
         this.qiniuOssUpHostTextField.addFocusListener(new JTextFieldHintListener(this.qiniuOssUpHostTextField, DOMAIN_HINT));
 
@@ -180,9 +189,7 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
         String bucketName = this.qiniuOssBucketNameTextField.getText().trim();
         String accessKey = this.qiniuOssAccessKeyTextField.getText().trim();
         String secretKey = new String(this.qiniuOssAccessSecretKeyTextField.getPassword());
-        if (StringUtils.isNotBlank(secretKey)) {
-            secretKey = DES.encrypt(secretKey, MikState.QINIU);
-        }
+
         // todo-dong4j : (2019年03月19日 21:01) [重构为 domain]
         String endpoint = JTextFieldHintListener.getRealText(this.qiniuOssUpHostTextField, DOMAIN_HINT);
         // todo-dong4j : (2019年03月19日 21:13) [zone]
@@ -190,7 +197,7 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
 
         return bucketName.equals(state.getBucketName())
                && accessKey.equals(state.getAccessKey())
-               && secretKey.equals(state.getAccessSecretKey())
+               && secretKey.equals(PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES))
                && zoneIndex == state.getZoneIndex()
                && endpoint.equals(state.getEndpoint());
     }
@@ -218,12 +225,9 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
                        endpoint.hashCode();
         OssState.saveStatus(state, hashcode, MikState.NEW_HASH_KEY);
 
-        if (StringUtils.isNotBlank(secretKey)) {
-            secretKey = DES.encrypt(secretKey, MikState.QINIU);
-        }
         state.setBucketName(bucketName);
         state.setAccessKey(accessKey);
-        state.setAccessSecretKey(secretKey);
+        PasswordManager.setPassword(CREDENTIAL_ATTRIBUTES, secretKey);
         state.setEndpoint(endpoint);
         state.setZoneIndex(zoneIndex);
     }
@@ -238,8 +242,7 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
     public void reset(QiniuOssState state) {
         this.qiniuOssBucketNameTextField.setText(state.getBucketName());
         this.qiniuOssAccessKeyTextField.setText(state.getAccessKey());
-        String accessSecretKey = state.getAccessSecretKey();
-        this.qiniuOssAccessSecretKeyTextField.setText(DES.decrypt(accessSecretKey, MikState.QINIU));
+        this.qiniuOssAccessSecretKeyTextField.setText(PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES));
         this.qiniuOssUpHostTextField.setText(state.getEndpoint());
         JTextFieldHintListener.init(this.qiniuOssUpHostTextField, DOMAIN_HINT);
         this.zoneIndexTextFiled.setText(String.valueOf(state.getZoneIndex()));

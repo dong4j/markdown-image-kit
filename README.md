@@ -138,3 +138,5 @@ java.lang.Throwable: Element component@ImageManagerSetting.option.WeiboOssState.
 ```
 
 打开上面的文件, 删除 `<component name="ImageManagerSetting">` 节点
+
+![](https://dong4j-imgs.oss-cn-hangzhou.aliyuncs.com/aaa/MIK-C8LUI4.png)

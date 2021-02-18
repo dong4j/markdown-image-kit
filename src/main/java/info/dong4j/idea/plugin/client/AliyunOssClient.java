@@ -26,11 +26,11 @@ package info.dong4j.idea.plugin.client;
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
-import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.oss.AbstractExtendOssState;
+import info.dong4j.idea.plugin.settings.oss.AliyunOssSetting;
 import info.dong4j.idea.plugin.settings.oss.AliyunOssState;
 import info.dong4j.idea.plugin.util.AliyunOssUtils;
-import info.dong4j.idea.plugin.util.DES;
+import info.dong4j.idea.plugin.util.PasswordManager;
 import info.dong4j.idea.plugin.util.StringUtils;
 
 import org.jetbrains.annotations.Contract;
@@ -66,7 +66,7 @@ public class AliyunOssClient extends AbstractOssClient {
     private static void init() {
         AliyunOssState aliyunOssState = MikPersistenComponent.getInstance().getState().getAliyunOssState();
         accessKey = aliyunOssState.getAccessKey();
-        accessSecretKey = DES.decrypt(aliyunOssState.getAccessSecretKey(), MikState.ALIYUN);
+        accessSecretKey = PasswordManager.getPassword(AliyunOssSetting.CREDENTIAL_ATTRIBUTES);
         endpoint = aliyunOssState.getEndpoint();
         String tempFileDir = aliyunOssState.getFiledir();
         filedir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";

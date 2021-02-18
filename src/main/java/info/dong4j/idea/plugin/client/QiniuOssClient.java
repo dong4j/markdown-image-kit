@@ -35,9 +35,10 @@ import info.dong4j.idea.plugin.enums.ZoneEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
+import info.dong4j.idea.plugin.settings.oss.QiniuOssSetting;
 import info.dong4j.idea.plugin.settings.oss.QiniuOssState;
-import info.dong4j.idea.plugin.util.DES;
 import info.dong4j.idea.plugin.util.EnumsUtils;
+import info.dong4j.idea.plugin.util.PasswordManager;
 import info.dong4j.idea.plugin.util.StringUtils;
 
 import org.apache.http.util.Asserts;
@@ -90,7 +91,7 @@ public class QiniuOssClient implements OssClient {
         QiniuOssState qiniuOssState = MikPersistenComponent.getInstance().getState().getQiniuOssState();
         domain = qiniuOssState.getEndpoint();
         String accessKey = qiniuOssState.getAccessKey();
-        String secretKey = DES.decrypt(qiniuOssState.getAccessSecretKey(), MikState.QINIU);
+        String secretKey = PasswordManager.getPassword(QiniuOssSetting.CREDENTIAL_ATTRIBUTES);
         String bucketName = qiniuOssState.getBucketName();
 
         Optional<ZoneEnum> zone = EnumsUtils.getEnumObject(ZoneEnum.class, e -> e.getIndex() == qiniuOssState.getZoneIndex());

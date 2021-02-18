@@ -24,7 +24,9 @@
 
 package info.dong4j.idea.plugin.settings.oss;
 
-import info.dong4j.idea.plugin.settings.MikState;
+import com.intellij.credentialStore.CredentialAttributes;
+
+import info.dong4j.idea.plugin.util.PasswordManager;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -34,7 +36,6 @@ import javax.swing.JTextField;
 /**
  * <p>Company: 成都返空汇网络技术有限公司</p>
  * <p>Description:  </p>
- * todo-dong4j : (2021.02.16 01:27) [与 AliyunOssSetting 一起重构]
  *
  * @author dong4j
  * @version 1.0.0
@@ -43,6 +44,12 @@ import javax.swing.JTextField;
  * @since 1.1.0
  */
 public class BaiduBosSetting extends AbstractOssSetting<BaiduBosState> {
+    /** CREDENTIAL_ATTRIBUTES */
+    public static final CredentialAttributes CREDENTIAL_ATTRIBUTES =
+        PasswordManager.buildCredentialAttributes(BaiduBosSetting.class.getName(),
+                                                  "BAIDUBOS_SETTINGS_PASSWORD_KEY",
+                                                  BaiduBosSetting.class);
+
     /** BAIDU_HELPER_DOC */
     private static final String BAIDU_HELPER_DOC = "https://cloud.baidu.com/doc/BOS/s/ckaqihkra";
 
@@ -93,14 +100,13 @@ public class BaiduBosSetting extends AbstractOssSetting<BaiduBosState> {
     }
 
     /**
-     * Gets key *
+     * Credential attributes
      *
-     * @return the key
-     * @since 1.1.0
+     * @return the credential attributes
+     * @since 1.6.0
      */
     @Override
-    protected String getKey() {
-        return MikState.BAIDU;
+    protected CredentialAttributes credentialAttributes() {
+        return CREDENTIAL_ATTRIBUTES;
     }
-
 }

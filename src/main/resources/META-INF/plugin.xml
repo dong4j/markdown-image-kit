@@ -54,9 +54,6 @@
         <li>The bed migration plan, the free flow is used up? It is not ok to move to another free map bed;</li>
     </ul>
     <br/>
-    <p>Warning: if you synchronize the settings of the IDE to github/gitee, please set the repository to private, otherwise the key may be exposed</p>
-    <br/>
-    <br/>
     <br/>
     <p><b>Markdown Image Kit</b> 是一款在 IDEA 中方便高效得管理 Markdown 文档图片的插件.</p>
     <p>在 IntelliJ IDEA 中写作(主要是技术文档), 配图成了一个大问题, 我们需要借助其他 APP 来完成这一操作.</p>
@@ -73,13 +70,29 @@
         <li>图床迁移计划, 免费流量用完了? 迁移到另一个免费图床不就 ok 了;</li>
     </ul>
     <br/>
-    <p>警告, 如果将 IDE 的设置同步到 github/gitee, 请将仓库设置为私有, 否则有可能暴露密钥.</p>
-    <br/>
     <br/>
     <br/>
     ]]></description>
 
     <change-notes><![CDATA[
+      <p>1.6.0-RELEASE</p>
+      <ul>
+        <li>Use Intellij Credentials API instead of DES encryption, so you need to reset the key/Token</li>
+      </ul>
+      <ul>
+        <li>使用 Intellij Credentials API 代替 DES 加密, 因此需要重新设置密钥/Token, 启动时会弹出认证信息:</li>
+        <img src="https://dong4j-imgs.oss-cn-hangzhou.aliyuncs.com/aaa/MIK-C8LUI4.png" border="0" width="700" alt="">
+        <ul>
+            <li>info.dong4j.idea.plugin.settings.oss.WeiboOssSetting</li>
+            <li>info.dong4j.idea.plugin.settings.oss.AliyunOssSetting</li>
+            <li>info.dong4j.idea.plugin.settings.oss.QiniuOssSetting</li>
+            <li>info.dong4j.idea.plugin.settings.oss.TencentOssSetting</li>
+            <li>info.dong4j.idea.plugin.settings.oss.BaiduBosSetting</li>
+            <li>info.dong4j.idea.plugin.settings.oss.GithubSetting</li>
+            <li>info.dong4j.idea.plugin.settings.oss.GiteeSetting</li>
+        </ul>
+       </ul>
+      <br/>
       <p>1.5.0-RELEASE</p>
       <ul>
         <li>Add custom image bed support, <a href="https://github.com/dong4j/mik-help">API demo</a> </li>

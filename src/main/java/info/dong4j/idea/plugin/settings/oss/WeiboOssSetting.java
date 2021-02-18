@@ -24,10 +24,11 @@
 
 package info.dong4j.idea.plugin.settings.oss;
 
+import com.intellij.credentialStore.CredentialAttributes;
+
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
-import info.dong4j.idea.plugin.util.DES;
-import info.dong4j.idea.plugin.util.StringUtils;
+import info.dong4j.idea.plugin.util.PasswordManager;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -45,6 +46,11 @@ import javax.swing.JTextField;
  * @since 1.4.0
  */
 public class WeiboOssSetting implements OssSetting<WeiboOssState> {
+    /** CREDENTIAL_ATTRIBUTES */
+    public static final CredentialAttributes CREDENTIAL_ATTRIBUTES =
+        PasswordManager.buildCredentialAttributes(WeiboOssSetting.class.getName(),
+                                                  "WEIBOOSS_SETTINGS_PASSWORD_KEY",
+                                                  WeiboOssSetting.class);
     /** Weibo user name text field */
     private final JTextField weiboUserNameTextField;
     /** Weibo password field */
@@ -73,7 +79,7 @@ public class WeiboOssSetting implements OssSetting<WeiboOssState> {
     @Override
     public void init(WeiboOssState weiboOssState) {
         this.weiboUserNameTextField.setText(weiboOssState.getUsername());
-        this.weiboPasswordField.setText(DES.decrypt(weiboOssState.getSecretkey(), MikState.WEIBOKEY));
+        this.weiboPasswordField.setText(PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES));
     }
 
     /**
@@ -87,11 +93,9 @@ public class WeiboOssSetting implements OssSetting<WeiboOssState> {
     public boolean isModified(@NotNull WeiboOssState state) {
         String weiboUsername = this.weiboUserNameTextField.getText().trim();
         String weiboPassword = new String(this.weiboPasswordField.getPassword());
-        if (StringUtils.isNotBlank(weiboPassword)) {
-            weiboPassword = DES.encrypt(weiboPassword, MikState.WEIBOKEY);
-        }
+        String oldWeiboPassword = PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES);
         return weiboUsername.equals(state.getUsername())
-               && weiboPassword.equals(state.getSecretkey());
+               && weiboPassword.equals(oldWeiboPassword);
     }
 
     /**
@@ -104,17 +108,13 @@ public class WeiboOssSetting implements OssSetting<WeiboOssState> {
     public void apply(@NotNull WeiboOssState state) {
         // 处理 weibo 保存时的逻辑 (保存之前必须通过测试, 右键菜单才可用)
         String username = this.weiboUserNameTextField.getText().trim();
-        String password = new String(this.weiboPasswordField.getPassword());
+        String weiboPassword = new String(this.weiboPasswordField.getPassword());
         // 需要在加密之前计算 hashcode
-        int hashcode = username.hashCode() + password.hashCode();
+        int hashcode = username.hashCode() + weiboPassword.hashCode();
         OssState.saveStatus(state, hashcode, MikState.NEW_HASH_KEY);
 
-        if (StringUtils.isNotBlank(password)) {
-            password = DES.encrypt(password, MikState.WEIBOKEY);
-        }
-
         state.setUsername(username);
-        state.setSecretkey(password);
+        PasswordManager.setPassword(CREDENTIAL_ATTRIBUTES, weiboPassword);
     }
 
     /**
@@ -126,6 +126,7 @@ public class WeiboOssSetting implements OssSetting<WeiboOssState> {
     @Override
     public void reset(WeiboOssState state) {
         this.weiboUserNameTextField.setText(state.getUsername());
-        this.weiboPasswordField.setText(DES.decrypt(state.getSecretkey(), MikState.WEIBOKEY));
+        this.weiboPasswordField.setText(PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES));
     }
+
 }

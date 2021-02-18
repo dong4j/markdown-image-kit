@@ -131,4 +131,17 @@ public class StringUtils {
     private static byte[] getBytes(String string, Charset charset) {
         return string == null ? null : string.getBytes(charset);
     }
+
+    /**
+     * Default if empty
+     *
+     * @param str        str
+     * @param defaultStr default str
+     * @return the string
+     * @since 1.6.0
+     */
+    public static String defaultIfEmpty(String str, String defaultStr) {
+        return isEmpty(str) ? defaultStr : str;
+    }
+
 }

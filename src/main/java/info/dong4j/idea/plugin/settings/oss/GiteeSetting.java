@@ -24,7 +24,9 @@
 
 package info.dong4j.idea.plugin.settings.oss;
 
-import info.dong4j.idea.plugin.settings.MikState;
+import com.intellij.credentialStore.CredentialAttributes;
+
+import info.dong4j.idea.plugin.util.PasswordManager;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -42,8 +44,13 @@ import javax.swing.JTextField;
  * @since 1.4.0
  */
 public class GiteeSetting extends AbstractOpenOssSetting<GiteeOssState> {
+    /** CREDENTIAL_ATTRIBUTES */
+    public static final CredentialAttributes CREDENTIAL_ATTRIBUTES =
+        PasswordManager.buildCredentialAttributes(GiteeSetting.class.getName(),
+                                                  "GITEE_SETTINGS_PASSWORD_KEY",
+                                                  GiteeSetting.class);
     /** BAIDU_HELPER_DOC formatter:off */
-    private static final String HELPER_DOC = "https://gitee.com/help/articles/4228";
+private static final String HELPER_DOC = "https://gitee.com/help/articles/4228";
     /** formatter:on GITHUB_API */
     private static final String GITEE_API = "https://gitee.com/api/v5";
     /** REPOS_HINT */
@@ -98,17 +105,6 @@ public class GiteeSetting extends AbstractOpenOssSetting<GiteeOssState> {
     }
 
     /**
-     * Gets key *
-     *
-     * @return the key
-     * @since 1.3.0
-     */
-    @Override
-    protected String getKey() {
-        return MikState.GITEE;
-    }
-
-    /**
      * Api
      *
      * @return the string
@@ -117,5 +113,16 @@ public class GiteeSetting extends AbstractOpenOssSetting<GiteeOssState> {
     @Override
     protected String api() {
         return GITEE_API;
+    }
+
+    /**
+     * Credential attributes
+     *
+     * @return the string
+     * @since 1.6.0
+     */
+    @Override
+    protected CredentialAttributes credentialAttributes() {
+        return CREDENTIAL_ATTRIBUTES;
     }
 }

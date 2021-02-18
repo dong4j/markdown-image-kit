@@ -30,9 +30,10 @@ import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
+import info.dong4j.idea.plugin.settings.oss.WeiboOssSetting;
 import info.dong4j.idea.plugin.settings.oss.WeiboOssState;
-import info.dong4j.idea.plugin.util.DES;
 import info.dong4j.idea.plugin.util.ImageUtils;
+import info.dong4j.idea.plugin.util.PasswordManager;
 import info.dong4j.idea.plugin.util.StringUtils;
 import info.dong4j.idea.plugin.weibo.CookieContext;
 import info.dong4j.idea.plugin.weibo.UploadRequestBuilder;
@@ -84,7 +85,7 @@ public class WeiboOssClient implements OssClient {
     private static void init() {
         WeiboOssState weiboOssState = MikPersistenComponent.getInstance().getState().getWeiboOssState();
         String username = weiboOssState.getUsername();
-        String password = DES.decrypt(weiboOssState.getSecretkey(), MikState.WEIBOKEY);
+        String password = PasswordManager.getPassword(WeiboOssSetting.CREDENTIAL_ATTRIBUTES);
 
         try {
             ossClient = new UploadRequestBuilder()

@@ -24,6 +24,7 @@
 
 package info.dong4j.idea.plugin.settings.oss;
 
+import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.JBColor;
 
@@ -32,7 +33,7 @@ import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.settings.ProjectSettingsPage;
 import info.dong4j.idea.plugin.swing.JTextFieldHintListener;
-import info.dong4j.idea.plugin.util.DES;
+import info.dong4j.idea.plugin.util.PasswordManager;
 import info.dong4j.idea.plugin.util.StringUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -53,6 +54,7 @@ import javax.swing.event.DocumentEvent;
  * <p>Company: 成都返空汇网络技术有限公司</p>
  * <p>Description:  </p>
  *
+ * @param <T> parameter
  * @author dong4j
  * @version 1.0.0
  * @email "mailto:dong4j@fkhwl.com"
@@ -93,6 +95,8 @@ public abstract class AbstractOpenOssSetting<T extends AbstractOpenOssState> imp
      * @param customEndpointTextField custom endpoint text field
      * @param customEndpointHelper    custom endpoint helper
      * @param exampleTextField        example text field
+     * @param reposHint               repos hint
+     * @param branchHint              branch hint
      * @since 1.3.0
      */
     public AbstractOpenOssSetting(JTextField reposTextField,
@@ -128,20 +132,20 @@ public abstract class AbstractOpenOssSetting<T extends AbstractOpenOssState> imp
     protected abstract String getHelpDoc();
 
     /**
-     * Gets key *
-     *
-     * @return the key
-     * @since 1.3.0
-     */
-    protected abstract String getKey();
-
-    /**
      * Api
      *
      * @return the string
      * @since 1.4.0
      */
     protected abstract String api();
+
+    /**
+     * Credential attributes
+     *
+     * @return the credential attributes
+     * @since 1.6.0
+     */
+    protected abstract CredentialAttributes credentialAttributes();
 
     /**
      * 初始化 oss 认证相关设置
@@ -151,8 +155,7 @@ public abstract class AbstractOpenOssSetting<T extends AbstractOpenOssState> imp
      */
     @Override
     public void init(T state) {
-        String token = state.getToken();
-        this.tokenTextField.setText(DES.decrypt(token, this.getKey()));
+        this.tokenTextField.setText(PasswordManager.getPassword(this.credentialAttributes()));
 
         this.setExampleText(false);
 
@@ -257,6 +260,7 @@ public abstract class AbstractOpenOssSetting<T extends AbstractOpenOssState> imp
     /**
      * Is modified
      *
+     * @param state state
      * @return the boolean
      * @since 1.3.0
      */
@@ -265,16 +269,14 @@ public abstract class AbstractOpenOssSetting<T extends AbstractOpenOssState> imp
         String repos = JTextFieldHintListener.getRealText(this.reposTextField, this.reposHint);
         String branch = JTextFieldHintListener.getRealText(this.branchTextField, this.branchHint);
         String token = new String(this.tokenTextField.getPassword());
-        if (StringUtils.isNotBlank(token)) {
-            token = DES.encrypt(token, this.getKey());
-        }
+
         String filedir = this.fileDirTextField.getText().trim();
         String customEndpoint = this.customEndpointTextField.getText().trim();
         boolean isCustomEndpoint = this.customEndpointCheckBox.isSelected();
 
         return repos.equals(state.getRepos())
                && branch.equals(state.getBranch())
-               && token.equals(state.getToken())
+               && token.equals(PasswordManager.getPassword(this.credentialAttributes()))
                && filedir.equals(state.getFiledir())
                && state.getIsCustomEndpoint() == isCustomEndpoint
                && customEndpoint.equals(state.getCustomEndpoint());
@@ -283,6 +285,7 @@ public abstract class AbstractOpenOssSetting<T extends AbstractOpenOssState> imp
     /**
      * Apply
      *
+     * @param state state
      * @since 1.3.0
      */
     @Override
@@ -301,13 +304,9 @@ public abstract class AbstractOpenOssSetting<T extends AbstractOpenOssState> imp
 
         OssState.saveStatus(state, hashcode, MikState.NEW_HASH_KEY);
 
-        if (StringUtils.isNotBlank(token)) {
-            token = DES.encrypt(token, this.getKey());
-        }
-
         state.setRepos(repos);
         state.setBranch(branch);
-        state.setToken(token);
+        PasswordManager.setPassword(this.credentialAttributes(), token);
         state.setCustomEndpoint(customEndpoint);
         state.setIsCustomEndpoint(isCustomEndpoint);
         state.setFiledir(this.fileDirTextField.getText().trim());
@@ -326,8 +325,7 @@ public abstract class AbstractOpenOssSetting<T extends AbstractOpenOssState> imp
         this.branchTextField.setText(state.getBranch());
         JTextFieldHintListener.init(this.branchTextField, this.branchHint);
 
-        String token = state.getToken();
-        this.tokenTextField.setText(DES.decrypt(token, this.getKey()));
+        this.tokenTextField.setText(PasswordManager.getPassword(this.credentialAttributes()));
         this.fileDirTextField.setText(state.getFiledir());
 
         this.customEndpointCheckBox.setSelected(state.getIsCustomEndpoint());

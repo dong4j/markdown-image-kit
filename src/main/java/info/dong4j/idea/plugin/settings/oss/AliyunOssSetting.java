@@ -24,7 +24,9 @@
 
 package info.dong4j.idea.plugin.settings.oss;
 
-import info.dong4j.idea.plugin.settings.MikState;
+import com.intellij.credentialStore.CredentialAttributes;
+
+import info.dong4j.idea.plugin.util.PasswordManager;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -34,7 +36,6 @@ import javax.swing.JTextField;
 /**
  * <p>Company: 成都返空汇网络技术有限公司</p>
  * <p>Description:  </p>
- * todo-dong4j : (2021.02.16 01:27) [与 BaiduBosSetting 一起重构]
  *
  * @author dong4j
  * @version 1.0.0
@@ -43,9 +44,15 @@ import javax.swing.JTextField;
  * @since 1.1.0
  */
 public class AliyunOssSetting extends AbstractOssSetting<AliyunOssState> {
+    /** CREDENTIAL_ATTRIBUTES */
+    public static final CredentialAttributes CREDENTIAL_ATTRIBUTES =
+        PasswordManager.buildCredentialAttributes(AliyunOssSetting.class.getName(),
+                                                  "ALIYUNOSS_SETTINGS_PASSWORD_KEY",
+                                                  AliyunOssSetting.class);
+
     /** helperDoc */
     private static final String ALIYUN_HELPER_DOC = "https://help.aliyun.com/document_detail/31836.html";
-    
+
     /**
      * Aliyun oss setting
      *
@@ -93,14 +100,14 @@ public class AliyunOssSetting extends AbstractOssSetting<AliyunOssState> {
     }
 
     /**
-     * Gets key *
+     * Credential attributes
      *
-     * @return the key
-     * @since 1.1.0
+     * @return the credential attributes
+     * @since 1.6.0
      */
     @Override
-    protected String getKey() {
-        return MikState.ALIYUN;
+    protected CredentialAttributes credentialAttributes() {
+        return CREDENTIAL_ATTRIBUTES;
     }
 
 }
