@@ -143,6 +143,6 @@ java.lang.Throwable: Element component@ImageManagerSetting.option.WeiboOssState.
 
 ![](https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/MIK-xsWVla.png)
 
-![](https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/MIK-Bh2e1v.png)
+![](https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/MIK-lE5Y3U.png)
 
-![](https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/MIK-FcmTXv.png)
+![](https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/MIK-lRpO0E.png)
