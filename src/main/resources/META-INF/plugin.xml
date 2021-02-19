@@ -44,7 +44,7 @@
                              implementationClass="info.dong4j.idea.plugin.action.paste.PasteImageAction"
                              order="first"/>
         <!-- 设置面板 -->
-        <applicationConfigurable groupId="tools" instance="info.dong4j.idea.plugin.settings.ProjectSettingsPage"/>
+        <applicationConfigurable groupId="other" instance="info.dong4j.idea.plugin.settings.ProjectSettingsPage"/>
         <!-- 持久化 -->
         <applicationService serviceImplementation="info.dong4j.idea.plugin.settings.MikPersistenComponent"/>
         <!-- alt + enter -->
