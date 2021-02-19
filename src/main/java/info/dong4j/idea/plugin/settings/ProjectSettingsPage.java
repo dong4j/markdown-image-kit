@@ -90,6 +90,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JPanel myMainPanel;
 
     //region authorizationPanel
+    private JPanel authorizationPanel;
     /** Authorization tabbed panel */
     private JTabbedPane authorizationTabbedPanel;
 
@@ -238,7 +239,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JTextField giteeExampleTextField;
     //endregion
 
-    /** 按钮 group */
+    /** Test button */
     private JButton testButton;
     /** Help button */
     private JButton helpButton;
