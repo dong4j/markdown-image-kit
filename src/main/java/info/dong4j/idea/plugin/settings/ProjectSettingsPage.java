@@ -28,7 +28,6 @@ import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.ui.JBColor;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.client.OssClient;
@@ -578,9 +577,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.defaultCloudCheckBox.setSelected(isDefaultCloudCheck);
         // 没有设置默认图床, 则显示提示消息
         if (!isDefaultCloudCheck) {
-            this.customMessage.setText("未设置默认图床时, 将使用 sm.ms 作为默认图床");
+            this.customMessage.setText("sm.ms");
         } else {
-            this.customMessage.setText(OssState.getStatus(state.getCloudType()) ? "" : "当前 OSS 不可用, 将使用 sm.ms 作为默认图床");
+            this.customMessage.setText(OssState.getStatus(state.getCloudType()) ? "" : "当前 OSS 不可用!");
         }
         this.defaultCloudComboBox.setEnabled(isDefaultCloudCheck);
         this.defaultCloudComboBox.setSelectedIndex(state.getCloudType());
@@ -624,11 +623,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private void showSelectCloudMessage(int cloudType) {
         if (this.defaultCloudCheckBox.isSelected()) {
             boolean isClientEnable = OssState.getStatus(cloudType);
-            this.customMessage.setText(isClientEnable ? "" : "当前 OSS 不可用, 将使用 sm.ms 作为默认图床");
-            this.customMessage.setForeground(isClientEnable ? JBColor.WHITE : JBColor.RED);
+            this.customMessage.setText(isClientEnable ? "" : "当前 OSS 不可用!");
         } else {
-            this.customMessage.setText("未设置默认图床时, 将使用 sm.ms 作为默认图床");
-            this.customMessage.setForeground(JBColor.WHITE);
+            this.customMessage.setText("sm.ms");
         }
     }
 
