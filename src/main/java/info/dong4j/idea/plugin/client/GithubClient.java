@@ -24,6 +24,7 @@
 
 package info.dong4j.idea.plugin.client;
 
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.oss.AbstractOpenOssState;
@@ -190,7 +191,7 @@ public class GithubClient extends AbstractOpenClient {
      */
     @Override
     protected void check(String branch) {
-        Asserts.check(!branch.equals("master"), "error branch name");
+        Asserts.check(!branch.equals("master"), MikBundle.message("error.branch.name"));
     }
 
 }

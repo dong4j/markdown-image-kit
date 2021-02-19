@@ -27,6 +27,7 @@ package info.dong4j.idea.plugin.chain;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.progress.ProgressIndicator;
 
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
@@ -55,7 +56,7 @@ public class InsertToClipboardHandler extends ActionHandlerAdapter {
      */
     @Override
     public String getName() {
-        return "写入到 clipboard";
+        return MikBundle.message("mik.action.write.clipboard.title");
     }
 
     /**

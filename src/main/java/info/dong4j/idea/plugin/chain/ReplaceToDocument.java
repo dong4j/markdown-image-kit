@@ -28,6 +28,7 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.progress.ProgressIndicator;
 
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.util.StringUtils;
@@ -54,7 +55,7 @@ public class ReplaceToDocument extends ActionHandlerAdapter {
      */
     @Override
     public String getName() {
-        return "替换原有标签";
+        return MikBundle.message("mik.action.replace.old.title");
     }
 
     /**

@@ -53,10 +53,6 @@ public class GiteeSetting extends AbstractOpenOssSetting<GiteeOssState> {
     private static final String HELPER_DOC = "https://gitee.com/help/articles/4228";
     /** GITHUB_API */
     private static final String GITEE_API = "https://gitee.com/api/v5";
-    /** REPOS_HINT */
-    private static final String REPOS_HINT = "格式: owner/repos";
-    /** BRANCH_HINT */
-    private static final String BRANCH_HINT = "与 GitHub 不同, master 就是 master";
 
     /**
      * Baidu bos setting
@@ -87,9 +83,7 @@ public class GiteeSetting extends AbstractOpenOssSetting<GiteeOssState> {
               customEndpointCheckBox,
               customEndpointTextField,
               customEndpointHelper,
-              exampleTextField,
-              REPOS_HINT,
-              BRANCH_HINT);
+              exampleTextField);
 
     }
 

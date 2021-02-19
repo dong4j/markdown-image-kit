@@ -26,6 +26,7 @@ package info.dong4j.idea.plugin.client;
 
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
+import info.dong4j.idea.plugin.settings.oss.AbstractOpenOssSetting;
 import info.dong4j.idea.plugin.settings.oss.AbstractOpenOssState;
 import info.dong4j.idea.plugin.util.StringUtils;
 
@@ -63,6 +64,15 @@ public abstract class AbstractOpenClient implements OssClient {
     /** customEndpoint */
     protected static String customEndpoint;
 
+    /**
+     * Upload
+     *
+     * @param inputStream input stream
+     * @param fileName    file name
+     * @return the string
+     * @throws Exception exception
+     * @since 1.6.0
+     */
     @Override
     public String upload(InputStream inputStream, String fileName) throws Exception {
         String key = filedir + fileName;
@@ -86,12 +96,14 @@ public abstract class AbstractOpenClient implements OssClient {
      * @param fileName    the file name
      * @param jPanel      the j panel
      * @return the string
+     * @throws Exception exception
      * @since 1.3.0
      */
     @Override
     public String upload(InputStream inputStream, String fileName, JPanel jPanel) throws Exception {
         Map<String, String> map = this.getTestFieldText(jPanel);
         String repos = map.get("repos");
+        repos = AbstractOpenOssSetting.REPOS_HINT.equals(repos) ? "" : repos;
         String branch = map.get("branch");
         String token = map.get("token");
         String filedir = map.get("filedir");
@@ -101,6 +113,7 @@ public abstract class AbstractOpenClient implements OssClient {
         Asserts.notBlank(repos, "仓库名");
         Asserts.notBlank(branch, "分支名");
         Asserts.notBlank(token, "Token");
+
 
         this.check(branch);
 
@@ -117,7 +130,7 @@ public abstract class AbstractOpenClient implements OssClient {
     /**
      * Check
      *
-     * @param branch
+     * @param branch branch
      * @since 1.4.0
      */
     protected void check(String branch) {

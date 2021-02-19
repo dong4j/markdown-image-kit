@@ -62,7 +62,8 @@ import javax.swing.event.DocumentEvent;
  * @since 1.4.0
  */
 public abstract class AbstractOpenOssSetting<T extends AbstractOpenOssState> implements OssSetting<T> {
-
+    /** REPOS_HINT */
+    public static final String REPOS_HINT = "格式: owner/repos";
     /** Repos text field */
     private final JTextField reposTextField;
     /** Branch text field */
@@ -79,10 +80,6 @@ public abstract class AbstractOpenOssSetting<T extends AbstractOpenOssState> imp
     private final JLabel customEndpointHelper;
     /** Example text field */
     private final JTextField exampleTextField;
-    /** REPOS_HINT */
-    private final String reposHint;
-    /** BRANCH_HINT */
-    private final String branchHint;
 
     /**
      * Baidu bos setting
@@ -95,8 +92,6 @@ public abstract class AbstractOpenOssSetting<T extends AbstractOpenOssState> imp
      * @param customEndpointTextField custom endpoint text field
      * @param customEndpointHelper    custom endpoint helper
      * @param exampleTextField        example text field
-     * @param reposHint               repos hint
-     * @param branchHint              branch hint
      * @since 1.3.0
      */
     public AbstractOpenOssSetting(JTextField reposTextField,
@@ -106,9 +101,7 @@ public abstract class AbstractOpenOssSetting<T extends AbstractOpenOssState> imp
                                   JCheckBox customEndpointCheckBox,
                                   JTextField customEndpointTextField,
                                   JLabel customEndpointHelper,
-                                  JTextField exampleTextField,
-                                  String reposHint,
-                                  String branchHint) {
+                                  JTextField exampleTextField) {
 
         this.reposTextField = reposTextField;
         this.branchTextField = branchTextField;
@@ -118,8 +111,6 @@ public abstract class AbstractOpenOssSetting<T extends AbstractOpenOssState> imp
         this.customEndpointTextField = customEndpointTextField;
         this.customEndpointHelper = customEndpointHelper;
         this.exampleTextField = exampleTextField;
-        this.reposHint = reposHint;
-        this.branchHint = branchHint;
 
     }
 
@@ -172,8 +163,7 @@ public abstract class AbstractOpenOssSetting<T extends AbstractOpenOssState> imp
             }
         };
 
-        this.reposTextField.addFocusListener(new JTextFieldHintListener(this.reposTextField, this.reposHint));
-        this.branchTextField.addFocusListener(new JTextFieldHintListener(this.branchTextField, this.branchHint));
+        this.reposTextField.addFocusListener(new JTextFieldHintListener(this.reposTextField, REPOS_HINT));
 
         this.reposTextField.getDocument().addDocumentListener(documentAdapter);
         this.fileDirTextField.getDocument().addDocumentListener(documentAdapter);
@@ -236,7 +226,7 @@ public abstract class AbstractOpenOssSetting<T extends AbstractOpenOssState> imp
         } else {
             fileDir = StringUtils.isBlank(this.fileDirTextField.getText().trim()) ? "" :
                       "/" + this.fileDirTextField.getText().trim();
-            String repos = JTextFieldHintListener.getRealText(this.reposTextField, this.reposHint);
+            String repos = JTextFieldHintListener.getRealText(this.reposTextField, REPOS_HINT);
             url = this.api() + "/repos/" + repos + "/contents";
             this.exampleTextField.setText(url + fileDir + "/" + ProjectSettingsPage.TEST_FILE_NAME);
         }
@@ -266,8 +256,8 @@ public abstract class AbstractOpenOssSetting<T extends AbstractOpenOssState> imp
      */
     @Override
     public boolean isModified(@NotNull T state) {
-        String repos = JTextFieldHintListener.getRealText(this.reposTextField, this.reposHint);
-        String branch = JTextFieldHintListener.getRealText(this.branchTextField, this.branchHint);
+        String repos = JTextFieldHintListener.getRealText(this.reposTextField, REPOS_HINT);
+        String branch = this.branchTextField.getText().trim();
         String token = new String(this.tokenTextField.getPassword());
 
         String filedir = this.fileDirTextField.getText().trim();
@@ -290,8 +280,8 @@ public abstract class AbstractOpenOssSetting<T extends AbstractOpenOssState> imp
      */
     @Override
     public void apply(@NotNull T state) {
-        String repos = JTextFieldHintListener.getRealText(this.reposTextField, this.reposHint);
-        String branch = JTextFieldHintListener.getRealText(this.branchTextField, this.branchHint);
+        String repos = JTextFieldHintListener.getRealText(this.reposTextField, REPOS_HINT);
+        String branch = this.branchTextField.getText().trim();
         String token = new String(this.tokenTextField.getPassword());
         String customEndpoint = this.customEndpointTextField.getText().trim();
         boolean isCustomEndpoint = this.customEndpointCheckBox.isSelected();
@@ -321,9 +311,8 @@ public abstract class AbstractOpenOssSetting<T extends AbstractOpenOssState> imp
     @Override
     public void reset(T state) {
         this.reposTextField.setText(state.getRepos());
-        JTextFieldHintListener.init(this.reposTextField, this.reposHint);
+        JTextFieldHintListener.init(this.reposTextField, REPOS_HINT);
         this.branchTextField.setText(state.getBranch());
-        JTextFieldHintListener.init(this.branchTextField, this.branchHint);
 
         this.tokenTextField.setText(PasswordManager.getPassword(this.credentialAttributes()));
         this.fileDirTextField.setText(state.getFiledir());

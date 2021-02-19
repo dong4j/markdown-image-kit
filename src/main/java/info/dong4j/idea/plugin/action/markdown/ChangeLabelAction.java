@@ -97,7 +97,7 @@ public final class ChangeLabelAction extends AnAction {
                 .addHandler(new ActionHandlerAdapter() {
                     @Override
                     public String getName() {
-                        return "全局替换标签";
+                        return MikBundle.message("mik.action.replace.label");
                     }
 
                     @Override

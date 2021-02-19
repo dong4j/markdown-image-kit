@@ -478,7 +478,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.helpButton.setText("Help & " + OssState.getCloudType(defaultCloudIndex).getTitle());
 
         this.authorizationTabbedPanel.addChangeListener(e -> {
-            this.testButton.setText("Test Upload");
             // 获得指定索引的选项卡标签
             int selectedIndex = this.authorizationTabbedPanel.getSelectedIndex();
             log.trace("change {}", this.authorizationTabbedPanel.getTitleAt(selectedIndex));

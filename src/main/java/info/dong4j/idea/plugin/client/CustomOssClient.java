@@ -36,6 +36,7 @@ import info.dong4j.idea.plugin.settings.CustomUploadErrorDialog;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
+import info.dong4j.idea.plugin.settings.oss.CustomOssSetting;
 import info.dong4j.idea.plugin.settings.oss.CustomOssState;
 import info.dong4j.idea.plugin.util.CustomOssUtils;
 import info.dong4j.idea.plugin.util.StringUtils;
@@ -246,8 +247,11 @@ public class CustomOssClient implements OssClient {
         Map<String, String> map = this.getTestFieldText(jPanel);
         String api = map.get("api");
         String requestKey = map.get("requestKey");
+        requestKey = CustomOssSetting.REQUES_TKEY_HINT.equals(requestKey) ? "" : requestKey;
         String responseUrlPath = map.get("responseUrlPath");
+        responseUrlPath = CustomOssSetting.RESPONSE_URL_PATH_HINT.equals(responseUrlPath) ? "" : responseUrlPath;
         String httpMethod = map.get("httpMethod");
+        httpMethod = CustomOssSetting.HTTP_METHOD_HINT.equals(httpMethod) ? "" : httpMethod;
 
         Asserts.notBlank(api, "api");
         Asserts.notBlank(requestKey, "发送到服务器的文件 key");

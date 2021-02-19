@@ -54,10 +54,6 @@ public class GithubSetting extends AbstractOpenOssSetting<GithubOssState> {
     private static final String HELPER_DOC = "https://docs.github.com/en/github/working-with-github-pages/configuring-a-custom-domain-for-your-github-pages-site";
     /** formatter:on GITHUB_API */
     private static final String GITHUB_API = "https://api.github.com";
-    /** REPOS_HINT */
-    private static final String REPOS_HINT = "格式: owner/repos";
-    /** BRANCH_HINT */
-    private static final String BRANCH_HINT = "使用 main 代替 master";
 
     /**
      * Baidu bos setting
@@ -88,9 +84,7 @@ public class GithubSetting extends AbstractOpenOssSetting<GithubOssState> {
               customEndpointCheckBox,
               customEndpointTextField,
               customEndpointHelper,
-              exampleTextField,
-              REPOS_HINT,
-              BRANCH_HINT);
+              exampleTextField);
 
     }
 

@@ -48,7 +48,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ImageLabelChangeHandler extends ActionHandlerAdapter {
     /** MESSAGE */
-    private static final String MESSAGE = "自定义标签格式设置错误, 请重新设置";
+    private static final String MESSAGE = MikBundle.message("mik.action.replace.custom.error.title");
 
     /**
      * Gets name *
@@ -58,7 +58,7 @@ public class ImageLabelChangeHandler extends ActionHandlerAdapter {
      */
     @Override
     public String getName() {
-        return "标签替换";
+        return MikBundle.message("mik.action.replace.title");
     }
 
     /**

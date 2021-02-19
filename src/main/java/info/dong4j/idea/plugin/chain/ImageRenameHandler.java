@@ -24,6 +24,7 @@
 
 package info.dong4j.idea.plugin.chain;
 
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.SuffixEnum;
@@ -64,7 +65,7 @@ public class ImageRenameHandler extends ActionHandlerAdapter {
      */
     @Override
     public String getName() {
-        return "图片重命名";
+        return MikBundle.message("mik.action.rename.title");
     }
 
     /**

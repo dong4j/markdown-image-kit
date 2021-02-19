@@ -43,4 +43,6 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 public class GiteeOssState extends AbstractOpenOssState {
 
+    /** Branch */
+    protected String branch = "master";
 }

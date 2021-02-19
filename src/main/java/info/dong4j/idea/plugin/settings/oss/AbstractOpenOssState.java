@@ -44,11 +44,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public abstract class AbstractOpenOssState extends OssState {
-    /** Endpoint */
+    /** Repos */
     private String repos = "";
-    /** Access key */
-    private String branch = "";
-    /** Access secret key */
+    /** Branch */
+    protected String branch = "";
+    /** Token */
     private String token = "";
     /** Filedir */
     private String filedir = "";

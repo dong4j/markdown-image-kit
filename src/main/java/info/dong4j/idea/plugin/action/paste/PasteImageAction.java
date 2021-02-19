@@ -41,6 +41,7 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.Producer;
 import com.intellij.util.containers.hash.HashMap;
 
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ActionManager;
 import info.dong4j.idea.plugin.chain.FinalChainHandler;
 import info.dong4j.idea.plugin.chain.ImageCompressionHandler;
@@ -194,7 +195,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
                             }
                         });
 
-                    new ActionTask(editor.getProject(), "Paste Task: ", manager).queue();
+                    new ActionTask(editor.getProject(), MikBundle.message("mik.action.paste.task"), manager).queue();
                     return;
                 }
             }

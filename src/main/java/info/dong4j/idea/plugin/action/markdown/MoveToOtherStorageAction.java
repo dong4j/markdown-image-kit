@@ -166,7 +166,7 @@ public final class MoveToOtherStorageAction extends AnAction {
 
         builder.setOkActionEnabled(false);
         builder.setCenterPanel(dialog.getContentPane());
-        builder.setTitle("图床迁移计划");
+        builder.setTitle(MikBundle.message("picture.migration.plan.title"));
         builder.removeAllActions();
         builder.addOkAction();
         builder.addCancelAction();
@@ -197,7 +197,7 @@ public final class MoveToOtherStorageAction extends AnAction {
         boolean isValidInput = StringUtils.isNotBlank(dialog.getDomain().getText())
                                && !DOMAIN_DEFAULT_MESSAGE.equals(dialog.getDomain().getText());
 
-        dialog.getMessage().setText(isClientEnable ? "" : "当前 OSS 不可用");
+        dialog.getMessage().setText(isClientEnable ? "" : MikBundle.message("oss.not.available"));
         dialog.getMessage().setForeground(isClientEnable ? JBColor.WHITE : JBColor.RED);
         builder.setOkActionEnabled(isClientEnable && isValidInput);
     }

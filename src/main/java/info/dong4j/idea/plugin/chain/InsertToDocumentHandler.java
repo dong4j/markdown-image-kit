@@ -27,6 +27,7 @@ package info.dong4j.idea.plugin.chain;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.EditorModificationUtil;
 
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
@@ -53,7 +54,7 @@ public class InsertToDocumentHandler extends ActionHandlerAdapter {
      */
     @Override
     public String getName() {
-        return "写入到 document";
+        return MikBundle.message("mik.action.write.document.title");
     }
 
     /**

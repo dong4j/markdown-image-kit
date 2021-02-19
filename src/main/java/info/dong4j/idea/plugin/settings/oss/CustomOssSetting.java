@@ -44,11 +44,11 @@ import javax.swing.JTextField;
  */
 public class CustomOssSetting implements OssSetting<CustomOssState> {
     /** REQUES_TKEY_HINT */
-    private final static String REQUES_TKEY_HINT = "@RequestParam(\"{key}\") MultipartFile file";
+    public final static String REQUES_TKEY_HINT = "@RequestParam(\"{key}\") MultipartFile file";
     /** HTTP_METHOD_HINT */
-    private final static String HTTP_METHOD_HINT = "POST or PUT, 具体请求方式请根据上传接口确定";
+    public final static String HTTP_METHOD_HINT = "POST or PUT, 具体请求方式请根据上传接口确定";
     /** RESPONSE_URL_PATH_HINT */
-    private final static String RESPONSE_URL_PATH_HINT = "{\"data\": {\"url\": \"可访问的图片地址\"}} --> data.url";
+    public final static String RESPONSE_URL_PATH_HINT = "{\"data\": {\"url\": \"可访问的图片地址\"}} --> data.url";
     /** Custom api text field */
     private final JTextField customApiTextField;
     /** Request key text field */
