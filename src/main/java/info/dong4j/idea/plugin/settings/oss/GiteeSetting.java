@@ -49,9 +49,9 @@ public class GiteeSetting extends AbstractOpenOssSetting<GiteeOssState> {
         PasswordManager.buildCredentialAttributes(GiteeSetting.class.getName(),
                                                   "GITEE_SETTINGS_PASSWORD_KEY",
                                                   GiteeSetting.class);
-    /** BAIDU_HELPER_DOC formatter:off */
-private static final String HELPER_DOC = "https://gitee.com/help/articles/4228";
-    /** formatter:on GITHUB_API */
+    /** BAIDU_HELPER_DOC */
+    private static final String HELPER_DOC = "https://gitee.com/help/articles/4228";
+    /** GITHUB_API */
     private static final String GITEE_API = "https://gitee.com/api/v5";
     /** REPOS_HINT */
     private static final String REPOS_HINT = "格式: owner/repos";

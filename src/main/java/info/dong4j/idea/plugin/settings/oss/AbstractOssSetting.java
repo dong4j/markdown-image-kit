@@ -302,7 +302,7 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
     public void reset(T state) {
         this.bucketNameTextField.setText(state.getBucketName());
         this.accessKeyTextField.setText(state.getAccessKey());
-        this.accessSecretKeyTextField.setText(PasswordManager.getPassword(AliyunOssSetting.CREDENTIAL_ATTRIBUTES));
+        this.accessSecretKeyTextField.setText(PasswordManager.getPassword(this.credentialAttributes()));
         this.endpointTextField.setText(state.getEndpoint());
         this.fileDirTextField.setText(state.getFiledir());
 
