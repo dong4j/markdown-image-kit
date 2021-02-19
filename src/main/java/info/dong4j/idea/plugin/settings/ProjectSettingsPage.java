@@ -27,6 +27,7 @@ package info.dong4j.idea.plugin.settings;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.SearchableConfigurable;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.JBColor;
 
 import info.dong4j.idea.plugin.MikBundle;
@@ -62,7 +63,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
@@ -80,7 +80,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 0.0.1
  */
 @Slf4j
-public class ProjectSettingsPage implements SearchableConfigurable, Configurable.NoScroll {
+public class ProjectSettingsPage implements SearchableConfigurable, Configurable.NoMargin {
     /** TEST_FILE_NAME */
     public static final String TEST_FILE_NAME = "mik.png";
 
@@ -241,8 +241,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
 
     /** 按钮 group */
     private JButton testButton;
-    /** Test message */
-    private JLabel testMessage;
     /** Help button */
     private JButton helpButton;
     //endregion
@@ -354,9 +352,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                                                                         this.qiniuOssNortChinaRadioButton,
                                                                         this.qiniuOssSouthChinaRadioButton,
                                                                         this.qiniuOssNorthAmeriaRadioButton,
-                                                                        this.zoneIndexTextFiled,
-                                                                        this.testButton,
-                                                                        this.testMessage);
+                                                                        this.zoneIndexTextFiled);
     //endregion
 
     //region TencentOssSetting
@@ -398,7 +394,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     @Override
     public JComponent createComponent() {
         this.initFromSettings();
-        return new JScrollPane(this.myMainPanel);
+        return this.myMainPanel;
     }
 
     /**
@@ -482,8 +478,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.helpButton.setText("Help & " + OssState.getCloudType(defaultCloudIndex).getTitle());
 
         this.authorizationTabbedPanel.addChangeListener(e -> {
-            // 清理 test 信息
-            this.testMessage.setText("");
             this.testButton.setText("Test Upload");
             // 获得指定索引的选项卡标签
             int selectedIndex = this.authorizationTabbedPanel.getSelectedIndex();
@@ -521,14 +515,14 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                 try {
                     url = client.upload(inputStream, TEST_FILE_NAME, (JPanel) this.authorizationTabbedPanel.getComponentAt(index));
                 } catch (Exception exception) {
-                    this.testMessage.setForeground(JBColor.RED);
-                    this.testMessage.setText("Error: " + exception.getMessage());
+                    //显示对话框
+                    Messages.showMessageDialog(this.myMainPanel,
+                                               exception.getMessage(),
+                                               "Error",
+                                               Messages.getErrorIcon());
                     return;
                 }
                 if (StringUtils.isNotBlank(url)) {
-                    this.testMessage.setForeground(JBColor.GREEN);
-                    this.testMessage.setText("Upload Succeed");
-                    this.testButton.setText("Test Upload");
                     // 测试通过了, 则判断是否勾选设置默认图床, 若勾选则刷新可用状态
                     boolean isDefaultCheckBox = this.defaultCloudCheckBox.isSelected();
                     if (isDefaultCheckBox) {
@@ -537,20 +531,26 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                             this.customMessage.setText("");
                         }
                     }
+                    Messages.showMessageDialog(this.myMainPanel,
+                                               cloudEnum.getTitle() + " 上传成功",
+                                               "Successed",
+                                               Messages.getInformationIcon());
                     // 主动保存
                     this.apply();
                     if (log.isTraceEnabled()) {
                         BrowserUtil.browse(url);
                     }
                 } else {
-                    this.testButton.setText("Try Again");
-                    this.testMessage.setForeground(JBColor.RED);
-                    this.testMessage.setText("Upload Failed, Please Check The Configuration");
+                    Messages.showMessageDialog(this.myMainPanel,
+                                               cloudEnum.getTitle() + " 上传失败",
+                                               "Error",
+                                               Messages.getErrorIcon());
                 }
             } else {
-                this.testButton.setText("Try Again");
-                this.testMessage.setForeground(JBColor.RED);
-                this.testMessage.setText("Upload Failed, Please Check The Configuration");
+                Messages.showMessageDialog(this.myMainPanel,
+                                           cloudEnum.getTitle() + " 不可用, 请检查配置是否正确",
+                                           "Error",
+                                           Messages.getErrorIcon());
             }
         });
 

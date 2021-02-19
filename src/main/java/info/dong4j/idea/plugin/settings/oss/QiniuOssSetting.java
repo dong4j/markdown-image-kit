@@ -37,8 +37,6 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.event.ActionListener;
 
 import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
@@ -81,10 +79,6 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
     private final JRadioButton qiniuOssNorthAmeriaRadioButton;
     /** Zone index text filed */
     private final JTextField zoneIndexTextFiled;
-    /** 按钮 group */
-    private final JButton testButton;
-    /** Test message */
-    private final JLabel testMessage;
 
     /**
      * Qiniu oss setting
@@ -98,8 +92,6 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
      * @param qiniuOssSouthChinaRadioButton    qiniu oss south china radio button
      * @param qiniuOssNorthAmeriaRadioButton   qiniu oss north ameria radio button
      * @param zoneIndexTextFiled               zone index text filed
-     * @param testButton                       test button
-     * @param testMessage                      test message
      * @since 1.4.0
      */
     public QiniuOssSetting(JTextField qiniuOssBucketNameTextField,
@@ -110,9 +102,7 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
                            JRadioButton qiniuOssNortChinaRadioButton,
                            JRadioButton qiniuOssSouthChinaRadioButton,
                            JRadioButton qiniuOssNorthAmeriaRadioButton,
-                           JTextField zoneIndexTextFiled,
-                           JButton testButton,
-                           JLabel testMessage) {
+                           JTextField zoneIndexTextFiled) {
 
         this.qiniuOssBucketNameTextField = qiniuOssBucketNameTextField;
         this.qiniuOssAccessKeyTextField = qiniuOssAccessKeyTextField;
@@ -123,8 +113,6 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
         this.qiniuOssSouthChinaRadioButton = qiniuOssSouthChinaRadioButton;
         this.qiniuOssNorthAmeriaRadioButton = qiniuOssNorthAmeriaRadioButton;
         this.zoneIndexTextFiled = zoneIndexTextFiled;
-        this.testButton = testButton;
-        this.testMessage = testMessage;
 
     }
 
@@ -171,8 +159,6 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
             if (sourceObject instanceof JRadioButton) {
                 JRadioButton sourceButton = (JRadioButton) sourceObject;
                 this.zoneIndexTextFiled.setText(String.valueOf(sourceButton.getMnemonic()));
-                this.testMessage.setText("");
-                this.testButton.setText("Test Upload");
             }
         };
         button.addActionListener(actionListener);
