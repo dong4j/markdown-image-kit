@@ -6,11 +6,11 @@
 .sandbox
 
 # idea
-!icon.png
 *.iml
 *.ipr
 *.iws
-.idea
+.idea/*
+!.idea/icon.png
 
 # Ignore Gradle GUI config
 gradle-app.setting
