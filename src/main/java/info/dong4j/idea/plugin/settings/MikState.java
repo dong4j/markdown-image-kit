@@ -83,10 +83,14 @@ public class MikState {
     private String tagTypeCode = "";
     /** 是否压缩图片 */
     private boolean compress = false;
-    /** Compress before upload of percent */
+    /** Compress before the upload of percent */
     private int compressBeforeUploadOfPercent = 60;
     /** 图片备份 */
     private boolean backup = false;
+    /** 水印 */
+    private boolean watermark = false;
+    /** Watermark text */
+    private String watermarkText = "@MIK";
     /** 拷贝图片到目录 */
     private boolean copyToDir = false;
     /** 上传图片并替换 */

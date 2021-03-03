@@ -275,7 +275,10 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JCheckBox renameCheckBox;
     /** File name suffix box field */
     private JComboBox<?> fileNameSuffixBoxField;
-
+    /** 水印复选框 */
+    private JCheckBox watermarkCheckBox;
+    /** 水印文字 */
+    private JTextField watermarkTextField;
     /** Custom message */
     private JLabel customMessage;
     //endregion
@@ -612,6 +615,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             JCheckBox checkBox = (JCheckBox) e.getSource();
             this.fileNameSuffixBoxField.setEnabled(checkBox.isSelected());
         });
+
+        // 水印配置初始化
+        this.watermarkCheckBox.setSelected(this.config.getState().isWatermark());
+        this.watermarkTextField.setEnabled(this.watermarkCheckBox.isSelected());
+        this.watermarkCheckBox.addActionListener(e -> this.watermarkTextField.setEnabled(this.watermarkCheckBox.isSelected()));
     }
 
     /**
@@ -819,11 +827,17 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         int index = this.fileNameSuffixBoxField.getSelectedIndex();
         boolean isDefaultCloudCheck = this.defaultCloudCheckBox.isSelected();
 
+        // 是否开启水印
+        boolean isWatermark = this.watermarkCheckBox.isSelected();
+        String watermarkText = this.watermarkTextField.getText();
+
         return changeToHtmlTag == state.isChangeToHtmlTag()
                && tagType.equals(state.getTagType())
                && tagTypeCode.equals(state.getTagTypeCode())
                && compress == state.isCompress()
                && compressBeforeUploadOfPercent == state.getCompressBeforeUploadOfPercent()
+               && isWatermark == state.isWatermark()
+               && watermarkText.equals(state.getWatermarkText())
                && isRename == state.isRename()
                && index == state.getSuffixIndex()
                && isDefaultCloudCheck == state.isDefaultCloudCheck()
@@ -903,6 +917,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         state.setDefaultCloudCheck(this.defaultCloudCheckBox.isSelected());
         state.setCloudType(state.isDefaultCloudCheck() ? this.defaultCloudComboBox.getSelectedIndex() : CloudEnum.SM_MS_CLOUD.index);
         state.setTempCloudType(this.defaultCloudComboBox.getSelectedIndex());
+        state.setWatermark(this.watermarkCheckBox.isSelected());
+        state.setWatermarkText(this.watermarkTextField.getText());
     }
 
     /**
@@ -958,6 +974,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.fileNameSuffixBoxField.setSelectedIndex(state.getSuffixIndex());
         this.defaultCloudCheckBox.setSelected(state.isDefaultCloudCheck());
         this.defaultCloudComboBox.setSelectedIndex(state.getCloudType());
+        this.watermarkCheckBox.setSelected(state.isWatermark());
+        this.watermarkTextField.setText(state.getWatermarkText());
     }
 
     /**

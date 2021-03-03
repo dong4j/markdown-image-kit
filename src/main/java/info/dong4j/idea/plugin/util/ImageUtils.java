@@ -44,6 +44,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -63,6 +64,7 @@ import java.awt.image.ImageFilter;
 import java.awt.image.ImageProducer;
 import java.awt.image.RGBImageFilter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -375,13 +377,24 @@ public final class ImageUtils {
      * @return the boolean
      * @since 0.0.1
      */
-    private static boolean isImageFile(File file) {
+    public static boolean isImageFile(File file) {
+        Image image = getImage(file);
+        return image != null;
+    }
+
+    /**
+     * Gets image *
+     *
+     * @param file file
+     * @return the image
+     * @since 1.6.2
+     */
+    private static Image getImage(File file) {
         try {
-            Image image = ImageIO.read(file);
-            return image != null;
-        } catch (IOException ex) {
-            return false;
+            return ImageIO.read(file);
+        } catch (IOException ignored) {
         }
+        return null;
     }
 
     /**
@@ -538,7 +551,8 @@ public final class ImageUtils {
         VfsUtilCore.iterateChildrenRecursively(virtualFile,
                                                file -> {
                                                    // todo-dong4j : (2019年03月15日 13:02) [从 .gitignore 中获取忽略的文件]
-                                                   boolean allowAccept = file.isDirectory() && !file.getName().equals(MikContents.NODE_MODULES_FILE);
+                                                   boolean allowAccept =
+                                                       file.isDirectory() && !file.getName().equals(MikContents.NODE_MODULES_FILE);
                                                    if (allowAccept || ImageContents.IMAGE_TYPE_NAME.equals(file.getFileType().getName())) {
                                                        log.trace("accept = {}", file.getPath());
                                                        return true;
@@ -563,8 +577,8 @@ public final class ImageUtils {
      * @return the boolean
      * @since 0.0.1
      */
-    public static boolean isValidForFile(PsiFile file){
-        if(file == null){
+    public static boolean isValidForFile(PsiFile file) {
+        if (file == null) {
             return false;
         }
         if (!isImageFile(file)) {
@@ -594,5 +608,68 @@ public final class ImageUtils {
      */
     public static boolean isImageFile(VirtualFile file) {
         return ImageContents.IMAGE_TYPE_NAME.equals(file.getFileType().getName());
+    }
+
+    /**
+     * Watermark from text
+     *
+     * @param srcImg   src img
+     * @param fileName file name
+     * @param text     text
+     * @return the file
+     * @since y.y.y
+     */
+    public static File watermarkFromText(Image srcImg, String fileName, String text) {
+        BufferedImage bufImg = null;
+        if (srcImg != null) {
+            int srcImgWidth = srcImg.getWidth(null);
+            int srcImgHeight = srcImg.getHeight(null);
+            // 加水印
+            bufImg = new BufferedImage(srcImgWidth,
+                                       srcImgHeight,
+                                       BufferedImage.TYPE_INT_RGB);
+            // 获取 Graphics2D 对象
+            Graphics2D g = bufImg.createGraphics();
+            // 设置绘图区域
+            g.drawImage(srcImg, 0, 0, srcImgWidth, srcImgHeight, null);
+            // 设置字体
+            Font font = new Font("宋体", Font.PLAIN, 16);
+            // 根据图片的背景设置水印颜色
+            g.setColor(JBColor.GREEN);
+            g.setFont(font);
+            // 获取文字长度
+            int len = g.getFontMetrics(
+                g.getFont()).charsWidth(text.toCharArray(),
+                                        0,
+                                        text.length());
+            int x = srcImgWidth - len - 10;
+            int y = srcImgHeight - 20;
+            g.drawString(text, x, y);
+            g.dispose();
+        }
+
+        File tempFile = buildTempFile(fileName);
+        try (FileOutputStream outImgStream = new FileOutputStream(tempFile)) {
+            if (bufImg != null) {
+                // 输出图片
+                ImageIO.write(bufImg, "png", outImgStream);
+                outImgStream.flush();
+            }
+        } catch (Exception ignored) {
+        }
+
+        return tempFile;
+    }
+
+    /**
+     * 給图片添加文字水印
+     *
+     * @param file file
+     * @since 1.6.2
+     */
+    public static File watermarkFromText(File file, String text) {
+        // 读取原图片信息
+        Image srcImg = getImage(file);
+        return watermarkFromText(srcImg, file.getName(), text);
     }
 }

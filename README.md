@@ -2,7 +2,7 @@
 
 > 审核已通过, 可直接在 `plugin` 中搜索 `Markdown Image Kit` 下载
 
-![](https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/oDE4Cl.png)
+![](https://gitee.com/dong4j/idea-plugin-dev/raw/master/MIK-6RCoSs.png)
 
 `Markdown Image Kit` 是一款在 IDEA 中方便高效得管理 Markdown 文档图片的插件.
 
