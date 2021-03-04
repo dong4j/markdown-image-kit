@@ -62,7 +62,6 @@ public class NumberValidator extends PlainDocument {
      * @param offset offset
      * @param str    str
      * @param attr   attr
-     * @throws BadLocationException bad location exception
      * @since 0.0.1
      */
     @Override
