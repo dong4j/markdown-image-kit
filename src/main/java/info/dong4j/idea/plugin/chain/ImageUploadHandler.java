@@ -24,6 +24,9 @@
 
 package info.dong4j.idea.plugin.chain;
 
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.progress.ProgressIndicator;
+
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
@@ -31,7 +34,13 @@ import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -70,6 +79,69 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
     public boolean isEnabled(EventData data) {
         // 如果开启
         return true;
+    }
+
+    /**
+     * Execute
+     *
+     * @param data data
+     * @return the boolean
+     * @since 0.0.1
+     */
+    @Override
+    public boolean execute(EventData data) {
+        ProgressIndicator indicator = data.getIndicator();
+        int size = data.getSize();
+        int totalProcessed = 0;
+        ExecutorService executorService = Executors.newFixedThreadPool(10);
+
+        List<CompletableFuture<?>> futures = new ArrayList<>();
+        for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
+            int totalCount = imageEntry.getValue().size();
+            Iterator<MarkdownImage> imageIterator = imageEntry.getValue().iterator();
+            while (imageIterator.hasNext()) {
+                CompletableFuture<?> future = CompletableFuture.supplyAsync(() -> {
+                    MarkdownImage markdownImage = imageIterator.next();
+                    this.extracted(data,
+                                   markdownImage.getImageName(),
+                                   indicator,
+                                   size,
+                                   totalProcessed,
+                                   totalCount);
+
+                    this.invoke(data, imageIterator, markdownImage);
+                    return null;
+                }, executorService).exceptionally(e -> null);
+
+                futures.add(future);
+            }
+        }
+
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[] {})).join();
+
+        executorService.shutdown();
+        return true;
+    }
+
+    /**
+     * Extracted
+     *
+     * @param data           data
+     * @param markdownName   markdown name
+     * @param indicator      indicator
+     * @param size           size
+     * @param totalProcessed total processed
+     * @param totalCount     total count
+     * @since 1.6.4
+     */
+    private void extracted(EventData data,
+                           String markdownName,
+                           ProgressIndicator indicator,
+                           int size,
+                           int totalProcessed,
+                           int totalCount) {
+        indicator.setText2(MikBundle.message("mik.action.processing.title", markdownName));
+        indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
     }
 
     /**

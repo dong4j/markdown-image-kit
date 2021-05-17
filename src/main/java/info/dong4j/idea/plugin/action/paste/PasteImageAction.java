@@ -107,8 +107,6 @@ import lombok.extern.slf4j.Slf4j;
 public class PasteImageAction extends EditorActionHandler implements EditorTextInsertHandler {
     /** Editor action handler */
     private final EditorActionHandler editorActionHandler;
-    /** STATE */
-    private static final MikState STATE = MikPersistenComponent.getInstance().getState();
 
     /**
      * Instantiates a new Paste image handler.
@@ -154,7 +152,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
                     }
 
                     // 使用默认 client
-                    CloudEnum cloudEnum = OssState.getCloudType(STATE.getCloudType());
+                    CloudEnum cloudEnum = OssState.getCloudType(state.getCloudType());
                     OssClient client = ClientUtils.getClient(cloudEnum);
 
                     EventData data = new EventData()
@@ -169,11 +167,11 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
                         .addHandler(new ImageCompressionHandler())
                         // 图片重命名
                         .addHandler(new ImageRenameHandler());
-                    if (STATE.isCopyToDir()) {
+                    if (state.isCopyToDir()) {
                         // 图片保存
                         manager.addHandler(new ImageStorageHandler());
                     }
-                    if (STATE.isUploadAndReplace()) {
+                    if (state.isUploadAndReplace()) {
                         // 处理 client
                         manager.addHandler(new OptionClientHandler())
                             .addHandler(new ImageUploadHandler());
