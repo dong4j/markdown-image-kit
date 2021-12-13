@@ -39,7 +39,6 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.Producer;
-import com.intellij.util.containers.hash.HashMap;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ActionManager;
@@ -84,6 +83,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -376,7 +376,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
      * @since 0.0.1
      */
     @Override
-    public void execute(Editor editor, DataContext dataContext, Producer<Transferable> producer) {
+    public void execute(Editor editor, DataContext dataContext, @Nullable Producer<? extends Transferable> producer) {
 
     }
 }
