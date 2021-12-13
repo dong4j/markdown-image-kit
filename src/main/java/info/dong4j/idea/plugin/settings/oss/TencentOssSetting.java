@@ -24,10 +24,11 @@
 
 package info.dong4j.idea.plugin.settings.oss;
 
+import com.intellij.credentialStore.CredentialAttributes;
+
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
-import info.dong4j.idea.plugin.util.DES;
-import info.dong4j.idea.plugin.util.StringUtils;
+import info.dong4j.idea.plugin.util.PasswordManager;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -45,6 +46,12 @@ import javax.swing.JTextField;
  * @since 1.4.0
  */
 public class TencentOssSetting implements OssSetting<TencentOssState> {
+    /** CREDENTIAL_ATTRIBUTES */
+    public static final CredentialAttributes CREDENTIAL_ATTRIBUTES =
+        PasswordManager.buildCredentialAttributes(TencentOssSetting.class.getName(),
+                                                  "TENCENTOSS_SETTINGS_PASSWORD_KEY",
+                                                  TencentOssSetting.class);
+
     /** Tencent backet name text field */
     private final JTextField tencentBacketNameTextField;
     /** Tencent access key text field */
@@ -83,7 +90,7 @@ public class TencentOssSetting implements OssSetting<TencentOssState> {
      */
     @Override
     public void init(TencentOssState state) {
-        this.tencentSecretKeyTextField.setText(DES.decrypt(state.getSecretKey(), MikState.TENCENT));
+        this.tencentSecretKeyTextField.setText(PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES));
         this.tencentAccessKeyTextField.setText(state.getAccessKey());
         this.tencentRegionNameTextField.setText(state.getRegionName());
         this.tencentBacketNameTextField.setText(state.getBucketName());
@@ -100,10 +107,6 @@ public class TencentOssSetting implements OssSetting<TencentOssState> {
     public boolean isModified(@NotNull TencentOssState state) {
         String secretKey = new String(this.tencentSecretKeyTextField.getPassword());
 
-        if (StringUtils.isNotBlank(secretKey)) {
-            secretKey = DES.encrypt(secretKey, MikState.QINIU);
-        }
-
         String bucketName = this.tencentBacketNameTextField.getText().trim();
         String accessKey = this.tencentAccessKeyTextField.getText().trim();
 
@@ -111,7 +114,7 @@ public class TencentOssSetting implements OssSetting<TencentOssState> {
 
         return bucketName.equals(state.getBucketName())
                && accessKey.equals(state.getAccessKey())
-               && secretKey.equals(state.getSecretKey())
+               && secretKey.equals(PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES))
                && regionName.equals(state.getRegionName());
     }
 
@@ -135,12 +138,8 @@ public class TencentOssSetting implements OssSetting<TencentOssState> {
 
         OssState.saveStatus(state, hashcode, MikState.NEW_HASH_KEY);
 
-        if (StringUtils.isNotBlank(secretKey)) {
-            secretKey = DES.encrypt(secretKey, MikState.TENCENT);
-        }
-
         state.setAccessKey(accessKey);
-        state.setSecretKey(secretKey);
+        PasswordManager.setPassword(CREDENTIAL_ATTRIBUTES, secretKey);
         state.setRegionName(regionName);
         state.setBucketName(bucketName);
     }
@@ -156,6 +155,6 @@ public class TencentOssSetting implements OssSetting<TencentOssState> {
         this.tencentAccessKeyTextField.setText(state.getAccessKey());
         this.tencentRegionNameTextField.setText(state.getRegionName());
         this.tencentBacketNameTextField.setText(state.getBucketName());
-        this.tencentSecretKeyTextField.setText(DES.decrypt(state.getSecretKey(), MikState.TENCENT));
+        this.tencentSecretKeyTextField.setText(PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES));
     }
 }

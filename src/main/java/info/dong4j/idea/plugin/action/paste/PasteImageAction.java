@@ -39,7 +39,9 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.Producer;
+import com.intellij.util.containers.hash.HashMap;
 
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ActionManager;
 import info.dong4j.idea.plugin.chain.FinalChainHandler;
 import info.dong4j.idea.plugin.chain.ImageCompressionHandler;
@@ -77,11 +79,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -94,7 +96,6 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * <p>Company: no company</p>
  * <p>Description: 读取 Clipboard 图片, 上传到 OSS, 最后插入到光标位置</p>
- * todo-dong4j : (2019年03月17日 19:37) [图片压缩处理]
  *
  * @author dong4j
  * @version 0.0.1
@@ -145,7 +146,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
                     Iterator<Map.Entry<DataFlavor, Object>> iterator = clipboardData.entrySet().iterator();
                     Map.Entry<DataFlavor, Object> entry = iterator.next();
 
-                    Map<Document, List<MarkdownImage>> waitingProcessMap = this.buildWaitingProcessMap(entry, editor);
+                    Map<Document, List<MarkdownImage>> waitingProcessMap = this.buildWaitingProcessMap(entry, editor, state);
 
                     if (waitingProcessMap.size() == 0) {
                         this.defaultAction(editor, caret, dataContext);
@@ -194,7 +195,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
                             }
                         });
 
-                    new ActionTask(editor.getProject(), "Paste Task: ", manager).queue();
+                    new ActionTask(editor.getProject(), MikBundle.message("mik.action.paste.task"), manager).queue();
                     return;
                 }
             }
@@ -207,15 +208,17 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
      *
      * @param entry  entry
      * @param editor editor
+     * @param state
      * @return the map
      * @since 0.0.1
      */
     @Contract(pure = true)
     private Map<Document, List<MarkdownImage>> buildWaitingProcessMap(@NotNull Map.Entry<DataFlavor, Object> entry,
-                                                                      Editor editor) {
-        Map<Document, List<MarkdownImage>> waitingProcessMap = new HashMap<>(16);
-        List<MarkdownImage> markdownImages = new ArrayList<>(16);
-        for (Map.Entry<String, InputStream> inputStreamMap : this.resolveClipboardData(entry).entrySet()) {
+                                                                      Editor editor,
+                                                                      MikState state) {
+        Map<Document, List<MarkdownImage>> waitingProcessMap = new HashMap<>(8);
+        List<MarkdownImage> markdownImages = new ArrayList<>(8);
+        for (Map.Entry<String, InputStream> inputStreamMap : this.resolveClipboardData(entry, state).entrySet()) {
             MarkdownImage markdownImage = new MarkdownImage();
             markdownImage.setFileName("");
             markdownImage.setImageName(inputStreamMap.getKey());
@@ -233,7 +236,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
 
             markdownImages.add(markdownImage);
         }
-        if(markdownImages.size() > 0){
+        if (markdownImages.size() > 0) {
             waitingProcessMap.put(editor.getDocument(), markdownImages);
         }
         return waitingProcessMap;
@@ -243,15 +246,17 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
      * 处理 clipboard 数据
      *
      * @param entry the entry     List<File> 或者 Image 类型
+     * @param state
      * @return the map              文件名-->File, File 有本地文件(resolveFromFile)和临时文件(resolveFromImage)
      * @since 0.0.1
      */
-    private Map<String, InputStream> resolveClipboardData(@NotNull Map.Entry<DataFlavor, Object> entry) {
-        Map<String, InputStream> imageMap = new HashMap<>(10);
+    private Map<String, InputStream> resolveClipboardData(@NotNull Map.Entry<DataFlavor, Object> entry,
+                                                          MikState state) {
+        Map<String, InputStream> imageMap = new HashMap<>(8);
         if (entry.getKey().equals(DataFlavor.javaFileListFlavor)) {
-            this.resolveFromFile(entry, imageMap);
+            this.resolveFromFile(entry, imageMap, state);
         } else {
-            this.resolveFromImage(entry, imageMap);
+            this.resolveFromImage(entry, imageMap, state);
         }
         return imageMap;
     }
@@ -261,22 +266,29 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
      *
      * @param entry    the entry
      * @param imageMap the image map
+     * @param state
      * @since 0.0.1
      */
     private void resolveFromFile(@NotNull Map.Entry<DataFlavor, Object> entry,
-                                 Map<String, InputStream> imageMap) {
+                                 Map<String, InputStream> imageMap, MikState state) {
         @SuppressWarnings("unchecked") List<File> fileList = (List<File>) entry.getValue();
         for (File file : fileList) {
             // 第一步先初步排除非图片类型, 避免复制大量文件导致 OOM
             if (file.isDirectory() || StringUtils.isBlank(ImageUtils.getImageType(file.getName()))) {
                 break;
             }
-            try {
-                // 读到缓冲区, 如果抛异常, 则不是图片
-                ImageIO.read(file);
-                imageMap.put(file.getName(), new FileInputStream(file));
-            } catch (IOException ignored) {
-                // 如果抛异常, 则不是图片, 清除所有数据, 使用默认处理程序处理 clipboard 数据
+
+            if (ImageUtils.isImageFile(file)) {
+                File finalFile = file;
+                if (state.isWatermark()) {
+                    finalFile = ImageUtils.watermarkFromText(file, state.getWatermarkText());
+                }
+                try {
+                    imageMap.put(file.getName(), new FileInputStream(finalFile));
+                } catch (FileNotFoundException e) {
+                    break;
+                }
+            } else {
                 imageMap.clear();
                 break;
             }
@@ -288,22 +300,37 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
      *
      * @param entry    the entry
      * @param imageMap the image map
+     * @param state
      * @since 0.0.1
      */
     private void resolveFromImage(@NotNull Map.Entry<DataFlavor, Object> entry,
-                                  Map<String, InputStream> imageMap) {
+                                  Map<String, InputStream> imageMap, MikState state) {
         // image 类型统一重命名, 后缀为 png, 因为获取不到文件名
         String fileName = CharacterUtils.getRandomString(6) + ".png";
         // 如果是 image 类型, 转换成 inputstream
         Image image = (Image) entry.getValue();
-        BufferedImage bufferedImage = ImageUtils.toBufferedImage(image);
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        assert bufferedImage != null;
-        try {
-            ImageIO.write(bufferedImage, "png", os);
-            InputStream is = new ByteArrayInputStream(os.toByteArray());
+
+        InputStream is = null;
+
+        if (state.isWatermark()) {
+            File watermarkFile = ImageUtils.watermarkFromText(image, fileName, state.getWatermarkText());
+            try {
+                is = new FileInputStream(watermarkFile);
+            } catch (FileNotFoundException ignored) {
+            }
+        } else {
+            BufferedImage bufferedImage = ImageUtils.toBufferedImage(image);
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            assert bufferedImage != null;
+            try {
+                ImageIO.write(bufferedImage, "png", os);
+                is = new ByteArrayInputStream(os.toByteArray());
+            } catch (IOException ignored) {
+            }
+        }
+
+        if (is != null) {
             imageMap.put(fileName, is);
-        } catch (IOException ignored) {
         }
     }
 
@@ -323,13 +350,14 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
     }
 
     /**
-     * Create virtual file.
+     * Create a virtual file.
      * https://intellij-support.jetbrains.com/hc/en-us/community/posts/206144389-Create-virtual-file-from-file-path
      *
      * @param ed        the ed
      * @param imageFile the image file
      * @since 0.0.1
      */
+    @SuppressWarnings("rawtypes")
     private void createVirtualFile(Editor ed, File imageFile) {
         VirtualFile fileByPath = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(imageFile);
         assert fileByPath != null;
@@ -348,7 +376,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
      * @since 0.0.1
      */
     @Override
-    public void execute(Editor editor, DataContext dataContext, @Nullable Producer<? extends Transferable> producer) {
+    public void execute(Editor editor, DataContext dataContext, Producer<Transferable> producer) {
 
     }
 }

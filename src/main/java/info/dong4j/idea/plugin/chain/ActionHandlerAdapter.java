@@ -27,6 +27,7 @@ package info.dong4j.idea.plugin.chain;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.progress.ProgressIndicator;
 
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 
@@ -78,7 +79,7 @@ public class ActionHandlerAdapter extends BaseActionHandler {
             while (imageIterator.hasNext()) {
                 MarkdownImage markdownImage = imageIterator.next();
 
-                indicator.setText2("Processing " + markdownImage.getImageName());
+                indicator.setText2(MikBundle.message("mik.action.processing.title", markdownImage.getImageName()));
                 indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
 
                 this.invoke(data, imageIterator, markdownImage);

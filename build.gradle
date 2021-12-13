@@ -21,9 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 plugins {
+    // 1. 编译, 测试插件 (Java, Groovy,Scala, War 等)
     id 'java'
     id "io.freefair.lombok" version "5.3.0"
+    // Java 是Gradle的核心插件, 是内置的, 内置插件不需要配置依赖路径
     id 'org.jetbrains.intellij' version '0.6.5'
 }
 
@@ -34,24 +37,20 @@ sourceCompatibility = javaVersion
 targetCompatibility = javaVersion
 
 repositories {
-    maven { url 'https://maven.aliyun.com/repository/public/' }
-    mavenLocal()
     mavenCentral()
+    maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    maven { url 'http://dl.bintray.com/jetbrains/intellij-plugin-service' }
 }
 
-// 声明依赖使用下面的闭包
-dependencies {
-    compile('com.qiniu:qiniu-java-sdk:7.2.28') {
-        exclude group: 'com.google.code.gson', module: 'gson'
-    }
-    annotationProcessor 'org.projectlombok:lombok:1.18.18'
-    compileOnly 'org.projectlombok:lombok:1.18.18'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.18'
-    testCompileOnly 'org.projectlombok:lombok:1.18.18'
-    compile 'net.coobird:thumbnailator:0.4.13'
-    testCompile 'junit:junit:4.13.1'
-    testCompile group: 'com.aliyun.oss', name: 'aliyun-sdk-oss', version: '3.8.1'
-    testCompile group: 'com.baidubce', name: 'bce-java-sdk', version: '0.10.153'
+intellij {
+    // 在 2019.2 以上版本添加生效
+    // plugins 'java'
+    pluginName name
+    version ideaVersion
+    // 插件生成的临时文件的地址，可以省略
+    sandboxDirectory = project.rootDir.canonicalPath + "/.sandbox"
+    updateSinceUntilBuild = true
 }
 
 lombok {
@@ -59,22 +58,40 @@ lombok {
     generateLombokConfig.enabled = false
 }
 
-intellij {
-    pluginName name
-    version ideaVersion
-    // 插件生成的临时文件的地址，可以省略
-    sandboxDirectory = project.rootDir.canonicalPath + "/.sandbox"
-    updateSinceUntilBuild false
+buildPlugin {
+    doLast {
+        copy {
+            from 'build/distributions'
+            include "${rootProject.name}-${project.version}.zip"
+            into "/Users/dong4j/Downloads"
+        }
+    }
 }
 
-runIde {
-    jvmArgs '--add-exports', 'java.base/jdk.internal.vm=ALL-UNNAMED'
+patchPluginXml {
+    version "${project.version}"
+    sinceBuild(pluginSinceBuild)
+    untilBuild(pluginUntilBuild)
+    pluginDescription(file('includes/pluginDescription.html').text)
+    changeNotes(file('includes/pluginChanges.html').text)
 }
 
 publishPlugin {
-    username System.getenv('username')
-    password System.getenv('password')
+    token = System.getenv("publishToken")
     channels publishChannels
 }
 
+// 声明依赖使用下面的闭包
+dependencies {
+    implementation 'net.coobird:thumbnailator:0.4.13'
 
+    testImplementation(
+            'junit:junit:4.13',
+            'org.mockito:mockito-core:3.3.3',
+            'org.powermock:powermock-api-mockito2:2.0.5',
+            'org.powermock:powermock-core:2.0.5',
+            'org.assertj:assertj-core:3.15.0',
+            'org.assertj:assertj-swing-junit:3.9.2',
+            'com.aliyun.oss:aliyun-sdk-oss:3.8.1'
+    )
+}

@@ -49,8 +49,6 @@ public class BaiduBosUtilsTest {
     // private static final String ossBucket = "xxx";
     // private static final String accessKeyId = "xxx";
     // private static final String secretAccessKey = "xxx";
-    //可根据自己的oss产品自行更改域名
-    // private static final String endpoint = "oss-cn-shanghai.aliyuncs.com/";
 
     /**
      * Test 1
@@ -59,7 +57,7 @@ public class BaiduBosUtilsTest {
      * @since 1.1.0
      */
     @Test
-    public void test_1() throws IOException {
+    public void test_1() throws Exception {
 
         // key 必须使用 / 为前缀
         String putResult = BaiduBosUtils.putObject("/c/xu.jpg",

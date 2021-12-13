@@ -61,7 +61,10 @@ public final class ActionUtils {
      * @param type  the type
      * @since 0.0.1
      */
-    public static void isAvailable(@NotNull AnActionEvent event, Icon icon, String type) {
+    public static void isAvailable(boolean isAvailable,
+                                   @NotNull AnActionEvent event,
+                                   Icon icon,
+                                   String type) {
         Presentation presentation = event.getPresentation();
         DataContext dataContext = event.getDataContext();
         presentation.setVisible(true);
@@ -79,7 +82,10 @@ public final class ActionUtils {
         if (null != editor) {
             PsiFile file = PsiUtilBase.getPsiFileInEditor(editor, project);
 
-            boolean isImageType = type.equals(ImageContents.IMAGE_TYPE_NAME) ? ImageUtils.isValidForFile(file) : MarkdownUtils.isValidForFile(file);
+            boolean isImageType = type.equals(ImageContents.IMAGE_TYPE_NAME)
+                                  ? ImageUtils.isValidForFile(file)
+                                  : MarkdownUtils.isValidForFile(file);
+
             presentation.setEnabled(isImageType);
             return;
         }
@@ -98,13 +104,15 @@ public final class ActionUtils {
                     break;
                 }
                 // 只要其中一个是 markdown 文件, 则可用
-                boolean isImageType = type.equals(ImageContents.IMAGE_TYPE_NAME) ? ImageUtils.isImageFile(file) : MarkdownUtils.isMardownFile(file);
+                boolean isImageType = type.equals(ImageContents.IMAGE_TYPE_NAME)
+                                      ? ImageUtils.isImageFile(file)
+                                      : MarkdownUtils.isMardownFile(file);
                 if (isImageType) {
                     isValid = true;
                     break;
                 }
             }
         }
-        presentation.setEnabled(isValid);
+        presentation.setEnabled(isAvailable && isValid);
     }
 }

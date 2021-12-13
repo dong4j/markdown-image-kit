@@ -163,7 +163,7 @@ public abstract class OssState {
             case GITEE:
                 return getStatus(state.getGiteeOssState());
             case CUSTOMIZE:
-                return false;
+                return getStatus(state.getCustomOssState());
             default:
                 return false;
         }

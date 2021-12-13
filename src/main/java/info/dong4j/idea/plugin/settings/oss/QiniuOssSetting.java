@@ -24,20 +24,19 @@
 
 package info.dong4j.idea.plugin.settings.oss;
 
+import com.intellij.credentialStore.CredentialAttributes;
+
 import info.dong4j.idea.plugin.enums.ZoneEnum;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.swing.JTextFieldHintListener;
-import info.dong4j.idea.plugin.util.DES;
-import info.dong4j.idea.plugin.util.StringUtils;
+import info.dong4j.idea.plugin.util.PasswordManager;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.event.ActionListener;
 
 import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
@@ -53,7 +52,13 @@ import javax.swing.JTextField;
  * @since 1.4.0
  */
 public class QiniuOssSetting implements OssSetting<QiniuOssState> {
+    /** CREDENTIAL_ATTRIBUTES */
+    public static final CredentialAttributes CREDENTIAL_ATTRIBUTES =
+        PasswordManager.buildCredentialAttributes(QiniuOssSetting.class.getName(),
+                                                  "QINIUOSS_SETTINGS_PASSWORD_KEY",
+                                                  QiniuOssSetting.class);
 
+    /** DOMAIN_HINT */
     private static final String DOMAIN_HINT = "http(s)://domain/";
 
     /** Qiniu oss bucket name text field */
@@ -74,10 +79,6 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
     private final JRadioButton qiniuOssNorthAmeriaRadioButton;
     /** Zone index text filed */
     private final JTextField zoneIndexTextFiled;
-    /** 按钮 group */
-    private final JButton testButton;
-    /** Test message */
-    private final JLabel testMessage;
 
     /**
      * Qiniu oss setting
@@ -101,9 +102,7 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
                            JRadioButton qiniuOssNortChinaRadioButton,
                            JRadioButton qiniuOssSouthChinaRadioButton,
                            JRadioButton qiniuOssNorthAmeriaRadioButton,
-                           JTextField zoneIndexTextFiled,
-                           JButton testButton,
-                           JLabel testMessage) {
+                           JTextField zoneIndexTextFiled) {
 
         this.qiniuOssBucketNameTextField = qiniuOssBucketNameTextField;
         this.qiniuOssAccessKeyTextField = qiniuOssAccessKeyTextField;
@@ -114,8 +113,6 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
         this.qiniuOssSouthChinaRadioButton = qiniuOssSouthChinaRadioButton;
         this.qiniuOssNorthAmeriaRadioButton = qiniuOssNorthAmeriaRadioButton;
         this.zoneIndexTextFiled = zoneIndexTextFiled;
-        this.testButton = testButton;
-        this.testMessage = testMessage;
 
     }
 
@@ -127,7 +124,7 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
      */
     @Override
     public void init(QiniuOssState state) {
-        this.qiniuOssAccessSecretKeyTextField.setText(DES.decrypt(state.getAccessSecretKey(), MikState.QINIU));
+        this.qiniuOssAccessSecretKeyTextField.setText(PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES));
 
         this.qiniuOssUpHostTextField.addFocusListener(new JTextFieldHintListener(this.qiniuOssUpHostTextField, DOMAIN_HINT));
 
@@ -136,6 +133,7 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
         this.qiniuOssNortChinaRadioButton.setMnemonic(ZoneEnum.NORT_CHINA.index);
         this.qiniuOssSouthChinaRadioButton.setMnemonic(ZoneEnum.SOUTH_CHINA.index);
         this.qiniuOssNorthAmeriaRadioButton.setMnemonic(ZoneEnum.NORTH_AMERIA.index);
+
         this.addZoneRadioButton(group, this.qiniuOssEastChinaRadioButton);
         this.addZoneRadioButton(group, this.qiniuOssNortChinaRadioButton);
         this.addZoneRadioButton(group, this.qiniuOssSouthChinaRadioButton);
@@ -161,8 +159,6 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
             if (sourceObject instanceof JRadioButton) {
                 JRadioButton sourceButton = (JRadioButton) sourceObject;
                 this.zoneIndexTextFiled.setText(String.valueOf(sourceButton.getMnemonic()));
-                this.testMessage.setText("");
-                this.testButton.setText("Test Upload");
             }
         };
         button.addActionListener(actionListener);
@@ -180,9 +176,7 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
         String bucketName = this.qiniuOssBucketNameTextField.getText().trim();
         String accessKey = this.qiniuOssAccessKeyTextField.getText().trim();
         String secretKey = new String(this.qiniuOssAccessSecretKeyTextField.getPassword());
-        if (StringUtils.isNotBlank(secretKey)) {
-            secretKey = DES.encrypt(secretKey, MikState.QINIU);
-        }
+
         // todo-dong4j : (2019年03月19日 21:01) [重构为 domain]
         String endpoint = JTextFieldHintListener.getRealText(this.qiniuOssUpHostTextField, DOMAIN_HINT);
         // todo-dong4j : (2019年03月19日 21:13) [zone]
@@ -190,7 +184,7 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
 
         return bucketName.equals(state.getBucketName())
                && accessKey.equals(state.getAccessKey())
-               && secretKey.equals(state.getAccessSecretKey())
+               && secretKey.equals(PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES))
                && zoneIndex == state.getZoneIndex()
                && endpoint.equals(state.getEndpoint());
     }
@@ -218,12 +212,9 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
                        endpoint.hashCode();
         OssState.saveStatus(state, hashcode, MikState.NEW_HASH_KEY);
 
-        if (StringUtils.isNotBlank(secretKey)) {
-            secretKey = DES.encrypt(secretKey, MikState.QINIU);
-        }
         state.setBucketName(bucketName);
         state.setAccessKey(accessKey);
-        state.setAccessSecretKey(secretKey);
+        PasswordManager.setPassword(CREDENTIAL_ATTRIBUTES, secretKey);
         state.setEndpoint(endpoint);
         state.setZoneIndex(zoneIndex);
     }
@@ -238,8 +229,7 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
     public void reset(QiniuOssState state) {
         this.qiniuOssBucketNameTextField.setText(state.getBucketName());
         this.qiniuOssAccessKeyTextField.setText(state.getAccessKey());
-        String accessSecretKey = state.getAccessSecretKey();
-        this.qiniuOssAccessSecretKeyTextField.setText(DES.decrypt(accessSecretKey, MikState.QINIU));
+        this.qiniuOssAccessSecretKeyTextField.setText(PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES));
         this.qiniuOssUpHostTextField.setText(state.getEndpoint());
         JTextFieldHintListener.init(this.qiniuOssUpHostTextField, DOMAIN_HINT);
         this.zoneIndexTextFiled.setText(String.valueOf(state.getZoneIndex()));

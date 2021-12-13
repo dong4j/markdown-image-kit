@@ -24,7 +24,9 @@
 
 package info.dong4j.idea.plugin.settings.oss;
 
-import info.dong4j.idea.plugin.settings.MikState;
+import com.intellij.credentialStore.CredentialAttributes;
+
+import info.dong4j.idea.plugin.util.PasswordManager;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -42,14 +44,15 @@ import javax.swing.JTextField;
  * @since 1.4.0
  */
 public class GiteeSetting extends AbstractOpenOssSetting<GiteeOssState> {
-    /** BAIDU_HELPER_DOC formatter:off */
+    /** CREDENTIAL_ATTRIBUTES */
+    public static final CredentialAttributes CREDENTIAL_ATTRIBUTES =
+        PasswordManager.buildCredentialAttributes(GiteeSetting.class.getName(),
+                                                  "GITEE_SETTINGS_PASSWORD_KEY",
+                                                  GiteeSetting.class);
+    /** BAIDU_HELPER_DOC */
     private static final String HELPER_DOC = "https://gitee.com/help/articles/4228";
-    /** formatter:on GITHUB_API */
+    /** GITHUB_API */
     private static final String GITEE_API = "https://gitee.com/api/v5";
-    /** REPOS_HINT */
-    private static final String REPOS_HINT = "格式: owner/repos";
-    /** BRANCH_HINT */
-    private static final String BRANCH_HINT = "与 GitHub 不同, master 就是 master";
 
     /**
      * Baidu bos setting
@@ -80,9 +83,7 @@ public class GiteeSetting extends AbstractOpenOssSetting<GiteeOssState> {
               customEndpointCheckBox,
               customEndpointTextField,
               customEndpointHelper,
-              exampleTextField,
-              REPOS_HINT,
-              BRANCH_HINT);
+              exampleTextField);
 
     }
 
@@ -98,17 +99,6 @@ public class GiteeSetting extends AbstractOpenOssSetting<GiteeOssState> {
     }
 
     /**
-     * Gets key *
-     *
-     * @return the key
-     * @since 1.3.0
-     */
-    @Override
-    protected String getKey() {
-        return MikState.GITEE;
-    }
-
-    /**
      * Api
      *
      * @return the string
@@ -117,5 +107,16 @@ public class GiteeSetting extends AbstractOpenOssSetting<GiteeOssState> {
     @Override
     protected String api() {
         return GITEE_API;
+    }
+
+    /**
+     * Credential attributes
+     *
+     * @return the string
+     * @since 1.6.0
+     */
+    @Override
+    protected CredentialAttributes credentialAttributes() {
+        return CREDENTIAL_ATTRIBUTES;
     }
 }

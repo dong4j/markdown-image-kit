@@ -64,12 +64,14 @@ public abstract class UploadActionBase extends AnAction {
     abstract protected Icon getIcon();
 
     /**
-     * action 是否为可用状态
+     * 当前图床是否完成
      *
      * @return the boolean
      * @since 0.0.1
      */
-    abstract boolean isAvailable();
+    boolean available() {
+        return true;
+    }
 
     /**
      * 获取 action name
@@ -90,7 +92,7 @@ public abstract class UploadActionBase extends AnAction {
      */
     @Override
     public void update(@NotNull AnActionEvent event) {
-        ActionUtils.isAvailable(event, this.getIcon(), MarkdownContents.MARKDOWN_TYPE_NAME);
+        ActionUtils.isAvailable(this.available(), event, this.getIcon(), MarkdownContents.MARKDOWN_TYPE_NAME);
     }
 
     /**

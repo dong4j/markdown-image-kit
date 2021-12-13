@@ -24,6 +24,7 @@
 
 package info.dong4j.idea.plugin.chain;
 
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
@@ -55,7 +56,7 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
      */
     @Override
     public String getName() {
-        return "图片上传";
+        return MikBundle.message("mik.action.upload.title");
     }
 
     /**

@@ -38,7 +38,9 @@ public enum HelpType {
     /** Setting help type */
     SETTING("setting"),
     /** Nottify help type */
-    NOTTIFY("notify");
+    NOTTIFY("notify"),
+    /** Custom help type */
+    CUSTOM("custom");
 
     /** Where */
     public String where;

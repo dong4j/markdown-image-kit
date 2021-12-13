@@ -24,7 +24,9 @@
 
 package info.dong4j.idea.plugin.settings.oss;
 
-import info.dong4j.idea.plugin.settings.MikState;
+import com.intellij.credentialStore.CredentialAttributes;
+
+import info.dong4j.idea.plugin.util.PasswordManager;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -42,14 +44,16 @@ import javax.swing.JTextField;
  * @since 1.3.0
  */
 public class GithubSetting extends AbstractOpenOssSetting<GithubOssState> {
+    /** CREDENTIAL_ATTRIBUTES */
+    public static final CredentialAttributes CREDENTIAL_ATTRIBUTES =
+        PasswordManager.buildCredentialAttributes(GithubSetting.class.getName(),
+                                                  "GITHUB_SETTINGS_PASSWORD_KEY",
+                                                  GithubSetting.class);
+
     /** BAIDU_HELPER_DOC formatter:off */
-private static final String HELPER_DOC = "https://docs.github.com/en/github/working-with-github-pages/configuring-a-custom-domain-for-your-github-pages-site";
+    private static final String HELPER_DOC = "https://docs.github.com/en/github/working-with-github-pages/configuring-a-custom-domain-for-your-github-pages-site";
     /** formatter:on GITHUB_API */
     private static final String GITHUB_API = "https://api.github.com";
-    /** REPOS_HINT */
-    private static final String REPOS_HINT = "格式: owner/repos";
-    /** BRANCH_HINT */
-    private static final String BRANCH_HINT = "使用 main 代替 master";
 
     /**
      * Baidu bos setting
@@ -80,9 +84,7 @@ private static final String HELPER_DOC = "https://docs.github.com/en/github/work
               customEndpointCheckBox,
               customEndpointTextField,
               customEndpointHelper,
-              exampleTextField,
-              REPOS_HINT,
-              BRANCH_HINT);
+              exampleTextField);
 
     }
 
@@ -98,17 +100,6 @@ private static final String HELPER_DOC = "https://docs.github.com/en/github/work
     }
 
     /**
-     * Gets key *
-     *
-     * @return the key
-     * @since 1.3.0
-     */
-    @Override
-    protected String getKey() {
-        return MikState.GITHUB;
-    }
-
-    /**
      * Api
      *
      * @return the string
@@ -119,4 +110,14 @@ private static final String HELPER_DOC = "https://docs.github.com/en/github/work
         return GITHUB_API;
     }
 
+    /**
+     * Credential attributes
+     *
+     * @return the string
+     * @since 1.6.0
+     */
+    @Override
+    protected CredentialAttributes credentialAttributes() {
+        return CREDENTIAL_ATTRIBUTES;
+    }
 }

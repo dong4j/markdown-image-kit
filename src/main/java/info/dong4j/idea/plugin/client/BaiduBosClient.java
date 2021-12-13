@@ -26,11 +26,11 @@ package info.dong4j.idea.plugin.client;
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
-import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.oss.AbstractExtendOssState;
+import info.dong4j.idea.plugin.settings.oss.BaiduBosSetting;
 import info.dong4j.idea.plugin.settings.oss.BaiduBosState;
 import info.dong4j.idea.plugin.util.BaiduBosUtils;
-import info.dong4j.idea.plugin.util.DES;
+import info.dong4j.idea.plugin.util.PasswordManager;
 import info.dong4j.idea.plugin.util.StringUtils;
 
 import org.jetbrains.annotations.Contract;
@@ -66,7 +66,7 @@ public class BaiduBosClient extends AbstractOssClient {
     private static void init() {
         BaiduBosState baiduBosState = MikPersistenComponent.getInstance().getState().getBaiduBosState();
         accessKey = baiduBosState.getAccessKey();
-        accessSecretKey = DES.decrypt(baiduBosState.getAccessSecretKey(), MikState.BAIDU);
+        accessSecretKey = PasswordManager.getPassword(BaiduBosSetting.CREDENTIAL_ATTRIBUTES);
         endpoint = baiduBosState.getEndpoint();
         String tempFileDir = baiduBosState.getFiledir();
         filedir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";

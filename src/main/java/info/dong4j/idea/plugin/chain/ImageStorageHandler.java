@@ -30,6 +30,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
@@ -66,7 +67,7 @@ public class ImageStorageHandler extends ActionHandlerAdapter {
      */
     @Override
     public String getName() {
-        return "保存图片";
+        return MikBundle.message("mik.action.store.title");
     }
 
     /**

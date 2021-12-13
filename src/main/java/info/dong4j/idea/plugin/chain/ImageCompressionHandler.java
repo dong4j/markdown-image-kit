@@ -24,6 +24,7 @@
 
 package info.dong4j.idea.plugin.chain;
 
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.util.ImageUtils;
@@ -60,7 +61,7 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
      */
     @Override
     public String getName() {
-        return "图片压缩";
+        return MikBundle.message("mik.action.progress.title");
     }
 
     /**

@@ -27,7 +27,7 @@ package info.dong4j.idea.plugin.client;
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.util.IOUtils;
-import info.dong4j.idea.plugin.util.QcloudCosUtils;
+import info.dong4j.idea.plugin.util.TencentCosUtils;
 import info.dong4j.idea.plugin.util.digest.DigestUtils;
 import info.dong4j.idea.plugin.util.digest.Hex;
 import info.dong4j.idea.plugin.util.digest.HmacUtils;
@@ -152,12 +152,12 @@ public class TencentOssClientTest {
     public void test_web_api() throws Exception {
 
         // key 必须使用 / 为前缀
-        String putResult = QcloudCosUtils.putObject("/yguy.jpg",
-                                                    new FileInputStream(new File("/Users/dong4j/Downloads/mik.png")),
-                                                    bucketName,
-                                                    "ap-chengdu",
-                                                    secretId,
-                                                    secretKey);
+        String putResult = TencentCosUtils.putObject("/yguy.jpg",
+                                                     new FileInputStream(new File("/Users/dong4j/Downloads/mik.png")),
+                                                     bucketName,
+                                                     "ap-chengdu",
+                                                     secretId,
+                                                     secretKey);
         System.out.println("putResult:" + putResult);
 
         // String getResult = QcloudCosUtils.getUrl(bucketName, "ap-chengdu", putResult);

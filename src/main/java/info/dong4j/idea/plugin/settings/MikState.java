@@ -28,10 +28,12 @@ import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.SuffixEnum;
 import info.dong4j.idea.plugin.settings.oss.AliyunOssState;
 import info.dong4j.idea.plugin.settings.oss.BaiduBosState;
+import info.dong4j.idea.plugin.settings.oss.CustomOssState;
 import info.dong4j.idea.plugin.settings.oss.GiteeOssState;
 import info.dong4j.idea.plugin.settings.oss.GithubOssState;
 import info.dong4j.idea.plugin.settings.oss.QiniuOssState;
 import info.dong4j.idea.plugin.settings.oss.TencentOssState;
+import info.dong4j.idea.plugin.settings.oss.WangyiOssState;
 import info.dong4j.idea.plugin.settings.oss.WeiboOssState;
 
 import lombok.Data;
@@ -48,20 +50,6 @@ import lombok.Data;
  */
 @Data
 public class MikState {
-    /** 加密盐值 */
-    public static final String WEIBOKEY = "ekjgbpiq!g34o@erberb.erbmkv.c;,ergw_.";
-    /** ALIYUN */
-    public static final String ALIYUN = "awj7@piq!g3jo@er_erb.erbsrxhc!,wr.w_1";
-    /** BAIDU */
-    public static final String BAIDU = "efweg23142f!@23q4t=23rtfw_23tr1!2r.123";
-    /** QINIU */
-    public static final String QINIU = "gerb2.erhgds'5yf@4ybtree!43h34hbd4_";
-    /** TENCENT */
-    public static final String TENCENT = "xg13g143fvsdklo)2,m.we_123vds12e!#41c";
-    /** GITHUB */
-    public static final String GITHUB = "ewrg23e!3t@2i_324ugfvz2r29_hfvgdfbd23";
-    /** GITEE */
-    public static final String GITEE = "ewgkrblkjgbj@T*&!B_wlkjvbjhavt87112fsd";
 
     /** OLD_HASH_KEY */
     public static final String OLD_HASH_KEY = "old";
@@ -78,10 +66,14 @@ public class MikState {
     private QiniuOssState qiniuOssState;
     /** Tencent oss state */
     private TencentOssState tencentOssState;
+    /** Wangyi oss state */
+    private WangyiOssState wangyiOssState;
     /** Git hub oss state */
     private GithubOssState githubOssState;
     /** Gitee oss state */
-    private GiteeOssState GiteeOssState;
+    private GiteeOssState giteeOssState;
+    /** Custom oss state */
+    private CustomOssState customOssState;
 
     /** 是否替换标签 */
     private boolean changeToHtmlTag = false;
@@ -91,10 +83,14 @@ public class MikState {
     private String tagTypeCode = "";
     /** 是否压缩图片 */
     private boolean compress = false;
-    /** Compress before upload of percent */
+    /** Compress before the upload of percent */
     private int compressBeforeUploadOfPercent = 60;
     /** 图片备份 */
     private boolean backup = false;
+    /** 水印 */
+    private boolean watermark = false;
+    /** Watermark text */
+    private String watermarkText = "@MIK";
     /** 拷贝图片到目录 */
     private boolean copyToDir = false;
     /** 上传图片并替换 */
@@ -124,6 +120,8 @@ public class MikState {
         this.weiboOssState = new WeiboOssState();
         this.tencentOssState = new TencentOssState();
         this.githubOssState = new GithubOssState();
-        this.GiteeOssState = new GiteeOssState();
+        this.giteeOssState = new GiteeOssState();
+        this.customOssState = new CustomOssState();
+        this.wangyiOssState = new WangyiOssState();
     }
 }

@@ -71,7 +71,7 @@ public final class ChangeLabelAction extends AnAction {
      */
     @Override
     public void update(@NotNull AnActionEvent event) {
-        ActionUtils.isAvailable(event, AllIcons.Actions.ListChanges, MarkdownContents.MARKDOWN_TYPE_NAME);
+        ActionUtils.isAvailable(true, event, AllIcons.Actions.ListChanges, MarkdownContents.MARKDOWN_TYPE_NAME);
     }
 
     /**
@@ -97,7 +97,7 @@ public final class ChangeLabelAction extends AnAction {
                 .addHandler(new ActionHandlerAdapter() {
                     @Override
                     public String getName() {
-                        return "全局替换标签";
+                        return MikBundle.message("mik.action.replace.label");
                     }
 
                     @Override

@@ -24,6 +24,7 @@
 
 package info.dong4j.idea.plugin.chain;
 
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.notify.UploadNotification;
@@ -53,7 +54,7 @@ public class OptionClientHandler extends ActionHandlerAdapter {
      */
     @Override
     public String getName() {
-        return "验证 client";
+        return MikBundle.message("mik.action.checking.client.title");
     }
 
     /**

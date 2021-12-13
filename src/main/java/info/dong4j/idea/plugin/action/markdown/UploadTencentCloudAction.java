@@ -27,9 +27,6 @@ package info.dong4j.idea.plugin.action.markdown;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.client.TencentOssClient;
 import info.dong4j.idea.plugin.enums.CloudEnum;
-import info.dong4j.idea.plugin.icon.MikIcons;
-import info.dong4j.idea.plugin.settings.MikPersistenComponent;
-import info.dong4j.idea.plugin.settings.OssState;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -37,11 +34,12 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+import icons.MikIcons;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Company: no company</p>
- * <p>Description: 上传到阿里 OSS 事件</p>
+ * <p>Description: 上传到腾讯 OSS 事件</p>
  *
  * @author dong4j
  * @version 0.0.1
@@ -62,19 +60,7 @@ public final class UploadTencentCloudAction extends UploadActionBase {
     @Contract(pure = true)
     @Override
     protected Icon getIcon() {
-        return MikIcons.ALIYUN_OSS;
-    }
-
-    /**
-     * Is available
-     *
-     * @return the boolean
-     * @since 0.0.1
-     */
-    @Contract(pure = true)
-    @Override
-    boolean isAvailable() {
-        return OssState.getStatus(MikPersistenComponent.getInstance().getState().getTencentOssState());
+        return MikIcons.TENCENT;
     }
 
     /**

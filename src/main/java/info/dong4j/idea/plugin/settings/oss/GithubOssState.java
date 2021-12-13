@@ -43,4 +43,6 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 public class GithubOssState extends AbstractOpenOssState {
 
+    /** Branch */
+    protected String branch = "main";
 }

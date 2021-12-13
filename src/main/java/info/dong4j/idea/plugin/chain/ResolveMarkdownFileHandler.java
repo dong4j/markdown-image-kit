@@ -27,6 +27,7 @@ package info.dong4j.idea.plugin.chain;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.editor.Document;
 
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.util.MarkdownUtils;
@@ -60,7 +61,7 @@ public class ResolveMarkdownFileHandler extends ActionHandlerAdapter {
      */
     @Override
     public String getName() {
-        return "解析 Markdown 文件";
+        return MikBundle.message("mik.action.resolve.markdown.file.title");
     }
 
     /**

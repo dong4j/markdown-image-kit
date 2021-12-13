@@ -44,10 +44,10 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class WeiboOssState extends OssState {
-    /** User name */
-    private String userName = "";
-    /** Password */
-    private String password = "";
+    /** Username */
+    private String username = "";
+    /** Secretkey */
+    private String secretkey = "";
     /** Cookies */
     private String cookies = "";
 }

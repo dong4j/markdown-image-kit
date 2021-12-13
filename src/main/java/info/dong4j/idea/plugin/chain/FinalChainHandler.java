@@ -26,6 +26,7 @@ package info.dong4j.idea.plugin.chain;
 
 import com.intellij.openapi.editor.Document;
 
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 
@@ -52,7 +53,7 @@ public class FinalChainHandler extends ActionHandlerAdapter {
      */
     @Override
     public String getName() {
-        return "扫尾工作";
+        return MikBundle.message("mik.action.final.title");
     }
 
     /**

@@ -90,16 +90,6 @@ public class MoveToOtherOssSettingsDialog extends JDialog {
     }
 
     /**
-     * On ok
-     *
-     * @since 0.0.1
-     */
-    private void onOK() {
-        // add your code here
-        this.dispose();
-    }
-
-    /**
      * On cancel
      *
      * @since 0.0.1

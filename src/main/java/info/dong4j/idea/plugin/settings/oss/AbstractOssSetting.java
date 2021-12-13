@@ -24,6 +24,7 @@
 
 package info.dong4j.idea.plugin.settings.oss;
 
+import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.JBColor;
 
@@ -31,7 +32,7 @@ import info.dong4j.idea.plugin.client.AbstractOssClient;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.settings.ProjectSettingsPage;
-import info.dong4j.idea.plugin.util.DES;
+import info.dong4j.idea.plugin.util.PasswordManager;
 import info.dong4j.idea.plugin.util.StringUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -52,6 +53,7 @@ import javax.swing.event.DocumentEvent;
  * <p>Company: 成都返空汇网络技术有限公司</p>
  * <p>Description:  </p>
  *
+ * @param <T> parameter
  * @author dong4j
  * @version 1.0.0
  * @email "mailto:dong4j@fkhwl.com"
@@ -122,8 +124,7 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
      */
     @Override
     public void init(T state) {
-        String aliyunOssAccessSecretKey = state.getAccessSecretKey();
-        this.accessSecretKeyTextField.setText(DES.decrypt(aliyunOssAccessSecretKey, this.getKey()));
+        this.accessSecretKeyTextField.setText(PasswordManager.getPassword(this.credentialAttributes()));
 
         // 处理当 aliyunOssFileDirTextField.getText() 为 空字符时, 不拼接 "/
         this.setExampleText(false);
@@ -233,6 +234,7 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
     /**
      * Is modified
      *
+     * @param state state
      * @return the boolean
      * @since 1.1.0
      */
@@ -241,9 +243,7 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
         String bucketName = this.bucketNameTextField.getText().trim();
         String accessKey = this.accessKeyTextField.getText().trim();
         String secretKey = new String(this.accessSecretKeyTextField.getPassword());
-        if (StringUtils.isNotBlank(secretKey)) {
-            secretKey = DES.encrypt(secretKey, this.getKey());
-        }
+
         String endpoint = this.endpointTextField.getText().trim();
         String filedir = this.fileDirTextField.getText().trim();
         String customEndpoint = this.customEndpointTextField.getText().trim();
@@ -251,7 +251,7 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
 
         return bucketName.equals(state.getBucketName())
                && accessKey.equals(state.getAccessKey())
-               && secretKey.equals(state.getAccessSecretKey())
+               && secretKey.equals(PasswordManager.getPassword(this.credentialAttributes()))
                && endpoint.equals(state.getEndpoint())
                && filedir.equals(state.getFiledir())
                && state.getIsCustomEndpoint() == isCustomEndpoint
@@ -261,6 +261,7 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
     /**
      * Apply
      *
+     * @param state state
      * @since 1.1.0
      */
     @Override
@@ -281,13 +282,10 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
 
         OssState.saveStatus(state, hashcode, MikState.NEW_HASH_KEY);
 
-        if (StringUtils.isNotBlank(accessSecretKey)) {
-            accessSecretKey = DES.encrypt(accessSecretKey, this.getKey());
-        }
-
         state.setBucketName(bucketName);
         state.setAccessKey(accessKey);
         state.setAccessSecretKey(accessSecretKey);
+        PasswordManager.setPassword(this.credentialAttributes(), accessSecretKey);
         state.setEndpoint(endpoint);
         state.setCustomEndpoint(customEndpoint);
         state.setIsCustomEndpoint(isCustomEndpoint);
@@ -304,8 +302,7 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
     public void reset(T state) {
         this.bucketNameTextField.setText(state.getBucketName());
         this.accessKeyTextField.setText(state.getAccessKey());
-        String aliyunOssAccessSecreKey = state.getAccessSecretKey();
-        this.accessSecretKeyTextField.setText(DES.decrypt(aliyunOssAccessSecreKey, this.getKey()));
+        this.accessSecretKeyTextField.setText(PasswordManager.getPassword(this.credentialAttributes()));
         this.endpointTextField.setText(state.getEndpoint());
         this.fileDirTextField.setText(state.getFiledir());
 
@@ -322,10 +319,11 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
     protected abstract String getHelpDoc();
 
     /**
-     * Gets key *
+     * Credential attributes
      *
-     * @return the key
-     * @since 1.1.0
+     * @return the credential attributes
+     * @since 1.6.0
      */
-    protected abstract String getKey();
+    protected abstract CredentialAttributes credentialAttributes();
+
 }

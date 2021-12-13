@@ -27,12 +27,13 @@ package info.dong4j.idea.plugin.action.markdown;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.client.SmmsClient;
 import info.dong4j.idea.plugin.enums.CloudEnum;
-import info.dong4j.idea.plugin.icon.MikIcons;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
+
+import icons.MikIcons;
 
 /**
  * <p>Company: no company</p>
@@ -56,18 +57,6 @@ public final class UploadSmmsCloudAction extends UploadActionBase {
     @Override
     protected Icon getIcon() {
         return MikIcons.SM_MS;
-    }
-
-    /**
-     * Is available
-     *
-     * @return the boolean
-     * @since 0.0.1
-     */
-    @Contract(pure = true)
-    @Override
-    boolean isAvailable() {
-        return true;
     }
 
     /**

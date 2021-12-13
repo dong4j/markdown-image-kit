@@ -26,11 +26,11 @@ package info.dong4j.idea.plugin.client;
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
-import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.oss.AbstractOpenOssState;
 import info.dong4j.idea.plugin.settings.oss.GiteeOssState;
-import info.dong4j.idea.plugin.util.DES;
+import info.dong4j.idea.plugin.settings.oss.GiteeSetting;
 import info.dong4j.idea.plugin.util.GiteeUtils;
+import info.dong4j.idea.plugin.util.PasswordManager;
 import info.dong4j.idea.plugin.util.StringUtils;
 
 import org.jetbrains.annotations.Contract;
@@ -71,7 +71,7 @@ public class GiteeClient extends AbstractOpenClient {
         GiteeOssState state = MikPersistenComponent.getInstance().getState().getGiteeOssState();
         repos = state.getRepos();
         branch = state.getBranch();
-        token = DES.decrypt(state.getToken(), MikState.GITEE);
+        token = PasswordManager.getPassword(GiteeSetting.CREDENTIAL_ATTRIBUTES);
         String tempFileDir = state.getFiledir();
         filedir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";
     }

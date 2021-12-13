@@ -24,13 +24,14 @@
 
 package info.dong4j.idea.plugin.client;
 
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
-import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.oss.AbstractOpenOssState;
 import info.dong4j.idea.plugin.settings.oss.GithubOssState;
-import info.dong4j.idea.plugin.util.DES;
+import info.dong4j.idea.plugin.settings.oss.GithubSetting;
 import info.dong4j.idea.plugin.util.GithubUtils;
+import info.dong4j.idea.plugin.util.PasswordManager;
 import info.dong4j.idea.plugin.util.StringUtils;
 
 import org.apache.http.util.Asserts;
@@ -72,7 +73,7 @@ public class GithubClient extends AbstractOpenClient {
         GithubOssState state = MikPersistenComponent.getInstance().getState().getGithubOssState();
         repos = state.getRepos();
         branch = state.getBranch();
-        token = DES.decrypt(state.getToken(), MikState.GITHUB);
+        token = PasswordManager.getPassword(GithubSetting.CREDENTIAL_ATTRIBUTES);
         String tempFileDir = state.getFiledir();
         filedir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";
     }
@@ -190,7 +191,7 @@ public class GithubClient extends AbstractOpenClient {
      */
     @Override
     protected void check(String branch) {
-        Asserts.check(!branch.equals("master"), "error branch name");
+        Asserts.check(!branch.equals("master"), MikBundle.message("error.branch.name"));
     }
 
 }

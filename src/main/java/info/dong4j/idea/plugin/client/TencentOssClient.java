@@ -28,10 +28,11 @@ import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
+import info.dong4j.idea.plugin.settings.oss.TencentOssSetting;
 import info.dong4j.idea.plugin.settings.oss.TencentOssState;
-import info.dong4j.idea.plugin.util.DES;
-import info.dong4j.idea.plugin.util.QcloudCosUtils;
+import info.dong4j.idea.plugin.util.PasswordManager;
 import info.dong4j.idea.plugin.util.StringUtils;
+import info.dong4j.idea.plugin.util.TencentCosUtils;
 
 import org.apache.http.util.Asserts;
 import org.jetbrains.annotations.Contract;
@@ -83,7 +84,7 @@ public class TencentOssClient implements OssClient {
         TencentOssState tencentOssState = MikPersistenComponent.getInstance().getState().getTencentOssState();
         bucketName = tencentOssState.getBucketName();
         accessKey = tencentOssState.getAccessKey();
-        accessSecretKey = DES.decrypt(tencentOssState.getSecretKey(), MikState.TENCENT);
+        accessSecretKey = PasswordManager.getPassword(TencentOssSetting.CREDENTIAL_ATTRIBUTES);
         regionName = tencentOssState.getRegionName();
 
     }
@@ -140,12 +141,12 @@ public class TencentOssClient implements OssClient {
     @Override
     public String upload(InputStream inputStream, String fileName) throws Exception {
         // 拼接 url = <BucketName-APPID>.cos.region_name.myqcloud.com/key
-        return QcloudCosUtils.putObject("/" + fileName,
-                                        inputStream,
-                                        bucketName,
-                                        regionName,
-                                        accessKey,
-                                        accessSecretKey);
+        return TencentCosUtils.putObject("/" + fileName,
+                                         inputStream,
+                                         bucketName,
+                                         regionName,
+                                         accessKey,
+                                         accessSecretKey);
     }
 
     /**

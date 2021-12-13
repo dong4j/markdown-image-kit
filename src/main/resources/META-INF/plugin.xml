@@ -25,160 +25,7 @@
 <idea-plugin>
     <id>info.dong4j.idea.plugin.markdown.image.kit</id>
     <name>Markdown Image Kit</name>
-    <version>1.0.0</version>
     <vendor email="dong4j@gmail.com" url="https://github.com/dong4j/markdown-image-kit">dong4j</vendor>
-    <!--http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html-->
-    <idea-version since-build="183"/>
-
-    <description><![CDATA[
-    <h1>Markdown Image Kit</h1>
-        <br/>
-        <a href="https://dong4j.launchaco.com">Website</a> |
-        <a href="https://github.com/dong4j/markdown-image-kit">GitHub</a> |
-        <a href="https://github.com/dong4j/markdown-image-kit/issues">Issues</a> |
-        <a href="http://dev.dong4j.info/product/markdown-image-kit.html">Help</a>
-    <br/>
-    <br/>
-    <b>Markdown Image Kit</b> is a plugin for easy and efficient management of Markdown document images in IDEA.</p>
-    <p>Writing in IntelliJ IDEA (mainly technical documentation), mapping has become a big issue, and we need to do this with other APPs.</p>
-    <p>In order to solve the current situation, the plug-in has been developed, which can conveniently map technical documents, upload images with one click and directly replace them with markdown image tags, and of course provide other auxiliary functions.</p>
-    <br/>
-    <b>Features</b>
-    <ul>
-        <li>One-click uploading the current document (all documents) automatically replaces all reference pictures, and experiences the simplest and most efficient one-wave operation;</li>
-        <li>Support multiple map beds, also support custom maps, no pictures you can't upload;</li>
-        <li>One-click replacement for all labels, batch processing is as simple as that;</li>
-        <li>Paste the picture, copy is markdown image mark, it is so direct;</li>
-        <li>Direct compression of images, reduce traffic, increase loading speed, and think for you everywhere;</li>
-        <li>Can be processed separately for a markdown image mark, flexible and unnecessary;</li>
-        <li>The bed migration plan, the free flow is used up? It is not ok to move to another free map bed;</li>
-    </ul>
-    <br/>
-    <br/>
-    <p><b>Markdown Image Kit</b> 是一款在 IDEA 中方便高效得管理 Markdown 文档图片的插件.</p>
-    <p>在 IntelliJ IDEA 中写作(主要是技术文档), 配图成了一个大问题, 我们需要借助其他 APP 来完成这一操作.</p>
-    <p>为了解决现状, 因此开发了此插件, 能方便得给技术文档配图, 一键上传图片并直接替换为 markdown image 标签, 当然还提供其他一些附属功能.</p>
-    <br/>
-    <b>Features</b>
-    <ul>
-        <li>一键上传当前文档(所有文档)所有引用图片后自动替换, 体验最简单高效的一波流操作;</li>
-        <li>支持多个图床, 还支持自定义图床, 没有你上传不了的图片;</li>
-        <li>一键替换所有标签, 批量处理就是这么简单;</li>
-        <li>粘贴图片, 复制就是 markdown image mark, 就是这么直接;</li>
-        <li>图片直接压缩, 减少流量, 提高加载速度, 处处为你着想;</li>
-        <li>可对一个 markdown image mark 单独处理, 灵活的不要不要的;</li>
-        <li>图床迁移计划, 免费流量用完了? 迁移到另一个免费图床不就 ok 了;</li>
-    </ul>
-    <br/>
-    <br/>
-    ]]></description>
-
-    <change-notes><![CDATA[
-      <p>1.4.0-RELEASE</p>
-      <ul>
-        <li>support gitee</li>
-        <li>Fix the problem of wrong GitHub main branch name</li>
-        <li>The original image path will not be replaced when the upload fails, which is convenient for uploading again</li>
-        <li>Fixed the wrong mouse listener causing the browser to open multiple pages</li>
-      </ul>
-      <ul>
-        <li>上传到 Gitee</li>
-        <li>修复 GitHub 主分支名错误的问题</li>
-        <li>上传失败时不再替换原有的图片路径, 便于再次上传</li>
-        <li>修复错误的鼠标监听器导致浏览器打开多个页面</li>
-       </ul>
-      <br/>
-      <p>1.3.0-RELEASE</p>
-      <ul>
-        <li>support github</li>
-      </ul>
-      <ul>
-        <li>上传到 GitHub</li>
-       </ul>
-      <br/>
-      <p>1.2.0-RELEASE</p>
-      <ul>
-        <li>add baidu bos</li>
-      </ul>
-      <ul>
-        <li>添加百度云图床</li>
-       </ul>
-      <br/>
-      <p>1.1.0-RELEASE</p>
-      <ul>
-        <li>Delete com.intellij.modules.java, support WebStorm, PyCharm, GoLand</li>
-        <li>Refactor dependencies, delete apache dependencies, reduce plug-in size</li>
-      </ul>
-      <ul>
-        <li>移除 com.intellij.modules.java, 支持 WebStorm, PyCharm, GoLand 等 IDE</li>
-        <li>重构依赖, 删除 apache 相关依赖, 减少插件体积</li>
-       </ul>
-      <br/>
-      <p>1.0.0-RELEASE</p>
-      <ul>
-        <li>Delete the Qcloud SDK, upload pictures using REST API</li>
-        <li>Delete Aliyun SDK, upload pictures using REST API</li>
-        <li>Fix sm.ms upload failure</li>
-        <li>Fix bulk upload warning</li>
-      </ul>
-      <ul>
-        <li>删除 Qcloud SDK, 使用 API 上传图片</li>
-        <li>删除 Aliyun SDK, 使用 API 上传图片</li>
-        <li>修复 sm.ms 上传失败的问题</li>
-        <li>修复批量上传警告</li>
-       </ul>
-      <br/>
-      <p>0.0.4-RELEASE</p>
-      <ul>
-        <li>Fix WebStrom copy image can't find class problem</li>
-      </ul>
-      <ul>
-        <li>修复 WebStrom 复制图片找不到 class 的问题</li>
-       </ul>
-      <br/>
-      <p>0.0.3-RELEASE</p>
-      <ul>
-        <li>Support Tencent COS</li>
-        <li>Optimize client logic, initialize client with lazy loading</li>
-        <li>Fix the problem of copy upload error under windows OS</li>
-        <li>Fix an issue where the persistent file occasionally reports an error. This version moves the persistent file to a separate markdown-image-kit.xml file and encrypts it. (It may be necessary to delete the corresponding node in other.xml based on the error message.)</li>
-      </ul>
-      <ul>
-        <li>支持腾讯云 COS</li>
-        <li>优化 client 逻辑, 使用懒加载初始化 client</li>
-        <li>修复 windows OS 下, 复制上传错误的问题</li>
-        <li>修复持久化文件偶尔报错的问题, 此版本将持久化文件移动到单独的 markdown-image-kit.xml 文件中, 并做了加密处理. (可能需要根据报错信息, 删除 other.xml 中的对应节点)</li>
-       </ul>
-       <br/>
-      <p>0.0.2-RELEASE</p>
-      <ul>
-        <li>Support <a href="https://sm.ms">sm.ms</a>, and set it as the default</li>
-      </ul>
-      <ul>
-        <li>支持 sm.ms, 并设置为默认图床</li>
-       </ul>
-       <br/>
-      <p>0.0.1-RELEASE</p>
-      <ul>
-        <li>One-click uploading the current document (all documents) automatically replaces all reference pictures, and experiences the simplest and most efficient one-wave operation;</li>
-        <li>Support multiple map beds, also support custom maps, no pictures you can't upload;</li>
-        <li>One-click replacement for all labels, batch processing is as simple as that;</li>
-        <li>Paste the picture, copy is markdown image mark, it is so direct;</li>
-        <li>Direct compression of images, reduce traffic, increase loading speed, and think for you everywhere;</li>
-        <li>Can be processed separately for a markdown image mark, flexible and unnecessary;</li>
-        <li>The bed migration plan, the free flow is used up? It is not ok to move to another free map bed;</li>
-      </ul>
-      <ul>
-        <li>一键上传当前文档(所有文档)所有引用图片后自动替换, 体验最简单高效的一波流操作;</li>
-        <li>支持多个图床, 还支持自定义图床, 没有你上传不了的图片;</li>
-        <li>一键替换所有标签, 批量处理就是这么简单;</li>
-        <li>粘贴图片, 复制就是 markdown image mark, 就是这么直接;</li>
-        <li>图片直接压缩, 减少流量, 提高加载速度, 处处为你着想;</li>
-        <li>可对一个 markdown image mark 单独处理, 灵活的不要不要的;</li>
-        <li>图床迁移计划, 免费流量用完了? 迁移到另一个免费图床不就 ok 了;</li>
-       </ul>
-    ]]>
-    </change-notes>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
     on how to target different products -->
@@ -191,7 +38,7 @@
                              implementationClass="info.dong4j.idea.plugin.action.paste.PasteImageAction"
                              order="first"/>
         <!-- 设置面板 -->
-        <applicationConfigurable groupId="tools" instance="info.dong4j.idea.plugin.settings.ProjectSettingsPage"/>
+        <applicationConfigurable groupId="other" instance="info.dong4j.idea.plugin.settings.ProjectSettingsPage"/>
         <!-- 持久化 -->
         <applicationService serviceImplementation="info.dong4j.idea.plugin.settings.MikPersistenComponent"/>
         <!-- alt + enter -->
@@ -209,28 +56,50 @@
 
     <actions>
         <action id="SmmsObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadSmmsCloudAction"
-                popup="true" text="上传到 sm.ms">
+                popup="true" text="SM.MS">
         </action>
         <action id="WeiboObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadWeiboCloudAction"
-                popup="true" text="上传到微博">
+                popup="true" text="微博">
         </action>
         <action id="AliyunObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadAliyunCloudAction"
-                popup="true" text="上传到阿里云">
+                popup="true" text="阿里云">
         </action>
         <action id="QiniuObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadQiniuCloudAction"
-                popup="true" text="上传到七牛云">
+                popup="true" text="七牛云">
         </action>
         <action id="TencentObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadTencentCloudAction"
-                popup="true" text="上传到腾讯云">
+                popup="true" text="腾讯云">
+        </action>
+        <action id="WangyiObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadWangyiCloudAction"
+                popup="true" text="网易云">
         </action>
         <action id="BaiduObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadBaiduCloudAction"
-                popup="true" text="上传到百度云">
+                popup="true" text="百度云">
+        </action>
+        <action id="JingdongObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadJingdongCloudAction"
+                popup="true" text="京东云">
+        </action>
+        <action id="YoupaiObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadYoupaiCloudAction"
+                popup="true" text="又拍云">
+        </action>
+        <action id="ImgurObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadImgurCloudAction"
+                popup="true" text="Imgur">
+        </action>
+        <action id="UcloudObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadUcloudCloudAction"
+                popup="true" text="Ucloud">
+        </action>
+        <action id="QingcloudObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadQingcloudCloudAction"
+                popup="true" text="青云">
         </action>
         <action id="GithubObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadGithubCloudAction"
-                popup="true" text="上传到 GitHub">
+                popup="true" text="GitHub">
         </action>
         <action id="GiteeObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadGiteeCloudAction"
-                popup="true" text="上传到 Gitee">
+                popup="true" text="Gitee">
+
+        </action>
+        <action id="CustomObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadCustomCloudAction"
+                popup="true" text="自定义">
         </action>
 
         <action id="ImageCompressAction" class="info.dong4j.idea.plugin.action.image.ImageCompressAction"
@@ -240,11 +109,11 @@
                 popup="true" text="图片上传">
         </action>
         <action id="MoveToOtherStorageAction" class="info.dong4j.idea.plugin.action.markdown.MoveToOtherStorageAction"
-                popup="true" text="图床迁移计划">
+                popup="true" text="图床迁移">
         </action>
 
         <action id="ChangeLabelAction" class="info.dong4j.idea.plugin.action.markdown.ChangeLabelAction"
-                popup="true" text="替换所有标签">
+                popup="true" text="替换标签">
         </action>
 
 
@@ -256,9 +125,16 @@
             <reference ref="AliyunObjectStorageServiceAction"/>
             <reference ref="QiniuObjectStorageServiceAction"/>
             <reference ref="TencentObjectStorageServiceAction"/>
+            <reference ref="WangyiObjectStorageServiceAction"/>
             <reference ref="BaiduObjectStorageServiceAction"/>
+            <reference ref="JingdongObjectStorageServiceAction"/>
+            <reference ref="YoupaiObjectStorageServiceAction"/>
+            <reference ref="ImgurObjectStorageServiceAction"/>
+            <reference ref="UcloudObjectStorageServiceAction"/>
+            <reference ref="QingcloudObjectStorageServiceAction"/>
             <reference ref="GithubObjectStorageServiceAction"/>
             <reference ref="GiteeObjectStorageServiceAction"/>
+            <reference ref="CustomObjectStorageServiceAction"/>
             <separator/>
             <reference ref="ImageCompressAction"/>
             <reference ref="ImageUploadAction"/>
@@ -279,9 +155,16 @@
             <reference ref="AliyunObjectStorageServiceAction"/>
             <reference ref="QiniuObjectStorageServiceAction"/>
             <reference ref="TencentObjectStorageServiceAction"/>
+            <reference ref="WangyiObjectStorageServiceAction"/>
             <reference ref="BaiduObjectStorageServiceAction"/>
+            <reference ref="JingdongObjectStorageServiceAction"/>
+            <reference ref="YoupaiObjectStorageServiceAction"/>
+            <reference ref="ImgurObjectStorageServiceAction"/>
+            <reference ref="UcloudObjectStorageServiceAction"/>
+            <reference ref="QingcloudObjectStorageServiceAction"/>
             <reference ref="GithubObjectStorageServiceAction"/>
             <reference ref="GiteeObjectStorageServiceAction"/>
+            <reference ref="CustomObjectStorageServiceAction"/>
             <separator/>
             <reference ref="ImageCompressAction"/>
             <reference ref="ImageUploadAction"/>

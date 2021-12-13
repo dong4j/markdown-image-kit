@@ -27,7 +27,7 @@ package info.dong4j.idea.plugin.settings;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.SearchableConfigurable;
-import com.intellij.ui.JBColor;
+import com.intellij.openapi.ui.Messages;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.client.OssClient;
@@ -37,6 +37,7 @@ import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.notify.MikNotification;
 import info.dong4j.idea.plugin.settings.oss.AliyunOssSetting;
 import info.dong4j.idea.plugin.settings.oss.BaiduBosSetting;
+import info.dong4j.idea.plugin.settings.oss.CustomOssSetting;
 import info.dong4j.idea.plugin.settings.oss.GiteeSetting;
 import info.dong4j.idea.plugin.settings.oss.GithubSetting;
 import info.dong4j.idea.plugin.settings.oss.QiniuOssSetting;
@@ -61,7 +62,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
@@ -79,7 +79,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 0.0.1
  */
 @Slf4j
-public class ProjectSettingsPage implements SearchableConfigurable, Configurable.NoScroll {
+public class ProjectSettingsPage implements SearchableConfigurable, Configurable.NoMargin {
     /** TEST_FILE_NAME */
     public static final String TEST_FILE_NAME = "mik.png";
 
@@ -90,6 +90,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JPanel myMainPanel;
 
     //region authorizationPanel
+    private JPanel authorizationPanel;
     /** Authorization tabbed panel */
     private JTabbedPane authorizationTabbedPanel;
 
@@ -209,6 +210,14 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JTextField githubExampleTextField;
     //endregion
 
+    //region custom
+    private JPanel customAuthorizationPanel;
+    private JTextField customApiTextField;
+    private JTextField requestKeyTextField;
+    private JTextField responseUrlPathTextField;
+    private JTextField httpMethodTextField;
+    //endregion
+
     //region gitee
     /** Git hub authorization panel */
     private JPanel giteeAuthorizationPanel;
@@ -230,10 +239,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JTextField giteeExampleTextField;
     //endregion
 
-    /** 按钮 group */
+    /** Test button */
     private JButton testButton;
-    /** Test message */
-    private JLabel testMessage;
     /** Help button */
     private JButton helpButton;
     //endregion
@@ -268,7 +275,10 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JCheckBox renameCheckBox;
     /** File name suffix box field */
     private JComboBox<?> fileNameSuffixBoxField;
-
+    /** 水印复选框 */
+    private JCheckBox watermarkCheckBox;
+    /** 水印文字 */
+    private JTextField watermarkTextField;
     /** Custom message */
     private JLabel customMessage;
     //endregion
@@ -282,7 +292,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JTextField whereToCopyTextField;
     /** Upload and replace check box */
     private JCheckBox uploadAndReplaceCheckBox;
-    /** 自定义默认图床 */
+    /** Default cloud check box */
     private JCheckBox defaultCloudCheckBox;
     //endregion
 
@@ -345,9 +355,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                                                                         this.qiniuOssNortChinaRadioButton,
                                                                         this.qiniuOssSouthChinaRadioButton,
                                                                         this.qiniuOssNorthAmeriaRadioButton,
-                                                                        this.zoneIndexTextFiled,
-                                                                        this.testButton,
-                                                                        this.testMessage);
+                                                                        this.zoneIndexTextFiled);
     //endregion
 
     //region TencentOssSetting
@@ -355,6 +363,13 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                                                                               this.tencentAccessKeyTextField,
                                                                               this.tencentSecretKeyTextField,
                                                                               this.tencentRegionNameTextField);
+    //endregion
+
+    //region CustomOssSetting
+    private final CustomOssSetting customOssSetting = new CustomOssSetting(this.customApiTextField,
+                                                                           this.requestKeyTextField,
+                                                                           this.responseUrlPathTextField,
+                                                                           this.httpMethodTextField);
     //endregion
 
     /** todo-dong4j : (2019年03月20日 13:25) [测试输入验证用] */
@@ -382,7 +397,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     @Override
     public JComponent createComponent() {
         this.initFromSettings();
-        return new JScrollPane(this.myMainPanel);
+        return this.myMainPanel;
     }
 
     /**
@@ -456,15 +471,21 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      * @since 0.0.1
      */
     private void initAuthorizationTabbedPanel(@NotNull MikState state) {
+        int defaultCloudIndex = state.getCloudType() == CloudEnum.SM_MS_CLOUD.index
+                                ? CloudEnum.WEIBO_CLOUD.index
+                                : state.getCloudType();
         // 打开设置页时默认选中默认上传图床
-        this.authorizationTabbedPanel.setSelectedIndex(state.getCloudType() == CloudEnum.SM_MS_CLOUD.index ? CloudEnum.WEIBO_CLOUD.index
-                                                                                                           : state.getCloudType());
+        this.authorizationTabbedPanel.setSelectedIndex(defaultCloudIndex);
+
+        // 处理 help 按钮
+        this.helpButton.setText("Help & " + OssState.getCloudType(defaultCloudIndex).getTitle());
+
         this.authorizationTabbedPanel.addChangeListener(e -> {
-            // 清理 test 信息
-            this.testMessage.setText("");
-            this.testButton.setText("Test Upload");
             // 获得指定索引的选项卡标签
-            log.trace("change {}", this.authorizationTabbedPanel.getTitleAt(this.authorizationTabbedPanel.getSelectedIndex()));
+            int selectedIndex = this.authorizationTabbedPanel.getSelectedIndex();
+            log.trace("change {}", this.authorizationTabbedPanel.getTitleAt(selectedIndex));
+            CloudEnum cloudType = OssState.getCloudType(selectedIndex);
+            this.helpButton.setText("Help & " + cloudType.getTitle());
         });
 
         this.weiboOssSetting.init(this.config.getState().getWeiboOssState());
@@ -474,6 +495,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.giteeSetting.init(this.config.getState().getGiteeOssState());
         this.qiniuOssSetting.init(this.config.getState().getQiniuOssState());
         this.tencentOssSetting.init(this.config.getState().getTencentOssState());
+        this.customOssSetting.init(this.config.getState().getCustomOssState());
 
         this.testAndHelpListener();
     }
@@ -495,14 +517,14 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                 try {
                     url = client.upload(inputStream, TEST_FILE_NAME, (JPanel) this.authorizationTabbedPanel.getComponentAt(index));
                 } catch (Exception exception) {
-                    this.testMessage.setForeground(JBColor.RED);
-                    this.testMessage.setText("Error: " + exception.getMessage());
+                    //显示对话框
+                    Messages.showMessageDialog(this.myMainPanel,
+                                               exception.getMessage(),
+                                               "Error",
+                                               Messages.getErrorIcon());
                     return;
                 }
                 if (StringUtils.isNotBlank(url)) {
-                    this.testMessage.setForeground(JBColor.GREEN);
-                    this.testMessage.setText("Upload Succeed");
-                    this.testButton.setText("Test Upload");
                     // 测试通过了, 则判断是否勾选设置默认图床, 若勾选则刷新可用状态
                     boolean isDefaultCheckBox = this.defaultCloudCheckBox.isSelected();
                     if (isDefaultCheckBox) {
@@ -511,27 +533,36 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                             this.customMessage.setText("");
                         }
                     }
+                    Messages.showMessageDialog(this.myMainPanel,
+                                               cloudEnum.getTitle() + " 上传成功",
+                                               "Successed",
+                                               Messages.getInformationIcon());
                     // 主动保存
                     this.apply();
                     if (log.isTraceEnabled()) {
                         BrowserUtil.browse(url);
                     }
                 } else {
-                    this.testButton.setText("Try Again");
-                    this.testMessage.setForeground(JBColor.RED);
-                    this.testMessage.setText("Upload Failed, Please Check The Configuration");
+                    Messages.showMessageDialog(this.myMainPanel,
+                                               cloudEnum.getTitle() + " 上传失败",
+                                               "Error",
+                                               Messages.getErrorIcon());
                 }
             } else {
-                this.testButton.setText("Try Again");
-                this.testMessage.setForeground(JBColor.RED);
-                this.testMessage.setText("Upload Failed, Please Check The Configuration");
+                Messages.showMessageDialog(this.myMainPanel,
+                                           cloudEnum.getTitle() + " 不可用, 请检查配置是否正确",
+                                           "Error",
+                                           Messages.getErrorIcon());
             }
         });
 
         // help button 监听
         this.helpButton.addActionListener(e -> {
-            // 打开浏览器到帮助页面
-            String url = MikNotification.helpUrl(HelpType.SETTING.where);
+            String url = MikNotification.helpUrl(HelpType.CUSTOM.where);
+            CloudEnum cloudType = OssState.getCloudType(this.authorizationTabbedPanel.getSelectedIndex());
+            if (cloudType != CloudEnum.CUSTOMIZE) {
+                url = MikNotification.helpUrl(HelpType.SETTING.where);
+            }
             if (!url.equals(MikNotification.ABOUT_BLANK)) {
                 BrowserUtil.browse(url);
             }
@@ -549,9 +580,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.defaultCloudCheckBox.setSelected(isDefaultCloudCheck);
         // 没有设置默认图床, 则显示提示消息
         if (!isDefaultCloudCheck) {
-            this.customMessage.setText("未设置默认图床时, 将使用 sm.ms 作为默认图床");
+            this.customMessage.setText("sm.ms");
         } else {
-            this.customMessage.setText(OssState.getStatus(state.getCloudType()) ? "" : "当前 OSS 不可用, 将使用 sm.ms 作为默认图床");
+            this.customMessage.setText(OssState.getStatus(state.getCloudType()) ? "" : "当前 OSS 不可用!");
         }
         this.defaultCloudComboBox.setEnabled(isDefaultCloudCheck);
         this.defaultCloudComboBox.setSelectedIndex(state.getCloudType());
@@ -584,6 +615,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             JCheckBox checkBox = (JCheckBox) e.getSource();
             this.fileNameSuffixBoxField.setEnabled(checkBox.isSelected());
         });
+
+        // 水印配置初始化
+        this.watermarkCheckBox.setSelected(this.config.getState().isWatermark());
+        this.watermarkTextField.setEnabled(this.watermarkCheckBox.isSelected());
+        this.watermarkCheckBox.addActionListener(e -> this.watermarkTextField.setEnabled(this.watermarkCheckBox.isSelected()));
     }
 
     /**
@@ -595,11 +631,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private void showSelectCloudMessage(int cloudType) {
         if (this.defaultCloudCheckBox.isSelected()) {
             boolean isClientEnable = OssState.getStatus(cloudType);
-            this.customMessage.setText(isClientEnable ? "" : "当前 OSS 不可用, 将使用 sm.ms 作为默认图床");
-            this.customMessage.setForeground(isClientEnable ? JBColor.WHITE : JBColor.RED);
+            this.customMessage.setText(isClientEnable ? "" : "当前 OSS 不可用!");
         } else {
-            this.customMessage.setText("未设置默认图床时, 将使用 sm.ms 作为默认图床");
-            this.customMessage.setForeground(JBColor.WHITE);
+            this.customMessage.setText("sm.ms");
         }
     }
 
@@ -744,6 +778,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                  && this.weiboOssSetting.isModified(state.getWeiboOssState())
                  && this.qiniuOssSetting.isModified(state.getQiniuOssState())
                  && this.tencentOssSetting.isModified(state.getTencentOssState())
+                 && this.customOssSetting.isModified(state.getCustomOssState())
                  && this.isGeneralModified(state)
                  && this.isClipboardModified(state)
         );
@@ -792,11 +827,17 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         int index = this.fileNameSuffixBoxField.getSelectedIndex();
         boolean isDefaultCloudCheck = this.defaultCloudCheckBox.isSelected();
 
+        // 是否开启水印
+        boolean isWatermark = this.watermarkCheckBox.isSelected();
+        String watermarkText = this.watermarkTextField.getText();
+
         return changeToHtmlTag == state.isChangeToHtmlTag()
                && tagType.equals(state.getTagType())
                && tagTypeCode.equals(state.getTagTypeCode())
                && compress == state.isCompress()
                && compressBeforeUploadOfPercent == state.getCompressBeforeUploadOfPercent()
+               && isWatermark == state.isWatermark()
+               && watermarkText.equals(state.getWatermarkText())
                && isRename == state.isRename()
                && index == state.getSuffixIndex()
                && isDefaultCloudCheck == state.isDefaultCloudCheck()
@@ -838,6 +879,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.qiniuOssSetting.apply(state.getQiniuOssState());
         this.tencentOssSetting.apply(state.getTencentOssState());
         this.weiboOssSetting.apply(state.getWeiboOssState());
+        this.customOssSetting.apply(state.getCustomOssState());
         this.applyGeneralConfigs(state);
         this.applyClipboardConfigs(state);
     }
@@ -875,6 +917,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         state.setDefaultCloudCheck(this.defaultCloudCheckBox.isSelected());
         state.setCloudType(state.isDefaultCloudCheck() ? this.defaultCloudComboBox.getSelectedIndex() : CloudEnum.SM_MS_CLOUD.index);
         state.setTempCloudType(this.defaultCloudComboBox.getSelectedIndex());
+        state.setWatermark(this.watermarkCheckBox.isSelected());
+        state.setWatermarkText(this.watermarkTextField.getText());
     }
 
     /**
@@ -906,6 +950,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.tencentOssSetting.reset(state.getTencentOssState());
         this.qiniuOssSetting.reset(state.getQiniuOssState());
         this.weiboOssSetting.reset(state.getWeiboOssState());
+        this.customOssSetting.reset(state.getCustomOssState());
         this.resetGeneralCOnfigs(state);
         this.resetClipboardConfigs(state);
     }
@@ -929,6 +974,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.fileNameSuffixBoxField.setSelectedIndex(state.getSuffixIndex());
         this.defaultCloudCheckBox.setSelected(state.isDefaultCloudCheck());
         this.defaultCloudComboBox.setSelectedIndex(state.getCloudType());
+        this.watermarkCheckBox.setSelected(state.isWatermark());
+        this.watermarkTextField.setText(state.getWatermarkText());
     }
 
     /**
