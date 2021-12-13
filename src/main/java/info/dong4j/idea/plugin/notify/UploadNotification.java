@@ -25,7 +25,7 @@
 package info.dong4j.idea.plugin.notify;
 
 import com.intellij.ide.BrowserUtil;
-import com.intellij.ide.actions.ShowFilePathAction;
+import com.intellij.ide.actions.RevealFileAction;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationListener;
 import com.intellij.notification.NotificationType;
@@ -100,6 +100,7 @@ public class UploadNotification extends MikNotification {
      * @param project the project
      * @since 0.0.1
      */
+    @SuppressWarnings("JavadocReference")
     public static void notifyUploadFailure(UploadException e, Project project) {
         String details = e.getMessage();
         String content = "<p><a href=\"\">Configure oss...</a></p>";
@@ -150,7 +151,7 @@ public class UploadNotification extends MikNotification {
                 URL url = e.getURL();
                 if (url != null) {
                     try {
-                        ShowFilePathAction.openFile(new File(url.toURI()));
+                        RevealFileAction.openFile(new File(url.toURI()));
                     } catch (URISyntaxException ex) {
                         log.warn("invalid URL: " + url, ex);
                     }
@@ -186,7 +187,7 @@ public class UploadNotification extends MikNotification {
      * @since 0.0.1
      */
     public static void notifyUploadFinshed(String content) {
-        Notification notification = new Notification(MIK_NOTIFICATION_GROUP, null, NotificationType.INFORMATION);
+        Notification notification = new Notification(MIK_NOTIFICATION_GROUP, content, NotificationType.INFORMATION);
         notification.setTitle(UPLOAD_FINSHED);
         // 可使用 HTML 标签
         notification.setContent(content);
