@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2022 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -45,7 +45,6 @@ import info.dong4j.idea.plugin.util.ImageUtils;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -107,9 +106,6 @@ public abstract class ImageActionBase extends AnAction {
      */
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
-        Map<String, File> imageMap = new HashMap<>(32);
-        Map<String, VirtualFile> virtualFileMap = new HashMap<>(32);
-
         Map<Document, List<MarkdownImage>> waitingProcessMap = new HashMap<>(32);
 
         Project project = event.getProject();
