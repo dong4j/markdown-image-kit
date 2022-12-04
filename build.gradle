@@ -27,7 +27,7 @@ plugins {
     id 'java'
     id "io.freefair.lombok" version "5.3.0"
     // Java 是Gradle的核心插件, 是内置的, 内置插件不需要配置依赖路径
-    id 'org.jetbrains.intellij' version '0.6.5'
+    id 'org.jetbrains.intellij' version '1.10.0'
 }
 
 group group
@@ -45,15 +45,15 @@ repositories {
 intellij {
     // 在 2019.2 以上版本添加生效
     // plugins 'java'
-    pluginName name
-    version ideaVersion
+    pluginName = name
+    version = ideaVersion
     // 插件生成的临时文件的地址，可以省略
-    sandboxDirectory = project.rootDir.canonicalPath + "/.sandbox"
+    sandboxDir = project.rootDir.canonicalPath + "/.sandbox"
     updateSinceUntilBuild = true
 }
 
 lombok {
-    version = "1.18.18"
+    version = "1.18.24"
     generateLombokConfig.enabled = false
 }
 
@@ -68,15 +68,15 @@ buildPlugin {
 }
 
 patchPluginXml {
-    version "${project.version}"
-    sinceBuild pluginSinceBuild
-    pluginDescription(file('includes/pluginDescription.html').text)
-    changeNotes(file('includes/pluginChanges.html').text)
+    version = "${project.version}"
+    sinceBuild = pluginSinceBuild
+    pluginDescription = (file('includes/pluginDescription.html').text)
+    changeNotes = (file('includes/pluginChanges.html').text)
 }
 
 publishPlugin {
     token = System.getenv("publishToken")
-    channels publishChannels
+    channels = [publishChannels]
 }
 
 // 声明依赖使用下面的闭包
@@ -84,7 +84,7 @@ dependencies {
     implementation 'net.coobird:thumbnailator:0.4.13'
 
     testImplementation(
-            'junit:junit:4.13',
+            'junit:junit:4.13.1',
             'org.mockito:mockito-core:3.3.3',
             'org.powermock:powermock-api-mockito2:2.0.5',
             'org.powermock:powermock-core:2.0.5',

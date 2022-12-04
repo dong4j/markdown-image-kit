@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2022 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -65,7 +65,7 @@ public interface IActionHandler {
      * 执行具体的处理逻辑
      *
      * @param data the data
-     * @return 是否阻止系统的事件传递 boolean  为 false 时后一个 handler 不自信, 整个 chain 中断
+     * @return 是否阻止系统的事件传递 boolean  为 false 时后一个 handler 不执行, 整个 chain 中断
      * @since 0.0.1
      */
     boolean execute(EventData data);

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2022 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -107,8 +107,6 @@ import lombok.extern.slf4j.Slf4j;
 public class PasteImageAction extends EditorActionHandler implements EditorTextInsertHandler {
     /** Editor action handler */
     private final EditorActionHandler editorActionHandler;
-    /** STATE */
-    private static final MikState STATE = MikPersistenComponent.getInstance().getState();
 
     /**
      * Instantiates a new Paste image handler.
@@ -154,7 +152,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
                     }
 
                     // 使用默认 client
-                    CloudEnum cloudEnum = OssState.getCloudType(STATE.getCloudType());
+                    CloudEnum cloudEnum = OssState.getCloudType(state.getCloudType());
                     OssClient client = ClientUtils.getClient(cloudEnum);
 
                     EventData data = new EventData()
@@ -169,11 +167,11 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
                         .addHandler(new ImageCompressionHandler())
                         // 图片重命名
                         .addHandler(new ImageRenameHandler());
-                    if (STATE.isCopyToDir()) {
+                    if (state.isCopyToDir()) {
                         // 图片保存
                         manager.addHandler(new ImageStorageHandler());
                     }
-                    if (STATE.isUploadAndReplace()) {
+                    if (state.isUploadAndReplace()) {
                         // 处理 client
                         manager.addHandler(new OptionClientHandler())
                             .addHandler(new ImageUploadHandler());
@@ -351,13 +349,12 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
 
     /**
      * Create a virtual file.
-     * https://intellij-support.jetbrains.com/hc/en-us/community/posts/206144389-Create-virtual-file-from-file-path
+     * <a href="https://intellij-support.jetbrains.com/hc/en-us/community/posts/206144389-Create-virtual-file-from-file-path">...</a>
      *
      * @param ed        the ed
      * @param imageFile the image file
      * @since 0.0.1
      */
-    @SuppressWarnings("rawtypes")
     private void createVirtualFile(Editor ed, File imageFile) {
         VirtualFile fileByPath = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(imageFile);
         assert fileByPath != null;
