@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2022 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,6 @@ import info.dong4j.idea.plugin.entity.MarkdownImage;
 import java.util.Iterator;
 
 /**
- * <p>Company: no company</p>
  * <p>Description: 插入新的文本行</p>
  *
  * @author dong4j

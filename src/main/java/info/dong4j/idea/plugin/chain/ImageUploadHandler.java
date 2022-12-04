@@ -45,8 +45,7 @@ import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Company: no company</p>
- * <p>Description: 图片上传操作</p>
+* <p>Description: 图片上传操作</p>
  *
  * @author dong4j
  * @version 0.0.1

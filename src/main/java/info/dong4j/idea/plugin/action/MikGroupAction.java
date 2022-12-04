@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2022 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,9 +31,8 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * <p>Company: no company</p>
  * <p>Description: 通过代码的方式添加 Group</p>
- * http://www.jetbrains.org/intellij/sdk/docs/tutorials/action_system/grouping_action.html
+ * <a href="http://www.jetbrains.org/intellij/sdk/docs/tutorials/action_system/grouping_action.html">...</a>
  * Providing specific behaviour for the group
  * Registering a variable action group
  *

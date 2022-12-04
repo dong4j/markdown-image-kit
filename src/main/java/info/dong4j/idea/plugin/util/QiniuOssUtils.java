@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2022 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -46,10 +46,9 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Company: 成都返空汇网络技术有限公司</p>
  * <p>Description:  </p>
- * https://developer.qiniu.com/kodo/1208/upload-token
- * https://developer.qiniu.com/kodo/1312/upload
+ * <a href="https://developer.qiniu.com/kodo/1208/upload-token">...</a>
+ * <a href="https://developer.qiniu.com/kodo/1312/upload">...</a>
  *
  * @author dong4j
  * @version 1.0.0

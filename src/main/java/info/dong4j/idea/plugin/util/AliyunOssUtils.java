@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2022 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -51,7 +51,6 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * <p>Company: 成都返空汇网络技术有限公司 </p>
  * <p>Description: todo-dong4j : (2020年04月22日 1:41 上午) [未完成]</p>
  * https://helpcdn.aliyun.com/document_detail/31947.html
  *

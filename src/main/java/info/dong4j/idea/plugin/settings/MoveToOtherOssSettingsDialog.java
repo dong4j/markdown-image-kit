@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2022 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,7 +39,6 @@ import javax.swing.KeyStroke;
 import lombok.Getter;
 
 /**
- * <p>Company: no company</p>
  * <p>Description: tip: 设置 dialog 大小, 使用 PreferredSize </p>
  *
  * @author dong4j

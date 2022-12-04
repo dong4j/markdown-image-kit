@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2022 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,7 +43,6 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Company: no company</p>
  * <p>Description: 加载 ClientUtils 时, 将通过反射创建 map 映射 </p>
  *
  * @author dong4j

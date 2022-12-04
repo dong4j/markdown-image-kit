@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2022 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,7 +42,6 @@ import javax.imageio.ImageIO;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Company: no company</p>
  * <p>Description: ${description}</p>
  *
  * @author dong4j

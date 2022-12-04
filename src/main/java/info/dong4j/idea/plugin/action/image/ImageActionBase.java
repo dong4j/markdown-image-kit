@@ -56,7 +56,6 @@ import javax.swing.Icon;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Company: no company</p>
  * <p>Description: 图片 压缩, 直接上传后将 url 写入到 clipboard </p>
  *
  * @author dong4j

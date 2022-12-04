@@ -94,8 +94,7 @@ import javax.imageio.ImageIO;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Company: no company</p>
- * <p>Description: 读取 Clipboard 图片, 上传到 OSS, 最后插入到光标位置</p>
+* <p>Description: 读取 Clipboard 图片, 上传到 OSS, 最后插入到光标位置</p>
  *
  * @author dong4j
  * @version 0.0.1

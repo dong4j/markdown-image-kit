@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2022 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * <p>Company: no company</p>
  * <p>Description: 将直接上传 image 后的 url 写入到 clipboard</p>
  *
  * @author dong4j

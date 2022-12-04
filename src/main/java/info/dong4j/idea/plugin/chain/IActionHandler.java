@@ -29,8 +29,7 @@ import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
 
 /**
- * <p>Company: no company</p>
- * <p>Description: </p>
+* <p>Description: </p>
  *
  * @author dong4j
  * @version 0.0.1

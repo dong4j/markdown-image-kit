@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 dong4j <dong4j@gmail.com>
+ * Copyright (c) 2022 dong4j <dong4j@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,8 +25,7 @@
 package info.dong4j.idea.plugin.enums;
 
 /**
- * <p>Company: no company</p>
- * <p>Description: 标签插入的位置 </p>
+* <p>Description: 标签插入的位置 </p>
  *
  * @author dong4j
  * @version 0.0.1
