@@ -24,11 +24,11 @@ public enum ImageMarkEnum {
     ORIGINAL(4, "原始", ImageContents.DEFAULT_IMAGE_MARK);
 
     /** Index */
-    public int index;
+    public final int index;
     /** Text */
-    public String text;
+    public final String text;
     /** Code */
-    public String code;
+    public final String code;
 
     /**
      * Image mark enum

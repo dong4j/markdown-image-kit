@@ -15,6 +15,7 @@ import info.dong4j.idea.plugin.task.ActionTask;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
  * @version 0.0.1
  * @email "mailto:dong4j@gmail.com"
  * @date 2021.02.14 18:40
- * @see com.intellij.testIntegration.createTest.CreateTestAction
  * @since 0.0.1
  */
 @Slf4j
@@ -71,11 +71,13 @@ public final class ImageUploadIntentionAction extends IntentionActionBase {
             return;
         }
 
-        Map<Document, List<MarkdownImage>> waitingForMoveMap = new HashMap<Document, List<MarkdownImage>>(1) {
+        Map<Document, List<MarkdownImage>> waitingForMoveMap = new HashMap<>(1) {
+            @Serial
             private static final long serialVersionUID = -1445021799207331254L;
 
             {
-                this.put(editor.getDocument(), new ArrayList<MarkdownImage>(1) {
+                this.put(editor.getDocument(), new ArrayList<>(1) {
+                    @Serial
                     private static final long serialVersionUID = 4482739561378065459L;
 
                     {
@@ -92,6 +94,9 @@ public final class ImageUploadIntentionAction extends IntentionActionBase {
             .setWaitingProcessMap(waitingForMoveMap);
 
         // 开启后台任务
-        new ActionTask(project, MikBundle.message("mik.action.upload.process", this.getName()), ActionManager.buildUploadChain(data)).queue();
+        new ActionTask(project,
+                       MikBundle.message("mik.action.upload.process", this.getName()),
+                       ActionManager.buildUploadChain(data))
+            .queue();
     }
 }

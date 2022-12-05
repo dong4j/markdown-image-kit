@@ -2,6 +2,7 @@ package info.dong4j.idea.plugin.exception;
 
 import com.intellij.openapi.project.Project;
 
+import java.io.Serial;
 import java.util.function.Supplier;
 
 /**
@@ -15,6 +16,7 @@ import java.util.function.Supplier;
  */
 public class UploadException extends RuntimeException implements Supplier<UploadException> {
     /** serialVersionUID */
+    @Serial
     private static final long serialVersionUID = 4076461843028836262L;
     /** Project */
     private Project project;

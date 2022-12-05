@@ -25,11 +25,11 @@ public enum ZoneEnum {
     SOUTHEAST_ASIA(4, "东南亚", "upload-as0.qiniup.com");
 
     /** Index */
-    public int index;
+    public final int index;
     /** Name */
-    public String name;
+    public final String name;
     /** Zone */
-    public String host;
+    public final String host;
 
     /**
      * Zone enum

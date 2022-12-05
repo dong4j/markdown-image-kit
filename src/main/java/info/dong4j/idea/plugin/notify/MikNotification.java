@@ -2,10 +2,7 @@ package info.dong4j.idea.plugin.notify;
 
 import com.google.gson.Gson;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationDisplayType;
-import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.project.Project;
@@ -41,6 +38,7 @@ import lombok.extern.slf4j.Slf4j;
  * @date 2021.02.14 18:40
  * @since 0.0.1
  */
+@SuppressWarnings("jol")
 @Slf4j
 public class MikNotification extends Notification {
     /** CUSTOM_OSS_API_DEMO */
@@ -57,14 +55,6 @@ public class MikNotification extends Notification {
     static final String MIK_NOTIFICATION_GROUP = "MIK Group";
     /** MIK_NOTIFICATION_NONE_GROUP */
     private static final String MIK_NOTIFICATION_NONE_GROUP = "Image Kit Group";
-    /** 注册到通知 */
-    protected static final NotificationGroup NOTIFICATION_GROUP = new NotificationGroup(MIK_NOTIFICATION_GROUP,
-                                                                                        NotificationDisplayType.BALLOON, true, null,
-                                                                                        AllIcons.Gutter.Colors);
-    /** NOTIFICATION_NONE_GROUP */
-    protected static final NotificationGroup NOTIFICATION_NONE_GROUP = new NotificationGroup(MIK_NOTIFICATION_NONE_GROUP,
-                                                                                             NotificationDisplayType.NONE, true, null,
-                                                                                             AllIcons.Debugger.ShowCurrentFrame);
 
     /**
      * Instantiates a new Upload notification.

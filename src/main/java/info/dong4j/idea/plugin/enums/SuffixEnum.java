@@ -20,9 +20,9 @@ public enum SuffixEnum {
     RANDOM(2, "随机");
 
     /** Index */
-    public int index;
+    public final int index;
     /** Name */
-    public String name;
+    public final String name;
 
     /**
      * Suffix enum

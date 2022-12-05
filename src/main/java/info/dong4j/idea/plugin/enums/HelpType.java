@@ -18,7 +18,7 @@ public enum HelpType {
     CUSTOM("custom");
 
     /** Where */
-    public String where;
+    public final String where;
 
     /**
      * Help type
