@@ -269,13 +269,14 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JCheckBox uploadAndReplaceCheckBox;
     /** Default cloud check box */
     private JCheckBox defaultCloudCheckBox;
-    //endregion
+    private JComboBox comboBox1;
+    // endregion
 
-    //region WeiboOssSetting
+    // region WeiboOssSetting
     private final WeiboOssSetting weiboOssSetting = new WeiboOssSetting(this.weiboUserNameTextField, this.weiboPasswordField);
-    //endregion
+    // endregion
 
-    //region AliyunOssSetting
+    // region AliyunOssSetting
     private final AliyunOssSetting aliyunOssSetting = new AliyunOssSetting(this.aliyunOssBucketNameTextField,
                                                                            this.aliyunOssAccessKeyTextField,
                                                                            this.aliyunOssAccessSecretKeyTextField,

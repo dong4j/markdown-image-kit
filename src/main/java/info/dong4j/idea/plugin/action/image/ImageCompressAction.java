@@ -20,7 +20,6 @@ import info.dong4j.idea.plugin.task.ActionTask;
 
 import org.jetbrains.annotations.Contract;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -86,7 +85,7 @@ public final class ImageCompressAction extends ImageActionBase {
                 public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
                     InputStream inputStream = markdownImage.getInputStream();
                     try {
-                        FileUtil.copy(inputStream, new FileOutputStream(new File(markdownImage.getPath())));
+                        FileUtil.copy(inputStream, new FileOutputStream(markdownImage.getPath()));
                     } catch (IOException e) {
                         log.trace("", e);
                     }

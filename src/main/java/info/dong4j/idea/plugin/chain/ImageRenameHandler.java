@@ -75,19 +75,19 @@ public class ImageRenameHandler extends ActionHandlerAdapter {
         Optional<SuffixEnum> sufix = EnumsUtils.getEnumObject(SuffixEnum.class, e -> e.getIndex() == sufixIndex);
         SuffixEnum suffixEnum = sufix.orElse(SuffixEnum.FILE_NAME);
         switch (suffixEnum) {
-            case DATE_FILE_NAME:
+            case DATE_FILE_NAME -> {
                 // 删除原来的时间前缀
                 String oldDateTime = DateFormatUtils.format(new Date(), "yyyy-MM-dd-");
                 imageName = imageName.replace(oldDateTime, "");
                 imageName = oldDateTime + imageName;
-                break;
-            case RANDOM:
+            }
+            case RANDOM -> {
                 if (!imageName.startsWith(PREFIX)) {
                     imageName = PREFIX + CharacterUtils.getRandomString(6) + ImageUtils.getFileExtension(imageName);
                 }
-                break;
-            default:
-                break;
+            }
+            default -> {
+            }
         }
 
         markdownImage.setImageName(imageName);

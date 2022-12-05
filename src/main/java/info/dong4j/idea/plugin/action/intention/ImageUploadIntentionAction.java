@@ -94,9 +94,12 @@ public final class ImageUploadIntentionAction extends IntentionActionBase {
             .setWaitingProcessMap(waitingForMoveMap);
 
         // 开启后台任务
-        new ActionTask(project,
-                       MikBundle.message("mik.action.upload.process", this.getName()),
-                       ActionManager.buildUploadChain(data))
-            .queue();
+        try {
+            new ActionTask(project,
+                           MikBundle.message("mik.action.upload.process", this.getName()),
+                           ActionManager.buildUploadChain(data))
+                .queue();
+        } catch (Exception ignored) {
+        }
     }
 }

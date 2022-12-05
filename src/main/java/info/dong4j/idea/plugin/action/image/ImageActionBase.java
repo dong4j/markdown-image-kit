@@ -1,12 +1,12 @@
 package info.dong4j.idea.plugin.action.image;
 
-import com.intellij.mock.MockDocument;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.impl.DocumentImpl;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 
@@ -144,7 +144,7 @@ public abstract class ImageActionBase extends AnAction {
         markdownImage.setLocation(ImageLocationEnum.LOCAL);
         markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
 
-        waitingProcessMap.put(new MockDocument(), new ArrayList<MarkdownImage>() {
+        waitingProcessMap.put(new DocumentImpl(""), new ArrayList<>() {
             @java.io.Serial
             private static final long serialVersionUID = 5838886826856938689L;
 

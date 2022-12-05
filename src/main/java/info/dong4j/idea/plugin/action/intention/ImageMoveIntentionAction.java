@@ -74,11 +74,11 @@ public final class ImageMoveIntentionAction extends IntentionActionBase {
             return;
         }
 
-        Map<Document, List<MarkdownImage>> waitingForMoveMap = new HashMap<Document, List<MarkdownImage>>(1) {
+        Map<Document, List<MarkdownImage>> waitingForMoveMap = new HashMap<>(1) {
             private static final long serialVersionUID = -3664108591483424778L;
 
             {
-                this.put(editor.getDocument(), new ArrayList<MarkdownImage>(1) {
+                this.put(editor.getDocument(), new ArrayList<>(1) {
                     private static final long serialVersionUID = 5608817905987286437L;
 
                     {
@@ -99,7 +99,13 @@ public final class ImageMoveIntentionAction extends IntentionActionBase {
         propComp.setValue(MarkdownFileFilter.FILTER_KEY, "");
 
         // 开启后台任务
-        new ActionTask(project, MikBundle.message("mik.action.move.process", this.getName()),
-                       ActionManager.buildMoveImageChain(data)).queue();
+        try {
+            new ActionTask(project,
+                           MikBundle.message("mik.action.move.process", this.getName()),
+                           ActionManager.buildMoveImageChain(data))
+                .queue();
+        } catch (Exception ignored) {
+
+        }
     }
 }
