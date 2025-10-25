@@ -674,8 +674,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         // 构造一个监听器，响应checkBox事件
         ActionListener actionListener = e -> {
             Object sourceObject = e.getSource();
-            if (sourceObject instanceof JRadioButton) {
-                JRadioButton sourceButton = (JRadioButton) sourceObject;
+            if (sourceObject instanceof JRadioButton sourceButton) {
                 this.customHtmlTypeTextField.setEnabled(ImageMarkEnum.CUSTOM.text.equals(sourceButton.getText()));
             }
         };
