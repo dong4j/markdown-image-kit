@@ -139,14 +139,13 @@ public class HttpUploadFile {
                     if (contentType == null || "".equals(contentType)) {
                         contentType = "application/octet-stream";
                     }
-                    StringBuffer strBuf = new StringBuffer();
-                    strBuf.append("\r\n").append("--").append(BOUNDARY)
-                            .append("\r\n");
-                    strBuf.append("Content-Disposition: form-data; name=\""
-                            + inputName + "\"; filename=\"" + filename
-                            + "\"\r\n");
-                    strBuf.append("Content-Type:" + contentType + "\r\n\r\n");
-                    out.write(strBuf.toString().getBytes());
+                    String strBuf = "\r\n" + "--" + BOUNDARY +
+                                    "\r\n" +
+                                    "Content-Disposition: form-data; name=\""
+                                    + inputName + "\"; filename=\"" + filename
+                                    + "\"\r\n" +
+                                    "Content-Type:" + contentType + "\r\n\r\n";
+                    out.write(strBuf.getBytes());
                     DataInputStream in = new DataInputStream(new FileInputStream(file));
                     int bytes = 0;
                     byte[] bufferOut = new byte[1024];

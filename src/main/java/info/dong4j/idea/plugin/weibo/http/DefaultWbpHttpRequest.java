@@ -224,18 +224,17 @@ public class DefaultWbpHttpRequest implements WbpHttpRequest {
         String boundary = "===" + System.currentTimeMillis() + "===";
         String contentType = "multipart/form-data; boundary=" + boundary;
         connection.setRequestProperty("Content-Type", contentType);
-        StringBuilder bodyBulider = new StringBuilder();
-        bodyBulider.append(TWO).append(boundary).append(END_LINE)
-            .append("Content-Disposition: form-data; name=\"b64_data\"")
-            .append(END_LINE).append(END_LINE)
-            .append(content)
-            .append(END_LINE)
-            .append(TWO).append(boundary).append(TWO);
+        String bodyBulider = TWO + boundary + END_LINE +
+                             "Content-Disposition: form-data; name=\"b64_data\"" +
+                             END_LINE + END_LINE +
+                             content +
+                             END_LINE +
+                             TWO + boundary + TWO;
         connection.connect();
 
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
 
-        bw.write(bodyBulider.toString());
+        bw.write(bodyBulider);
         bw.flush();
         bw.close();
         return new DefaultWbpHttpResponse(

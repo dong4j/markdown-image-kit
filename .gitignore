@@ -1,25 +1,52 @@
-# Created by .ignore support plugin (hsz.mobi)
-### Gradle template
-.gradle
-/build/
-/out/
-.sandbox
+ai-javadoc/.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
 
-# idea
+### IntelliJ IDEA ###
+.idea/modules.xml
+.idea/jarRepositories.xml
+.idea/compiler.xml
+.idea/libraries/
+*.iws
 *.iml
 *.ipr
-*.iws
-.idea/*
-!.idea/icon.png
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
 
-# Ignore Gradle GUI config
-gradle-app.setting
+### Eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
 
-# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
-!gradle-wrapper.jar
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
 
-# Cache of project
-.gradletasknamecache
+### VS Code ###
+.vscode/
 
-# # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
-# gradle/wrapper/gradle-wrapper.properties
+### Mac OS ###
+.DS_Store
+.intellijPlatform/
+*.jar
+.gradle/
+chain.crt
+private.pem
+private_encrypted.pem
+.qoder
+AGENTS.md
+IFLOW.md
+README_PRIVATE.md

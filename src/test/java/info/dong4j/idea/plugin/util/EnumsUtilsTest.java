@@ -105,7 +105,7 @@ public class EnumsUtilsTest {
         StringBuilder stringBuilder = new StringBuilder();
         for (String s : allCloud) {
             stringBuilder.append("next").append(" ");
-            System.out.println(String.format("「%s」 \tsee you %sversion.", s, stringBuilder));
+            System.out.printf("「%s」 \tsee you %sversion.%n", s, stringBuilder);
         }
     }
 }

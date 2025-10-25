@@ -31,16 +31,16 @@ public class FastDateFormat extends Format implements DatePrinter {
 
 
     public static FastDateFormat getInstance(String pattern, Locale locale) {
-        return (FastDateFormat) cache.getInstance(pattern, (TimeZone) null, locale);
+        return cache.getInstance(pattern, null, locale);
     }
 
     public static FastDateFormat getInstance(String pattern, TimeZone timeZone, Locale locale) {
-        return (FastDateFormat) cache.getInstance(pattern, timeZone, locale);
+        return cache.getInstance(pattern, timeZone, locale);
     }
 
 
     protected FastDateFormat(String pattern, TimeZone timeZone, Locale locale) {
-        this(pattern, timeZone, locale, (Date) null);
+        this(pattern, timeZone, locale, null);
     }
 
     protected FastDateFormat(String pattern, TimeZone timeZone, Locale locale, Date centuryStart) {
@@ -108,10 +108,9 @@ public class FastDateFormat extends Format implements DatePrinter {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof FastDateFormat)) {
+        if (!(obj instanceof FastDateFormat other)) {
             return false;
         } else {
-            FastDateFormat other = (FastDateFormat) obj;
             return this.printer.equals(other.printer);
         }
     }

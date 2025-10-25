@@ -255,11 +255,7 @@ public class TencentCosUtils {
      * @since 0.0.1
      */
     public static String encode(String originUrl) {
-        try {
-            return URLEncoder.encode(originUrl, "UTF-8").replace("+", "%20").replace("*", "%2A").replace("%7E", "~");
-        } catch (UnsupportedEncodingException var2) {
-            return null;
-        }
+        return URLEncoder.encode(originUrl, StandardCharsets.UTF_8).replace("+", "%20").replace("*", "%2A").replace("%7E", "~");
     }
 
     /**

@@ -131,8 +131,7 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
         group.add(button);
         ActionListener actionListener = e -> {
             Object sourceObject = e.getSource();
-            if (sourceObject instanceof JRadioButton) {
-                JRadioButton sourceButton = (JRadioButton) sourceObject;
+            if (sourceObject instanceof JRadioButton sourceButton) {
                 this.zoneIndexTextFiled.setText(String.valueOf(sourceButton.getMnemonic()));
             }
         };

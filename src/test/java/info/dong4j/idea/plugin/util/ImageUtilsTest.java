@@ -91,8 +91,7 @@ public class ImageUtilsTest {
                 Object obj22 = trans.getTransferData(DataFlavor.imageFlavor);
                 if (obj22 instanceof BufferedImage) {
                     image = (BufferedImage) obj22;
-                } else if (obj22 instanceof sun.awt.image.MultiResolutionCachedImage) {//兼容mac os
-                    sun.awt.image.MultiResolutionCachedImage cachedImage = (sun.awt.image.MultiResolutionCachedImage) obj22;
+                } else if (obj22 instanceof MultiResolutionCachedImage cachedImage) {//兼容mac os
 
                     List<Image> images = cachedImage.getResolutionVariants();
                     sun.awt.image.ToolkitImage toolkitImage =
@@ -326,7 +325,7 @@ public class ImageUtilsTest {
                     Object o = cliptf.getTransferData(DataFlavor.javaFileListFlavor);
                     //tostring,转为字符串
                     path = o.toString();
-                    System.out.println("path==" + o.toString());
+                    System.out.println("path==" + o);
                 } catch (UnsupportedFlavorException | IOException e) {
                     e.printStackTrace();
                 }

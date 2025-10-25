@@ -83,11 +83,9 @@ public interface OssClient {
         Map<String, String> fieldMap = new HashMap<>(8);
         Component[] components = jPanel.getComponents();
         for (Component c : components) {
-            if (c instanceof JTextField) {
-                JTextField textField = (JTextField) c;
+            if (c instanceof JTextField textField) {
                 fieldMap.put(textField.getName(), textField.getText());
-            } else if (c instanceof JCheckBox) {
-                JCheckBox checkBox = (JCheckBox) c;
+            } else if (c instanceof JCheckBox checkBox) {
                 fieldMap.put(checkBox.getName(), checkBox.isSelected() + "");
             }
         }

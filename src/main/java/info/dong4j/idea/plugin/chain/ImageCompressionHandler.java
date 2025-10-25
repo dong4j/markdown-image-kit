@@ -11,6 +11,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.Map;
@@ -115,13 +116,13 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
     private static String bytesToKb(long bytes) {
         BigDecimal filesize = new BigDecimal(bytes);
         BigDecimal megabyte = new BigDecimal(1024 * 1024);
-        float returnValue = filesize.divide(megabyte, 2, BigDecimal.ROUND_UP)
+        float returnValue = filesize.divide(megabyte, 2, RoundingMode.UP)
             .floatValue();
         if (returnValue > 1) {
             return (returnValue + "MB");
         }
         BigDecimal kilobyte = new BigDecimal(1024);
-        returnValue = filesize.divide(kilobyte, 2, BigDecimal.ROUND_UP).floatValue();
+        returnValue = filesize.divide(kilobyte, 2, RoundingMode.UP).floatValue();
         return (returnValue + "KB");
     }
 }

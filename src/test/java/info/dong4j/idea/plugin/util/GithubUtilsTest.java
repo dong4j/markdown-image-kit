@@ -165,7 +165,7 @@ public class GithubUtilsTest {
                 if (size == buffer.length) {
                     dos.write(Base64.getEncoder().encode(buffer));
                 } else {
-                    byte tmp[] = new byte[(int) size];
+                    byte[] tmp = new byte[(int) size];
                     System.arraycopy(buffer, 0, tmp, 0, (int) size);
                     dos.write(Base64.getEncoder().encode(tmp));
                 }

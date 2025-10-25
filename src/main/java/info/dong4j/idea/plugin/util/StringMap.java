@@ -2,6 +2,7 @@ package info.dong4j.idea.plugin.util;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -9,16 +10,14 @@ import java.util.Set;
 /**
  * <p>Description: </p>
  *
+ * @param map Map
  * @author dong4j
  * @version 1.0.0
  * @email "mailto:dong4j@fkhwl.com"
  * @date 2021.02.18 22:35
  * @since 1.6.1
  */
-public final class StringMap {
-    /** Map */
-    private final Map<String, Object> map;
-
+public record StringMap(Map<String, Object> map) {
     /**
      * String map
      *
@@ -34,8 +33,7 @@ public final class StringMap {
      * @param map map
      * @since 1.6.1
      */
-    public StringMap(Map<String, Object> map) {
-        this.map = map;
+    public StringMap {
     }
 
     /**
@@ -150,6 +148,7 @@ public final class StringMap {
      * @return the map
      * @since 1.6.1
      */
+    @Override
     public Map<String, Object> map() {
         return this.map;
     }
@@ -191,12 +190,8 @@ public final class StringMap {
                 if (this.notStart) {
                     b.append("&");
                 }
-                try {
-                    b.append(URLEncoder.encode(key, "UTF-8")).append('=')
-                        .append(URLEncoder.encode(value.toString(), "UTF-8"));
-                } catch (UnsupportedEncodingException e) {
-                    throw new AssertionError(e);
-                }
+                b.append(URLEncoder.encode(key, StandardCharsets.UTF_8)).append('=')
+                    .append(URLEncoder.encode(value.toString(), StandardCharsets.UTF_8));
                 this.notStart = true;
             }
         });

@@ -299,7 +299,7 @@ public final class ImageUtils {
         BufferedImage bufferedImage = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_RGB);
         Graphics g = bufferedImage.createGraphics();
         //Color.WHITE estes the background to white. You can use any other color
-        g.drawImage(image, 0, 0, bufferedImage.getWidth(), bufferedImage.getHeight(), Color.WHITE, null);
+        g.drawImage(image, 0, 0, bufferedImage.getWidth(), bufferedImage.getHeight(), JBColor.WHITE, null);
         g.dispose();
 
         return bufferedImage;
@@ -318,7 +318,7 @@ public final class ImageUtils {
             final int markerRGB = JBColor.WHITE.getRGB() | 0xFF000000;
 
             @Override
-            public final int filterRGB(int x, int y, int rgb) {
+            public int filterRGB(int x, int y, int rgb) {
                 if ((rgb | 0xFF000000) == this.markerRGB) {
                     // Mark the alpha bits as zero - transparent
                     return 0x00FFFFFF & rgb;

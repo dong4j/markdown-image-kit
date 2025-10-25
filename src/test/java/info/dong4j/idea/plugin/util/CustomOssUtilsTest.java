@@ -123,7 +123,7 @@ public class CustomOssUtilsTest {
             while ((line = br.readLine()) != null) {
                 buffer.append(line);
             }
-            log.info("返回报文:" + buffer.toString());
+            log.info("返回报文:" + buffer);
 
         } catch (Exception e) {
             throw new Exception(e);
@@ -214,7 +214,7 @@ public class CustomOssUtilsTest {
                         os.write(LINE_END.getBytes());
                         os.flush();
                     }
-                    msg.append(requestParams.toString());
+                    msg.append(requestParams);
                 }
             }
             log.info(msg.toString());

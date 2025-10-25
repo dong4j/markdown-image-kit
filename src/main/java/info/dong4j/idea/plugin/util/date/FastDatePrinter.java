@@ -348,7 +348,7 @@ public class FastDatePrinter implements DatePrinter, Serializable {
     //-----------------------------------------------------------------------
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof FastDatePrinter == false) {
+        if (!(obj instanceof FastDatePrinter)) {
             return false;
         }
         FastDatePrinter other = (FastDatePrinter) obj;
@@ -391,97 +391,75 @@ public class FastDatePrinter implements DatePrinter, Serializable {
         void appendTo(StringBuffer buffer, int value);
     }
 
-    private static class CharacterLiteral implements Rule {
-        private final char mValue;
-
-        CharacterLiteral(char value) {
-            this.mValue = value;
-        }
+    private record CharacterLiteral(char mValue) implements Rule {
 
         @Override
-        public int estimateLength() {
-            return 1;
+            public int estimateLength() {
+                return 1;
+            }
+
+            @Override
+            public void appendTo(StringBuffer buffer, Calendar calendar) {
+                buffer.append(this.mValue);
+            }
         }
+
+    private record StringLiteral(String mValue) implements Rule {
 
         @Override
-        public void appendTo(StringBuffer buffer, Calendar calendar) {
-            buffer.append(this.mValue);
-        }
-    }
+            public int estimateLength() {
+                return this.mValue.length();
+            }
 
-    private static class StringLiteral implements Rule {
-        private final String mValue;
-
-        StringLiteral(String value) {
-            this.mValue = value;
+            @Override
+            public void appendTo(StringBuffer buffer, Calendar calendar) {
+                buffer.append(this.mValue);
+            }
         }
+
+    private record TextField(int mField, String[] mValues) implements Rule {
 
         @Override
-        public int estimateLength() {
-            return this.mValue.length();
+            public int estimateLength() {
+                int max = 0;
+                for (int i = this.mValues.length; --i >= 0; ) {
+                    int len = this.mValues[i].length();
+                    if (len > max) {
+                        max = len;
+                    }
+                }
+                return max;
+            }
+
+            @Override
+            public void appendTo(StringBuffer buffer, Calendar calendar) {
+                buffer.append(this.mValues[calendar.get(this.mField)]);
+            }
         }
+
+    private record UnpaddedNumberField(int mField) implements NumberRule {
 
         @Override
-        public void appendTo(StringBuffer buffer, Calendar calendar) {
-            buffer.append(this.mValue);
-        }
-    }
+            public int estimateLength() {
+                return 4;
+            }
 
-    private static class TextField implements Rule {
-        private final int mField;
-        private final String[] mValues;
+            @Override
+            public void appendTo(StringBuffer buffer, Calendar calendar) {
+                this.appendTo(buffer, calendar.get(this.mField));
+            }
 
-        TextField(int field, String[] values) {
-            this.mField = field;
-            this.mValues = values;
-        }
-
-        @Override
-        public int estimateLength() {
-            int max = 0;
-            for (int i = this.mValues.length; --i >= 0; ) {
-                int len = this.mValues[i].length();
-                if (len > max) {
-                    max = len;
+            @Override
+            public final void appendTo(StringBuffer buffer, int value) {
+                if (value < 10) {
+                    buffer.append((char) (value + '0'));
+                } else if (value < 100) {
+                    appendDigits(buffer, value);
+                } else {
+                    buffer.append(value);
                 }
             }
-            return max;
         }
-
-        @Override
-        public void appendTo(StringBuffer buffer, Calendar calendar) {
-            buffer.append(this.mValues[calendar.get(this.mField)]);
-        }
-    }
-
-    private static class UnpaddedNumberField implements NumberRule {
-        private final int mField;
-
-        UnpaddedNumberField(int field) {
-            this.mField = field;
-        }
-
-        @Override
-        public int estimateLength() {
-            return 4;
-        }
-
-        @Override
-        public void appendTo(StringBuffer buffer, Calendar calendar) {
-            this.appendTo(buffer, calendar.get(this.mField));
-        }
-
-        @Override
-        public final void appendTo(StringBuffer buffer, int value) {
-            if (value < 10) {
-                buffer.append((char) (value + '0'));
-            } else if (value < 100) {
-                appendDigits(buffer, value);
-            } else {
-                buffer.append(value);
-            }
-        }
-    }
 
     private static class UnpaddedMonthField implements NumberRule {
         static final UnpaddedMonthField INSTANCE = new UnpaddedMonthField();
@@ -510,69 +488,59 @@ public class FastDatePrinter implements DatePrinter, Serializable {
         }
     }
 
-    private static class PaddedNumberField implements NumberRule {
-        private final int mField;
-        private final int mSize;
-
-        PaddedNumberField(int field, int size) {
-            if (size < 3) {
+    private record PaddedNumberField(int mField, int mSize) implements NumberRule {
+        private PaddedNumberField {
+            if (mSize < 3) {
                 // Should use UnpaddedNumberField or TwoDigitNumberField.
                 throw new IllegalArgumentException();
             }
-            this.mField = field;
-            this.mSize = size;
         }
 
-        @Override
-        public int estimateLength() {
-            return this.mSize;
-        }
-
-        @Override
-        public void appendTo(StringBuffer buffer, Calendar calendar) {
-            this.appendTo(buffer, calendar.get(this.mField));
-        }
-
-        @Override
-        public final void appendTo(StringBuffer buffer, int value) {
-            // pad the buffer with adequate zeros
-            for (int digit = 0; digit < this.mSize; ++digit) {
-                buffer.append('0');
+            @Override
+            public int estimateLength() {
+                return this.mSize;
             }
-            // backfill the buffer with non-zero digits
-            int index = buffer.length();
-            for (; value > 0; value /= 10) {
-                buffer.setCharAt(--index, (char) ('0' + value % 10));
+
+            @Override
+            public void appendTo(StringBuffer buffer, Calendar calendar) {
+                this.appendTo(buffer, calendar.get(this.mField));
             }
-        }
-    }
 
-    private static class TwoDigitNumberField implements NumberRule {
-        private final int mField;
-
-        TwoDigitNumberField(int field) {
-            this.mField = field;
-        }
-
-        @Override
-        public int estimateLength() {
-            return 2;
-        }
-
-        @Override
-        public void appendTo(StringBuffer buffer, Calendar calendar) {
-            this.appendTo(buffer, calendar.get(this.mField));
-        }
-
-        @Override
-        public final void appendTo(StringBuffer buffer, int value) {
-            if (value < 100) {
-                appendDigits(buffer, value);
-            } else {
-                buffer.append(value);
+            @Override
+            public final void appendTo(StringBuffer buffer, int value) {
+                // pad the buffer with adequate zeros
+                for (int digit = 0; digit < this.mSize; ++digit) {
+                    buffer.append('0');
+                }
+                // backfill the buffer with non-zero digits
+                int index = buffer.length();
+                for (; value > 0; value /= 10) {
+                    buffer.setCharAt(--index, (char) ('0' + value % 10));
+                }
             }
         }
-    }
+
+    private record TwoDigitNumberField(int mField) implements NumberRule {
+
+        @Override
+            public int estimateLength() {
+                return 2;
+            }
+
+            @Override
+            public void appendTo(StringBuffer buffer, Calendar calendar) {
+                this.appendTo(buffer, calendar.get(this.mField));
+            }
+
+            @Override
+            public final void appendTo(StringBuffer buffer, int value) {
+                if (value < 100) {
+                    appendDigits(buffer, value);
+                } else {
+                    buffer.append(value);
+                }
+            }
+        }
 
     private static class TwoDigitYearField implements NumberRule {
         static final TwoDigitYearField INSTANCE = new TwoDigitYearField();
@@ -620,59 +588,49 @@ public class FastDatePrinter implements DatePrinter, Serializable {
         }
     }
 
-    private static class TwelveHourField implements NumberRule {
-        private final NumberRule mRule;
-
-        TwelveHourField(NumberRule rule) {
-            this.mRule = rule;
-        }
+    private record TwelveHourField(NumberRule mRule) implements NumberRule {
 
         @Override
-        public int estimateLength() {
-            return this.mRule.estimateLength();
-        }
-
-        @Override
-        public void appendTo(StringBuffer buffer, Calendar calendar) {
-            int value = calendar.get(Calendar.HOUR);
-            if (value == 0) {
-                value = calendar.getLeastMaximum(Calendar.HOUR) + 1;
+            public int estimateLength() {
+                return this.mRule.estimateLength();
             }
-            this.mRule.appendTo(buffer, value);
-        }
 
-        @Override
-        public void appendTo(StringBuffer buffer, int value) {
-            this.mRule.appendTo(buffer, value);
-        }
-    }
-
-    private static class TwentyFourHourField implements NumberRule {
-        private final NumberRule mRule;
-
-        TwentyFourHourField(NumberRule rule) {
-            this.mRule = rule;
-        }
-
-        @Override
-        public int estimateLength() {
-            return this.mRule.estimateLength();
-        }
-
-        @Override
-        public void appendTo(StringBuffer buffer, Calendar calendar) {
-            int value = calendar.get(Calendar.HOUR_OF_DAY);
-            if (value == 0) {
-                value = calendar.getMaximum(Calendar.HOUR_OF_DAY) + 1;
+            @Override
+            public void appendTo(StringBuffer buffer, Calendar calendar) {
+                int value = calendar.get(Calendar.HOUR);
+                if (value == 0) {
+                    value = calendar.getLeastMaximum(Calendar.HOUR) + 1;
+                }
+                this.mRule.appendTo(buffer, value);
             }
-            this.mRule.appendTo(buffer, value);
+
+            @Override
+            public void appendTo(StringBuffer buffer, int value) {
+                this.mRule.appendTo(buffer, value);
+            }
         }
 
+    private record TwentyFourHourField(NumberRule mRule) implements NumberRule {
+
         @Override
-        public void appendTo(StringBuffer buffer, int value) {
-            this.mRule.appendTo(buffer, value);
+            public int estimateLength() {
+                return this.mRule.estimateLength();
+            }
+
+            @Override
+            public void appendTo(StringBuffer buffer, Calendar calendar) {
+                int value = calendar.get(Calendar.HOUR_OF_DAY);
+                if (value == 0) {
+                    value = calendar.getMaximum(Calendar.HOUR_OF_DAY) + 1;
+                }
+                this.mRule.appendTo(buffer, value);
+            }
+
+            @Override
+            public void appendTo(StringBuffer buffer, int value) {
+                this.mRule.appendTo(buffer, value);
+            }
         }
-    }
 
     //-----------------------------------------------------------------------
 
@@ -726,117 +684,103 @@ public class FastDatePrinter implements DatePrinter, Serializable {
         }
     }
 
-    private static class TimeZoneNumberRule implements Rule {
-        static final TimeZoneNumberRule INSTANCE_COLON = new TimeZoneNumberRule(true, false);
-        static final TimeZoneNumberRule INSTANCE_NO_COLON = new TimeZoneNumberRule(false, false);
-        static final TimeZoneNumberRule INSTANCE_ISO_8601 = new TimeZoneNumberRule(true, true);
-
-        final boolean mColon;
-        final boolean mISO8601;
-
-        TimeZoneNumberRule(boolean colon, boolean iso8601) {
-            this.mColon = colon;
-            this.mISO8601 = iso8601;
-        }
+    private record TimeZoneNumberRule(boolean mColon, boolean mISO8601) implements Rule {
+            static final TimeZoneNumberRule INSTANCE_COLON = new TimeZoneNumberRule(true, false);
+            static final TimeZoneNumberRule INSTANCE_NO_COLON = new TimeZoneNumberRule(false, false);
+            static final TimeZoneNumberRule INSTANCE_ISO_8601 = new TimeZoneNumberRule(true, true);
 
         @Override
-        public int estimateLength() {
-            return 5;
+            public int estimateLength() {
+                return 5;
+            }
+
+            @Override
+            public void appendTo(StringBuffer buffer, Calendar calendar) {
+                if (this.mISO8601 && calendar.getTimeZone().getID().equals("UTC")) {
+                    buffer.append("Z");
+                    return;
+                }
+
+                int offset = calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET);
+
+                if (offset < 0) {
+                    buffer.append('-');
+                    offset = -offset;
+                } else {
+                    buffer.append('+');
+                }
+
+                int hours = offset / (60 * 60 * 1000);
+                appendDigits(buffer, hours);
+
+                if (this.mColon) {
+                    buffer.append(':');
+                }
+
+                int minutes = offset / (60 * 1000) - 60 * hours;
+                appendDigits(buffer, minutes);
+            }
         }
+
+    private record Iso8601_Rule(int length) implements Rule {
+
+            // Sign TwoDigitHours or Z
+            static final Iso8601_Rule ISO8601_HOURS = new Iso8601_Rule(3);
+            // Sign TwoDigitHours Minutes or Z
+            static final Iso8601_Rule ISO8601_HOURS_MINUTES = new Iso8601_Rule(5);
+            // Sign TwoDigitHours : Minutes or Z
+            static final Iso8601_Rule ISO8601_HOURS_COLON_MINUTES = new Iso8601_Rule(6);
+
+            static Iso8601_Rule getRule(int tokenLen) {
+                switch (tokenLen) {
+                    case 1:
+                        return Iso8601_Rule.ISO8601_HOURS;
+                    case 2:
+                        return Iso8601_Rule.ISO8601_HOURS_MINUTES;
+                    case 3:
+                        return Iso8601_Rule.ISO8601_HOURS_COLON_MINUTES;
+                    default:
+                        throw new IllegalArgumentException("invalid number of X");
+                }
+            }
 
         @Override
-        public void appendTo(StringBuffer buffer, Calendar calendar) {
-            if (this.mISO8601 && calendar.getTimeZone().getID().equals("UTC")) {
-                buffer.append("Z");
-                return;
+            public int estimateLength() {
+                return this.length;
             }
 
-            int offset = calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET);
+            @Override
+            public void appendTo(StringBuffer buffer, Calendar calendar) {
+                int zoneOffset = calendar.get(Calendar.ZONE_OFFSET);
+                if (zoneOffset == 0) {
+                    buffer.append("Z");
+                    return;
+                }
 
-            if (offset < 0) {
-                buffer.append('-');
-                offset = -offset;
-            } else {
-                buffer.append('+');
-            }
+                int offset = zoneOffset + calendar.get(Calendar.DST_OFFSET);
 
-            int hours = offset / (60 * 60 * 1000);
-            appendDigits(buffer, hours);
+                if (offset < 0) {
+                    buffer.append('-');
+                    offset = -offset;
+                } else {
+                    buffer.append('+');
+                }
 
-            if (this.mColon) {
-                buffer.append(':');
-            }
+                int hours = offset / (60 * 60 * 1000);
+                appendDigits(buffer, hours);
 
-            int minutes = offset / (60 * 1000) - 60 * hours;
-            appendDigits(buffer, minutes);
-        }
-    }
+                if (this.length < 5) {
+                    return;
+                }
 
-    private static class Iso8601_Rule implements Rule {
+                if (this.length == 6) {
+                    buffer.append(':');
+                }
 
-        // Sign TwoDigitHours or Z
-        static final Iso8601_Rule ISO8601_HOURS = new Iso8601_Rule(3);
-        // Sign TwoDigitHours Minutes or Z
-        static final Iso8601_Rule ISO8601_HOURS_MINUTES = new Iso8601_Rule(5);
-        // Sign TwoDigitHours : Minutes or Z
-        static final Iso8601_Rule ISO8601_HOURS_COLON_MINUTES = new Iso8601_Rule(6);
-
-        static Iso8601_Rule getRule(int tokenLen) {
-            switch (tokenLen) {
-                case 1:
-                    return Iso8601_Rule.ISO8601_HOURS;
-                case 2:
-                    return Iso8601_Rule.ISO8601_HOURS_MINUTES;
-                case 3:
-                    return Iso8601_Rule.ISO8601_HOURS_COLON_MINUTES;
-                default:
-                    throw new IllegalArgumentException("invalid number of X");
+                int minutes = offset / (60 * 1000) - 60 * hours;
+                appendDigits(buffer, minutes);
             }
         }
-
-        final int length;
-
-        Iso8601_Rule(int length) {
-            this.length = length;
-        }
-
-        @Override
-        public int estimateLength() {
-            return this.length;
-        }
-
-        @Override
-        public void appendTo(StringBuffer buffer, Calendar calendar) {
-            int zoneOffset = calendar.get(Calendar.ZONE_OFFSET);
-            if (zoneOffset == 0) {
-                buffer.append("Z");
-                return;
-            }
-
-            int offset = zoneOffset + calendar.get(Calendar.DST_OFFSET);
-
-            if (offset < 0) {
-                buffer.append('-');
-                offset = -offset;
-            } else {
-                buffer.append('+');
-            }
-
-            int hours = offset / (60 * 60 * 1000);
-            appendDigits(buffer, hours);
-
-            if (this.length < 5) {
-                return;
-            }
-
-            if (this.length == 6) {
-                buffer.append(':');
-            }
-
-            int minutes = offset / (60 * 1000) - 60 * hours;
-            appendDigits(buffer, minutes);
-        }
-    }
 
     // ----------------------------------------------------------------------
     private static class TimeZoneDisplayKey {
@@ -865,8 +809,7 @@ public class FastDatePrinter implements DatePrinter, Serializable {
             if (this == obj) {
                 return true;
             }
-            if (obj instanceof TimeZoneDisplayKey) {
-                TimeZoneDisplayKey other = (TimeZoneDisplayKey) obj;
+            if (obj instanceof TimeZoneDisplayKey other) {
                 return
                     this.mTimeZone.equals(other.mTimeZone) &&
                     this.mStyle == other.mStyle &&

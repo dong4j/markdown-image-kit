@@ -368,11 +368,7 @@ public class TencentOssClientTest {
          * @since 1.1.0
          */
         public static String encode(String originUrl) {
-            try {
-                return URLEncoder.encode(originUrl, "UTF-8").replace("+", "%20").replace("*", "%2A").replace("%7E", "~");
-            } catch (UnsupportedEncodingException var2) {
-                return null;
-            }
+            return URLEncoder.encode(originUrl, StandardCharsets.UTF_8).replace("+", "%20").replace("*", "%2A").replace("%7E", "~");
         }
 
         /**
@@ -535,7 +531,7 @@ public class TencentOssClientTest {
                     BufferedReader reader = new BufferedReader(inputStream);
 
                     String lines;
-                    sbuffer = new StringBuffer("");
+                    sbuffer = new StringBuffer();
 
                     while ((lines = reader.readLine()) != null) {
 

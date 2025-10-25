@@ -147,7 +147,7 @@ public class CustomOssUtils {
             os.write(LINE_END.getBytes());
             os.flush();
         }
-        msg.append(requestParams.toString());
+        msg.append(requestParams);
         return msg.toString();
     }
 
