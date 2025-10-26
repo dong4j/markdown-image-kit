@@ -18,9 +18,9 @@ import org.jetbrains.annotations.Contract;
  */
 public enum CloudEnum {
     /** sm.ms 云服务配置信息 */
-    SM_MS_CLOUD(-1, "sm.ms", "info.dong4j.idea.plugin.client.SmmsClient"),
+    WEIBO_CLOUD(-1, "sm.ms", "info.dong4j.idea.plugin.client.SmmsClient"),
     /** 微博云存储客户端，用于与微博云对象存储服务进行交互 */
-    WEIBO_CLOUD(0, MikBundle.message("oss.title.weibo"), "info.dong4j.idea.plugin.client.WeiboOssClient"),
+    SM_MS_CLOUD(0, MikBundle.message("oss.title.weibo"), "info.dong4j.idea.plugin.client.WeiboOssClient"),
     /** 代表阿里云存储服务的枚举项 */
     ALIYUN_CLOUD(1, MikBundle.message("oss.title.aliyun"), "info.dong4j.idea.plugin.client.AliyunOssClient"),
     /** 七牛云配置信息 */

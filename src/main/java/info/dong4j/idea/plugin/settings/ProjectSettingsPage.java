@@ -18,7 +18,6 @@ import info.dong4j.idea.plugin.settings.oss.GiteeSetting;
 import info.dong4j.idea.plugin.settings.oss.GithubSetting;
 import info.dong4j.idea.plugin.settings.oss.QiniuOssSetting;
 import info.dong4j.idea.plugin.settings.oss.TencentOssSetting;
-import info.dong4j.idea.plugin.settings.oss.WeiboOssSetting;
 import info.dong4j.idea.plugin.swing.JTextFieldHintListener;
 import info.dong4j.idea.plugin.util.ClientUtils;
 import info.dong4j.idea.plugin.util.StringUtils;
@@ -56,6 +55,7 @@ import lombok.extern.slf4j.Slf4j;
  * @date 2025.10.24
  * @since 1.0.0
  */
+@SuppressWarnings("D")
 @Slf4j
 public class ProjectSettingsPage implements SearchableConfigurable, Configurable.NoMargin {
     /** 测试文件名，用于测试场景中的文件标识 */
@@ -78,16 +78,10 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JTabbedPane authorizationTabbedPanel;
 
     //region weiboOss
-    /** 微博 OSS 授权面板组件 */
-    private JPanel weiboOssAuthorizationPanel;
     /** 微博用户名输入框 */
-    private JTextField weiboUserNameTextField;
+    // private JTextField weiboUserNameTextField;
     /** 微博密码字段 */
     private JPasswordField weiboPasswordField;
-    /** 用户名标签 */
-    private JLabel userNameLabel;
-    /** 密码标签 */
-    private JLabel passwordLabel;
     //endregion
 
     //region aliyunOss
@@ -286,7 +280,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
 
     // region WeiboOssSetting
     /** 微博OSS配置信息，用于存储和管理微博OSS相关的设置参数 */
-    private final WeiboOssSetting weiboOssSetting = new WeiboOssSetting(this.weiboUserNameTextField, this.weiboPasswordField);
+    // private final WeiboOssSetting weiboOssSetting = new WeiboOssSetting(this.weiboUserNameTextField, this.weiboPasswordField);
     // endregion
 
     // region AliyunOssSetting
@@ -477,9 +471,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      * @param state 当前状态对象，用于获取云类型信息
      */
     private void initAuthorizationTabbedPanel(@NotNull MikState state) {
-        int defaultCloudIndex = state.getCloudType() == CloudEnum.SM_MS_CLOUD.index
-                                ? CloudEnum.WEIBO_CLOUD.index
-                                : state.getCloudType();
+        int defaultCloudIndex = state.getCloudType();
         // 打开设置页时默认选中默认上传图床
         this.authorizationTabbedPanel.setSelectedIndex(defaultCloudIndex);
 
@@ -494,7 +486,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             this.helpButton.setText("Help & " + cloudType.getTitle());
         });
 
-        this.weiboOssSetting.init(this.config.getState().getWeiboOssState());
+        // this.weiboOssSetting.init(this.config.getState().getWeiboOssState());
         this.aliyunOssSetting.init(this.config.getState().getAliyunOssState());
         this.baiduBosSetting.init(this.config.getState().getBaiduBosState());
         this.githubSetting.init(this.config.getState().getGithubOssState());
@@ -796,7 +788,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                  && this.baiduBosSetting.isModified(state.getBaiduBosState())
                  && this.githubSetting.isModified(state.getGithubOssState())
                  && this.giteeSetting.isModified(state.getGiteeOssState())
-                 && this.weiboOssSetting.isModified(state.getWeiboOssState())
+                 // && this.weiboOssSetting.isModified(state.getWeiboOssState())
                  && this.qiniuOssSetting.isModified(state.getQiniuOssState())
                  && this.tencentOssSetting.isModified(state.getTencentOssState())
                  && this.customOssSetting.isModified(state.getCustomOssState())
@@ -890,8 +882,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      * 配置被修改后调用，用于更新 state 中的数据
      * <p>
      * 当配置发生变化时，该方法会被调用，用于将配置信息应用到 state 对象中，更新相关存储设置和通用配置。
-     *
-     * @param state 需要更新的配置状态对象
      */
     @Override
     public void apply() {
@@ -904,7 +894,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.giteeSetting.apply(state.getGiteeOssState());
         this.qiniuOssSetting.apply(state.getQiniuOssState());
         this.tencentOssSetting.apply(state.getTencentOssState());
-        this.weiboOssSetting.apply(state.getWeiboOssState());
+        // this.weiboOssSetting.apply(state.getWeiboOssState());
         this.customOssSetting.apply(state.getCustomOssState());
         this.applyGeneralConfigs(state);
         this.applyClipboardConfigs(state);
@@ -978,7 +968,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.giteeSetting.reset(state.getGiteeOssState());
         this.tencentOssSetting.reset(state.getTencentOssState());
         this.qiniuOssSetting.reset(state.getQiniuOssState());
-        this.weiboOssSetting.reset(state.getWeiboOssState());
+        // this.weiboOssSetting.reset(state.getWeiboOssState());
         this.customOssSetting.reset(state.getCustomOssState());
         this.resetGeneralCOnfigs(state);
         this.resetClipboardConfigs(state);

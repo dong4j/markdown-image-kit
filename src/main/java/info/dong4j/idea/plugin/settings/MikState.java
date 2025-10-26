@@ -78,7 +78,7 @@ public class MikState {
     /** 默认图床类型，取值为 CloudEnum.SM_MS_CLOUD 的 index */
     private int cloudType = CloudEnum.SM_MS_CLOUD.index;
     /** 用于保存未勾选自定义默认图床时需要保存的下拉列表选项，仅在 setting 页面使用 */
-    private int tempCloudType = CloudEnum.WEIBO_CLOUD.index;
+    private int tempCloudType = CloudEnum.SM_MS_CLOUD.index;
     /** 重命名文件标志，用于指示是否需要对文件进行重命名操作 */
     private boolean rename = false;
     /** 文件名后缀索引，用于标识当前文件的后缀类型 */
