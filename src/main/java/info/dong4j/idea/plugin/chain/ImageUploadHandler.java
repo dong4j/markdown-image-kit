@@ -17,7 +17,6 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -75,61 +74,34 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
     public boolean execute(EventData data) {
         ProgressIndicator indicator = data.getIndicator();
         int size = data.getSize();
-        
-        // 统计总数，用于进度计算
-        int totalCount = data.getWaitingProcessMap().values().stream()
-            .mapToInt(List::size)
-            .sum();
-        
-        // 使用原子变量跟踪进度，确保线程安全
-        AtomicInteger processedCount = new AtomicInteger(0);
-        
-        // 动态计算线程池大小，最多使用10个线程，但要考虑图片数量
-        int threadPoolSize = Math.min(Math.max(totalCount, 2), 10);
-        ExecutorService executorService = Executors.newFixedThreadPool(threadPoolSize);
-        
-        log.info("开始上传 {} 张图片，使用 {} 个线程", totalCount, threadPoolSize);
+        int totalProcessed = 0;
+        ExecutorService executorService = Executors.newFixedThreadPool(10);
 
         List<CompletableFuture<?>> futures = new ArrayList<>();
-        
-        // 收集所有需要处理的图片
-        List<ImageUploadTask> uploadTasks = new ArrayList<>();
         for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
-            for (MarkdownImage markdownImage : imageEntry.getValue()) {
-                uploadTasks.add(new ImageUploadTask(markdownImage, imageEntry.getValue()));
+            int totalCount = imageEntry.getValue().size();
+            Iterator<MarkdownImage> imageIterator = imageEntry.getValue().iterator();
+            while (imageIterator.hasNext()) {
+                CompletableFuture<?> future = CompletableFuture.supplyAsync(() -> {
+                    MarkdownImage markdownImage = imageIterator.next();
+                    this.extracted(data,
+                                   markdownImage.getImageName(),
+                                   indicator,
+                                   size,
+                                   totalProcessed,
+                                   totalCount);
+
+                    this.invoke(data, imageIterator, markdownImage);
+                    return null;
+                }, executorService).exceptionally(e -> null);
+
+                futures.add(future);
             }
         }
-        
-        // 为每个图片创建异步任务
-        for (ImageUploadTask task : uploadTasks) {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                try {
-                    MarkdownImage markdownImage = task.markdownImage;
-                    int currentProcessed = processedCount.incrementAndGet();
-                    
-                    // 更新进度
-                    String imageName = markdownImage.getImageName();
-                    indicator.setText2(MikBundle.message("mik.action.processing.title", imageName));
-                    indicator.setFraction(((currentProcessed * 1.0) + data.getIndex() * size) / (totalCount * size));
-                    
-                    // 执行上传逻辑
-                    uploadImage(data, task.imageIterator, markdownImage);
-                } catch (Exception e) {
-                    log.error("上传图片时发生异常: {}", task.markdownImage.getImageName(), e);
-                }
-            }, executorService);
-            
-            futures.add(future);
-        }
 
-        // 等待所有任务完成
-        try {
-            CompletableFuture.allOf(futures.toArray(new CompletableFuture[] {})).join();
-            log.info("图片上传完成，共处理 {} 张图片", totalCount);
-        } finally {
-            executorService.shutdown();
-        }
-        
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[] {})).join();
+
+        executorService.shutdown();
         return true;
     }
     
