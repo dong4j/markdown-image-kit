@@ -77,12 +77,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     /** 授权选项卡面板，用于展示不同的授权配置选项 */
     private JTabbedPane authorizationTabbedPanel;
 
-    //region weiboOss
-    /** 微博用户名输入框 */
-    // private JTextField weiboUserNameTextField;
-    /** 微博密码字段 */
-    private JPasswordField weiboPasswordField;
-    //endregion
 
     //region aliyunOss
     /** aliyunOssAuthorizationPanel 组 */
@@ -278,10 +272,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JComboBox comboBox1;
     // endregion
 
-    // region WeiboOssSetting
-    /** 微博OSS配置信息，用于存储和管理微博OSS相关的设置参数 */
-    // private final WeiboOssSetting weiboOssSetting = new WeiboOssSetting(this.weiboUserNameTextField, this.weiboPasswordField);
-    // endregion
 
     // region AliyunOssSetting
     /** 阿里云OSS配置信息，用于存储和管理OSS相关设置参数 */
@@ -486,7 +476,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             this.helpButton.setText("Help & " + cloudType.getTitle());
         });
 
-        // this.weiboOssSetting.init(this.config.getState().getWeiboOssState());
         this.aliyunOssSetting.init(this.config.getState().getAliyunOssState());
         this.baiduBosSetting.init(this.config.getState().getBaiduBosState());
         this.githubSetting.init(this.config.getState().getGithubOssState());
@@ -788,7 +777,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                  && this.baiduBosSetting.isModified(state.getBaiduBosState())
                  && this.githubSetting.isModified(state.getGithubOssState())
                  && this.giteeSetting.isModified(state.getGiteeOssState())
-                 // && this.weiboOssSetting.isModified(state.getWeiboOssState())
                  && this.qiniuOssSetting.isModified(state.getQiniuOssState())
                  && this.tencentOssSetting.isModified(state.getTencentOssState())
                  && this.customOssSetting.isModified(state.getCustomOssState())
@@ -894,7 +882,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.giteeSetting.apply(state.getGiteeOssState());
         this.qiniuOssSetting.apply(state.getQiniuOssState());
         this.tencentOssSetting.apply(state.getTencentOssState());
-        // this.weiboOssSetting.apply(state.getWeiboOssState());
         this.customOssSetting.apply(state.getCustomOssState());
         this.applyGeneralConfigs(state);
         this.applyClipboardConfigs(state);
@@ -968,7 +955,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.giteeSetting.reset(state.getGiteeOssState());
         this.tencentOssSetting.reset(state.getTencentOssState());
         this.qiniuOssSetting.reset(state.getQiniuOssState());
-        // this.weiboOssSetting.reset(state.getWeiboOssState());
         this.customOssSetting.reset(state.getCustomOssState());
         this.resetGeneralCOnfigs(state);
         this.resetClipboardConfigs(state);

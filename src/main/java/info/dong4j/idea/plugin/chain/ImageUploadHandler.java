@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -74,35 +75,146 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
     public boolean execute(EventData data) {
         ProgressIndicator indicator = data.getIndicator();
         int size = data.getSize();
-        int totalProcessed = 0;
-        ExecutorService executorService = Executors.newFixedThreadPool(10);
+        
+        // 统计总数，用于进度计算
+        int totalCount = data.getWaitingProcessMap().values().stream()
+            .mapToInt(List::size)
+            .sum();
+        
+        // 使用原子变量跟踪进度，确保线程安全
+        AtomicInteger processedCount = new AtomicInteger(0);
+        
+        // 动态计算线程池大小，最多使用10个线程，但要考虑图片数量
+        int threadPoolSize = Math.min(Math.max(totalCount, 2), 10);
+        ExecutorService executorService = Executors.newFixedThreadPool(threadPoolSize);
+        
+        log.info("开始上传 {} 张图片，使用 {} 个线程", totalCount, threadPoolSize);
 
         List<CompletableFuture<?>> futures = new ArrayList<>();
+        
+        // 收集所有需要处理的图片
+        List<ImageUploadTask> uploadTasks = new ArrayList<>();
         for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
-            int totalCount = imageEntry.getValue().size();
-            Iterator<MarkdownImage> imageIterator = imageEntry.getValue().iterator();
-            while (imageIterator.hasNext()) {
-                CompletableFuture<?> future = CompletableFuture.supplyAsync(() -> {
-                    MarkdownImage markdownImage = imageIterator.next();
-                    this.extracted(data,
-                                   markdownImage.getImageName(),
-                                   indicator,
-                                   size,
-                                   totalProcessed,
-                                   totalCount);
-
-                    this.invoke(data, imageIterator, markdownImage);
-                    return null;
-                }, executorService).exceptionally(e -> null);
-
-                futures.add(future);
+            for (MarkdownImage markdownImage : imageEntry.getValue()) {
+                uploadTasks.add(new ImageUploadTask(markdownImage, imageEntry.getValue()));
             }
         }
+        
+        // 为每个图片创建异步任务
+        for (ImageUploadTask task : uploadTasks) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                try {
+                    MarkdownImage markdownImage = task.markdownImage;
+                    int currentProcessed = processedCount.incrementAndGet();
+                    
+                    // 更新进度
+                    String imageName = markdownImage.getImageName();
+                    indicator.setText2(MikBundle.message("mik.action.processing.title", imageName));
+                    indicator.setFraction(((currentProcessed * 1.0) + data.getIndex() * size) / (totalCount * size));
+                    
+                    // 执行上传逻辑
+                    uploadImage(data, task.imageIterator, markdownImage);
+                } catch (Exception e) {
+                    log.error("上传图片时发生异常: {}", task.markdownImage.getImageName(), e);
+                }
+            }, executorService);
+            
+            futures.add(future);
+        }
 
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[] {})).join();
-
-        executorService.shutdown();
+        // 等待所有任务完成
+        try {
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[] {})).join();
+            log.info("图片上传完成，共处理 {} 张图片", totalCount);
+        } finally {
+            executorService.shutdown();
+        }
+        
         return true;
+    }
+    
+    /**
+     * 内部类，用于封装图片上传任务
+     */
+    private static class ImageUploadTask {
+        final MarkdownImage markdownImage;
+        final List<MarkdownImage> imageList;
+        final Iterator<MarkdownImage> imageIterator;
+        
+        ImageUploadTask(MarkdownImage markdownImage, List<MarkdownImage> imageList) {
+            this.markdownImage = markdownImage;
+            this.imageList = imageList;
+            // 创建一个可以直接操作列表的迭代器
+            this.imageIterator = new Iterator<MarkdownImage>() {
+                @Override
+                public boolean hasNext() {
+                    return false; // 不用于遍历，只用于删除操作
+                }
+                
+                @Override
+                public MarkdownImage next() {
+                    return null;
+                }
+                
+                @Override
+                public void remove() {
+                    imageList.remove(markdownImage);
+                }
+            };
+        }
+    }
+    
+    /**
+     * 上传图片的核心逻辑
+     *
+     * @param data          事件数据
+     * @param imageIterator 图片迭代器
+     * @param markdownImage 待上传的图片
+     */
+    private void uploadImage(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
+        String imageName = markdownImage.getImageName();
+        
+        // 已上传过的不处理
+        if (ImageLocationEnum.NETWORK.equals(markdownImage.getLocation())) {
+            log.debug("图片 {} 已经上传过，跳过", imageName);
+            return;
+        }
+
+        // 验证图片数据
+        if (StringUtils.isBlank(imageName) || markdownImage.getInputStream() == null) {
+            log.warn("图片名称或输入流为空，移除该图片: {}", markdownImage);
+            imageIterator.remove();
+            return;
+        }
+
+        String imageUrl = null;
+        Exception uploadException = null;
+        
+        try {
+            log.debug("开始上传图片: {}", imageName);
+            imageUrl = data.getClient().upload(markdownImage.getInputStream(), markdownImage.getImageName());
+            log.debug("图片上传成功: {} -> {}", imageName, imageUrl);
+        } catch (Exception e) {
+            uploadException = e;
+            log.error("上传图片失败: {}, 错误信息: {}", imageName, e.getMessage(), e);
+        }
+
+        // 更新图片信息
+        String mark;
+        if (StringUtils.isBlank(imageUrl)) {
+            mark = "![upload error](" + markdownImage.getPath() + ")";
+            markdownImage.setLocation(ImageLocationEnum.LOCAL);
+            log.warn("图片 {} 上传失败，保留为本地路径", imageName);
+        } else {
+            mark = "![](" + imageUrl + ")";
+            markdownImage.setPath(imageUrl);
+            markdownImage.setLocation(ImageLocationEnum.NETWORK);
+        }
+
+        markdownImage.setOriginalLineText(mark);
+        markdownImage.setOriginalMark(mark);
+        markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
+        markdownImage.setFinalMark(mark);
     }
 
     /**

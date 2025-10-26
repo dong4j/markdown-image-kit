@@ -22,26 +22,12 @@ public class MikIcons {
     public static final Icon ALIYUN_OSS = load("aliyun.svg");
     /** QINIU_OSS */
     public static final Icon QINIU_OSS = load("qiniu.svg");
-    /** WEIBO_OSS */
-    public static final Icon WEIBO_OSS = load("weibo.svg");
     /** TENCENT */
     public static final Icon TENCENT = load("tencent.svg");
-    /** WANGYI */
-    public static final Icon WANGYI = load("wangyi.svg");
     /** BAIDU */
     public static final Icon BAIDU = load("baidu.svg");
-    /** IMGUR */
-    public static final Icon IMGUR = load("imgur.svg");
     /** SM_MS */
     public static final Icon SM_MS = load("sm_ms.svg");
-    /** YOUPAI */
-    public static final Icon YOUPAI = load("youpai.svg");
-    /** UCLOUD */
-    public static final Icon UCLOUD = load("ucloud.svg");
-    /** QING_CLOUD */
-    public static final Icon QINGCLOUD = load("qingcloud.svg");
-    /** JINGDONG */
-    public static final Icon JINGDONG = load("jingdong.svg");
     /** GITHUB */
     public static final Icon GITHUB = load("github.svg");
     /** GITEE */

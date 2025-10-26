@@ -9,8 +9,6 @@ import info.dong4j.idea.plugin.settings.oss.GiteeOssState;
 import info.dong4j.idea.plugin.settings.oss.GithubOssState;
 import info.dong4j.idea.plugin.settings.oss.QiniuOssState;
 import info.dong4j.idea.plugin.settings.oss.TencentOssState;
-import info.dong4j.idea.plugin.settings.oss.WangyiOssState;
-import info.dong4j.idea.plugin.settings.oss.WeiboOssState;
 
 import lombok.Data;
 
@@ -18,7 +16,7 @@ import lombok.Data;
  * 图床配置状态类
  * <p>
  * 用于保存和管理图片上传时的各种配置状态，包括 OSS 类型选择、是否替换标签、压缩设置、备份选项、水印配置、文件重命名等。
- * 该类主要用于处理图片上传前的参数配置，支持多种云存储平台（如 Weibo、Aliyun、Qiniu 等）的适配。
+ * 该类主要用于处理图片上传前的参数配置，支持多种云存储平台（如 Aliyun、Qiniu 等）的适配。
  * <p>
  * 包含多个静态常量用于表示不同的 OSS 类型，以及多个私有字段用于存储具体的配置信息。
  *
@@ -33,8 +31,6 @@ public class MikState {
     public static final String OLD_HASH_KEY = "old";
     /** 新的哈希键，用于标识特定的哈希配置 */
     public static final String NEW_HASH_KEY = "new";
-    /** WeiboOssState 对象，用于存储微博OSS相关的状态信息 */
-    private WeiboOssState weiboOssState;
     /** AliyunOssState 对象，用于存储阿里云 OSS 的状态信息 */
     private AliyunOssState aliyunOssState;
     /** Baidu Bos 状态信息，用于记录与 Baidu Bos 服务交互的状态 */
@@ -43,8 +39,6 @@ public class MikState {
     private QiniuOssState qiniuOssState;
     /** TencentOssState 对象，用于存储腾讯云对象存储服务的相关状态信息 */
     private TencentOssState tencentOssState;
-    /** 王艺 OSS 状态信息 */
-    private WangyiOssState wangyiOssState;
     /** GitHub OSS 状态信息，用于表示与 GitHub 仓库相关的 OSS 操作状态 */
     private GithubOssState githubOssState;
     /** Gitee 云服务 OSS 状态信息 */
@@ -88,7 +82,7 @@ public class MikState {
      * 初始化MikState对象，用于管理各种对象存储服务的状态
      * <p>
      * 构造函数会初始化所有支持的对象存储服务状态对象，包括阿里云OSS、百度BOS、
-     * 七牛OSS、微博OSS、腾讯云OSS、GitHub、Gitee、自定义OSS以及网易云OSS的状态。
+     * 七牛OSS、腾讯云OSS、GitHub、Gitee、自定义OSS以及网易云OSS的状态。
      *
      * @since 0.0.1
      */
@@ -96,11 +90,9 @@ public class MikState {
         this.aliyunOssState = new AliyunOssState();
         this.baiduBosState = new BaiduBosState();
         this.qiniuOssState = new QiniuOssState();
-        this.weiboOssState = new WeiboOssState();
         this.tencentOssState = new TencentOssState();
         this.githubOssState = new GithubOssState();
         this.giteeOssState = new GiteeOssState();
         this.customOssState = new CustomOssState();
-        this.wangyiOssState = new WangyiOssState();
     }
 }

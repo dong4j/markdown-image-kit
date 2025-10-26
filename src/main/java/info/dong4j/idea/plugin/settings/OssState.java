@@ -127,18 +127,11 @@ public abstract class OssState {
 
         // todo-dong4j : (2025.10.26 17:53) [将 false 的服务商删除]
         return switch (cloudEnum) {
-            case WEIBO_CLOUD -> getStatus(state.getWeiboOssState());
+            case SM_MS_CLOUD -> true;
             case ALIYUN_CLOUD -> getStatus(state.getAliyunOssState());
             case QINIU_CLOUD -> getStatus(state.getQiniuOssState());
             case TENCENT_CLOUD -> getStatus(state.getTencentOssState());
-            case WANGYI_CLOUD -> false;
             case BAIDU_CLOUD -> getStatus(state.getBaiduBosState());
-            case JINGDONG_CLOUD -> false;
-            case YOUPAI_CLOUD -> false;
-            case SM_MS_CLOUD -> true;
-            case IMGUR_CLOUD -> false;
-            case U_CLOUD -> false;
-            case QING_CLOUD -> false;
             case GITHUB -> getStatus(state.getGithubOssState());
             case GITEE -> getStatus(state.getGiteeOssState());
             case CUSTOMIZE -> getStatus(state.getCustomOssState());
