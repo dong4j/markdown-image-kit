@@ -1,5 +1,6 @@
 package info.dong4j.idea.plugin.action.markdown;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -118,4 +119,19 @@ public abstract class UploadActionBase extends AnAction {
      * @since 0.0.1
      */
     abstract OssClient getClient();
+
+    /**
+     * 获取动作更新线程
+     *
+     * <p>指定 update 方法在后台线程中执行，避免阻塞事件调度线程(EDT)。
+     * 提高 UI 响应性，防止界面卡顿。
+     *
+     * @return ActionUpdateThread.BGT 后台线程
+     * @see ActionUpdateThread#BGT
+     */
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        // 在后台线程中执行 update，避免阻塞 EDT
+        return ActionUpdateThread.BGT;
+    }
 }

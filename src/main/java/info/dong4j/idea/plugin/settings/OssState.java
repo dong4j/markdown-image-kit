@@ -135,6 +135,7 @@ public abstract class OssState {
             case GITHUB -> getStatus(state.getGithubOssState());
             case GITEE -> getStatus(state.getGiteeOssState());
             case CUSTOMIZE -> getStatus(state.getCustomOssState());
+            case PICLIST -> getStatus(state.getPicListOssState());
         };
     }
 }

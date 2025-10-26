@@ -155,7 +155,7 @@ public class ActionManager {
         // 过滤掉 LOCAL 和用户输入不匹配的标签
         ResolveMarkdownFileHandler resolveMarkdownFileHandler = new ResolveMarkdownFileHandler();
         resolveMarkdownFileHandler.setFileFilter((waitingProcessMap, filterString) -> {
-            if (waitingProcessMap != null && waitingProcessMap.size() > 0) {
+            if (waitingProcessMap != null && !waitingProcessMap.isEmpty()) {
                 for (Map.Entry<Document, List<MarkdownImage>> entry : waitingProcessMap.entrySet()) {
                     log.trace("old waitingProcessMap = {}", waitingProcessMap);
 

@@ -76,10 +76,12 @@
         </action>
         <action id="GiteeObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadGiteeCloudAction"
                 popup="true" text="Gitee">
-
         </action>
         <action id="CustomObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadCustomCloudAction"
                 popup="true" text="自定义">
+        </action>
+        <action id="PicListObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadPicListCloudAction"
+                popup="true" text="PicList/PicGo">
         </action>
 
         <action id="ImageCompressAction" class="info.dong4j.idea.plugin.action.image.ImageCompressAction"
@@ -100,6 +102,7 @@
         <group popup="true" id="info.dong4j.idea.plugin.markdown.image.kit"
                class="info.dong4j.idea.plugin.action.MikGroupAction"
                text="Markdown Image Kit">
+            <reference ref="PicListObjectStorageServiceAction"/>
             <reference ref="SmmsObjectStorageServiceAction"/>
             <reference ref="AliyunObjectStorageServiceAction"/>
             <reference ref="QiniuObjectStorageServiceAction"/>
@@ -123,6 +126,7 @@
         <!-- 编辑器右键菜单 -->
         <group popup="true" id="info.dong4j.idea.plugin.editor.popup.menu.group" text="Upload Image"
                icon="AllIcons.Gutter.Colors">
+            <reference ref="PicListObjectStorageServiceAction"/>
             <reference ref="SmmsObjectStorageServiceAction"/>
             <reference ref="AliyunObjectStorageServiceAction"/>
             <reference ref="QiniuObjectStorageServiceAction"/>

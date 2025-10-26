@@ -1,9 +1,12 @@
 package info.dong4j.idea.plugin.settings;
 
 import com.intellij.ide.BrowserUtil;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.ui.TextComponentAccessor;
+import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.client.OssClient;
@@ -16,6 +19,7 @@ import info.dong4j.idea.plugin.settings.oss.BaiduBosSetting;
 import info.dong4j.idea.plugin.settings.oss.CustomOssSetting;
 import info.dong4j.idea.plugin.settings.oss.GiteeSetting;
 import info.dong4j.idea.plugin.settings.oss.GithubSetting;
+import info.dong4j.idea.plugin.settings.oss.PicListOssSetting;
 import info.dong4j.idea.plugin.settings.oss.QiniuOssSetting;
 import info.dong4j.idea.plugin.settings.oss.TencentOssSetting;
 import info.dong4j.idea.plugin.swing.JTextFieldHintListener;
@@ -194,6 +198,21 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JTextField httpMethodTextField;
     //endregion
 
+    //region piclist
+    /** PicList 授权面板 */
+    private JPanel picListAuthorizationPanel;
+    /** PicList API 接口地址输入框 */
+    private JTextField picListApiTextField;
+    /** PicList 图床类型输入框 */
+    private JTextField picListPicbedTextField;
+    /** PicList 配置名称输入框 */
+    private JTextField picListConfigNameTextField;
+    /** PicList 密钥输入框 */
+    private JTextField picListKeyTextField;
+    /** PicList 命令行路径输入框（带浏览按钮） */
+    private TextFieldWithBrowseButton picListExeTextField;
+    //endregion
+
     //region gitee
     /** GitHub 授权面板，用于展示和管理 GitHub 授权相关配置 */
     private JPanel giteeAuthorizationPanel;
@@ -268,8 +287,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JCheckBox uploadAndReplaceCheckBox;
     /** 默认云配置复选框 */
     private JCheckBox defaultCloudCheckBox;
-    /** comboBox1 是用于选择选项的下拉框组件 */
-    private JComboBox comboBox1;
     // endregion
 
 
@@ -350,6 +367,15 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                                                                            this.requestKeyTextField,
                                                                            this.responseUrlPathTextField,
                                                                            this.httpMethodTextField);
+    //endregion
+
+    //region PicListOssSetting
+    /** PicList 图床配置信息实例，用于存储和管理 PicList 相关的配置参数 */
+    private final PicListOssSetting picListOssSetting = new PicListOssSetting(this.picListApiTextField,
+                                                                              this.picListPicbedTextField,
+                                                                              this.picListConfigNameTextField,
+                                                                              this.picListKeyTextField,
+                                                                              this.picListExeTextField);
     //endregion
     /** 用于输入验证测试的端口号输入框 */
     private JTextField myPort;
@@ -483,8 +509,65 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.qiniuOssSetting.init(this.config.getState().getQiniuOssState());
         this.tencentOssSetting.init(this.config.getState().getTencentOssState());
         this.customOssSetting.init(this.config.getState().getCustomOssState());
+        this.picListOssSetting.init(this.config.getState().getPicListOssState());
+
+        // 初始化 PicList 命令行文件选择器
+        this.initPicListExeBrowser();
 
         this.testAndHelpListener();
+    }
+
+    /**
+     * 初始化 PicList 可执行文件选择器
+     * <p>
+     * 为 PicList 命令行路径输入框添加浏览按钮功能，使用户可以方便地选择可执行文件。
+     */
+    private void initPicListExeBrowser() {
+        if (this.picListExeTextField == null) {
+            log.warn("picListExeTextField 未初始化");
+            return;
+        }
+
+        // 创建文件选择描述符
+        FileChooserDescriptor descriptor = new FileChooserDescriptor(
+            true,  // 是否可以选择文件
+            true, // 是否可以选择目录
+            false, // 是否可以多选
+            false,  // 文件是否必须存在
+            false,
+            false
+        );
+
+        // 设置标题和描述
+        descriptor.setTitle("选择 PicList/PicGo 可执行文件");
+        descriptor.setDescription("macOS: 选择 .app 目录\nWindows: 选择 .exe 文件\nLinux: 选择 .AppImage 文件");
+
+        // 设置文件过滤器（允许选择可执行文件和 .app 目录）
+        descriptor.withFileFilter(virtualFile -> {
+            String name = virtualFile.getName().toLowerCase();
+            // Windows: .exe 文件
+            if (name.endsWith(".exe")) {
+                return true;
+            }
+            // macOS: .app 目录
+            if (name.endsWith(".app") && virtualFile.isDirectory()) {
+                return true;
+            }
+            // Linux: .AppImage 文件
+            return name.endsWith(".appimage");
+            // 其他平台的直接可执行文件
+        });
+
+        // 添加浏览文件夹监听器
+        this.picListExeTextField.addBrowseFolderListener(
+            descriptor.getTitle(),
+            descriptor.getDescription(),
+            null,  // 项目，可以为 null
+            descriptor,
+            TextComponentAccessor.TEXT_FIELD_WHOLE_TEXT
+                                                        );
+
+        log.debug("PicList/PicGo 可执行文件选择器初始化完成");
     }
 
     /**
@@ -572,7 +655,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         if (!isDefaultCloudCheck) {
             this.customMessage.setText("sm.ms");
         } else {
-            this.customMessage.setText(OssState.getStatus(state.getCloudType()) ? "" : "当前 OSS 不可用!");
+            this.customMessage.setText(OssState.getStatus(state.getCloudType()) ? "" : MikBundle.message("oss.not.available"));
         }
         this.defaultCloudComboBox.setEnabled(isDefaultCloudCheck);
         this.defaultCloudComboBox.setSelectedIndex(state.getCloudType());
@@ -622,7 +705,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private void showSelectCloudMessage(int cloudType) {
         if (this.defaultCloudCheckBox.isSelected()) {
             boolean isClientEnable = OssState.getStatus(cloudType);
-            this.customMessage.setText(isClientEnable ? "" : "当前 OSS 不可用!");
+            this.customMessage.setText(isClientEnable ? "" : MikBundle.message("oss.not.available"));
         } else {
             this.customMessage.setText("sm.ms");
         }
@@ -780,6 +863,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                  && this.qiniuOssSetting.isModified(state.getQiniuOssState())
                  && this.tencentOssSetting.isModified(state.getTencentOssState())
                  && this.customOssSetting.isModified(state.getCustomOssState())
+                 && this.picListOssSetting.isModified(state.getPicListOssState())
                  && this.isGeneralModified(state)
                  && this.isClipboardModified(state)
         );
@@ -883,6 +967,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.qiniuOssSetting.apply(state.getQiniuOssState());
         this.tencentOssSetting.apply(state.getTencentOssState());
         this.customOssSetting.apply(state.getCustomOssState());
+        this.picListOssSetting.apply(state.getPicListOssState());
         this.applyGeneralConfigs(state);
         this.applyClipboardConfigs(state);
     }
@@ -956,6 +1041,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.tencentOssSetting.reset(state.getTencentOssState());
         this.qiniuOssSetting.reset(state.getQiniuOssState());
         this.customOssSetting.reset(state.getCustomOssState());
+        this.picListOssSetting.reset(state.getPicListOssState());
         this.resetGeneralCOnfigs(state);
         this.resetClipboardConfigs(state);
     }

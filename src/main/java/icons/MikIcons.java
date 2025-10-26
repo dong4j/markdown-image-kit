@@ -34,6 +34,8 @@ public class MikIcons {
     public static final Icon GITEE = load("gitee.svg");
     /** CUSTOM */
     public static final Icon CUSTOM = load("custom.svg");
+    /** PICLIST */
+    public static final Icon PICLIST = load("piclist.svg");
 
     /**
      * Load
