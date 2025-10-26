@@ -450,33 +450,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.initGlobalPanel(state);
         this.initClipboardControl();
 
-        // String MESSAGE = "The port number should be between 0 and 65535.";
-        //
-        // // Components initialization
-        // new ComponentValidator(ProjectManager.getInstance().getDefaultProject()).withValidator(v -> {
-        //     String pt = myPort.getText();
-        //     if (StringUtil.isNotEmpty(pt)) {
-        //         try {
-        //             int portValue = Integer.parseInt(pt);
-        //             if (portValue >= 0 && portValue <= 65535) {
-        //                 v.updateInfo(null);
-        //             } else {
-        //                 v.updateInfo(new ValidationInfo(MESSAGE, myPort));
-        //             }
-        //         } catch (NumberFormatException nfe) {
-        //             v.updateInfo(new ValidationInfo(MESSAGE, myPort));
-        //         }
-        //     } else {
-        //         v.updateInfo(null);
-        //     }
-        // }).installOn(myPort);
-        //
-        // myPort.getDocument().addDocumentListener(new DocumentAdapter() {
-        //     @Override
-        //     protected void textChanged(@NotNull DocumentEvent e) {
-        //         ComponentValidator.getInstance(myPort).ifPresent(ComponentValidator::revalidate);
-        //     }
-        // });
+        // todo-dong4j : (2025.10.27 00:47) [暂时不开放, 需要解决并发问题]
+        picListExeTextField.setVisible(false);
     }
 
     /**
