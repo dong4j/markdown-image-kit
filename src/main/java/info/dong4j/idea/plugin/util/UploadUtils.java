@@ -84,8 +84,7 @@ public class UploadUtils {
         // Read access is allowed from event dispatch thread or inside read-action only (see com.intellij.openapi.application.Application.runReadAction())
         AtomicReference<Collection<VirtualFile>> findedFiles = new AtomicReference<>();
         ApplicationManager.getApplication().runReadAction(() -> {
-            // fixme-dong4j : (2025.10.26 18:01) [修复过时 API]
-            findedFiles.set(FilenameIndex.getVirtualFilesByName(project, name, GlobalSearchScope.allScope(project)));
+            findedFiles.set(FilenameIndex.getVirtualFilesByName(name, GlobalSearchScope.allScope(project)));
         });
 
         // 只取第一个图片

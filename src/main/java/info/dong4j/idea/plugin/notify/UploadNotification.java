@@ -3,9 +3,11 @@ package info.dong4j.idea.plugin.notify;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.ide.actions.RevealFileAction;
 import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationAction;
 import com.intellij.notification.NotificationListener;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
@@ -40,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 0.0.1
  */
 @Slf4j
-@SuppressWarnings("jol")
+@SuppressWarnings( {"jol", "DuplicatedCode"})
 public class UploadNotification extends MikNotification {
     /** 上传已完成状态标识 */
     private static final String UPLOAD_FINSHED = "Upload Finshed";
@@ -88,17 +90,19 @@ public class UploadNotification extends MikNotification {
         if (StringUtil.isNotEmpty(details)) {
             content = "<p>" + details + "</p>" + content;
         }
-        Notifications.Bus.notify(new Notification(MIK_NOTIFICATION_GROUP, "Upload Failured",
-                                                  content, NotificationType.ERROR,
-                                                  (notification, event) -> {
-                                                      ProjectSettingsPage configurable = new ProjectSettingsPage();
-                                                      // 打开设置面板
-                                                      ShowSettingsUtil.getInstance().editConfigurable(project, configurable);
-                                                      // 点击超链接后关闭通知
-                                                      if (event.getEventType().equals(HyperlinkEvent.EventType.ENTERED)) {
-                                                          notification.hideBalloon();
-                                                      }
-                                                  }), project);
+        Notification notification = new Notification(MIK_NOTIFICATION_GROUP, "Upload Failured",
+                                                     content, NotificationType.ERROR);
+        // 使用 addAction 替代过时的 setListener
+        notification.addAction(new NotificationAction("Configure OSS") {
+            @Override
+            public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
+                ProjectSettingsPage configurable = new ProjectSettingsPage();
+                // 打开设置面板
+                ShowSettingsUtil.getInstance().editConfigurable(project, configurable);
+                notification.expire();
+            }
+        });
+        Notifications.Bus.notify(notification, project);
     }
 
     /**
@@ -126,30 +130,41 @@ public class UploadNotification extends MikNotification {
             buildContent(uploadFailuredListMap, uploadFailuredContent, "Image Upload Failured:");
         }
         content.append(fileNotFoundContent).append(uploadFailuredContent);
-        Notifications.Bus.notify(new Notification(MIK_NOTIFICATION_GROUP, "Upload Warning",
-                                                  content.toString(), NotificationType.WARNING, new NotificationListener.Adapter() {
-            /**
-             * 处理超链接点击事件，根据点击的URL打开对应的文件
-             * <p>
-             * 当用户点击通知中的超链接时，该方法会被调用。它会获取点击的URL，并尝试通过RevealFileAction打开对应的文件。
-             * 如果URL无效，会记录警告日志。最后隐藏与该通知相关的气泡提示。
-             *
-             * @param notification 通知对象，包含超链接信息
-             * @param e            超链接事件对象，包含被点击的URL
-             */
+        Notification notification = new Notification(MIK_NOTIFICATION_GROUP, "Upload Warning",
+                                                     content.toString(), NotificationType.WARNING);
+        // 使用 addAction 替代过时的 setListener
+        notification.addAction(new NotificationAction("Open File") {
             @Override
-            protected void hyperlinkActivated(@NotNull Notification notification, @NotNull HyperlinkEvent e) {
+            public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
+                // Action 点击时，尝试打开第一个可用文件
+                if (!fileNotFoundListMap.isEmpty()) {
+                    VirtualFile firstFile = fileNotFoundListMap.keySet().iterator().next();
+                    try {
+                        RevealFileAction.openFile(new File(firstFile.getPath()));
+                    } catch (Exception ex) {
+                        log.warn("Failed to open file: {}", firstFile.getPath(), ex);
+                    }
+                }
+                notification.expire();
+            }
+        });
+
+        // 保留 hyperlink listener 用于处理 HTML 链接中的文件打开
+        notification.setListener(new NotificationListener.Adapter() {
+            @Override
+            protected void hyperlinkActivated(@NotNull Notification notification1, @NotNull HyperlinkEvent e) {
                 URL url = e.getURL();
                 if (url != null) {
                     try {
                         RevealFileAction.openFile(new File(url.toURI()));
                     } catch (URISyntaxException ex) {
-                        log.warn("invalid URL: " + url, ex);
+                        log.warn("invalid URL: {}", url, ex);
                     }
                 }
-                hideBalloon(notification.getBalloon());
+                hideBalloon(notification1.getBalloon());
             }
-        }), project);
+        });
+        Notifications.Bus.notify(notification, project);
     }
 
     /**
@@ -200,34 +215,48 @@ public class UploadNotification extends MikNotification {
      */
     public static void notifyConfigurableError(Project project, String actionName) {
         String content = "<p><a href=''>Configure " + actionName + " OSS</a></p><br />";
-        content = "<p>You may need to set or reset your account. Please be sure to <b>test</b> it after the setup is complete.</p>" + content + "<br />";
+        content =
+            "<p>You may need to set or reset your account. Please be sure to <b>test</b> it after the setup is complete.</p>" + content + "<br />";
         content = content + "<p>Or you may need <a href='" + HELP_URL + "'>Help</a></p>";
-        Notifications.Bus.notify(new Notification(MIK_NOTIFICATION_GROUP,
-                                                  "Configurable Error",
-                                                  content,
-                                                  NotificationType.ERROR,
-                                                  new NotificationListener.Adapter() {
-                                                      /**
-                                                       * 处理超链接点击事件，根据链接内容执行相应操作
-                                                       * <p>
-                                                       * 当用户点击通知中的超链接时，根据链接描述内容决定是打开浏览器还是跳转到设置面板
-                                                       *
-                                                       * @param notification 通知对象
-                                                       * @param e            超链接事件对象
-                                                       */
-                                                      @Override
-                                                      protected void hyperlinkActivated(@NotNull Notification notification, @NotNull HyperlinkEvent e) {
-                                                          String url = e.getDescription();
-                                                          log.trace("{}", e.getDescription());
-                                                          if (StringUtils.isBlank(url)) {
-                                                              ProjectSettingsPage configurable = new ProjectSettingsPage();
-                                                              // 打开设置面板
-                                                              ShowSettingsUtil.getInstance().editConfigurable(project, configurable);
-                                                          } else {
-                                                              BrowserUtil.browse(url);
-                                                          }
-                                                          hideBalloon(notification.getBalloon());
-                                                      }
-                                                  }), project);
+        Notification notification = new Notification(MIK_NOTIFICATION_GROUP,
+                                                     "Configurable Error",
+                                                     content,
+                                                     NotificationType.ERROR);
+        // 添加设置动作
+        notification.addAction(new NotificationAction("Configure OSS") {
+            @Override
+            public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
+                ProjectSettingsPage configurable = new ProjectSettingsPage();
+                // 打开设置面板
+                ShowSettingsUtil.getInstance().editConfigurable(project, configurable);
+                notification.expire();
+            }
+        });
+
+        // 保留 hyperlink listener 用于处理 HTML 链接
+        notification.setListener(new NotificationListener.Adapter() {
+            /**
+             * 处理超链接点击事件，根据链接内容执行相应操作
+             * <p>
+             * 当用户点击通知中的超链接时，根据链接描述内容决定是打开浏览器还是跳转到设置面板
+             *
+             * @param notification1 通知对象
+             * @param e             超链接事件对象
+             */
+            @Override
+            protected void hyperlinkActivated(@NotNull Notification notification1, @NotNull HyperlinkEvent e) {
+                String url = e.getDescription();
+                log.trace("{}", e.getDescription());
+                if (StringUtils.isBlank(url)) {
+                    ProjectSettingsPage configurable = new ProjectSettingsPage();
+                    // 打开设置面板
+                    ShowSettingsUtil.getInstance().editConfigurable(project, configurable);
+                } else {
+                    BrowserUtil.browse(url);
+                }
+                hideBalloon(notification1.getBalloon());
+            }
+        });
+        Notifications.Bus.notify(notification, project);
     }
 }
