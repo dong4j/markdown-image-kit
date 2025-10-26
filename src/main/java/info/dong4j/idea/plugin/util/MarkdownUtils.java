@@ -35,23 +35,29 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Description: </p>
+ * Markdown 工具类
+ * <p>
+ * 提供与 Markdown 文件相关的辅助功能，包括验证文件是否为 Markdown、解析 Markdown 中的图片信息、
+ * 遍历目录获取 Markdown 文件等操作。该类主要用于处理 Markdown 文本中的图片标记，提取图片路径、
+ * 标题、文件名等信息，并支持对图片位置（本地或网络）的判断。
  *
  * @author dong4j
- * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2021.02.14 18:40
- * @since 0.0.1
+ * @version 1.0.0
+ * @date 2025.10.24
+ * @since 1.0.0
  */
+@SuppressWarnings("D")
 @Slf4j
 public final class MarkdownUtils {
-
-
     /**
-     * 通过文件验证是否为 markdown 且是否可写
+     * 判断文件是否为 Markdown 文件且是否可写
+     * <p>
+     * 该方法首先检查传入的文件对象是否为 null，若为 null 则直接返回 false。
+     * 然后判断文件是否为 Markdown 类型，若不是则返回 false。
+     * 最后判断文件是否可写，返回对应的布尔值。
      *
-     * @param file the file
-     * @return the boolean
+     * @param file 文件对象
+     * @return 如果文件是 Markdown 且可写，返回 true；否则返回 false
      * @since 0.0.1
      */
     @Contract("null -> false")
@@ -68,10 +74,12 @@ public final class MarkdownUtils {
     }
 
     /**
-     * Is mardown file boolean.
+     * 判断给定文件是否为Markdown文件
+     * <p>
+     * 通过检查文件类型或文件名后缀来判断是否为Markdown文件
      *
-     * @param file the file
-     * @return the boolean
+     * @param file 要判断的文件对象
+     * @return 如果是Markdown文件返回true，否则返回false
      * @since 0.0.1
      */
     private static boolean isMardownFile(PsiFile file) {
@@ -80,10 +88,12 @@ public final class MarkdownUtils {
     }
 
     /**
-     * Is mardown file boolean.
+     * 判断给定的文件是否为Markdown文件
+     * <p>
+     * 通过检查文件类型名称或文件名后缀来判断是否为Markdown文件
      *
-     * @param file the file
-     * @return the boolean
+     * @param file 文件对象
+     * @return 如果是Markdown文件返回true，否则返回false
      * @since 0.0.1
      */
     public static boolean isMardownFile(VirtualFile file) {
@@ -92,12 +102,14 @@ public final class MarkdownUtils {
     }
 
     /**
-     * 解析每一行数据, 是有效的 Image mark 才解析
+     * 解析文件中的每一行数据，仅对有效的图片标记进行解析
+     * <p>
+     * 遍历文档中的每一行文本，检查是否为有效的图片标记。如果是，则解析并添加到结果列表中。
      *
-     * @param project     the project           当前项目
-     * @param document    the document          当前文本
-     * @param virtualFile the virtual file      当前处理的文件
-     * @return the list
+     * @param project     当前项目对象
+     * @param document    当前处理的文档对象
+     * @param virtualFile 当前处理的虚拟文件对象
+     * @return 包含解析出的图片标记对象的列表
      * @since 0.0.1
      */
     private static List<MarkdownImage> getImageInfoFromFiles(Project project, Document document, VirtualFile virtualFile) {
@@ -128,12 +140,16 @@ public final class MarkdownUtils {
     }
 
     /**
-     * 不使用正则, 因为需要记录偏移量
+     * 分析Markdown图片标记信息
+     * <p>
+     * 该方法用于解析Markdown文本中的图片标记，提取文件名、行号、偏移量、标题、路径等信息，并根据路径类型设置图片位置为网络或本地。
+     * 若文本中包含HTML标签<a>，则调整偏移量以匹配HTML结构。同时根据图片标记类型设置图片类型为大图、普通图或自定义。
      *
-     * @param virtualFile the virtual file 当前处理的文件
-     * @param lineText    the line text    当前处理的文本行
-     * @param line        the line         在文本中的行数
-     * @return the markdown image
+     * @param virtualFile 当前处理的文件
+     * @param lineText    当前处理的文本行
+     * @param line        文本中的行号
+     * @return 解析后的Markdown图片对象，若解析失败则返回null
+     * @throws IOException 在读取文件或处理路径时可能抛出的异常
      * @since 0.0.1
      */
     @Nullable
@@ -209,11 +225,13 @@ public final class MarkdownUtils {
     }
 
     /**
-     * 是否为有效的 markdown image 标签
+     * 判断给定的字符串是否为非法的 markdown 图片标签
+     * <p>
+     * 该方法会检查字符串是否符合 markdown 图片标签的格式，并验证相关路径和文件是否存在。
      *
-     * @param project the project
-     * @param mark    the mark
-     * @return the boolean
+     * @param project 项目对象，用于文件查找
+     * @param mark    要检查的字符串内容
+     * @return 如果是非法的 markdown 图片标签，返回 true；否则返回 false
      * @since 0.0.1
      */
     public static boolean illegalImageMark(Project project, String mark) {
@@ -251,10 +269,12 @@ public final class MarkdownUtils {
     }
 
     /**
-     * 从 mark 中获取图片名称
+     * 从 markdown 标签中提取图片名称
+     * <p>
+     * 根据传入的 markdown 图片标签，解析并获取图片名称。支持两种图片路径格式：以 {@link ImageContents#IMAGE_LOCATION} 开头的路径和系统文件路径。
      *
-     * @param mark the mark     必须是正确的 markdown image 标签
-     * @return the string
+     * @param mark markdown 图片标签，必须是有效的 markdown 图片语法格式
+     * @return 提取的图片名称，若解析失败或路径为空则返回空字符串
      * @since 0.0.1
      */
     @NotNull
@@ -279,10 +299,12 @@ public final class MarkdownUtils {
     }
 
     /**
-     * Get image path string.
+     * 根据标记字符串获取图片路径
+     * <p>
+     * 从传入的标记字符串中提取图片路径部分，若标记字符串为空或不合规，则返回空字符串
      *
-     * @param mark the mark
-     * @return the string
+     * @param mark 标记字符串，用于提取图片路径
+     * @return 提取后的图片路径字符串
      * @since 0.0.1
      */
     @NotNull
@@ -296,10 +318,13 @@ public final class MarkdownUtils {
     }
 
     /**
-     * Resolve text int [ ].
+     * 解析文本并返回图像标记的起始和结束偏移量
+     * <p>
+     * 该方法用于识别文本中的图像标记格式，并返回其起始和结束位置的偏移量。
+     * 支持的图像标记格式为：'!['...']('...')'，方法会查找该格式中的起始和结束位置。
      *
-     * @param lineText the line text
-     * @return the int [ ]
+     * @param lineText 要解析的文本内容
+     * @return 图像标记的起始和结束偏移量数组，若未找到有效标记则返回 null
      * @since 0.0.1
      */
     @Nullable
@@ -335,10 +360,12 @@ public final class MarkdownUtils {
     }
 
     /**
-     * 递归遍历目录, 返回所有 markdown 文件
+     * 递归遍历目录，收集所有Markdown文件
+     * <p>
+     * 该方法通过递归方式遍历指定目录及其子目录，筛选出所有Markdown文件并添加到结果列表中。
      *
-     * @param virtualFile the virtual file
-     * @return the list
+     * @param virtualFile 要遍历的虚拟文件对象，代表目录起点
+     * @return 包含所有Markdown文件的列表
      * @since 0.0.1
      */
     private static List<VirtualFile> recursivelyMarkdownFile(VirtualFile virtualFile) {
@@ -374,12 +401,13 @@ public final class MarkdownUtils {
 
     /**
      * 获取需要处理的 markdown 信息
-     * Document --> 需要处理的文档
-     * List<MarkdownImage> --> 文档中解析后的 markdown image 信息
+     * <p>
+     * 根据当前选中的编辑器或文件列表，解析其中的 markdown 文档，并提取其中的图片信息。
+     * 支持从单个编辑器文档或多个选中的文件/目录中获取 markdown 图片信息。
      *
-     * @param event   the event
-     * @param project the project
-     * @return the process markdown info    markdown image 信息
+     * @param event   事件对象，用于获取当前选中的编辑器或文件信息
+     * @param project 项目对象，用于获取项目基础路径和相关资源
+     * @return 包含文档与对应 markdown 图片信息的映射
      * @since 0.0.1
      */
     public static Map<Document, List<MarkdownImage>> getProcessMarkdownInfo(@NotNull AnActionEvent event,

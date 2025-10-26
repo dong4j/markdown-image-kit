@@ -32,21 +32,25 @@ import javax.swing.Icon;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Description: 图像压缩 </p>
+ * 图像压缩操作类
+ * <p>
+ * 该类用于处理图像压缩相关的操作，继承自 ImageActionBase，主要负责构建图像压缩处理链，包括压缩、重命名、替换原图等操作，并在处理完成后触发回调。
+ * <p>
+ * 支持通过事件驱动的方式执行图像处理任务，适用于在 IDE 中对 Markdown 文件中的图像进行批量处理的场景。
  *
  * @author dong4j
  * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2021.02.14 18:40
+ * @date 2021.02.14
  * @since 0.0.1
  */
 @Slf4j
 public final class ImageCompressAction extends ImageActionBase {
-
     /**
-     * Gets icon *
+     * 获取图标
+     * <p>
+     * 返回当前类所使用的图标
      *
-     * @return the icon
+     * @return 图标对象
      * @since 0.0.1
      */
     @Contract(pure = true)
@@ -56,10 +60,14 @@ public final class ImageCompressAction extends ImageActionBase {
     }
 
     /**
-     * Build chain
+     * 构建处理链，用于执行图片相关的处理任务
+     * <p>
+     * 该方法根据给定的事件和等待处理的图片映射关系，创建一个包含多个处理步骤的链式结构。
+     * 处理步骤包括图片压缩、图片重命名、替换原图以及处理完成后的 VFS 刷新操作。
+     * 最后将构建好的处理链作为后台任务提交执行。
      *
-     * @param event             event
-     * @param waitingProcessMap waiting process map
+     * @param event             事件对象，包含触发处理的上下文信息
+     * @param waitingProcessMap 等待处理的图片映射关系，键为文档对象，值为图片列表
      * @since 0.0.1
      */
     @Override
@@ -76,11 +84,27 @@ public final class ImageCompressAction extends ImageActionBase {
             .addHandler(new ImageRenameHandler())
             // 替换
             .addHandler(new ActionHandlerAdapter() {
+                /**
+                 * 获取名称信息
+                 * <p>
+                 * 返回一个固定的名称字符串"替换原图"
+                 *
+                 * @return 名称字符串
+                 */
                 @Override
                 public String getName() {
                     return "替换原图";
                 }
 
+                /**
+                 * 处理Markdown图片的回调方法，将图片流写入指定路径
+                 * <p>
+                 * 该方法接收事件数据、图片迭代器和具体的Markdown图片对象，通过读取图片流并写入文件系统实现图片存储
+                 *
+                 * @param data          事件数据
+                 * @param imageIterator 图片迭代器
+                 * @param markdownImage 具体的Markdown图片对象
+                 */
                 @Override
                 public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
                     InputStream inputStream = markdownImage.getInputStream();
@@ -94,6 +118,14 @@ public final class ImageCompressAction extends ImageActionBase {
             .addHandler(new FinalChainHandler())
             // 处理完成后刷新 VFS
             .addCallback(new TaskCallbackAdapter() {
+                /**
+                 * 处理成功回调
+                 * <p>
+                 * 在异步操作成功时执行，用于记录日志并刷新 VFS，确保新增的图片能够及时显示
+                 *
+                 * @author [作者姓名]
+                 * @since 1.0
+                 */
                 @Override
                 public void onSuccess() {
                     log.trace("Success callback");

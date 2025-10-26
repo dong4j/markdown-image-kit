@@ -23,21 +23,28 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Description: 保存图片操作 </p>
+ * 图片存储处理类
+ * <p>
+ * 用于处理文档中图片的保存操作，支持从输入流中复制图片到指定路径，并更新相关图片信息。
+ * 该类继承自 ActionHandlerAdapter，主要用于在文档编辑过程中执行图片保存逻辑。
+ * <p>
+ * 主要功能包括：获取操作名称、判断是否启用、执行保存操作。
+ * 在执行过程中，会遍历等待处理的图片集合，逐个复制图片并设置保存路径、图片标记类型、位置等信息。
+ * 若保存失败，则设置错误标记并保留原始信息。
  *
  * @author dong4j
- * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2021.02.14 18:40
- * @since 0.0.1
+ * @version 1.0.0
+ * @date 2025.10.24
+ * @since 1.0.0
  */
 @Slf4j
 public class ImageStorageHandler extends ActionHandlerAdapter {
-
     /**
-     * Gets name *
+     * 获取名称
+     * <p>
+     * 返回预定义的名称字符串，用于表示存储操作的标题
      *
-     * @return the name
+     * @return 名称字符串
      * @since 0.0.1
      */
     @Override
@@ -46,10 +53,12 @@ public class ImageStorageHandler extends ActionHandlerAdapter {
     }
 
     /**
-     * Is enabled
+     * 判断是否启用功能
+     * <p>
+     * 根据传入的事件数据判断当前功能是否启用，实际通过检查STATE对象的copyToDir属性值来确定。
      *
-     * @param data data
-     * @return the boolean
+     * @param data 事件数据
+     * @return 是否启用功能
      * @since 0.0.1
      */
     @Override
@@ -58,12 +67,15 @@ public class ImageStorageHandler extends ActionHandlerAdapter {
     }
 
     /**
-     * Execute
+     * 执行处理逻辑，将 Markdown 图片保存为本地文件并更新相关属性
+     * <p>
+     * 该方法从传入的 EventData 中获取待处理的图片信息，依次处理每张图片，将其从输入流中保存为本地文件。
+     * 处理过程中会更新图片的路径、标记类型、位置等信息，并在出现异常时设置相应的错误标记。
      *
-     * @param data data
-     * @return the boolean
-     * @since 0.0.1
+     * @param data 包含处理所需数据的事件数据对象，包含待处理图片信息、进度指示器等
+     * @return 始终返回 true，表示处理成功
      */
+    @SuppressWarnings("D")
     @Override
     public boolean execute(EventData data) {
         ProgressIndicator indicator = data.getIndicator();

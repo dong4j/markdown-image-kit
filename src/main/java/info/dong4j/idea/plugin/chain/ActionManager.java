@@ -20,31 +20,39 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Description: </p>
+ * ActionManager
+ * <p>
+ * 用于管理动作处理链的工具类，支持添加处理节点和回调，并提供执行动作链的方法。该类主要用于处理一系列需要按顺序执行的业务逻辑，例如文件上传、数据处理等场景。
+ * <p>
+ * 该类使用责任链模式（Chain of Responsibility Pattern）来组织多个处理节点，每个节点可以决定是否处理当前数据，并在处理失败时中断链式调用。
+ * <p>
+ * 提供了构建上传链和迁移链的静态方法，方便快速创建特定业务场景下的处理流程。
  *
  * @author dong4j
  * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2021.02.14 18:40
+ * @date 2021.02.14
  * @since 0.0.1
  */
 @Slf4j
 public class ActionManager {
-    /** Handlers chain */
+    /** 处理器链，用于按顺序执行一系列动作处理器 */
     private final List<IActionHandler> handlersChain = new LinkedList<>();
-    /** Callbacks */
+    /** 回调函数列表，用于存储任务执行后的回调操作 */
+    @Getter
     private final List<TaskCallback> callbacks = new ArrayList<>();
-
-    /** Data */
+    /** 事件数据对象，用于封装事件相关的信息 */
     private final EventData data;
 
     /**
-     * Instantiates a new Action manager.
+     * 初始化一个新的 ActionManager 实例。
+     * <p>
+     * 通过传入的 EventData 对象进行初始化，用于管理事件相关的操作。
      *
-     * @param data the data
+     * @param data 事件数据对象，用于初始化 ActionManager
      * @since 0.0.1
      */
     public ActionManager(EventData data) {
@@ -52,10 +60,12 @@ public class ActionManager {
     }
 
     /**
-     * Add handler action manager.
+     * 添加处理器动作管理器
+     * <p>
+     * 将指定的处理器添加到处理器链中，并返回当前动作管理器实例，支持链式调用
      *
-     * @param handler the handler
-     * @return the action manager
+     * @param handler 要添加的处理器对象
+     * @return 当前动作管理器实例，支持链式调用
      * @since 0.0.1
      */
     public ActionManager addHandler(IActionHandler handler) {
@@ -64,20 +74,12 @@ public class ActionManager {
     }
 
     /**
-     * Get callbacks list.
+     * 添加回调操作管理器
+     * <p>
+     * 将指定的回调对象添加到回调列表中，并返回当前操作管理器实例
      *
-     * @return the list
-     * @since 0.0.1
-     */
-    public List<TaskCallback> getCallbacks() {
-        return this.callbacks;
-    }
-
-    /**
-     * Add callback action manager.
-     *
-     * @param callback the callback
-     * @return the action manager
+     * @param callback 要添加的回调对象
+     * @return 当前 ActionManager 实例，支持方法链式调用
      * @since 0.0.1
      */
     public ActionManager addCallback(TaskCallback callback) {
@@ -86,10 +88,11 @@ public class ActionManager {
     }
 
     /**
-     * Invoke.
+     * 执行处理链中的各个处理器
+     * <p>
+     * 遍历处理器链，依次调用每个启用的处理器，并更新进度指示器的状态
      *
-     * @param indicator the indicator
-     * @since 0.0.1
+     * @param indicator 进度指示器，用于显示处理进度和当前处理的处理器名称
      */
     public void invoke(ProgressIndicator indicator) {
         int totalProcessed = 0;
@@ -110,10 +113,12 @@ public class ActionManager {
     }
 
     /**
-     * Build upload chain action manager.
+     * 构建上传流程的动作管理器
+     * <p>
+     * 根据传入的事件数据创建一个包含多个处理步骤的动作管理器，用于处理文件上传的完整流程。
      *
-     * @param data the data
-     * @return the action manager
+     * @param data 事件数据
+     * @return 动作管理器实例
      * @since 0.0.1
      */
     public static ActionManager buildUploadChain(EventData data) {
@@ -137,14 +142,15 @@ public class ActionManager {
 
     /**
      * 生成图床迁移任务
-     * 右键批量迁移和意图迁移需要的解析不同的数据
-     * 右键批量迁移是直接解析当前文件中的图片标签, 只需要处理用户指定的标签,其他全部过滤点
-     * 意图迁移只需要解析光标所在行的标签, 当标签所在图床与设置图床一致则不处理
+     * <p>
+     * 根据EventData构建一个用于图床迁移的ActionManager，处理不同迁移场景下的图片标签解析逻辑。
+     * 右键批量迁移和意图迁移需要不同的数据解析方式：右键批量迁移直接解析当前文件中的图片标签，仅处理用户指定的标签；意图迁移则解析光标所在行的标签，若标签所在图床与设置图床一致则跳过处理。
      *
-     * @param data the data
-     * @return the action manager
+     * @param data 用于迁移操作的事件数据
+     * @return 构建完成的ActionManager实例
      * @since 0.0.1
      */
+    @SuppressWarnings("D")
     public static ActionManager buildMoveImageChain(EventData data) {
         // 过滤掉 LOCAL 和用户输入不匹配的标签
         ResolveMarkdownFileHandler resolveMarkdownFileHandler = new ResolveMarkdownFileHandler();

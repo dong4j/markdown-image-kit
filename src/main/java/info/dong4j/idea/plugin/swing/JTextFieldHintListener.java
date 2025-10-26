@@ -10,25 +10,30 @@ import java.awt.event.FocusListener;
 import javax.swing.JTextField;
 
 /**
- * <p>Description: </p>
+ * JTextFieldHintListener 类
+ * <p>
+ * 用于为 JTextField 添加提示文本（hint text）功能，当文本框获得焦点时清除提示文本，失去焦点时若为空则恢复提示文本。
+ * 支持初始化和获取真实文本的功能，适用于需要输入提示的图形界面场景。
+ * </p>
  *
  * @author dong4j
- * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2019.03.14 10:38
+ * @version 1.0.0
+ * @date 2025.10.24
  * @since 0.0.1
  */
 public class JTextFieldHintListener implements FocusListener {
-    /** Hint text */
+    /** 提示文本 */
     private final String hintText;
-    /** Text field */
+    /** 文本输入框，用于用户输入文本内容 */
     private final JTextField textField;
 
     /**
-     * J text field hint listener
+     * 初始化文本字段的提示监听器
+     * <p>
+     * 该构造函数用于创建一个文本字段的提示监听器，设置文本字段和提示文本，并初始化相关功能。
      *
-     * @param jTextField j text field
-     * @param hintText   hint text
+     * @param jTextField 文本字段对象
+     * @param hintText   提示文本内容
      * @since 0.0.1
      */
     public JTextFieldHintListener(JTextField jTextField, String hintText) {
@@ -38,10 +43,11 @@ public class JTextFieldHintListener implements FocusListener {
     }
 
     /**
-     * 焦点获得
+     * 当组件获得焦点时触发，用于清空输入框中的提示内容
+     * <p>
+     * 如果输入框中的文本与提示内容相同，则清空文本并恢复默认字体颜色
      *
-     * @param e e
-     * @since 0.0.1
+     * @param e 事件对象，包含焦点变化的相关信息
      */
     @Override
     public void focusGained(FocusEvent e) {
@@ -54,9 +60,11 @@ public class JTextFieldHintListener implements FocusListener {
     }
 
     /**
-     * 焦点失去
+     * 处理文本框失去焦点事件
+     * <p>
+     * 当文本框失去焦点且未输入内容时，将文本框文字设置为提示内容，并显示为灰色字体
      *
-     * @param e e
+     * @param e 焦点事件对象
      * @since 0.0.1
      */
     @Override
@@ -70,10 +78,12 @@ public class JTextFieldHintListener implements FocusListener {
     }
 
     /**
-     * Init
+     * 初始化文本字段，设置默认提示文本和灰色字体颜色
+     * <p>
+     * 如果文本字段内容为空，则设置提示文本并将其字体颜色设置为灰色
      *
-     * @param jTextField j text field
-     * @param hintText   hint text
+     * @param jTextField 要初始化的文本字段
+     * @param hintText   提示文本内容
      * @since 1.4.0
      */
     public static void init(JTextField jTextField, String hintText) {
@@ -85,11 +95,13 @@ public class JTextFieldHintListener implements FocusListener {
     }
 
     /**
-     * 获取真实的 text
+     * 获取真实的文本内容
+     * <p>
+     * 该方法用于获取文本字段中实际输入的文本内容，若输入内容与提示文本相同，则返回空字符串。
      *
-     * @param jTextField j text field
-     * @param hintText   hint text
-     * @return the string
+     * @param jTextField 文本字段对象
+     * @param hintText   提示文本
+     * @return 实际输入的文本内容，若与提示文本相同则返回空字符串
      * @since 1.4.0
      */
     public static String getRealText(JTextField jTextField, String hintText) {

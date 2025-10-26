@@ -12,30 +12,39 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 /**
- * <p>Description:  </p>
+ * 微博OSS设置类
+ * <p>
+ * 用于管理微博OSS相关的认证配置，包括初始化、应用和重置设置功能。该类实现了OssSetting接口，用于处理微博OSS状态与界面组件之间的绑定和同步。
+ * <p>
+ * 主要功能包括：
+ * - 根据状态初始化微博用户名和密码字段
+ * - 检查当前设置是否与给定状态有差异
+ * - 应用当前设置到状态对象
+ * - 重置设置为指定状态的值
  *
  * @author dong4j
  * @version 1.0.0
- * @email "mailto:dong4j@fkhwl.com"
- * @date 2021.02.17 13:31
+ * @date 2025.10.24
  * @since 1.4.0
  */
 public class WeiboOssSetting implements OssSetting<WeiboOssState> {
-    /** CREDENTIAL_ATTRIBUTES */
+    /** CREDENTIAL_ATTRIBUTES 表示微博 OSS 设置的凭证属性，用于标识和管理密码相关配置 */
     public static final CredentialAttributes CREDENTIAL_ATTRIBUTES =
         PasswordManager.buildCredentialAttributes(WeiboOssSetting.class.getName(),
                                                   "WEIBOOSS_SETTINGS_PASSWORD_KEY",
                                                   WeiboOssSetting.class);
-    /** Weibo user name text field */
+    /** 微博用户名输入框 */
     private final JTextField weiboUserNameTextField;
-    /** Weibo password field */
+    /** 微博密码字段 */
     private final JPasswordField weiboPasswordField;
 
     /**
-     * Weibo oss setting
+     * 初始化微博OSS设置对象，绑定用户名和密码的文本字段
+     * <p>
+     * 该构造函数用于设置微博OSS配置所需的用户名和密码输入框，以便后续获取用户输入的值。
      *
-     * @param weiboUserNameTextField weibo user name text field
-     * @param weiboPasswordField     weibo password field
+     * @param weiboUserNameTextField 微博用户名输入框
+     * @param weiboPasswordField     微博密码输入框
      * @since 1.4.0
      */
     public WeiboOssSetting(JTextField weiboUserNameTextField,
@@ -46,9 +55,11 @@ public class WeiboOssSetting implements OssSetting<WeiboOssState> {
     }
 
     /**
-     * 初始化 weibo oss 认证相关设置
+     * 初始化微博OSS认证相关设置
+     * <p>
+     * 设置微博用户名和密码字段的值，用于OSS认证配置
      *
-     * @param weiboOssState weibo oss state
+     * @param weiboOssState 微博OSS认证状态对象，包含用户名和密码信息
      * @since 0.0.1
      */
     @Override
@@ -58,10 +69,12 @@ public class WeiboOssSetting implements OssSetting<WeiboOssState> {
     }
 
     /**
-     * Is modified
+     * 判断当前微博状态是否已修改
+     * <p>
+     * 比较当前输入的微博用户名和密码与给定状态中的值，判断是否发生修改
      *
-     * @param state state
-     * @return the boolean
+     * @param state 待比较的微博状态对象
+     * @return 如果当前状态与给定状态一致，返回 true；否则返回 false
      * @since 1.4.0
      */
     @Override
@@ -74,9 +87,11 @@ public class WeiboOssSetting implements OssSetting<WeiboOssState> {
     }
 
     /**
-     * Apply weibo auth configs
+     * 应用微博授权配置
+     * <p>
+     * 处理微博授权配置的保存逻辑，包括获取用户名和密码、计算哈希值并保存状态。
      *
-     * @param state state
+     * @param state 微博授权状态对象
      * @since 0.0.1
      */
     @Override
@@ -93,9 +108,11 @@ public class WeiboOssSetting implements OssSetting<WeiboOssState> {
     }
 
     /**
-     * Reset
+     * 重置界面状态为指定的微博OSS状态
+     * <p>
+     * 根据传入的WeiboOssState对象，设置用户名和密码字段的值
      *
-     * @param state state
+     * @param state 微博OSS状态对象，包含用户名和密码信息
      * @since 1.4.0
      */
     @Override

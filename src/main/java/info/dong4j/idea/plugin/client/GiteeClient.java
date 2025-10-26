@@ -17,16 +17,14 @@ import java.io.InputStream;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Description: oss client 实现步骤:
- * 1. 初始化配置: 从持久化配置中初始化 client
- * 2. 静态内部类获取 client 单例
- * 3. 实现 OssClient 接口
- * 4. 自定义 upload 逻辑</p>
+ * Gitee 客户端实现类
+ * <p>
+ * 用于与 Gitee 平台进行交互，提供文件上传、获取客户端实例、构建图片 URL 等功能。该类通过静态内部类实现单例模式，确保全局唯一实例。支持从持久化配置中初始化客户端配置，并实现 OssClient 接口定义的方法。
+ * </p>
  *
  * @author dong4j
  * @version 1.0.0
- * @email "mailto:dong4j@gmail.com"
- * @date 2020.04.22 01:17
+ * @date 2020.04.22
  * @since 1.4.0
  */
 @Slf4j
@@ -38,8 +36,10 @@ public class GiteeClient extends AbstractOpenClient {
     }
 
     /**
-     * 如果是第一次使用, ossClient == null, 使用持久化配置初始化
-     * 1. 如果是第一次设置, 获取的持久化配置为 null, 则初始化 ossClient 失败
+     * 初始化 GiteeOss 相关配置信息
+     * <p>
+     * 该方法用于在首次使用时初始化 ossClient，若持久化配置未设置或为空，则初始化失败。
+     * 从持久化组件中获取 GiteeOss 的状态信息，包括仓库地址、分支、访问令牌以及文件目录。
      *
      * @since 1.4.0
      */
@@ -53,9 +53,11 @@ public class GiteeClient extends AbstractOpenClient {
     }
 
     /**
-     * Gets instance.
+     * 获取 GiteeClient 实例
+     * <p>
+     * 该方法用于获取 GiteeClient 的单例实例，若实例不存在则创建并缓存。
      *
-     * @return the instance
+     * @return GiteeClient 实例
      * @since 1.4.0
      */
     @Contract(pure = true)
@@ -69,9 +71,11 @@ public class GiteeClient extends AbstractOpenClient {
     }
 
     /**
-     * Gets client *
+     * 获取客户端实例
+     * <p>
+     * 返回当前配置的客户端对象，该方法用于获取与当前上下文关联的客户端实例
      *
-     * @return the client
+     * @return 客户端实例
      * @since 1.3.0
      */
     @Override
@@ -80,9 +84,11 @@ public class GiteeClient extends AbstractOpenClient {
     }
 
     /**
-     * Gets state *
+     * 获取当前组件的状态信息
+     * <p>
+     * 通过获取MikPersistenComponent实例的状态，返回GiteeOss相关的状态对象
      *
-     * @return the state
+     * @return 当前组件的状态对象
      * @since 1.3.0
      */
     @Override
@@ -91,11 +97,13 @@ public class GiteeClient extends AbstractOpenClient {
     }
 
     /**
-     * Put objects
+     * 将对象以指定的键存储到远程仓库
+     * <p>
+     * 通过给定的键和输入流，将数据上传至远程仓库
      *
-     * @param key      key
-     * @param instream instream
-     * @since 1.3.0
+     * @param key      存储数据的键
+     * @param instream 存储数据的输入流
+     * @throws Exception 如果存储过程中发生异常
      */
     @Override
     protected void putObjects(String key, InputStream instream) throws Exception {
@@ -107,23 +115,27 @@ public class GiteeClient extends AbstractOpenClient {
     }
 
     /**
-     * 使用缓存的 map 映射获取已初始化的 client, 避免创建多个实例
+     * 单例模式处理类
+     * <p>
+     * 用于确保 GiteeClient 实例在整个应用中只有一个，通过静态内部类实现延迟加载和线程安全。
+     * 使用缓存的 map 映射获取已初始化的 client，避免创建多个实例。
      *
      * @author dong4j
-     * @version 0.0.1
-     * @email "mailto:dong4j@gmail.com"
-     * @date 2020.04.22 01:17
+     * @version 1.0.0
+     * @date 2025.10.24
      * @since 1.4.0
      */
     private static class SingletonHandler {
-        /** SINGLETON */
+        /** 单例模式实例，用于全局访问 GiteeClient 对象 */
         private static final GiteeClient SINGLETON = new GiteeClient();
     }
 
     /**
-     * 实现接口, 获取当前 client type
+     * 实现接口，获取当前客户端类型
+     * <p>
+     * 返回当前客户端所对应的云平台类型枚举值
      *
-     * @return the cloud typed
+     * @return 云平台类型枚举值
      * @since 1.4.0
      */
     @Override
@@ -132,10 +144,12 @@ public class GiteeClient extends AbstractOpenClient {
     }
 
     /**
-     * Build image url
+     * 构建图片的URL地址
+     * <p>
+     * 根据提供的key参数拼接并返回图片的完整访问URL
      *
-     * @param key key
-     * @return the string
+     * @param key 图片的路径或标识符
+     * @return 图片的完整URL字符串
      * @since 1.4.0
      */
     @Override

@@ -3,21 +3,27 @@ package info.dong4j.idea.plugin.util;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serial;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <p>Description:替换字符串中 ${} 或者 {} 等占位符的工具类</p>
+ * 字符串解析工具类
+ * <p>
+ * 提供字符串中占位符的解析功能，支持多种占位符格式，如 ${}、{}、$ {title}、$ {path} 以及 ![xxx](yyy) 等。
+ * 可用于模板字符串的动态替换和图片标签的解析。
  *
  * @author dong4j
  * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2018.08.15 10:27
+ * @date 2018.08.15
  * @since 0.0.1
  */
+@SuppressWarnings("D")
 public final class ParserUtils {
     /**
-     * Parser utils
+     * 禁止实例化工具类
+     * <p>
+     * 该构造函数用于防止外部实例化 ParserUtils 工具类，确保其作为静态工具类使用。
      *
      * @since 0.0.1
      */
@@ -28,10 +34,12 @@ public final class ParserUtils {
 
     /**
      * 解析使用 ${} 的占位符
+     * <p>
+     * 将文本中的 ${} 占位符替换为对应的参数值
      *
-     * @param text the text
-     * @param args the args
-     * @return the string
+     * @param text 要解析的文本
+     * @param args 用于替换占位符的参数列表
+     * @return 替换后的字符串
      * @since 0.0.1
      */
     public static String parse0(String text, Object... args) {
@@ -40,12 +48,14 @@ public final class ParserUtils {
 
     /**
      * 将字符串text中由openToken和closeToken组成的占位符依次替换为args数组中的值
+     * <p>
+     * 该方法用于解析并替换字符串中的占位符。通过查找openToken和closeToken之间的内容，并用args数组中的对应值进行替换。支持转义字符，即当占位符前有反斜杠时，反斜杠会被忽略。
      *
-     * @param openToken  the open token     占位符开始
-     * @param closeToken the close token    占位符结束
-     * @param text       the text           包含占位符的字符串
-     * @param args       the args           被替换的参数
-     * @return string string
+     * @param openToken  占位符开始的标记
+     * @param closeToken 占位符结束的标记
+     * @param text       包含占位符的原始字符串
+     * @param args       用于替换占位符的参数数组
+     * @return 替换后的字符串
      * @since 0.0.1
      */
     @Contract("_, _, _, null -> param3")
@@ -115,11 +125,14 @@ public final class ParserUtils {
     }
 
     /**
-     * 解析使用 {} 的占位符
+     * 解析包含 {} 占位符的文本，并用提供的参数替换占位符
+     * <p>
+     * 该方法用于处理类似 "Hello {0}" 的格式化字符串，将其中的 {0}、{1} 等占位符
+     * 替换为对应的参数值。
      *
-     * @param text the text
-     * @param args the args
-     * @return the string
+     * @param text 要解析的文本，其中包含占位符
+     * @param args 用于替换占位符的参数列表
+     * @return 替换后的字符串
      * @since 0.0.1
      */
     public static String parse1(String text, Object... args) {
@@ -127,12 +140,14 @@ public final class ParserUtils {
     }
 
     /**
-     * Parse 2 string.
+     * 将模板字符串中的占位符替换为实际值
+     * <p>
+     * 该方法用于替换字符串中的 ${title} 和 ${path} 占位符为传入的对应参数值
      *
-     * @param text  the text
-     * @param title the title
-     * @param path  the path
-     * @return the string
+     * @param text  模板字符串
+     * @param title 替换 ${title} 的实际值
+     * @param path  替换 ${path} 的实际值
+     * @return 替换后的字符串
      * @since 0.0.1
      */
     public static String parse2(String text, String title, String path) {
@@ -140,10 +155,13 @@ public final class ParserUtils {
     }
 
     /**
-     * 解析 ![xxx](yyy)
+     * 解析图片标签 ![xxx](yyy)
+     * <p>
+     * 从给定的文本中提取图片描述和文件路径，返回包含这两个键值对的Map。
      *
-     * @param text the text
-     * @return the map describe = xxx; file = yyy
+     * @param text 要解析的文本内容
+     * @return 包含描述和文件路径的Map，键为"describe"，值为xxx；键为"file"，值为yyy
+     * @throws IllegalArgumentException 如果文本格式不正确，无法解析图片标签
      * @since 0.0.1
      */
     @NotNull
@@ -155,6 +173,8 @@ public final class ParserUtils {
         String describe = text.substring(start + 2, end);
         String file = text.substring(text.indexOf("(") + 1, text.indexOf(")"));
         return new HashMap<String, String>(1) {
+            /** 序列化版本号，用于确保类的兼容性 */
+            @Serial
             private static final long serialVersionUID = 6465853189583120987L;
 
             {

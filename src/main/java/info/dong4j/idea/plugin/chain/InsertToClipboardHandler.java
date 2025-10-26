@@ -13,20 +13,24 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * <p>Description: 将直接上传 image 后的 url 写入到 clipboard</p>
+ * 将直接上传的图片 URL 写入剪贴板的处理类
+ * <p>
+ * 该类用于处理将图片 URL 写入系统剪贴板的操作，通常在用户上传图片后触发。它通过遍历待处理的图片数据，将每张图片的标记信息拼接成字符串，并最终写入剪贴板。
+ * <p>
+ * 该类继承自 ActionHandlerAdapter，实现了 execute 方法以执行具体操作。
  *
  * @author dong4j
  * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2021.02.14 18:40
+ * @date 2021.02.14
  * @since 0.0.1
  */
 public class InsertToClipboardHandler extends ActionHandlerAdapter {
-
     /**
-     * Gets name *
+     * 获取名称
+     * <p>
+     * 返回预定义的名称字符串，用于表示当前操作的标题
      *
-     * @return the name
+     * @return 名称字符串
      * @since 0.0.1
      */
     @Override
@@ -35,11 +39,13 @@ public class InsertToClipboardHandler extends ActionHandlerAdapter {
     }
 
     /**
-     * Execute
+     * 执行处理逻辑，处理等待处理的Markdown图片并更新进度指示器
+     * <p>
+     * 该方法从事件数据中获取需要处理的Markdown图片，逐个处理并更新进度指示器。
+     * 处理完成后，将生成的标记内容复制到剪贴板。
      *
-     * @param data data
-     * @return the boolean
-     * @since 0.0.1
+     * @param data 事件数据，包含需要处理的Markdown图片和进度指示器等信息
+     * @return 始终返回true，表示处理成功
      */
     @Override
     public boolean execute(EventData data) {

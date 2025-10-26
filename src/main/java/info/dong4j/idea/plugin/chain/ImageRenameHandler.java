@@ -18,24 +18,27 @@ import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Description: 图片文件重命名</p>
+ * 图片文件重命名处理类
+ * <p>
+ * 用于处理图片文件的重命名逻辑，根据配置信息对图片名称进行格式化和替换操作，支持日期格式、随机字符串等多种重命名策略。
+ * 该类继承自 ActionHandlerAdapter，用于在特定事件触发时执行图片重命名操作。
  *
  * @author dong4j
  * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2021.02.14 18:40
+ * @date 2021.02.14
  * @since 0.0.1
  */
 @Slf4j
 public class ImageRenameHandler extends ActionHandlerAdapter {
-
-    /** PREFIX */
+    /** 用于标识消息前缀的常量，固定值为 "MIK-" */
     private static final String PREFIX = "MIK-";
 
     /**
-     * Gets name *
+     * 获取名称
+     * <p>
+     * 返回与 "mik.action.rename.title" 关键字关联的名称信息
      *
-     * @return the name
+     * @return 名称字符串
      * @since 0.0.1
      */
     @Override
@@ -44,10 +47,12 @@ public class ImageRenameHandler extends ActionHandlerAdapter {
     }
 
     /**
-     * Is enabled
+     * 判断当前状态是否启用
+     * <p>
+     * 根据传入的事件数据判断当前状态是否启用，实际通过STATE对象的isRename方法返回结果
      *
-     * @param data data
-     * @return the boolean
+     * @param data 事件数据
+     * @return 是否启用
      * @since 0.0.1
      */
     @Override
@@ -57,11 +62,12 @@ public class ImageRenameHandler extends ActionHandlerAdapter {
 
     /**
      * 根据配置重新设置 imageName
+     * <p>
+     * 该方法根据当前配置的后缀类型对传入的图片名称进行处理，包括去除空格、添加时间前缀或随机字符串等操作。
      *
-     * @param data          the data
-     * @param imageIterator the image iterator
-     * @param markdownImage the markdown image
-     * @return the boolean
+     * @param data          事件数据对象
+     * @param imageIterator 图片迭代器
+     * @param markdownImage Markdown 图片对象，用于存储处理后的图片名称
      * @since 0.0.1
      */
     @Override

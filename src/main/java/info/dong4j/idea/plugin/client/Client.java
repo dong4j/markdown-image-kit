@@ -9,23 +9,27 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * <p>Description: 通过此注解标识不同的 oss 客户端 </p>
- * {@link info.dong4j.idea.plugin.util.ClientUtils}
+ * 客户端注解
+ * <p>
+ * 用于标识不同的 OSS 客户端类型，通过该注解可以区分和配置不同的客户端实现。
+ * 通常与 {@link info.dong4j.idea.plugin.util.ClientUtils} 工具类配合使用，实现客户端的动态选择和管理。
+ * </p>
  *
  * @author dong4j
- * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2019.03.22 17:17
- * @since 0.0.1
+ * @version 1.0.0
+ * @date 2025.10.24
+ * @since 1.0.0
  */
 @Target( {ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Client {
     /**
-     * Value
+     * 获取云枚举值
+     * <p>
+     * 返回当前对象对应的云枚举值
      *
-     * @return the cloud enum
+     * @return 云枚举
      * @since 0.0.1
      */
     CloudEnum value();

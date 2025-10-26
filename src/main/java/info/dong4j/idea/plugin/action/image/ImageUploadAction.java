@@ -31,20 +31,25 @@ import javax.swing.Icon;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Description: 图片右键直接上传</p>
+ * 图片右键直接上传功能类
+ * <p>
+ * 该类用于实现图片右键直接上传的业务逻辑，继承自 ImageActionBase，主要负责构建上传流程链，处理图片压缩、重命名、选择存储客户端、上传、添加标签、复制到剪贴板等操作，并最终将任务提交到队列中执行。
+ * <p>
+ * 使用该类时，通常通过其继承的基类方法触发，例如在用户右键点击图片时调用相关方法，从而启动上传流程。
  *
  * @author dong4j
- * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2021.02.14 18:40
- * @since 0.0.1
+ * @version 1.0.0
+ * @date 2025.10.24
+ * @since 1.0.0
  */
 @Slf4j
 public final class ImageUploadAction extends ImageActionBase {
     /**
-     * Gets icon *
+     * 获取图标
+     * <p>
+     * 返回一个预定义的图标对象，用于表示调试器的悬停状态。
      *
-     * @return the icon
+     * @return 图标对象
      * @since 0.0.1
      */
     @Contract(pure = true)
@@ -54,11 +59,12 @@ public final class ImageUploadAction extends ImageActionBase {
     }
 
     /**
-     * Build chain
+     * 构建处理链用于执行图片处理任务
+     * <p>
+     * 根据传入的事件和等待处理的图片信息，构建一个处理链，依次执行图片压缩、重命名、客户端处理、上传、标签转换、复制到剪贴板等操作，并将整个处理过程作为后台任务执行。
      *
-     * @param event             event
-     * @param waitingProcessMap waiting process map
-     * @since 0.0.1
+     * @param event             触发事件对象，包含操作上下文信息
+     * @param waitingProcessMap 等待处理的图片信息映射，键为文档对象，值为图片列表
      */
     @Override
     protected void buildChain(AnActionEvent event, Map<Document, List<MarkdownImage>> waitingProcessMap) {

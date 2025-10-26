@@ -3,99 +3,104 @@ package info.dong4j.idea.plugin.enums;
 import org.jetbrains.annotations.NonNls;
 
 /**
- * <p>Description: </p>
+ * 图像媒体类型枚举
+ * <p>
+ * 该枚举用于表示各种图像文件的媒体类型，每个枚举值对应一个特定的MIME类型，常用于网络传输、文件识别等场景。
+ * <p>
+ * 枚举值包含常见的图像格式，如JPEG、PNG、GIF等，以及一些较为特殊的图像格式，如CGM、FITS等。
  *
  * @author dong4j
  * @version 1.0.0
- * @email "mailto:dong4j@gmail.com"
- * @date 2021.02.14 20:36
+ * @date 2021.02.14
  * @since 1.1.0
  */
 public enum ImageMediaType {
-    /** Cgm image media type */
+    /** CGM 图像媒体类型 */
     CGM("image/cgm"),
-    /** Example image media type */
+    /** 示例图片媒体类型 */
     EXAMPLE("image/example"),
-    /** Fits image media type */
+    /** FITS 图像媒体类型 */
     FITS("image/fits"),
-    /** G 3 fax image media type */
+    /** G3 fax 图像媒体类型 */
     G3FAX("image/g3fax"),
-    /** Gif image media type */
+    /** GIF 图像媒体类型 */
     GIF("image/gif"),
-    /** Ief image media type */
+    /** IEF 图像媒体类型 */
     IEF("image/ief"),
-    /** Jp 2 image media type */
+    /** JP2 图像媒体类型 */
     JP2("image/jp2"),
-    /** Jpeg image media type */
+    /** JPEG 图像媒体类型 */
     JPEG("image/jpeg"),
-    /** Jpm image media type */
+    /** JPM 图像媒体类型 */
     JPM("image/jpm"),
-    /** Jpx image media type */
+    /** JPX 图像媒体类型 */
     JPX("image/jpx"),
-    /** Naplps image media type */
+    /** NAPLPS 图像媒体类型 */
     NAPLPS("image/naplps"),
-    /** Png image media type */
+    /** PNG 图像媒体类型 */
     PNG("image/png"),
-    /** Prs btif image media type */
+    /** PRS_BTIF 媒体类型，表示图像的 PRS.btif 格式 */
     PRS_BTIF("image/prs.btif"),
-    /** Prs pti image media type */
+    /** PRS-PTI 图像媒体类型 */
     PRS_PTI("image/prs.pti"),
-    /** T 38 image media type */
+    /** 图像媒体类型，表示 T.38 协议的图像格式 */
     T38("image/t38"),
-    /** Tiff image media type */
+    /** TIFF 图像媒体类型 */
     TIFF("image/tiff"),
-    /** Tiff fx image media type */
+    /** TIFF FX 图像媒体类型，表示带有 FX 特效的 TIFF 图像格式 */
     TIFF_FX("image/tiff-fx"),
-    /** Vnd adobe photoshop image media type */
+    /** 图像/vnd.adobe.photoshop 媒体类型，表示 Adobe Photoshop 图像格式 */
     VND_ADOBE_PHOTOSHOP("image/vnd.adobe.photoshop"),
-    /** Vnd cns inf 2 image media type */
+    /** VND_CNS_INF2 媒体类型，表示图像格式 */
     VND_CNS_INF2("image/vnd.cns.inf2"),
-    /** Vnd djvu image media type */
+    /** djvu 格式的图像媒体类型 */
     VND_DJVU("image/vnd.djvu"),
-    /** Vnd dwg image media type */
+    /** DWG 图像媒体类型 */
     VND_DWG("image/vnd.dwg"),
-    /** Vnd dxf image media type */
+    /** VND_DXF 图像媒体类型，表示 DXF 格式的图像 */
     VND_DXF("image/vnd.dxf"),
-    /** Vnd fastbidsheet image media type */
+    /** VND_FASTBIDSHEET 图片媒体类型，用于标识 FastBidsheet 格式的图像文件 */
     VND_FASTBIDSHEET("image/vnd.fastbidsheet"),
-    /** Vnd fpx image media type */
+    /** VND_FPX 图像媒体类型，表示 FXpixmap 格式的图像 */
     VND_FPX("image/vnd.fpx"),
-    /** Vnd fst image media type */
+    /** VND_FST 图像媒体类型，表示一种特定的图像格式 */
     VND_FST("image/vnd.fst"),
-    /** Vnd fujixerox edmics mmr image media type */
+    /** VND_FUJIXEROX_EDMICS_MMR 图像媒体类型，表示富士施乐 EDMICS MMR 格式 */
     VND_FUJIXEROX_EDMICS_MMR("image/vnd.fujixerox.edmics-mmr"),
-    /** Vnd fujixerox edmics rlc image media type */
+    /** VND_FUJIXEROX_EDMICS_RLC 图像媒体类型，表示富士施乐 EDMICS RLC 格式 */
     VND_FUJIXEROX_EDMICS_RLC("image/vnd.fujixerox.edmics-rlc"),
-    /** Vnd globalgraphics pgb image media type */
+    /** Vnd globalgraphics pgb 图像媒体类型 */
     VND_GLOBALGRAPHICS_PGB("image/vnd.globalgraphics.pgb"),
-    /** Vnd microsoft icon image media type */
+    /** Vnd microsoft icon 图标图像媒体类型，用于标识 Microsoft 图标格式 */
     VND_MICROSOFT_ICON("image/vnd.microsoft.icon"),
-    /** Vnd mix image media type */
+    /** VND_MIX 表示 image/vnd.mix 媒体类型，用于标识混合图像格式 */
     VND_MIX("image/vnd.mix"),
-    /** Vnd ms modi image media type */
+    /** VND_MS_MODI 图像媒体类型，表示 Microsoft MODI 图像格式 */
     VND_MS_MODI("image/vnd.ms-modi"),
-    /** Vnd net fpx image media type */
+    /** VND_NET_FPX 图像媒体类型，表示网络 FPX 图像格式 */
     VND_NET_FPX("image/vnd.net-fpx"),
-    /** Vnd sealed png image media type */
+    /** VND_SEALED_PNG 是一种表示密封 PNG 图像的媒体类型常量 */
     VND_SEALED_PNG("image/vnd.sealed.png"),
-    /** Vnd sealedmedia softseal gif image media type */
+    /** 图像媒体类型，表示密封媒体软密封 GIF 格式 */
     VND_SEALEDMEDIA_SOFTSEAL_GIF("image/vnd.sealedmedia.softseal.gif"),
-    /** Vnd sealedmedia softseal jpg image media type */
+    /** image/vnd.sealedmedia.softseal.jpg 媒体类型，表示已密封的媒体软密封JPEG图像 */
     VND_SEALEDMEDIA_SOFTSEAL_JPG("image/vnd.sealedmedia.softseal.jpg"),
-    /** Vnd svf image media type */
+    /** VND_SVF 图片媒体类型，表示 SVF 格式的图像文件 */
     VND_SVF("image/vnd.svf"),
-    /** Vnd wap wbmp image media type */
+    /** WAP WBMP 图像媒体类型 */
     VND_WAP_WBMP("image/vnd.wap.wbmp"),
-    /** Vnd xiff image media type */
+    /** Vnd xiff 图像媒体类型，用于标识 XIFF 格式的图像内容 */
     VND_XIFF("image/vnd.xiff");
 
-    /** Content type */
+    /** 内容类型 */
     private final String contentType;
 
     /**
-     * Image media type
+     * 根据内容类型创建图像媒体类型对象
+     * <p>
+     * 使用指定的内容类型初始化图像媒体类型实例
      *
-     * @param contentType content type
+     * @param contentType 内容类型
      * @since 1.1.0
      */
     ImageMediaType(@NonNls String contentType) {
@@ -103,9 +108,11 @@ public enum ImageMediaType {
     }
 
     /**
-     * To string
+     * 返回对象的字符串表示形式
+     * <p>
+     * 该方法重写 Object 类的 toString 方法，返回当前对象的 contentType 属性值。
      *
-     * @return the string
+     * @return 对象的字符串表示，即 contentType 字段的值
      * @since 1.1.0
      */
     @Override

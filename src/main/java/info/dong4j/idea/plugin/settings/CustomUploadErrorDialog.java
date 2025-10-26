@@ -13,25 +13,28 @@ import javax.swing.KeyStroke;
 import lombok.Getter;
 
 /**
- * <p>Description: </p>
+ * 自定义上传错误对话框
+ * <p>
+ * 用于显示上传过程中发生的错误信息，并提供取消操作的功能。该对话框继承自 JDialog，支持通过 ESC 键或点击关闭按钮取消操作。
  *
  * @author dong4j
  * @version 1.0.0
- * @email "mailto:dong4j@fkhwl.com"
- * @date 2021.02.17 23:39
+ * @date 2021.02.17
  * @since 1.5.0
  */
 @Getter
 public class CustomUploadErrorDialog extends JDialog {
-    /** serialVersionUID */
+    /** 序列化版本号，用于确保类的兼容性 */
     private static final long serialVersionUID = 4813169387139926948L;
-    /** Content pane */
+    /** 内容面板，用于显示主要界面内容 */
     private JPanel contentPane;
-    /** Response */
+    /** 响应内容显示区域 */
     private JTextArea response;
 
     /**
-     * Custom upload error dialog
+     * 初始化自定义上传错误对话框
+     * <p>
+     * 设置对话框的布局、模态状态、关闭操作，并添加窗口监听器以处理关闭事件。同时注册键盘动作，使按下 ESC 键时触发取消操作。
      *
      * @since 1.5.0
      */
@@ -40,6 +43,13 @@ public class CustomUploadErrorDialog extends JDialog {
         this.setModal(true);
         this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         this.addWindowListener(new WindowAdapter() {
+            /**
+             * 处理窗口关闭事件，调用 onCancel 方法
+             * <p>
+             * 当窗口即将关闭时触发此方法，用于执行取消操作
+             *
+             * @param e 窗口事件对象
+             */
             @Override
             public void windowClosing(WindowEvent e) {
                 CustomUploadErrorDialog.this.onCancel();
@@ -52,7 +62,9 @@ public class CustomUploadErrorDialog extends JDialog {
     }
 
     /**
-     * On cancel
+     * 取消操作时的处理逻辑
+     * <p>
+     * 该方法在取消操作时被调用，通常用于清理资源或执行取消相关的逻辑。
      *
      * @since 1.5.0
      */

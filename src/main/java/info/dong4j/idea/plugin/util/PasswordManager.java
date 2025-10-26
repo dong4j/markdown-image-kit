@@ -8,22 +8,26 @@ import org.jetbrains.annotations.NotNull;
 import lombok.experimental.UtilityClass;
 
 /**
- * <p>Description: </p>
+ * 密码管理工具类
+ * <p>
+ * 提供与密码相关的操作，包括密码的获取和设置。该类封装了密码存储逻辑，通过 {@link PasswordSafe} 实现密码的安全读写，并对密码字符串进行空值处理。
+ * <p>
+ * 该类为工具类，建议通过静态方法调用，无需实例化。
  *
  * @author dong4j
  * @version 1.0.0
- * @email "mailto:dong4j@fkhwl.com"
- * @date 2021.02.18 13:32
+ * @date 2021.02.18
  * @since 1.6.0
  */
 @UtilityClass
 public class PasswordManager {
-
     /**
-     * Gets password *
+     * 获取密码
+     * <p>
+     * 根据提供的凭证属性获取对应的密码值，若密码为空则返回空字符串
      *
-     * @param credentialAttributes credential attributes
-     * @return the password
+     * @param credentialAttributes 凭证属性对象，用于指定密码相关的参数
+     * @return 密码值，若为空则返回空字符串
      * @since 1.6.0
      */
     public String getPassword(CredentialAttributes credentialAttributes) {
@@ -32,10 +36,12 @@ public class PasswordManager {
     }
 
     /**
-     * Sets password *
+     * 设置密码
+     * <p>
+     * 根据提供的凭证属性和密码，设置密码值。如果密码为空字符串，则设置为空字符串。
      *
-     * @param credentialAttributes credential attributes
-     * @param password             password
+     * @param credentialAttributes 凭证属性
+     * @param password             密码
      * @since 1.6.0
      */
     public void setPassword(CredentialAttributes credentialAttributes,
@@ -45,12 +51,14 @@ public class PasswordManager {
     }
 
     /**
-     * Build credential attributes
+     * 构建凭证属性对象
+     * <p>
+     * 根据服务名称、密钥和类信息创建并返回一个凭证属性对象
      *
-     * @param serviceName service name
-     * @param key         key
-     * @param clazz       clazz
-     * @return the credential attributes
+     * @param serviceName 服务名称
+     * @param key         密钥
+     * @param clazz       类型信息
+     * @return 凭证属性对象
      * @since 1.6.0
      */
     @NotNull

@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -37,44 +36,47 @@ import javax.crypto.spec.SecretKeySpec;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Description: </p>
- * https://cloud.tencent.com/document/product/436/7751
+ * 腾讯云对象存储（COS）工具类
+ * <p>
+ * 提供腾讯云 COS 相关的工具方法，包括签名生成、请求授权、文件上传和下载等操作，支持基于 HTTP 的 COS 服务调用。
+ * 该类封装了腾讯云 COS 的签名生成逻辑，用于构建合法的请求头和参数，实现对 COS 服务的访问控制。
  *
  * @author dong4j
  * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2020.04.21 23:29
+ * @date 2020.04.21
  * @since 0.0.1
  */
 @Slf4j
 public class TencentCosUtils {
-    /** LINE_SEPARATOR */
+    /** 换行分隔符，用于表示换行符 */
     public static final String LINE_SEPARATOR = "\n";
-    /** Q_SIGN_ALGORITHM_KEY */
+    /** Q_SIGN_ALGORITHM_KEY 表示请求签名算法的参数键，用于标识使用的签名算法类型 */
     public static final String Q_SIGN_ALGORITHM_KEY = "q-sign-algorithm";
-    /** Q_SIGN_ALGORITHM_VALUE */
+    /** Q_SIGN_ALGORITHM_VALUE 表示使用的签名算法类型，值为 "sha1" */
     public static final String Q_SIGN_ALGORITHM_VALUE = "sha1";
-    /** Q_AK */
+    /** Q_AK 是用于标识某个特定配置项的常量，通常用于权限或认证场景 */
     public static final String Q_AK = "q-ak";
-    /** Q_SIGN_TIME */
+    /** 请求签名时间参数名 */
     public static final String Q_SIGN_TIME = "q-sign-time";
-    /** Q_KEY_TIME */
+    /** q-key-time 字段用于标识请求头中的时间戳参数 */
     public static final String Q_KEY_TIME = "q-key-time";
-    /** Q_HEADER_LIST */
+    /** 请求头列表标识符 */
     public static final String Q_HEADER_LIST = "q-header-list";
-    /** Q_URL_PARAM_LIST */
+    /** q-url-param-list 参数名，用于传递查询参数列表 */
     public static final String Q_URL_PARAM_LIST = "q-url-param-list";
-    /** Q_SIGNATURE */
+    /** 用于标识请求头中的签名字段 */
     public static final String Q_SIGNATURE = "q-signature";
-    /** GET */
+    /** HTTP GET 方法 */
     public static final String GET = "get";
-    /** PUT */
+    /** PUT 请求方法标识 */
     public static final String PUT = "put";
 
     /**
-     * Gets gmt date *
+     * 获取当前的GMT时间字符串
+     * <p>
+     * 使用指定格式和时区（GMT）格式化当前时间，并返回字符串形式的时间。
      *
-     * @return the gmt date
+     * @return 当前GMT时间的字符串表示，格式为 "EEE, dd MMM yyyy HH:mm:ss GMT"
      * @since 0.0.1
      */
     public static String getGMTDate() {
@@ -85,15 +87,18 @@ public class TencentCosUtils {
     }
 
     /**
-     * Gets authorization *
+     * 构建授权头信息
+     * <p>
+     * 根据传入的请求头、参数、HTTP方法、URI路径名、密钥和密钥ID，生成用于请求的授权头信息。
+     * 该方法会处理请求头和参数的排序与格式化，并计算签名和时间戳，最终返回完整的授权字符串。
      *
-     * @param headers     headers
-     * @param params      params
-     * @param httpMethod  http method
-     * @param UriPathname uri pathname
-     * @param SecretKey   secret key
-     * @param SecretId    secret id
-     * @return the authorization
+     * @param headers     请求头信息
+     * @param params      请求参数信息
+     * @param httpMethod  HTTP请求方法
+     * @param UriPathname URI路径名
+     * @param SecretKey   密钥
+     * @param SecretId    密钥ID
+     * @return 完整的授权头字符串
      * @since 0.0.1
      */
     public static String getAuthorization(Map<String, String> headers,
@@ -141,12 +146,14 @@ public class TencentCosUtils {
     }
 
     /**
-     * Get string
+     * 发送HTTP GET请求并返回响应内容字符串
+     * <p>
+     * 通过指定的URL和请求头发送GET请求，获取响应内容并返回字符串形式
      *
-     * @param url  url
-     * @param head head
-     * @return the string
-     * @throws IOException io exception
+     * @param url  请求的URL地址
+     * @param head 请求头信息，包含键值对
+     * @return 响应内容的字符串形式
+     * @throws IOException 如果请求过程中发生IO异常
      * @since 0.0.1
      */
     public static String get(String url, Map<String, String> head) throws IOException {
@@ -161,12 +168,13 @@ public class TencentCosUtils {
         return EntityUtils.toString(entity, StandardCharsets.UTF_8);
     }
 
-
     /**
-     * Build time str string
+     * 构建时间字符串
+     * <p>
+     * 将当前时间戳和指定的过期时间戳拼接成一个字符串，格式为"startTime;endTime"
      *
-     * @param expiredTime expired time
-     * @return the string
+     * @param expiredTime 过期时间对象
+     * @return 拼接后的时间字符串
      * @since 0.0.1
      */
     public static String buildTimeStr(Date expiredTime) {
@@ -178,10 +186,12 @@ public class TencentCosUtils {
     }
 
     /**
-     * Format map to str string
+     * 将 Map 对象格式化为 URL 查询参数字符串
+     * <p>
+     * 遍历 Map 中的键值对，将每个键值对编码后拼接成 URL 查询字符串格式，如 key1=value1&key2=value2
      *
-     * @param kVMap k v map
-     * @return the string
+     * @param kVMap 要格式化的键值对 Map
+     * @return 格式化后的 URL 查询字符串
      * @since 0.0.1
      */
     public static String formatMapToStr(Map<String, String> kVMap) {
@@ -205,10 +215,14 @@ public class TencentCosUtils {
     }
 
     /**
-     * Build sign headers map
+     * 构建签名所需的请求头映射
+     * <p>
+     * 根据原始请求头，筛选并构建用于签名的头信息。忽略某些特定的通用头字段，如
+     * "content-type"、"content-length"、"content-md5"，以及以 "x" 或 "X" 开头的扩展头字段。
+     * 所有保留的头字段都会转换为小写形式，并放入新的映射中。
      *
-     * @param originHeaders origin headers
-     * @return the map
+     * @param originHeaders 原始请求头映射
+     * @return 用于签名的请求头映射
      * @since 0.0.1
      */
     private static Map<String, String> buildSignHeaders(Map<String, String> originHeaders) {
@@ -227,10 +241,12 @@ public class TencentCosUtils {
     }
 
     /**
-     * Build sign member str string
+     * 构建签名成员字符串
+     * <p>
+     * 将传入的签名头信息按照键名进行拼接，生成一个字符串。键名会转换为小写，并以分号分隔。
      *
-     * @param signHeaders sign headers
-     * @return the string
+     * @param signHeaders 签名头信息，键值对集合
+     * @return 拼接后的字符串
      * @since 0.0.1
      */
     public static String buildSignMemberStr(Map<String, String> signHeaders) {
@@ -248,10 +264,13 @@ public class TencentCosUtils {
     }
 
     /**
-     * Encode string
+     * 对给定的原始URL进行编码处理
+     * <p>
+     * 将字符串使用UTF-8编码格式进行URL编码，并对特殊字符进行替换处理：
+     * '+' 替换为 '%20'，'*' 替换为 '%2A'，'~' 替换为 '%7E'
      *
-     * @param originUrl origin url
-     * @return the string
+     * @param originUrl 原始URL字符串
+     * @return 编码后的字符串
      * @since 0.0.1
      */
     public static String encode(String originUrl) {
@@ -259,12 +278,14 @@ public class TencentCosUtils {
     }
 
     /**
-     * Gets url *
+     * 根据存储桶名称、区域名称和对象键生成对应的 COS 服务 URL
+     * <p>
+     * 该方法用于构造 COS 服务的访问地址，确保对象键以斜杠开头，然后拼接成完整的 URL。
      *
-     * @param backet     backet
-     * @param regionName region name
-     * @param key        key
-     * @return the url
+     * @param backet     存储桶名称
+     * @param regionName 区域名称
+     * @param key        对象键，若不以斜杠开头则自动添加
+     * @return 构造完成的 COS 服务 URL
      * @since 0.0.1
      */
     public static String getUrl(String backet, String regionName, String key) {
@@ -275,14 +296,16 @@ public class TencentCosUtils {
     }
 
     /**
-     * Gets obj *
+     * 根据给定参数获取对象数据
+     * <p>
+     * 该方法通过构造请求头和授权信息，向指定的 COS 地址发起 HTTP 请求，获取对象数据。
      *
-     * @param key        key
-     * @param backet     backet
-     * @param regionName region name
-     * @param SecretKey  secret key
-     * @param SecretId   secret id
-     * @return the obj
+     * @param key        要获取的对象键（Key）
+     * @param backet     存储桶名称（Bucket）
+     * @param regionName 区域名称（Region）
+     * @param SecretKey  密钥（SecretKey）
+     * @param SecretId   密钥 ID（SecretId）
+     * @return 获取到的对象数据，若请求失败则返回 null
      * @since 0.0.1
      */
     public static String getObj(String key, String backet, String regionName,
@@ -304,17 +327,18 @@ public class TencentCosUtils {
         try {
             return get(getUrl(backet, regionName, key), httpHeader);
         } catch (IOException ex) {
-            ex.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     /**
-     * Sha encode string
+     * 对字符串进行SHA编码处理
+     * <p>
+     * 将输入的字符串转换为字节数组，使用SHA算法进行哈希计算，并将结果转换为十六进制字符串返回。
      *
-     * @param inStr in str
-     * @return the string
-     * @throws Exception exception
+     * @param inStr 需要编码的输入字符串
+     * @return 编码后的十六进制字符串
+     * @throws Exception 如果SHA算法不可用或发生其他异常
      * @since 0.0.1
      */
     public static String shaEncode(String inStr) throws Exception {
@@ -322,7 +346,6 @@ public class TencentCosUtils {
         try {
             sha = MessageDigest.getInstance("SHA");
         } catch (Exception e) {
-            e.printStackTrace();
             return "";
         }
 
@@ -340,10 +363,12 @@ public class TencentCosUtils {
     }
 
     /**
-     * Gets second timestamp *
+     * 获取时间戳的前部分（去除最后三位）
+     * <p>
+     * 将给定的日期对象转换为时间戳字符串，并截取去除最后三位数字的部分。
      *
-     * @param date date
-     * @return the second timestamp
+     * @param date 日期对象
+     * @return 截取后的时间戳字符串，若输入为null则返回空字符串
      * @since 0.0.1
      */
     public static String getSecondTimestamp(Date date) {
@@ -360,12 +385,14 @@ public class TencentCosUtils {
     }
 
     /**
-     * Gen hmac string
+     * 根据指定的密钥和源字符串生成HMAC哈希值
+     * <p>
+     * 使用HmacSHA1算法对输入的字符串进行加密处理，并返回十六进制格式的哈希字符串
      *
-     * @param key key
-     * @param src src
-     * @return the string
-     * @since 0.0.1
+     * @param key 密钥，用于加密计算
+     * @param src 源字符串，需要进行加密处理的数据
+     * @return 生成的HMAC哈希字符串
+     * @throws RuntimeException 如果加密过程中发生异常
      */
     public static String genHMAC(String key, String src) {
         try {
@@ -380,15 +407,18 @@ public class TencentCosUtils {
     }
 
     /**
-     * Gets upload information *
+     * 获取上传信息
+     * <p>
+     * 根据提供的路径、输入流、密钥、存储桶和区域名称，向指定路径发送PUT请求，并读取响应内容。
+     * 若响应状态码为200，则返回构建的上传信息URL。
      *
-     * @param path       path
-     * @param content    content
-     * @param key        key
-     * @param backet     backet
-     * @param regionName region name
-     * @return the upload information
-     * @throws Exception exception
+     * @param path       上传请求的路径
+     * @param content    要上传的输入流内容
+     * @param key        用于构建URL的密钥参数
+     * @param backet     存储桶名称
+     * @param regionName 区域名称，用于构建URL
+     * @return 上传信息的URL字符串
+     * @throws Exception 如果请求过程中发生异常
      * @since 0.0.1
      */
     public static String getUploadInformation(String path,
@@ -399,7 +429,7 @@ public class TencentCosUtils {
         //创建连接
         URL url = new URL(path);
         HttpURLConnection connection;
-        StringBuffer sbuffer;
+        StringBuilder sbuffer;
 
         //添加 请求内容
         connection = (HttpURLConnection) url.openConnection();
@@ -421,7 +451,7 @@ public class TencentCosUtils {
                 try (InputStreamReader inputStream = new InputStreamReader(connection.getInputStream());
                      BufferedReader reader = new BufferedReader(inputStream)) {
                     String lines;
-                    sbuffer = new StringBuffer();
+                    sbuffer = new StringBuilder();
 
                     while ((lines = reader.readLine()) != null) {
                         lines = new String(lines.getBytes(), StandardCharsets.UTF_8);
@@ -438,16 +468,18 @@ public class TencentCosUtils {
     }
 
     /**
-     * Put object string
+     * 将对象以字符串形式上传到指定的存储桶
+     * <p>
+     * 该方法用于生成带签名的URL，并通过该URL上传对象内容。方法内部会构建签名信息，包括时间戳、签名算法和密钥等，确保请求的安全性。
      *
-     * @param key        key
-     * @param content    content
-     * @param backet     backet
-     * @param regionName region name
-     * @param secretId   secret id
-     * @param secretKey  secret key
-     * @return the string
-     * @throws Exception exception
+     * @param key        存储对象的键（Key）
+     * @param content    要上传的对象内容流
+     * @param backet     存储桶名称
+     * @param regionName 区域名称
+     * @param secretId   秘密ID（Access Key ID）
+     * @param secretKey  秘密密钥（Access Key Secret）
+     * @return 上传信息的字符串表示
+     * @throws Exception 上传过程中发生异常时抛出
      * @since 0.0.1
      */
     public static String putObject(String key,

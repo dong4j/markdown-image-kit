@@ -1,15 +1,17 @@
 package info.dong4j.idea.plugin.content;
 
 /**
-* <p>Description: ${description}</p>
+ * MikContents 接口
+ * <p>
+ * 定义与 MikroORM 相关的常量内容，主要用于标识和处理特定文件或目录结构。
+ * 该接口提供了一个常量用于表示 Node.js 的模块目录名称。
  *
  * @author dong4j
- * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2019.03.27 12:26
- * @since 0.0.1
+ * @version 1.0.0
+ * @date 2025.10.24
+ * @since 1.0.0
  */
 public interface MikContents {
-    /** nodejs 库 */
+    /** node_modules 文件夹名称，用于标识 Node.js 项目依赖库目录 */
     String NODE_MODULES_FILE = "node_modules";
 }

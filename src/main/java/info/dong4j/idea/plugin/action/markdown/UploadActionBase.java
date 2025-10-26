@@ -20,28 +20,36 @@ import javax.swing.Icon;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Description: 右键上传到 OSS </p>
+ * 右键上传到 OSS 的基础操作类
+ * <p>
+ * 该类作为所有右键上传到 OSS 功能的基类，提供通用的逻辑和方法，包括按钮可用性检查、上传操作执行等。
+ * 所有具体实现类需继承该类并实现抽象方法，如获取图标、获取名称和获取 OSS 客户端。
+ * <p>
+ * 该类使用了策略模式，通过子类实现不同的上传逻辑，统一调用上传流程。
  *
  * @author dong4j
  * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2019.03.14 17:15
+ * @date 2019.03.14
  * @since 0.0.1
  */
 @Slf4j
 public abstract class UploadActionBase extends AnAction {
     /**
-     * Gets icon.
+     * 获取图标
+     * <p>
+     * 返回当前对象对应的图标
      *
-     * @return the icon
+     * @return 图标对象
      * @since 0.0.1
      */
     abstract protected Icon getIcon();
 
     /**
-     * 当前图床是否完成
+     * 判断当前图床是否可用
+     * <p>
+     * 返回一个布尔值，表示图床是否已经完成初始化或准备就绪。
      *
-     * @return the boolean
+     * @return true 表示图床可用，false 表示不可用
      * @since 0.0.1
      */
     boolean available() {
@@ -50,6 +58,8 @@ public abstract class UploadActionBase extends AnAction {
 
     /**
      * 获取 action name
+     * <p>
+     * 返回当前 action 的名称
      *
      * @return the name
      * @since 0.0.1
@@ -57,12 +67,14 @@ public abstract class UploadActionBase extends AnAction {
     abstract String getName();
 
     /**
-     * 检查 "upload to XXX OSS" 按钮是否可用
-     * 1. 相关 test 通过后
-     * a. 如果全是目录则可用
-     * b. 如果文件是 markdown 才可用
+     * 检查 "上传到XXX OSS" 按钮是否可用
+     * <p>
+     * 根据条件判断按钮是否可启用：
+     * 1. 相关测试通过后
+     * 2. 如果所有内容均为目录则可用
+     * 3. 如果文件类型为Markdown则可用
      *
-     * @param event the event
+     * @param event 事件对象
      * @since 0.0.1
      */
     @Override
@@ -71,9 +83,11 @@ public abstract class UploadActionBase extends AnAction {
     }
 
     /**
-     * 所有子类都走这个逻辑, 做一些前置判断和解析 markdown image mark
+     * 执行动作事件，所有子类都走此逻辑，用于进行前置判断和解析 markdown 图片标记
+     * <p>
+     * 该方法首先刷新虚拟文件系统，确保新添加的文件已被正确加载。然后获取项目对象，并创建事件数据对象，设置相关属性。最后启动后台任务，执行上传处理流程。
      *
-     * @param event the an action event
+     * @param event 事件对象，表示触发的动作事件
      * @since 0.0.1
      */
     @Override
@@ -96,7 +110,9 @@ public abstract class UploadActionBase extends AnAction {
     }
 
     /**
-     * 获取具体上传的客户端, 委托给后台任务执行
+     * 获取具体上传的客户端，委托给后台任务执行
+     * <p>
+     * 该方法用于获取配置的OSS客户端实例，具体实现由子类提供。
      *
      * @return the oss client
      * @since 0.0.1

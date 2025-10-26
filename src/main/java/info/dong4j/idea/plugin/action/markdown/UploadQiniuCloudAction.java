@@ -12,20 +12,23 @@ import javax.swing.Icon;
 import icons.MikIcons;
 
 /**
- * <p>Description: 上传到七牛云 OSS 事件</p>
+ * 上传到七牛云 OSS 事件类
+ * <p>
+ * 该类用于表示上传文件到七牛云对象存储服务（OSS）的事件操作，继承自通用的上传事件基类 UploadActionBase。
+ * 提供了获取图标、名称和 OSS 客户端实例的方法，用于在系统中标识和执行七牛云 OSS 的上传操作。
  *
  * @author dong4j
  * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2021.02.14 18:40
+ * @date 2021.02.14
  * @since 0.0.1
  */
 public final class UploadQiniuCloudAction extends UploadActionBase {
-
     /**
-     * Gets icon *
+     * 获取图标
+     * <p>
+     * 返回预定义的 QINIU_OSS 图标常量
      *
-     * @return the icon
+     * @return 图标常量
      * @since 0.0.1
      */
     @Contract(pure = true)
@@ -35,9 +38,11 @@ public final class UploadQiniuCloudAction extends UploadActionBase {
     }
 
     /**
-     * Gets name *
+     * 获取名称
+     * <p>
+     * 返回预定义的名称常量，用于标识云服务提供商。
      *
-     * @return the name
+     * @return 名称常量
      * @since 0.0.1
      */
     @Nullable
@@ -48,9 +53,11 @@ public final class UploadQiniuCloudAction extends UploadActionBase {
     }
 
     /**
-     * Gets client *
+     * 获取OSS客户端实例
+     * <p>
+     * 返回一个OSS客户端对象，用于与对象存储服务进行交互
      *
-     * @return the client
+     * @return OSS客户端实例
      * @since 0.0.1
      */
     @Contract(pure = true)

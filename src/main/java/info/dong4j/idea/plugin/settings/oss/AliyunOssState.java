@@ -5,12 +5,13 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
- * <p>Description: </p>
+ * 阿里云OSS状态实体类
+ * <p>
+ * 该类用于封装阿里云对象存储服务（OSS）相关状态信息，继承自AbstractExtendOssState抽象类，提供OSS操作状态的详细描述和扩展功能。
  *
  * @author dong4j
  * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2019.03.19 19:55
+ * @date 2019.03.19
  * @since 0.0.1
  */
 @Data

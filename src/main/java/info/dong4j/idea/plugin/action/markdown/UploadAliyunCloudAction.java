@@ -14,21 +14,24 @@ import icons.MikIcons;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Description: 上传到阿里 OSS 事件</p>
+ * 上传到阿里 OSS 事件
+ * <p>
+ * 该类用于表示上传文件到阿里云对象存储服务（OSS）的事件操作，继承自通用的上传动作基类。
+ * 提供了获取图标、名称和 OSS 客户端实例的方法，用于在系统中标识和执行上传操作。
  *
  * @author dong4j
  * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2021.02.14 18:40
+ * @date 2021.02.14
  * @since 0.0.1
  */
 @Slf4j
 public final class UploadAliyunCloudAction extends UploadActionBase {
-
     /**
-     * Gets icon *
+     * 获取图标
+     * <p>
+     * 返回预定义的阿里云OSS图标实例
      *
-     * @return the icon
+     * @return 图标对象
      * @since 0.0.1
      */
     @NotNull
@@ -39,9 +42,11 @@ public final class UploadAliyunCloudAction extends UploadActionBase {
     }
 
     /**
-     * Gets name *
+     * 获取名称
+     * <p>
+     * 返回预定义的云服务商名称，当前返回阿里云的名称。
      *
-     * @return the name
+     * @return 名称
      * @since 0.0.1
      */
     @Nullable
@@ -52,9 +57,11 @@ public final class UploadAliyunCloudAction extends UploadActionBase {
     }
 
     /**
-     * Gets client *
+     * 获取OSS客户端实例
+     * <p>
+     * 返回阿里云OSS客户端的单例实例，用于与OSS服务进行交互
      *
-     * @return the client
+     * @return OssClient 实例
      * @since 0.0.1
      */
     @Contract(pure = true)

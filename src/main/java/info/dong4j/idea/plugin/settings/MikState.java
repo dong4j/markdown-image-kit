@@ -15,76 +15,80 @@ import info.dong4j.idea.plugin.settings.oss.WeiboOssState;
 import lombok.Data;
 
 /**
- * <p>Description: </p>
+ * 图床配置状态类
+ * <p>
+ * 用于保存和管理图片上传时的各种配置状态，包括 OSS 类型选择、是否替换标签、压缩设置、备份选项、水印配置、文件重命名等。
+ * 该类主要用于处理图片上传前的参数配置，支持多种云存储平台（如 Weibo、Aliyun、Qiniu 等）的适配。
+ * <p>
+ * 包含多个静态常量用于表示不同的 OSS 类型，以及多个私有字段用于存储具体的配置信息。
  *
  * @author dong4j
- * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2021.02.14 18:40
+ * @version 1.0.0
+ * @date 2025.10.24
  * @since 0.0.1
  */
 @Data
 public class MikState {
-
-    /** OLD_HASH_KEY */
+    /** 旧哈希键，用于标识旧的哈希配置 */
     public static final String OLD_HASH_KEY = "old";
-    /** NEW_HASH_KEY */
+    /** 新的哈希键，用于标识特定的哈希配置 */
     public static final String NEW_HASH_KEY = "new";
-
-    /** Weibo oss state */
+    /** WeiboOssState 对象，用于存储微博OSS相关的状态信息 */
     private WeiboOssState weiboOssState;
-    /** Aliyun oss state */
+    /** AliyunOssState 对象，用于存储阿里云 OSS 的状态信息 */
     private AliyunOssState aliyunOssState;
-    /** Baidu bos state */
+    /** Baidu Bos 状态信息，用于记录与 Baidu Bos 服务交互的状态 */
     private BaiduBosState baiduBosState;
-    /** Qiniu oss state */
+    /** QiniuOssState 对象，用于存储七牛云对象存储的相关状态信息 */
     private QiniuOssState qiniuOssState;
-    /** Tencent oss state */
+    /** TencentOssState 对象，用于存储腾讯云对象存储服务的相关状态信息 */
     private TencentOssState tencentOssState;
-    /** Wangyi oss state */
+    /** 王艺 OSS 状态信息 */
     private WangyiOssState wangyiOssState;
-    /** Git hub oss state */
+    /** GitHub OSS 状态信息，用于表示与 GitHub 仓库相关的 OSS 操作状态 */
     private GithubOssState githubOssState;
-    /** Gitee oss state */
+    /** Gitee 云服务 OSS 状态信息 */
     private GiteeOssState giteeOssState;
-    /** Custom oss state */
+    /** 自定义 OSS 状态信息，用于表示与 OSS 相关的特定状态 */
     private CustomOssState customOssState;
-
     /** 是否替换标签 */
     private boolean changeToHtmlTag = false;
     /** 替换的标签类型 */
     private String tagType = "";
-    /** 替换的标签类型 code */
+    /** 替换的标签类型代码 */
     private String tagTypeCode = "";
     /** 是否压缩图片 */
     private boolean compress = false;
-    /** Compress before the upload of percent */
+    /** 压缩上传前的百分比，表示图片压缩到原始大小的百分比 */
     private int compressBeforeUploadOfPercent = 60;
-    /** 图片备份 */
+    /** 图片备份标志，表示是否启用图片备份功能 */
     private boolean backup = false;
-    /** 水印 */
+    /** 水印开关，用于控制是否显示水印 */
     private boolean watermark = false;
-    /** Watermark text */
+    /** 水印文本，用于在界面中显示的标识信息 */
     private String watermarkText = "@MIK";
-    /** 拷贝图片到目录 */
+    /** 拷贝图片到目录标志，用于指示是否将图片复制到指定目录 */
     private boolean copyToDir = false;
-    /** 上传图片并替换 */
+    /** 上传图片并替换标志位，用于控制是否执行图片上传及替换操作 */
     private boolean uploadAndReplace = false;
-    /** 图片保存路径 */
+    /** 图片保存路径，默认为 "./imgs" 目录，用于存储上传或生成的图片文件 */
     private String imageSavePath = "./imgs";
-    /** 是否自定义默认图床 */
+    /** 是否启用自定义默认图床功能 */
     private boolean defaultCloudCheck = false;
-    /** 默认图床 */
+    /** 默认图床类型，取值为 CloudEnum.SM_MS_CLOUD 的 index */
     private int cloudType = CloudEnum.SM_MS_CLOUD.index;
-    /** 这个只是 setting 页面用, 用于保存未勾选自定义默认图床时需要保存的下拉列表选项 */
+    /** 用于保存未勾选自定义默认图床时需要保存的下拉列表选项，仅在 setting 页面使用 */
     private int tempCloudType = CloudEnum.WEIBO_CLOUD.index;
-    /** 重命名文件 */
+    /** 重命名文件标志，用于指示是否需要对文件进行重命名操作 */
     private boolean rename = false;
-    /** 文件名后缀 */
+    /** 文件名后缀索引，用于标识当前文件的后缀类型 */
     private int suffixIndex = SuffixEnum.FILE_NAME.index;
 
     /**
-     * Mik state
+     * 初始化MikState对象，用于管理各种对象存储服务的状态
+     * <p>
+     * 构造函数会初始化所有支持的对象存储服务状态对象，包括阿里云OSS、百度BOS、
+     * 七牛OSS、微博OSS、腾讯云OSS、GitHub、Gitee、自定义OSS以及网易云OSS的状态。
      *
      * @since 0.0.1
      */

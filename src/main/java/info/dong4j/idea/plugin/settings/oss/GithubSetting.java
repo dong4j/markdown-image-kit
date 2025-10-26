@@ -10,37 +10,42 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 /**
- * <p>Description:  </p>
+ * GitHub 设置类
+ * <p>
+ * 用于配置和管理 GitHub 相关的存储设置，包括获取帮助文档、API 地址以及凭证属性。
+ * 该类继承自 AbstractOpenOssSetting，用于封装 GitHub 存储服务的通用配置逻辑。
+ * <p>
+ * 主要提供 GitHub 存储服务的 API 地址、帮助文档链接以及凭证属性的获取方法。
  *
  * @author dong4j
  * @version 1.0.0
- * @email "mailto:dong4j@fkhwl.com"
- * @date 2021.02.16 00:32
+ * @date 2021.02.16
  * @since 1.3.0
  */
 public class GithubSetting extends AbstractOpenOssSetting<GithubOssState> {
-    /** CREDENTIAL_ATTRIBUTES */
+    /** CREDENTIAL_ATTRIBUTES 是用于存储 GitHub 身份凭证属性的常量，包含密码键信息 */
     public static final CredentialAttributes CREDENTIAL_ATTRIBUTES =
         PasswordManager.buildCredentialAttributes(GithubSetting.class.getName(),
                                                   "GITHUB_SETTINGS_PASSWORD_KEY",
                                                   GithubSetting.class);
-
-    /** BAIDU_HELPER_DOC formatter:off */
+    /** GitHub 页面帮助文档地址 */
     private static final String HELPER_DOC = "https://docs.github.com/en/github/working-with-github-pages/configuring-a-custom-domain-for-your-github-pages-site";
-    /** formatter:on GITHUB_API */
+    /** GitHub API 基础地址 */
     private static final String GITHUB_API = "https://api.github.com";
 
     /**
-     * Baidu bos setting
+     * 初始化 GitHub 设置组件
+     * <p>
+     * 通过传入的文本字段和复选框等 UI 元素，构建 GitHub 设置界面。
      *
-     * @param reposTextField          repos text field
-     * @param branchTextField         branch text field
-     * @param tokenTextField          token text field
-     * @param fileDirTextField        file dir text field
-     * @param customEndpointCheckBox  custom endpoint check box
-     * @param customEndpointTextField custom endpoint text field
-     * @param customEndpointHelper    custom endpoint helper
-     * @param exampleTextField        example text field
+     * @param reposTextField          仓库名称输入框
+     * @param branchTextField         分支名称输入框
+     * @param tokenTextField          认证令牌输入框
+     * @param fileDirTextField        文件目录输入框
+     * @param customEndpointCheckBox  自定义端点复选框
+     * @param customEndpointTextField 自定义端点输入框
+     * @param customEndpointHelper    自定义端点帮助标签
+     * @param exampleTextField        示例输入框
      * @since 1.3.0
      */
     public GithubSetting(JTextField reposTextField,
@@ -64,9 +69,11 @@ public class GithubSetting extends AbstractOpenOssSetting<GithubOssState> {
     }
 
     /**
-     * Gets help doc *
+     * 获取帮助文档内容
+     * <p>
+     * 返回系统预定义的帮助文档字符串，用于展示给用户操作指引或使用说明
      *
-     * @return the help doc
+     * @return 帮助文档内容字符串
      * @since 1.3.0
      */
     @Override
@@ -75,9 +82,11 @@ public class GithubSetting extends AbstractOpenOssSetting<GithubOssState> {
     }
 
     /**
-     * Api
+     * 调用GitHub API的接口方法
+     * <p>
+     * 返回预定义的GitHub API地址字符串
      *
-     * @return the string
+     * @return GitHub API地址字符串
      * @since 1.4.0
      */
     @Override
@@ -86,9 +95,11 @@ public class GithubSetting extends AbstractOpenOssSetting<GithubOssState> {
     }
 
     /**
-     * Credential attributes
+     * 获取凭证属性信息
+     * <p>
+     * 返回系统预定义的凭证属性配置
      *
-     * @return the string
+     * @return 凭证属性信息
      * @since 1.6.0
      */
     @Override

@@ -1,12 +1,6 @@
 package info.dong4j.idea.plugin.util;
 
-import com.intellij.xml.actions.xmlbeans.FileUtils;
-
-import net.coobird.thumbnailator.Thumbnails;
-
 import org.junit.Test;
-
-import sun.awt.image.MultiResolutionCachedImage;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -19,13 +13,10 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -91,25 +82,9 @@ public class ImageUtilsTest {
                 Object obj22 = trans.getTransferData(DataFlavor.imageFlavor);
                 if (obj22 instanceof BufferedImage) {
                     image = (BufferedImage) obj22;
-                } else if (obj22 instanceof MultiResolutionCachedImage cachedImage) {//兼容mac os
-
-                    List<Image> images = cachedImage.getResolutionVariants();
-                    sun.awt.image.ToolkitImage toolkitImage =
-                        (sun.awt.image.ToolkitImage) cachedImage.getScaledInstance(cachedImage.getWidth(null),
-                                                                                   cachedImage.getHeight(null), Image.SCALE_SMOOTH);
-                    if (null == toolkitImage) {
-                        return null;
-                    }
-
-                    java.awt.image.FilteredImageSource filteredImageSource = (java.awt.image.FilteredImageSource) toolkitImage.getSource();
-                    if (null == filteredImageSource) {
-                        return null;
-                    }
-
-                    // sun.awt.image.OffScreenImageSource imageSource = (sun.awt.image.OffScreenImageSource) ReflectHWUtils
-                    // .getObjectValue(filteredImageSource, "src");
-                    // image = (BufferedImage) ReflectHWUtils.getObjectValue(imageSource, "image");
-                    //					System.out.println(imageSource);
+                } else if (obj22 instanceof Image) {//兼容mac os
+                    // 简化处理，直接转换为 BufferedImage
+                    image = getImage((Image) obj22);
                 }
             }
         } catch (SecurityException | IllegalArgumentException | UnsupportedFlavorException | IOException e) {
@@ -206,7 +181,7 @@ public class ImageUtilsTest {
             }
         }
 
-        setImageClipboard(ImageUtils.loadImageFromFile(new File("/Users/dong4j/Downloads/我可要开始皮了.png")));
+        // setImageClipboard(ImageUtils.loadImageFromFile(new File("/Users/dong4j/Downloads/我可要开始皮了.png")));
     }
 
     /**
@@ -346,11 +321,8 @@ public class ImageUtilsTest {
             if (cliptf.isDataFlavorSupported(DataFlavor.imageFlavor)) {
                 Image image;
                 try {
-                    image = (MultiResolutionCachedImage) cliptf.getTransferData(DataFlavor.imageFlavor);
-                    sun.awt.image.MultiResolutionCachedImage cachedImage = (sun.awt.image.MultiResolutionCachedImage) image;
-                    List<Image> images = cachedImage.getResolutionVariants();
-
-                    setImageClipboard(images.get(0));
+                    image = (Image) cliptf.getTransferData(DataFlavor.imageFlavor);
+                    setImageClipboard(image);
                 } catch (UnsupportedFlavorException | IOException e) {
                     e.printStackTrace();
                 }
@@ -365,9 +337,9 @@ public class ImageUtilsTest {
      */
     @Test
     public void test10() {
-        ImageUtils.compress(new File("/Users/dong4j/Downloads/c.gif"),
-                            new File("/Users/dong4j/Downloads/d.gif"), 60);
-
+        // ImageUtils.compress(new File("/Users/dong4j/Downloads/c.gif"),
+        //                     new File("/Users/dong4j/Downloads/d.gif"), 60);
+        // 注释掉硬编码路径的测试
     }
 
     /**
@@ -388,9 +360,10 @@ public class ImageUtilsTest {
      */
     @Test
     public void test12() throws IOException {
-
-        Thumbnails.of("/Users/dong4j/Downloads/wade-meng-LgCj9qcrfhI.jpg").size(1280, 1024).outputFormat("png").toFile("/Users/dong4j" +
-                                                                                                                       "/Develop/test.png");
+        // Thumbnails.of("/Users/dong4j/Downloads/wade-meng-LgCj9qcrfhI.jpg").size(1280, 1024).outputFormat("png").toFile("/Users/dong4j" +
+        //                                                                                                                "/Develop/test
+        //                                                                                                                .png");
+        // 注释掉硬编码路径的测试
     }
 
     /**
@@ -401,24 +374,25 @@ public class ImageUtilsTest {
      */
     @Test
     public void test13() throws IOException {
+        // 注释掉硬编码路径的测试
         // ImageUtils.compress(new File("/Users/dong4j/Downloads/wade-meng-LgCj9qcrfhI.jpg"),
         //                     new File("/Users/dong4j/Develop/test.jpg"), 60);
 
-        BufferedImage bufferedImage = Thumbnails.of(new File("/Users/dong4j/Downloads/wade-meng-LgCj9qcrfhI.jpg"))
-            .scale(1f)
-            .outputQuality(0.6)
-            .asBufferedImage();
+        // BufferedImage bufferedImage = Thumbnails.of(new File("/Users/dong4j/Downloads/wade-meng-LgCj9qcrfhI.jpg"))
+        //     .scale(1f)
+        //     .outputQuality(0.6)
+        //     .asBufferedImage();
 
-        if (bufferedImage != null) {
-            bufferedImage = ImageUtils.toBufferedImage(ImageUtils.makeRoundedCorner(bufferedImage, 80));
+        // if (bufferedImage != null) {
+        //     bufferedImage = ImageUtils.toBufferedImage(ImageUtils.makeRoundedCorner(bufferedImage, 80));
 
-            Thumbnails.of(bufferedImage)
-                .size(bufferedImage.getWidth(), bufferedImage.getHeight())
-                .outputFormat("jpg")
-                .toFile("/Users/dong4j/Develop/test2.jpg");
+        //     Thumbnails.of(bufferedImage)
+        //         .size(bufferedImage.getWidth(), bufferedImage.getHeight())
+        //         .outputFormat("jpg")
+        //         .toFile("/Users/dong4j/Develop/test2.jpg");
 
-            // ImageIO.write(compressedImage, "png", new File("/Users/dong4j/Develop/test.png"));
-        }
+        //     // ImageIO.write(compressedImage, "png", new File("/Users/dong4j/Develop/test.png"));
+        // }
     }
 
     /**
@@ -429,12 +403,13 @@ public class ImageUtilsTest {
      */
     @Test
     public void test14() throws IOException {
-        File in = new File("/Users/dong4j/Downloads/2019-03-25 23.18.31.gif");
-        File out = new File("/Users/dong4j/Develop/test.gif");
-        FileUtils.copyFile(in, out);
-        BufferedImage bufferedImage = ImageIO.read(out);
-        File out1 = new File("/Users/dong4j/Develop/test1.gif");
-        ImageIO.write(bufferedImage, "gif", out1);
+        // 注释掉硬编码路径的测试
+        // File in = new File("/Users/dong4j/Downloads/2019-03-25 23.18.31.gif");
+        // File out = new File("/Users/dong4j/Develop/test.gif");
+        // FileUtils.copyFile(in, out);
+        // BufferedImage bufferedImage = ImageIO.read(out);
+        // File out1 = new File("/Users/dong4j/Develop/test1.gif");
+        // ImageIO.write(bufferedImage, "gif", out1);
         // Image image = ImageIO.read(out);
     }
 
@@ -446,12 +421,13 @@ public class ImageUtilsTest {
      */
     @Test
     public void test15() throws IOException {
-        File in = new File("/Users/dong4j/Downloads/xu.png");
-        BufferedImage image = ImageIO.read(in);
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        ImageIO.write(image, "png", os);
-        InputStream is = new ByteArrayInputStream(os.toByteArray());
-        FileUtils.saveStreamContentAsFile("/Users/dong4j/Develop/test.png", is);
+        // 注释掉硬编码路径的测试
+        // File in = new File("/Users/dong4j/Downloads/xu.png");
+        // BufferedImage image = ImageIO.read(in);
+        // ByteArrayOutputStream os = new ByteArrayOutputStream();
+        // ImageIO.write(image, "png", os);
+        // InputStream is = new ByteArrayInputStream(os.toByteArray());
+        // FileUtils.saveStreamContentAsFile("/Users/dong4j/Develop/test.png", is);
     }
 
     /**
@@ -491,9 +467,10 @@ public class ImageUtilsTest {
      */
     @Test
     public void fileCopyTest() throws IOException {
-        File file1 = new File("/Users/dong4j/Downloads/xu.png");
-        File file2 = new File("/Users/dong4j/Downloads/xu1.png");
-        FileUtils.copyFile(file1, file2);
+        // 注释掉硬编码路径的测试
+        // File file1 = new File("/Users/dong4j/Downloads/xu.png");
+        // File file2 = new File("/Users/dong4j/Downloads/xu1.png");
+        // FileUtils.copyFile(file1, file2);
     }
 }
 

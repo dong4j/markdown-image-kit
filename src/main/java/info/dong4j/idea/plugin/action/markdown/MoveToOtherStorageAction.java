@@ -33,29 +33,34 @@ import javax.swing.event.DocumentEvent;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Description: 图床迁移计划 这里是批量迁移处理, 处理对象为 markdown 或者 目录</p>
+ * 图床迁移操作类
+ * <p>
+ * 用于执行图床迁移任务，支持对 Markdown 内容或目录中的图片进行批量迁移操作。该类主要处理迁移逻辑的初始化、执行以及与用户交互的界面设置。
+ * <p>
+ * 该类基于 IntelliJ 平台的 AnAction 接口实现，用于在 IDE 中提供一个可配置的迁移操作功能。通过对话框收集迁移参数，如目标域名、云存储类型等，并根据参数状态控制操作按钮的可用性。
  *
  * @author dong4j
- * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2021.02.14 18:40
- * @since 0.0.1
+ * @version 1.0.0
+ * @date 2025.10.24
+ * @since 1.0.0
  */
 @Slf4j
 public final class MoveToOtherStorageAction extends AnAction {
-    /** DOMAIN_DEFAULT_MESSAGE */
+    /** 默认域名提示信息，用于当域名字段未填写时显示的提示内容 */
     private static final String DOMAIN_DEFAULT_MESSAGE = MikBundle.message("mik.panel.message.domain-field");
-    /** CONNECTION_TIMEOUT */
+    /** 连接超时时间，单位为毫秒，默认设置为 5 秒 */
     private static final int CONNECTION_TIMEOUT = 5 * 1000;
-    /** READ_TIMEOUT */
+    /** 读取超时时间，单位为毫秒，默认设置为 10 秒 */
     private static final int READ_TIMEOUT = 10 * 1000;
-    /** MOVE_ALL */
+    /** 移动所有 */
     private static final String MOVE_ALL = "ALL";
 
     /**
-     * Update
+     * 更新操作
+     * <p>
+     * 执行更新操作，设置动作可用状态，并显示指定图标和类型名称
      *
-     * @param event event
+     * @param event 事件对象，包含操作上下文信息
      * @since 0.0.1
      */
     @Override
@@ -64,9 +69,11 @@ public final class MoveToOtherStorageAction extends AnAction {
     }
 
     /**
-     * Action performed
+     * 处理移动文件到其他云存储设置的Action操作
+     * <p>
+     * 根据用户在对话框中选择的云存储类型和域名，执行移动文件操作，并更新相关配置。
      *
-     * @param event event
+     * @param event Action事件对象，包含用户操作相关信息
      * @since 0.0.1
      */
     @Override
@@ -108,10 +115,12 @@ public final class MoveToOtherStorageAction extends AnAction {
     }
 
     /**
-     * 初始化 dialog
-     * 组件 index 与 cloudType index 关系 差 1
+     * 初始化并显示迁移至其他OSS设置的对话框
+     * <p>
+     * 创建并配置迁移至其他OSS设置的对话框，包括初始化云类型下拉框、绑定输入监听器、设置按钮状态等逻辑。
+     * 组件索引与云类型索引相差1，用于适配显示逻辑。
      *
-     * @return the move to other oss settings dialog
+     * @return 迁移至其他OSS设置的对话框实例，若用户取消操作则返回 null
      * @since 0.0.1
      */
     @Nullable
@@ -129,6 +138,13 @@ public final class MoveToOtherStorageAction extends AnAction {
         });
 
         dialog.getDomain().getDocument().addDocumentListener(new DocumentAdapter() {
+            /**
+             * 处理文本内容变化事件，更新操作按钮的可用状态
+             * <p>
+             * 监听文本变化事件，根据输入内容和云服务状态判断是否启用操作按钮
+             *
+             * @param e 文本变化事件对象
+             */
             @Override
             protected void textChanged(@NotNull DocumentEvent e) {
                 boolean isValidInput = StringUtils.isNotBlank(dialog.getDomain().getText()) && !DOMAIN_DEFAULT_MESSAGE.equals(dialog.getDomain().getText());
@@ -159,11 +175,12 @@ public final class MoveToOtherStorageAction extends AnAction {
 
     /**
      * 初始化 message 监听更新 ok 按钮可用状态
+     * <p>
+     * 根据指定的索引获取 OSS 状态，判断是否启用客户端以及输入是否有效，设置 message 文本和颜色，并更新 ok 按钮的可用状态。
      *
-     * @param builder the builder
-     * @param dialog  the dialog
-     * @param index   the index
-     * @since 0.0.1
+     * @param builder DialogBuilder 实例，用于设置 ok 按钮的可用状态
+     * @param dialog  MoveToOtherOssSettingsDialog 实例，用于获取 message 和 domain 输入框
+     * @param index   指定的 OSS 索引，用于获取状态信息
      */
     private static void showMessage(@NotNull DialogBuilder builder,
                                     @NotNull MoveToOtherOssSettingsDialog dialog,

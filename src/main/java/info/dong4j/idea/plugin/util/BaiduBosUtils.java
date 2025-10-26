@@ -7,30 +7,32 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
 /**
- * <p>Description: </p>
- * https://cloud.baidu.com/doc/BOS/s/Ikc5nv3wc
+ * 百度对象存储（BOS）工具类
+ * <p>
+ * 提供与百度对象存储服务相关的操作工具方法，包括对象上传、签名时间生成等功能。
+ * 该类封装了百度BOS服务的调用逻辑，简化了开发者在使用BOS服务时的配置和操作。
  *
  * @author dong4j
  * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2020.04.21 23:29
+ * @date 2020.04.21
  * @since 0.0.1
  */
 public class BaiduBosUtils {
-
     /**
-     * Put oss obj string
+     * 向阿里云OSS上传对象并返回上传结果
+     * <p>
+     * 该方法用于将指定的输入流内容上传到阿里云OSS，支持自定义端点和标准端点。上传完成后，会根据响应结果返回相应的字符串信息。
      *
-     * @param key              key
-     * @param content          content
-     * @param ossBucket        oss bucket
-     * @param endpoint         endpoint
-     * @param accessKeyId      access key id
-     * @param secretAccessKey  secret access key
-     * @param isCustomEndpoint is custom endpoint
-     * @param customEndpoint   custom endpoint
-     * @return the string
-     * @throws IOException io exception
+     * @param key              上传对象的键（Key）
+     * @param content          要上传的输入流内容
+     * @param ossBucket        OSS存储桶名称
+     * @param endpoint         OSS服务端点
+     * @param accessKeyId      访问密钥ID
+     * @param secretAccessKey  访问密钥
+     * @param isCustomEndpoint 是否使用自定义端点
+     * @param customEndpoint   自定义端点地址
+     * @return 上传结果的字符串表示
+     * @throws IOException 上传过程中发生I/O异常
      * @since 0.0.1
      */
     public static String putObject(String key,
@@ -111,9 +113,11 @@ public class BaiduBosUtils {
     }
 
     /**
-     * 生成签名的 UTC 时间，格式为 yyyy-mm-ddThh:mm:ssZ，例如：2015-04-27T08:23:49Z
+     * 生成当前 UTC 时间的字符串表示，格式为 yyyy-mm-ddThh:mm:ssZ，例如：2015-04-27T08:23:49Z
+     * <p>
+     * 该方法使用系统当前时间，并将其转换为 UTC 时区的时间，再按照指定格式格式化为字符串返回。
      *
-     * @return the gmt date
+     * @return 当前 UTC 时间的字符串表示
      * @since 1.1.0
      */
     public static String getUTCDate() {

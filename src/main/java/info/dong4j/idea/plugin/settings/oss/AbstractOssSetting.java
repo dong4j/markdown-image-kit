@@ -26,48 +26,51 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 
 /**
- * <p>Description:  </p>
+ * 抽象的 OSS 设置类
+ * <p>
+ * 该类用于抽象化 OSS（对象存储服务）相关配置的管理，提供初始化、应用、重置等通用操作，并支持自定义 Endpoint 的切换和帮助文档的展示。
+ * 主要用于封装 OSS 配置界面的通用逻辑，包括 Bucket 名、Access Key、Secret Key、Endpoint、文件目录等字段的管理。
+ * 同时支持根据是否启用自定义域名来动态控制相关字段的可用性，并提供示例路径的实时更新功能。
  *
- * @param <T> parameter
  * @author dong4j
  * @version 1.0.0
- * @email "mailto:dong4j@fkhwl.com"
- * @date 2021.02.16 13:12
+ * @date 2021.02.16
  * @since 1.1.0
  */
 public abstract class AbstractOssSetting<T extends AbstractExtendOssState> implements OssSetting<T> {
-
-    /** Aliyun oss bucket name text field */
+    /** Aliyun OSS 存储桶名称文本输入框 */
     private final JTextField bucketNameTextField;
-    /** Aliyun oss access key text field */
+    /** Aliyun OSS 访问密钥输入框 */
     private final JTextField accessKeyTextField;
-    /** Aliyun oss access secret key text field */
+    /** Aliyun OSS 访问密钥字段，用于输入和显示访问密钥信息 */
     private final JPasswordField accessSecretKeyTextField;
-    /** Aliyun oss endpoint text field */
+    /** Aliyun OSS 服务端点文本输入框 */
     private final JTextField endpointTextField;
-    /** Aliyun oss file dir text field */
+    /** Aliyun OSS 文件目录文本输入框 */
     private final JTextField fileDirTextField;
-    /** 是否启用自定义域名 */
+    /** 是否启用自定义域名的复选框 */
     private final JCheckBox customEndpointCheckBox;
-    /** 自定义域名 */
+    /** 自定义域名输入框，用于输入用户配置的自定义域名地址 */
     private final JTextField customEndpointTextField;
-    /** 自定义域名帮助文档 */
+    /** 自定义域名帮助提示标签 */
     private final JLabel customEndpointHelper;
-    /** Example text field */
+    /** 示例文本字段 */
     private final JTextField exampleTextField;
 
     /**
-     * Abstract oss setting
+     * 初始化OSS设置组件
+     * <p>
+     * 该构造函数用于初始化OSS设置相关的文本框和复选框等UI组件，以便后续配置和操作。
      *
-     * @param bucketNameTextField      bucket name text field
-     * @param accessKeyTextField       access key text field
-     * @param accessSecretKeyTextField access secret key text field
-     * @param endpointTextField        endpoint text field
-     * @param fileDirTextField         file dir text field
-     * @param customEndpointCheckBox   custom endpoint check box
-     * @param customEndpointTextField  custom endpoint text field
-     * @param customEndpointHelper     custom endpoint helper
-     * @param exampleTextField         example text field
+     * @param bucketNameTextField      存储桶名称输入框
+     * @param accessKeyTextField       访问密钥输入框
+     * @param accessSecretKeyTextField 访问密钥密码输入框
+     * @param endpointTextField        端点输入框
+     * @param fileDirTextField         文件目录输入框
+     * @param customEndpointCheckBox   自定义端点复选框
+     * @param customEndpointTextField  自定义端点输入框
+     * @param customEndpointHelper     自定义端点帮助标签
+     * @param exampleTextField         示例输入框
      * @since 1.1.0
      */
     public AbstractOssSetting(JTextField bucketNameTextField,
@@ -92,9 +95,12 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
     }
 
     /**
-     * 初始化 oss 认证相关设置
+     * 初始化 OSS 认证相关设置
+     * <p>
+     * 该方法用于初始化 OSS 认证所需的字段和监听器，包括设置访问密钥、监听文本框内容变化、
+     * 处理自定义端点的切换逻辑等。
      *
-     * @param state state
+     * @param state 用于初始化的配置状态对象
      * @since 0.0.1
      */
     @Override
@@ -105,12 +111,26 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
         this.setExampleText(false);
 
         DocumentAdapter documentAdapter = new DocumentAdapter() {
+            /**
+             * 处理文本内容变化事件
+             * <p>
+             * 当文本内容发生变化时，调用该方法更新示例文本状态
+             *
+             * @param e 文本变化事件对象
+             */
             @Override
             protected void textChanged(@NotNull DocumentEvent e) {
                 AbstractOssSetting.this.setExampleText(false);
             }
         };
         DocumentAdapter customDocumentAdapter = new DocumentAdapter() {
+            /**
+             * 当文本内容发生变化时触发的方法
+             * <p>
+             * 该方法在文本内容发生改变时被调用，用于更新示例文本状态
+             *
+             * @param e 文档事件对象，包含文本变化的相关信息
+             */
             @Override
             protected void textChanged(@NotNull DocumentEvent e) {
                 AbstractOssSetting.this.setExampleText(true);
@@ -134,10 +154,13 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
     }
 
     /**
-     * Change
+     * 根据是否选中状态更新相关控件的启用状态，并处理示例文本的显示
+     * <p>
+     * 当选中状态为 true 时，启用自定义 endpoint 相关控件，并添加文档监听器；否则，禁用这些控件。
+     * 同时根据选中状态重置示例文本内容。
      *
-     * @param customDocumentAdapter custom document adapter
-     * @param isSelected            is selected
+     * @param customDocumentAdapter 自定义文档监听器，用于监听文本变化
+     * @param isSelected            是否选中状态，true 表示选中，false 表示未选中
      * @since 1.1.0
      */
     private void change(DocumentAdapter customDocumentAdapter, boolean isSelected) {
@@ -158,10 +181,11 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
     }
 
     /**
-     * 实时更新此字段
+     * 根据是否为自定义配置更新示例文本字段的内容
+     * <p>
+     * 根据传入的 isCustom 参数判断使用自定义配置还是默认配置，构建对应的 URL 和文件路径，并更新示例文本字段。
      *
-     * @param isCustom is custom
-     * @since 0.0.1
+     * @param isCustom 是否为自定义配置
      */
     private void setExampleText(boolean isCustom) {
         String fileDir;
@@ -183,7 +207,9 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
     }
 
     /**
-     * Show custom endpoint helper
+     * 初始化并显示自定义 Endpoint 帮助文档链接
+     * <p>
+     * 该方法用于设置帮助文档链接的文本、颜色和鼠标样式，并为链接添加点击事件，打开帮助文档页面。
      *
      * @since 1.1.0
      */
@@ -196,6 +222,13 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
         this.customEndpointHelper.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         // 设置提示文字
         this.customEndpointHelper.addMouseListener(new MouseAdapter() {
+            /**
+             * 处理鼠标点击事件，打开帮助文档链接
+             * <p>
+             * 当用户点击组件时，尝试使用默认浏览器打开帮助文档的链接
+             *
+             * @param e 鼠标事件对象
+             */
             @Override
             public void mouseClicked(MouseEvent e) {
                 try {
@@ -207,11 +240,12 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
     }
 
     /**
-     * Is modified
+     * 判断当前状态是否与给定状态修改过
+     * <p>
+     * 比较当前配置状态与传入的 state 对象，判断是否发生修改。比较内容包括存储桶名称、访问密钥、秘密密钥、端点、文件目录、是否使用自定义端点以及自定义端点地址。
      *
-     * @param state state
-     * @return the boolean
-     * @since 1.1.0
+     * @param state 要比较的状态对象
+     * @return 如果当前状态与给定状态相同，返回 true；否则返回 false
      */
     @Override
     public boolean isModified(@NotNull T state) {
@@ -234,10 +268,11 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
     }
 
     /**
-     * Apply
+     * 应用配置信息到指定状态对象中
+     * <p>
+     * 从文本字段中获取OSS相关配置参数，计算哈希值并保存状态。同时设置状态对象的各个属性。
      *
-     * @param state state
-     * @since 1.1.0
+     * @param state 要应用配置的状态对象
      */
     @Override
     public void apply(@NotNull T state) {
@@ -268,9 +303,11 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
     }
 
     /**
-     * Reset
+     * 重置表单字段为指定状态的值
+     * <p>
+     * 根据传入的 state 对象，将各个文本字段和复选框设置为对应的状态值。
      *
-     * @param state state
+     * @param state 要设置的状态对象，包含桶名、访问密钥、秘密密钥、端点、文件目录、是否使用自定义端点及自定义端点信息
      * @since 1.1.0
      */
     @Override
@@ -286,17 +323,21 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
     }
 
     /**
-     * Gets help doc *
+     * 获取帮助文档内容
+     * <p>
+     * 返回系统或模块的帮助文档字符串，用于展示给用户或开发者参考
      *
-     * @return the help doc
+     * @return 帮助文档内容
      * @since 1.1.0
      */
     protected abstract String getHelpDoc();
 
     /**
-     * Credential attributes
+     * 获取凭证属性
+     * <p>
+     * 返回当前凭证的相关属性信息，具体属性由子类实现。
      *
-     * @return the credential attributes
+     * @return 凭证属性
      * @since 1.6.0
      */
     protected abstract CredentialAttributes credentialAttributes();

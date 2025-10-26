@@ -24,22 +24,25 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Description: alt + enter 处理单个标签上传, 完成后替换原有标签 </p>
+ * 图像上传意图操作类
+ * <p>
+ * 用于处理图像上传的意图操作，主要负责在用户触发上传操作时，识别并处理Markdown图像标签，执行上传流程。
+ * 该类继承自IntentionActionBase，实现了特定的上传逻辑，包括获取提示信息、执行上传操作等。
  *
  * @author dong4j
  * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2021.02.14 18:40
+ * @date 2021.02.14
  * @since 0.0.1
  */
 @Slf4j
 public final class ImageUploadIntentionAction extends IntentionActionBase {
-
     /**
-     * Gets message *
+     * 获取上传提示信息
+     * <p>
+     * 根据客户端名称返回对应的上传提示信息
      *
-     * @param clientName client name
-     * @return the message
+     * @param clientName 客户端名称
+     * @return 上传提示信息
      * @since 0.0.1
      */
     @NotNull
@@ -49,13 +52,15 @@ public final class ImageUploadIntentionAction extends IntentionActionBase {
     }
 
     /**
-     * Invoke
+     * 执行上传图片的后台任务
+     * <p>
+     * 该方法用于检测当前编辑器中的Markdown图片标记，若图片来源为网络，则触发上传流程。
+     * 通过创建后台任务，将图片信息和相关上下文传递给上传处理链进行处理。
      *
-     * @param project project
-     * @param editor  editor
-     * @param element element
-     * @throws IncorrectOperationException incorrect operation exception
-     * @since 0.0.1
+     * @param project 项目对象，用于获取项目上下文信息
+     * @param editor  编辑器对象，用于获取当前编辑器的文档信息
+     * @param element 当前选中的PsiElement对象，用于定位图片标记
+     * @throws IncorrectOperationException 当操作不正确时抛出异常
      */
     @Override
     public void invoke(@NotNull Project project,
@@ -72,11 +77,13 @@ public final class ImageUploadIntentionAction extends IntentionActionBase {
         }
 
         Map<Document, List<MarkdownImage>> waitingForMoveMap = new HashMap<>(1) {
+            /** 序列化版本号，用于确保类的兼容性 */
             @Serial
             private static final long serialVersionUID = -1445021799207331254L;
 
             {
                 this.put(editor.getDocument(), new ArrayList<>(1) {
+                    /** 序列化版本号，用于确保类的兼容性 */
                     @Serial
                     private static final long serialVersionUID = 4482739561378065459L;
 

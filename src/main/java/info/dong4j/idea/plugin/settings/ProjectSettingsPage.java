@@ -45,238 +45,252 @@ import javax.swing.JTextField;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Description: </p>
+ * 项目设置页面类
+ * <p>
+ * 该类用于实现 Markdown 图床工具的设置界面，支持多种云存储服务（如微博、阿里云、百度云、GitHub、Gitee、七牛云、腾讯云等）的配置和管理。
+ * 提供了上传设置、图片压缩、水印、文件重命名、自定义域名等高级功能，并支持测试上传和帮助文档跳转。
+ * 该类实现了 SearchableConfigurable 接口，用于在插件系统中注册设置页面。
  *
  * @author dong4j
- * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2019.03.13 12:19
- * @since 0.0.1
+ * @version 1.0.0
+ * @date 2025.10.24
+ * @since 1.0.0
  */
 @Slf4j
 public class ProjectSettingsPage implements SearchableConfigurable, Configurable.NoMargin {
-    /** TEST_FILE_NAME */
+    /** 测试文件名，用于测试场景中的文件标识 */
     public static final String TEST_FILE_NAME = "mik.png";
-
-    /** Config */
+    /**
+     * 配置信息
+     * <p>
+     * 用于存储和管理持久化组件的配置参数
+     *
+     * @see MikPersistenComponent
+     */
     private final MikPersistenComponent config;
-
-    /** My main panel */
+    /** 主面板，用于显示主要界面内容 */
     private JPanel myMainPanel;
 
     //region authorizationPanel
+    /** 授权面板，用于显示和管理授权相关配置和操作 */
     private JPanel authorizationPanel;
-    /** Authorization tabbed panel */
+    /** 授权选项卡面板，用于展示不同的授权配置选项 */
     private JTabbedPane authorizationTabbedPanel;
 
     //region weiboOss
-    /** weiboOssAuthorizationPanel group */
+    /** 微博 OSS 授权面板组件 */
     private JPanel weiboOssAuthorizationPanel;
-    /** Weibo user name text field */
+    /** 微博用户名输入框 */
     private JTextField weiboUserNameTextField;
-    /** Weibo password field */
+    /** 微博密码字段 */
     private JPasswordField weiboPasswordField;
-    /** User name label */
+    /** 用户名标签 */
     private JLabel userNameLabel;
-    /** Password label */
+    /** 密码标签 */
     private JLabel passwordLabel;
     //endregion
 
     //region aliyunOss
-    /** aliyunOssAuthorizationPanel group */
+    /** aliyunOssAuthorizationPanel 组 */
     private JPanel aliyunOssAuthorizationPanel;
-    /** Aliyun oss bucket name text field */
+    /** 阿里云 OSS 存储桶名称文本输入框 */
     private JTextField aliyunOssBucketNameTextField;
-    /** Aliyun oss access key text field */
+    /** 阿里云 OSS 访问密钥文本输入框 */
     private JTextField aliyunOssAccessKeyTextField;
-    /** Aliyun oss access secret key text field */
+    /** 阿里云 OSS 访问密钥字段，用于输入和显示密钥内容 */
     private JPasswordField aliyunOssAccessSecretKeyTextField;
-    /** Aliyun oss endpoint text field */
+    /** 阿里云 OSS 的访问端点文本输入框 */
     private JTextField aliyunOssEndpointTextField;
-    /** Aliyun oss file dir text field */
+    /** 阿里云 OSS 文件目录输入框，用于输入或选择 OSS 文件存储目录路径 */
     private JTextField aliyunOssFileDirTextField;
-    /** 是否启用自定义域名 */
+    /** 是否启用自定义域名的复选框组件 */
     private JCheckBox aliyunOssCustomEndpointCheckBox;
-    /** 自定义域名 */
+    /** 自定义域名输入框，用于输入阿里云 OSS 的自定义域名配置 */
     private JTextField aliyunOssCustomEndpointTextField;
     /** 自定义域名帮助文档 */
     private JLabel aliyunOssCustomEndpointHelper;
-    /** Example text field */
+    /** 示例文本字段，用于展示阿里云 OSS 相关示例内容 */
     private JTextField aliyunOssExampleTextField;
     //endregion
 
     //region baiduBos
-    /** Baidu bos authorization panel */
+    /** 百度 Bos 授权面板 */
     private JPanel baiduBosAuthorizationPanel;
-    /** Baidu bos bucket name text field */
+    /** 百度 Bos 存储桶名称文本框 */
     private JTextField baiduBosBucketNameTextField;
-    /** Baidu bos access key text field */
+    /** 百度 Bos 访问密钥文本框，用于输入或显示访问密钥信息 */
     private JTextField baiduBosAccessKeyTextField;
-    /** Baidu bos access secret key text field */
+    /** 百度 Bos 访问密钥字段，用于输入和显示百度 Bos 访问密钥信息 */
     private JPasswordField baiduBosAccessSecretKeyTextField;
-    /** Baidu bos endpoint text field */
+    /** 百度 Bos 服务端点文本输入框 */
     private JTextField baiduBosEndpointTextField;
-    /** Baidu bos file dir text field */
+    /** 百度 Bos 文件目录文本字段 */
     private JTextField baiduBosFileDirTextField;
-    /** Baidu bos custom endpoint check box */
+    /** 百度 Bos 自定义端点检查框 */
     private JCheckBox baiduBosCustomEndpointCheckBox;
-    /** Baidu bos custom endpoint text field */
+    /** 百度 Bos 自定义端点文本输入框 */
     private JTextField baiduBosCustomEndpointTextField;
-    /** Baidu bos custom endpoint helper */
+    /** 百度 Bos 自定义端点辅助标签 */
     private JLabel baiduBosCustomEndpointHelper;
-    /** Baidu bosxample text field */
+    /** 百度 Bos 示例文本字段 */
     private JTextField baiduBosExampleTextField;
     //endregion
 
     //region qiniuOss
-    /** qiniuOssAuthorizationPanel group */
+    /** qiniuOssAuthorizationPanel 组 */
     private JPanel qiniuOssAuthorizationPanel;
-    /** Qiniu oss bucket name text field */
+    /** 七牛 oss 存储桶名称文本框 */
     private JTextField qiniuOssBucketNameTextField;
-    /** Qiniu oss access key text field */
+    /** 七牛云 OSS 访问密钥输入框 */
     private JTextField qiniuOssAccessKeyTextField;
-    /** Qiniu oss access secret key text field */
+    /** 七牛OSS访问密钥的文本输入框 */
     private JPasswordField qiniuOssAccessSecretKeyTextField;
-    /** Qiniu oss up host text field */
+    /** 七牛云 OSS 上传地址输入框 */
     private JTextField qiniuOssUpHostTextField;
-    /** Qiniu oss east china radio button */
+    /** 七牛 OSS 东中国区域选择按钮 */
     private JRadioButton qiniuOssEastChinaRadioButton;
-    /** Qiniu oss nort china radio button */
+    /** 七牛OSS北中国区域选择按钮 */
     private JRadioButton qiniuOssNortChinaRadioButton;
-    /** Qiniu oss south china radio button */
+    /** 七牛 OSS 南中国区域选择按钮 */
     private JRadioButton qiniuOssSouthChinaRadioButton;
-    /** Qiniu oss north ameria radio button */
+    /** 七牛OSS北美区域的单选按钮 */
     private JRadioButton qiniuOssNorthAmeriaRadioButton;
-    /** Zone index text filed */
+    /** 区域索引文本字段 */
     private JTextField zoneIndexTextFiled;
     //endregion
 
     //region tencent
-    /** Tencent oss authorization panel */
+    /** 腾讯云OSS授权面板 */
     private JPanel tencentOssAuthorizationPanel;
-    /** Tencent backet name text field */
+    /** 腾讯云存储桶名称文本框 */
     private JTextField tencentBacketNameTextField;
-    /** Tencent access key text field */
+    /** 腾讯访问密钥文本框，用于输入或显示腾讯访问密钥信息 */
     private JTextField tencentAccessKeyTextField;
-    /** Tencent secret key text field */
+    /** 腾讯密钥字段文本框，用于输入腾讯密钥信息 */
     private JPasswordField tencentSecretKeyTextField;
-    /** Tencent region name text field */
+    /** 腾讯区域名称文本框，用于输入或显示腾讯云服务的区域名称 */
     private JTextField tencentRegionNameTextField;
     //endregion
 
     //region gitHub
-    /** Git hub authorization panel */
+    /** GitHub 授权面板，用于展示与 GitHub 的授权相关配置和操作项 */
     private JPanel githubAuthorizationPanel;
-    /** Git hub repos text field */
+    /** GitHub 仓库文本字段，用于输入或显示仓库名称等信息 */
     private JTextField githubReposTextField;
-    /** Git hub branch text field */
+    /** GitHub 分支文本输入框 */
     private JTextField githubBranchTextField;
-    /** Git hub token text field */
+    /** GitHub token 输入框，用于输入用户的 GitHub 认证令牌 */
     private JPasswordField githubTokenTextField;
-    /** Git hub file dir text field */
+    /** GitHub 文件目录文本输入框 */
     private JTextField githubFileDirTextField;
-    /** Git hub custom endpoint check box */
+    /** GitHub 自定义端点复选框，用于控制是否启用自定义的 GitHub 端点配置 */
     private JCheckBox githubCustomEndpointCheckBox;
-    /** Git hubs custom endpoint text field */
+    /** GitHub 自定义端点文本输入框 */
     private JTextField githubCustomEndpointTextField;
-    /** Git hub custom endpoint helper */
+    /** GitHub 自定义端点帮助标签，用于显示或设置自定义端点信息 */
     private JLabel githubCustomEndpointHelper;
-    /** Git hub example text field */
+    /** GitHub 示例文本字段，用于展示或输入示例文本内容 */
     private JTextField githubExampleTextField;
     //endregion
 
     //region custom
+    /** 自定义授权面板 */
     private JPanel customAuthorizationPanel;
+    /** 自定义 API 地址输入框 */
     private JTextField customApiTextField;
+    /** 请求密钥输入框 */
     private JTextField requestKeyTextField;
+    /** 响应URL路径输入框，用于输入或编辑响应URL路径配置 */
     private JTextField responseUrlPathTextField;
+    /** HTTP 请求方法输入框，用于用户选择或输入请求方法，如 GET、POST 等 */
     private JTextField httpMethodTextField;
     //endregion
 
     //region gitee
-    /** Git hub authorization panel */
+    /** GitHub 授权面板，用于展示和管理 GitHub 授权相关配置 */
     private JPanel giteeAuthorizationPanel;
-    /** Git hub repos text field */
+    /** GitHub 仓库文本输入框 */
     private JTextField giteeReposTextField;
-    /** Git hub branch text field */
+    /** GitHub 分支文本输入框 */
     private JTextField giteeBranchTextField;
-    /** Git hub token text field */
+    /** GitHub Token 输入框，用于输入用户的 GitHub Token */
     private JPasswordField giteeTokenTextField;
-    /** Git hub file dir text field */
+    /** GitHub文件目录文本字段，用于输入或显示文件存储路径 */
     private JTextField giteeFileDirTextField;
-    /** Git hub custom endpoint check box */
+    /** GitHub 自定义端点检查框 */
     private JCheckBox giteeCustomEndpointCheckBox;
-    /** Git hubs custom endpoint text field */
+    /** GitHub 自定义端点文本输入框 */
     private JTextField giteeCustomEndpointTextField;
-    /** Git hub custom endpoint helper */
+    /** GitHub 自定义端点帮助标签 */
     private JLabel giteeCustomEndpointHelper;
-    /** Git hub example text field */
+    /** giteeExampleTextField 用于展示或输入 GitHub 示例文本 */
     private JTextField giteeExampleTextField;
     //endregion
-
-    /** Test button */
+    /** 测试按钮 */
     private JButton testButton;
-    /** Help button */
+    /** 帮助按钮 */
     private JButton helpButton;
     //endregion
 
     //region globalUploadPanel
-    /** globalUploadPanel group */
+    /** 全局上传面板，用于展示和管理文件上传功能 */
     private JPanel globalUploadPanel;
-    /** Default cloud combo box */
+    /** 默认云服务商下拉框，用于展示和选择默认的云服务提供商 */
     private JComboBox<?> defaultCloudComboBox;
-
-    /** Change to html tag check box */
+    /** 转换为 HTML 标签的复选框，用于控制是否将内容转换为 HTML 标签格式 */
     private JCheckBox changeToHtmlTagCheckBox;
-    /** Large picture radio button */
+    /** 大图模式单选按钮 */
     private JRadioButton largePictureRadioButton;
-    /** Common radio button */
+    /** 常用单选按钮 */
     private JRadioButton commonRadioButton;
-    /** Common label */
+    /** 公共标签，用于显示通用信息或提示内容 */
     private JLabel commonLabel;
-    /** Custom radio button */
+    /** 自定义单选按钮 */
     private JRadioButton customRadioButton;
-    /** Custom label */
+    /** 自定义标签，用于显示或输入特定内容 */
     private JLabel customLabel;
-    /** Custom html type text field */
+    /** 自定义 HTML 类型文本字段 */
     private JTextField customHtmlTypeTextField;
-    /** Compress check box */
+    /** 压缩选项复选框 */
     private JCheckBox compressCheckBox;
-    /** Compress slider */
+    /** 压缩比例滑块 */
     private JSlider compressSlider;
-    /** Compress label */
+    /** 压缩标签 */
     private JLabel compressLabel;
-    /** Rename check box */
+    /** 重命名复选框 */
     private JCheckBox renameCheckBox;
-    /** File name suffix box field */
+    /** 文件名后缀选择框字段 */
     private JComboBox<?> fileNameSuffixBoxField;
     /** 水印复选框 */
     private JCheckBox watermarkCheckBox;
-    /** 水印文字 */
+    /** 水印文字输入框，用于显示或编辑水印内容 */
     private JTextField watermarkTextField;
-    /** Custom message */
+    /** 自定义消息标签，用于显示用户自定义的提示信息 */
     private JLabel customMessage;
     //endregion
 
     //region clipboardPanel
-    /** Clipboard panel */
+    /** 剪贴板面板，用于显示和操作剪贴板内容 */
     private JPanel clipboardPanel;
-    /** Copy to dir check box */
+    /** 复制到目录的复选框 */
     private JCheckBox copyToDirCheckBox;
-    /** Where to copy text field */
+    /** whereToCopyTextField 用于输入用户指定的复制目标位置 */
     private JTextField whereToCopyTextField;
-    /** Upload and replace check box */
+    /** 上传并替换检查框 */
     private JCheckBox uploadAndReplaceCheckBox;
-    /** Default cloud check box */
+    /** 默认云配置复选框 */
     private JCheckBox defaultCloudCheckBox;
+    /** comboBox1 是用于选择选项的下拉框组件 */
     private JComboBox comboBox1;
     // endregion
 
     // region WeiboOssSetting
+    /** 微博OSS配置信息，用于存储和管理微博OSS相关的设置参数 */
     private final WeiboOssSetting weiboOssSetting = new WeiboOssSetting(this.weiboUserNameTextField, this.weiboPasswordField);
     // endregion
 
     // region AliyunOssSetting
+    /** 阿里云OSS配置信息，用于存储和管理OSS相关设置参数 */
     private final AliyunOssSetting aliyunOssSetting = new AliyunOssSetting(this.aliyunOssBucketNameTextField,
                                                                            this.aliyunOssAccessKeyTextField,
                                                                            this.aliyunOssAccessSecretKeyTextField,
@@ -289,6 +303,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     //endregion
 
     //region BaiduBosSetting
+    /** 百度对象存储（BOS）配置信息，用于初始化和管理 BOS 相关参数 */
     private final BaiduBosSetting baiduBosSetting = new BaiduBosSetting(this.baiduBosBucketNameTextField,
                                                                         this.baiduBosAccessKeyTextField,
                                                                         this.baiduBosAccessSecretKeyTextField,
@@ -301,6 +316,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     //endregion
 
     //region GitHubSetting
+    /** GitHub 设置对象，用于管理 GitHub 相关配置和操作 */
     private final GithubSetting githubSetting = new GithubSetting(this.githubReposTextField,
                                                                   this.githubBranchTextField,
                                                                   this.githubTokenTextField,
@@ -312,6 +328,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     //endregion
 
     //region GiteeSetting
+    /** Gitee 设置信息，用于存储和管理 Gitee 相关配置参数 */
     private final GiteeSetting giteeSetting = new GiteeSetting(this.giteeReposTextField,
                                                                this.giteeBranchTextField,
                                                                this.giteeTokenTextField,
@@ -323,6 +340,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     //endregion
 
     //region QiniuOssSetting
+    /** 七牛云 OSS 配置信息，用于存储和管理七牛云对象存储的相关设置 */
     private final QiniuOssSetting qiniuOssSetting = new QiniuOssSetting(this.qiniuOssBucketNameTextField,
                                                                         this.qiniuOssAccessKeyTextField,
                                                                         this.qiniuOssAccessSecretKeyTextField,
@@ -335,6 +353,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     //endregion
 
     //region TencentOssSetting
+    /** TencentOssSetting 对象，用于配置腾讯云对象存储服务相关参数 */
     private final TencentOssSetting tencentOssSetting = new TencentOssSetting(this.tencentBacketNameTextField,
                                                                               this.tencentAccessKeyTextField,
                                                                               this.tencentSecretKeyTextField,
@@ -342,17 +361,19 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     //endregion
 
     //region CustomOssSetting
+    /** 自定义 OSS 配置信息实例，用于存储和管理 OSS 相关的配置参数 */
     private final CustomOssSetting customOssSetting = new CustomOssSetting(this.customApiTextField,
                                                                            this.requestKeyTextField,
                                                                            this.responseUrlPathTextField,
                                                                            this.httpMethodTextField);
     //endregion
-
-    /** todo-dong4j : (2019年03月20日 13:25) [测试输入验证用] */
+    /** 用于输入验证测试的端口号输入框 */
     private JTextField myPort;
 
     /**
-     * Project settings page
+     * ProjectSettingsPage 构造函数
+     * <p>
+     * 初始化 ProjectSettingsPage 对象，加载配置信息并重置页面状态。
      *
      * @since 0.0.1
      */
@@ -365,9 +386,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     /**
-     * Create component
+     * 创建组件
+     * <p>
+     * 初始化组件设置并返回主面板组件
      *
-     * @return the j component
+     * @return 主面板组件
      * @since 0.0.1
      */
     @Override
@@ -377,9 +400,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     /**
-     * Gets id *
+     * 获取唯一标识符
+     * <p>
+     * 返回该对象的唯一标识符，实际通过获取显示名称实现
      *
-     * @return the id
+     * @return 唯一标识符
      * @since 0.0.1
      */
     @NotNull
@@ -389,9 +414,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     /**
-     * Gets display name *
+     * 获取显示名称
+     * <p>
+     * 返回用于显示的名称，通常用于界面展示或标识用途
      *
-     * @return the display name
+     * @return 显示名称，固定为 "Markdown Image Kit"
      * @since 0.0.1
      */
     @Nls
@@ -401,7 +428,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     /**
-     * 每次打开设置面板时执行
+     * 每次打开设置面板时执行初始化操作
+     * <p>
+     * 该方法用于从配置中读取状态信息，并初始化授权面板、全局面板和剪贴板控制相关组件。
      *
      * @since 0.0.1
      */
@@ -441,10 +470,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     /**
-     * 初始化 authorizationTabbedPanel group
+     * 初始化 authorizationTabbedPanel 的 group 配置
+     * <p>
+     * 根据当前状态初始化默认选中的图床类型，并设置 help 按钮的文本内容。同时为 authorizationTabbedPanel 添加切换监听器，用于更新选中标签和 help 按钮显示信息。最后初始化各个图床设置组件。
      *
-     * @param state state
-     * @since 0.0.1
+     * @param state 当前状态对象，用于获取云类型信息
      */
     private void initAuthorizationTabbedPanel(@NotNull MikState state) {
         int defaultCloudIndex = state.getCloudType() == CloudEnum.SM_MS_CLOUD.index
@@ -477,7 +507,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     /**
-     * 添加 test 和 help 按钮监听, 根据选中的图床进行测试
+     * 为 "Test" 和 "Help" 按钮添加监听器，用于根据选中的图床进行测试或获取帮助信息
+     * <p>
+     * 该方法为 "Test" 按钮绑定点击事件，用于上传测试文件并显示结果；同时为 "Help" 按钮绑定点击事件，用于打开对应帮助页面。
      *
      * @since 0.0.1
      */
@@ -546,10 +578,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     /**
-     * 初始化 upload 配置组
+     * 初始化上传配置组
+     * <p>
+     * 根据传入的 state 初始化上传相关的配置项，包括默认图床选择、压缩设置、文件重命名和水印配置等。
      *
-     * @param state state
-     * @since 0.0.1
+     * @param state 用于初始化配置的 MikState 对象
      */
     private void initGlobalPanel(@NotNull MikState state) {
         boolean isDefaultCloudCheck = state.isDefaultCloudCheck();
@@ -599,10 +632,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     /**
-     * Show select cloud message
+     * 根据云类型显示选择云的提示信息
+     * <p>
+     * 根据传入的云类型判断是否启用OSS服务，并设置对应的提示信息。
      *
-     * @param cloudType cloud type
-     * @since 0.0.1
+     * @param cloudType 云类型
      */
     private void showSelectCloudMessage(int cloudType) {
         if (this.defaultCloudCheckBox.isSelected()) {
@@ -614,7 +648,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     /**
-     * 初始化替换标签设置组
+     * 初始化替换标签设置组，设置相关组件的初始状态和监听器
+     * <p>
+     * 该方法用于初始化文本框和单选按钮的焦点监听和状态变化监听，根据配置信息设置默认选中项和组件可用性。
      *
      * @since 0.0.1
      */
@@ -663,10 +699,13 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     /**
-     * 处理被选中的单选框
+     * 处理被选中的单选框，更新自定义HTML类型文本框的可用状态
+     * <p>
+     * 将指定的单选框添加到按钮组中，并为其添加监听器。当单选框状态发生变化时，
+     * 根据其文本内容决定自定义HTML类型文本框是否可用。
      *
-     * @param group  the group
-     * @param button the button
+     * @param group  按钮组
+     * @param button 被选中的单选框
      * @since 0.0.1
      */
     private void addChangeTagRadioButton(@NotNull ButtonGroup group, JRadioButton button) {
@@ -683,6 +722,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
 
     /**
      * 初始化图片压缩配置组
+     * <p>
+     * 该方法用于初始化与图片压缩相关的配置组件，包括压缩状态的设置、滑块控件的配置以及事件监听的绑定。
+     * 主要设置压缩状态是否启用，滑块的取值范围、刻度显示以及与压缩状态的联动逻辑。
      *
      * @since 0.0.1
      */
@@ -713,7 +755,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     /**
-     * 初始化 clipboard group
+     * 初始化剪贴板控制相关组件
+     * <p>
+     * 用于初始化剪贴板操作相关的UI组件，包括设置复选框状态、文本框内容以及添加事件监听器。
      *
      * @since 0.0.1
      */
@@ -737,8 +781,10 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
 
     /**
      * 判断 GUI 是否有变化
+     * <p>
+     * 检查各个 OSS 配置项和通用设置是否发生修改，若全部未修改则返回 false，否则返回 true
      *
-     * @return the boolean
+     * @return 是否有变化
      * @since 0.0.1
      */
     @Override
@@ -760,11 +806,12 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     /**
-     * Is general modified
+     * 判断当前状态是否与给定的MikState对象状态一致
+     * <p>
+     * 比较当前界面配置状态与传入的MikState对象的各个属性是否一致，包括是否替换为HTML标签、标签类型、压缩设置、重命名设置、水印设置等。
      *
-     * @param state state
-     * @return the boolean
-     * @since 0.0.1
+     * @param state 要比较的MikState对象
+     * @return 如果当前状态与给定状态一致，返回true；否则返回false
      */
     private boolean isGeneralModified(MikState state) {
         // 是否替换标签
@@ -821,10 +868,12 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     /**
-     * Is clipboard modified
+     * 判断剪贴板内容是否已修改
+     * <p>
+     * 比较当前剪贴板状态与传入的MikState对象的状态，判断是否发生改变。
      *
-     * @param state state
-     * @return the boolean
+     * @param state 要比较的MikState对象
+     * @return 如果剪贴板内容与传入状态一致，返回true；否则返回false
      * @since 0.0.1
      */
     private boolean isClipboardModified(@NotNull MikState state) {
@@ -838,9 +887,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     /**
-     * 配置被修改后时被调用, 修改 state 中的数据
+     * 配置被修改后调用，用于更新 state 中的数据
+     * <p>
+     * 当配置发生变化时，该方法会被调用，用于将配置信息应用到 state 对象中，更新相关存储设置和通用配置。
      *
-     * @since 0.0.1
+     * @param state 需要更新的配置状态对象
      */
     @Override
     public void apply() {
@@ -860,10 +911,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     /**
-     * Apply general configs
+     * 应用通用配置到状态对象
+     * <p>
+     * 根据界面组件的状态，将相关配置应用到传入的MikState对象中，包括标签类型、压缩设置、重命名设置等。
      *
-     * @param state state
-     * @since 0.0.1
+     * @param state 状态对象，用于存储配置信息
      */
     private void applyGeneralConfigs(@NotNull MikState state) {
         state.setChangeToHtmlTag(this.changeToHtmlTagCheckBox.isSelected());
@@ -897,9 +949,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     /**
-     * Apply clipboard configs
+     * 应用剪贴板配置
+     * <p>
+     * 根据界面组件的状态，将剪贴板相关配置应用到MikState对象中
      *
-     * @param state state
+     * @param state 保存剪贴板配置的MikState对象
      * @since 0.0.1
      */
     private void applyClipboardConfigs(@NotNull MikState state) {
@@ -909,9 +963,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     /**
-     * 撤回是调用
-     *
-     * @since 0.0.1
+     * 重置配置信息
+     * <p>
+     * 该方法用于重置所有OSS相关配置和通用配置，通过传入的MikState对象获取配置状态并进行重置。
      */
     @Override
     public void reset() {
@@ -931,10 +985,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     /**
-     * Reset general c onfigs
+     * 重置通用配置项
+     * <p>
+     * 根据传入的MikState对象，将界面中的各个配置项重置为对应的状态值。
      *
-     * @param state state
-     * @since 0.0.1
+     * @param state 用于重置配置的MikState对象
      */
     private void resetGeneralCOnfigs(@NotNull MikState state) {
         this.changeToHtmlTagCheckBox.setSelected(state.isChangeToHtmlTag());
@@ -954,9 +1009,11 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     }
 
     /**
-     * Reset clipboard configs
+     * 重置剪贴板配置
+     * <p>
+     * 根据传入的MikState对象，更新剪贴板相关组件的状态，包括复制到目录的勾选状态、保存路径文本以及上传并替换的勾选状态。
      *
-     * @param state state
+     * @param state 用于重置配置的MikState对象
      * @since 0.0.1
      */
     private void resetClipboardConfigs(@NotNull MikState state) {

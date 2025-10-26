@@ -5,20 +5,27 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Random;
 
 /**
- * <p>Description: </p>
+ * 字符工具类
+ * <p>
+ * 提供生成随机字符串的实用方法，适用于需要随机字符生成的场景，如密码生成、验证码生成等。
+ * <p>
+ * 该类包含两个生成随机字符串的方法：
+ * - getRandomString：生成包含大小写字母和数字的随机字符串
+ * - getRandomString2：生成包含大小写字母和数字的随机字符串，但字符分布不同
  *
  * @author dong4j
- * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2019.03.13 17:57
- * @since 0.0.1
+ * @version 1.0.0
+ * @date 2025.10.24
+ * @since 1.0.0
  */
 public final class CharacterUtils {
     /**
-     * Gets random string.
+     * 生成指定长度的随机字符串
+     * <p>
+     * 使用包含大小写字母和数字的字符集，生成指定长度的随机字符串
      *
-     * @param length the length
-     * @return the random string
+     * @param length 随机字符串的长度
+     * @return 生成的随机字符串
      * @since 0.0.1
      */
     @NotNull
@@ -40,10 +47,12 @@ public final class CharacterUtils {
     }
 
     /**
-     * Gets random string 2.
+     * 生成指定长度的随机字符串
+     * <p>
+     * 该方法会根据给定的长度参数，生成包含大小写字母和数字的随机字符串。
      *
-     * @param length the length
-     * @return the random string 2
+     * @param length 随机字符串的长度
+     * @return 生成的随机字符串
      * @since 0.0.1
      */
     @NotNull

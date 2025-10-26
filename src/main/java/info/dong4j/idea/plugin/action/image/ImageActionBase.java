@@ -32,40 +32,49 @@ import javax.swing.Icon;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Description: 图片 压缩, 直接上传后将 url 写入到 clipboard </p>
+ * 图片操作基础类
+ * <p>
+ * 该类作为图片处理操作的基类，提供图片压缩、上传及 URL 处理的基础功能。主要用于支持图片相关操作的扩展，如图片压缩、上传至服务器并保存 URL 到剪贴板等。该类通过继承 AnAction 实现了 IntelliJ IDEA 的插件动作逻辑，支持在编辑器中触发图片处理操作。
+ * <p>
+ * 该类包含构建图片处理链、更新动作状态、执行图片处理动作等核心方法，并通过抽象方法定义了图标获取和链构建的接口，便于子类扩展。
  *
  * @author dong4j
  * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2021.02.14 18:40
+ * @date 2021.02.14
  * @since 0.0.1
  */
 @Slf4j
 public abstract class ImageActionBase extends AnAction {
-    /** STATE */
+    /** 当前组件状态 */
     protected static final MikState STATE = MikPersistenComponent.getInstance().getState();
 
     /**
-     * Gets icon.
+     * 获取图标
+     * <p>
+     * 返回当前对象对应的图标
      *
-     * @return the icon
+     * @return 图标对象
      * @since 0.0.1
      */
     abstract protected Icon getIcon();
 
     /**
-     * Build chain.
+     * 构建处理链
+     * <p>
+     * 根据给定的事件和等待处理的流程映射，构建相应的处理链
      *
-     * @param event             the event
-     * @param waitingProcessMap the waiting process map
+     * @param event             事件对象，包含操作上下文信息
+     * @param waitingProcessMap 等待处理的流程映射，键为文档对象，值为Markdown图片列表
      * @since 0.0.1
      */
     abstract void buildChain(AnActionEvent event, Map<Document, List<MarkdownImage>> waitingProcessMap);
 
     /**
-     * Update
+     * 更新操作，用于启用或禁用该动作
+     * <p>
+     * 该方法通过设置动作可用状态为 true，使动作在 UI 中显示并可执行
      *
-     * @param event event
+     * @param event 动作事件对象，包含执行动作所需的信息
      * @since 0.0.1
      */
     @Override
@@ -74,11 +83,13 @@ public abstract class ImageActionBase extends AnAction {
     }
 
     /**
-     * Action performed
+     * 处理用户触发的Action事件，用于构建Markdown图片处理链
+     * <p>
+     * 该方法根据当前选中的编辑器或文件夹，收集所有Markdown图片文件，并构建处理链
      *
-     * @param event event
-     * @since 0.0.1
+     * @param event 事件对象，包含当前操作上下文信息
      */
+    @SuppressWarnings("D")
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
         Map<Document, List<MarkdownImage>> waitingProcessMap = new HashMap<>(32);
@@ -115,18 +126,19 @@ public abstract class ImageActionBase extends AnAction {
                 }
             }
 
-            if(waitingProcessMap.size() > 0){
+            if (!waitingProcessMap.isEmpty()) {
                 this.buildChain(event, waitingProcessMap);
             }
         }
     }
 
     /**
-     * 将 VirtualFile 转换为 File
+     * 构建等待处理的流程映射
+     * <p>
+     * 将给定的虚拟文件转换为 MarkdownImage 对象，并将其添加到等待处理的流程映射中。
      *
-     * @param waitingProcessMap the waiting process map
-     * @param virtualFile       the virtual file
-     * @since 0.0.1
+     * @param waitingProcessMap 等待处理的流程映射
+     * @param virtualFile       虚拟文件对象
      */
     private void buildWaitingProcessMap(@NotNull Map<Document, List<MarkdownImage>> waitingProcessMap,
                                         @NotNull VirtualFile virtualFile) {
@@ -145,6 +157,7 @@ public abstract class ImageActionBase extends AnAction {
         markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
 
         waitingProcessMap.put(new DocumentImpl(""), new ArrayList<>() {
+            /** 序列化版本号，用于确保类的兼容性 */
             @java.io.Serial
             private static final long serialVersionUID = 5838886826856938689L;
 

@@ -26,25 +26,35 @@ import javax.swing.JPanel;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Description: </p>
- * https://developer.qiniu.com/fusion/kb/1322/how-to-configure-cname-domain-name
+ * 七牛云对象存储客户端实现类
+ * <p>
+ * 该类用于封装七牛云对象存储服务的客户端操作，支持上传文件功能，并提供与七牛云配置相关的属性获取和初始化逻辑。
+ * 实现了 OssClient 接口，用于在不同云服务中统一调用对象存储功能。
+ * <p>
+ * 包含静态初始化逻辑，用于从配置中加载七牛云的端点、主机、访问密钥、秘密密钥和存储桶名称等信息。
+ * 支持通过 getInstance 方法获取单例实例，确保配置信息的统一性和一致性。
+ * <p>
+ * 通过 upload 方法实现文件上传功能，支持两种调用方式：一种是直接使用默认配置，另一种是通过传入自定义配置参数进行上传。
  *
  * @author dong4j
- * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2021.02.14 18:40
- * @since 0.0.1
+ * @version 1.0.0
+ * @date 2025.10.24
+ * @since 1.0.0
  */
 @Slf4j
 @Client(CloudEnum.QINIU_CLOUD)
 public class QiniuOssClient implements OssClient {
-    /** DEAD_LINE */
+    /** 系统默认的过期时间，单位为毫秒，表示 10 年的毫秒数 */
     private static final long DEAD_LINE = 3600L * 1000 * 24 * 365 * 10;
-    /** domain */
+    /** 服务端点地址 */
     private static String endpoint;
+    /** 服务器主机地址 */
     private static String host;
+    /** 访问密钥，用于身份验证和权限控制 */
     private static String accessKey;
+    /** 秘钥，用于加密或验证操作 */
     private static String secretKey;
+    /** 存储对象存储服务的存储桶名称 */
     private static String bucketName;
 
     static {
@@ -52,7 +62,10 @@ public class QiniuOssClient implements OssClient {
     }
 
     /**
-     * 如果是第一次使用, ossClient == null
+     * 初始化OSS客户端配置信息
+     * <p>
+     * 用于在首次使用时初始化七牛云OSS的相关配置参数，包括端点、访问密钥、存储桶名称等。
+     * 如果ossClient为null时调用此方法进行初始化。
      *
      * @since 0.0.1
      */
@@ -68,9 +81,11 @@ public class QiniuOssClient implements OssClient {
     }
 
     /**
-     * Gets cloud type *
+     * 获取云类型
+     * <p>
+     * 返回当前配置的云类型枚举值，固定为七牛云
      *
-     * @return the cloud type
+     * @return 云类型枚举值
      * @since 0.0.1
      */
     @Override
@@ -79,9 +94,11 @@ public class QiniuOssClient implements OssClient {
     }
 
     /**
-     * Gets instance.
+     * 获取 QiniuOssClient 实例
+     * <p>
+     * 该方法用于获取 QiniuOssClient 的单例实例，若实例不存在则创建并缓存。
      *
-     * @return the instance
+     * @return QiniuOssClient 实例
      * @since 0.0.1
      */
     @Contract(pure = true)
@@ -95,26 +112,32 @@ public class QiniuOssClient implements OssClient {
     }
 
     /**
-     * <p>Description: </p>
+     * 单例模式处理类
+     * <p>
+     * 用于实现 QiniuOssClient 的单例模式，确保在整个应用中只存在一个 QiniuOssClient 实例。
+     * 通过静态内部类的方式实现延迟加载和线程安全。
+     * </p>
      *
      * @author dong4j
      * @version 0.0.1
-     * @email "mailto:dong4j@gmail.com"
-     * @date 2021.02.14 18:40
+     * @email mailto:dong4j@gmail.com
+     * @date 2021.02.14
      * @since 0.0.1
      */
     private static class SingletonHandler {
-        /** SINGLETON */
+        /** 单例模式实例，用于提供全局唯一的 QiniuOssClient 对象 */
         private static final QiniuOssClient SINGLETON = new QiniuOssClient();
     }
 
     /**
-     * Upload string.
+     * 上传字符串内容到指定文件路径，并返回文件的访问路径
+     * <p>
+     * 该方法通过七牛云OSS工具将输入流中的内容上传至指定文件名的路径，并构建文件的访问URL返回。
      *
-     * @param inputStream the input stream
-     * @param fileName    the file name
-     * @return the string
-     * @since 0.0.1
+     * @param inputStream 输入流，包含要上传的数据内容
+     * @param fileName    文件名，用于标识上传的文件
+     * @return 文件的访问路径
+     * @throws Exception 上传过程中发生异常时抛出
      */
     @Override
     public String upload(InputStream inputStream, String fileName) throws Exception {
@@ -131,14 +154,16 @@ public class QiniuOssClient implements OssClient {
     }
 
     /**
-     * Upload from test string.
-     * {@link info.dong4j.idea.plugin.settings.ProjectSettingsPage#testAndHelpListener()}
+     * 上传文件并返回结果字符串
+     * <p>
+     * 该方法接收输入流、文件名和JPanel组件，从JPanel中获取配置信息，如存储桶名称、访问密钥、
+     * 秘密密钥、端点和区域索引，然后调用上传方法完成文件上传操作。
      *
-     * @param inputStream the input stream
-     * @param fileName    the file name
-     * @param jPanel      the j panel
-     * @return the string
-     * @since 0.0.1
+     * @param inputStream 输入流，用于读取上传的文件内容
+     * @param fileName    文件名，表示上传的文件名称
+     * @param jPanel      JPanel组件，用于获取上传所需的配置信息
+     * @return 上传操作的结果字符串
+     * @throws Exception 上传过程中发生异常时抛出
      */
     @Override
     public String upload(InputStream inputStream, String fileName, JPanel jPanel) throws Exception {
@@ -164,17 +189,21 @@ public class QiniuOssClient implements OssClient {
     }
 
     /**
-     * test 按钮点击事件后请求, 成功后保留 client, paste 或者 右键 上传时使用
+     * 处理上传按钮点击事件，用于上传文件到七牛云存储
+     * <p>
+     * 该方法用于在用户点击上传按钮后，将文件上传至指定的七牛云存储桶。支持通过输入流上传文件，并在上传成功后保存客户端信息。
+     * <p>
+     * 上传完成后，若返回的URL不为空，则根据相关参数计算哈希值，并更新存储状态。
      *
-     * @param inputStream the input stream
-     * @param fileName    the file name
-     * @param bucketName  the bucketName name
-     * @param accessKey   the access key
-     * @param secretKey   the secret key
-     * @param endpoint    the endpoint
-     * @param zoneIndex   the zone index
-     * @return the string
-     * @since 0.0.1
+     * @param inputStream 文件的输入流
+     * @param fileName    文件名
+     * @param bucketName  七牛云存储桶名称
+     * @param accessKey   七牛云访问密钥
+     * @param secretKey   七牛云密钥
+     * @param endpoint    七牛云服务端点
+     * @param zoneIndex   区域索引，用于选择七牛云区域
+     * @return 上传成功后返回的文件URL
+     * @throws Exception 上传过程中发生异常时抛出
      */
     @NotNull
     @Contract(pure = true)

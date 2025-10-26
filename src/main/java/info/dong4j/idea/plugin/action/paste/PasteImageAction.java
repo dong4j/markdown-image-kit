@@ -70,23 +70,28 @@ import javax.imageio.ImageIO;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-* <p>Description: 读取 Clipboard 图片, 上传到 OSS, 最后插入到光标位置</p>
+ * 处理从剪贴板粘贴图片并上传到 OSS 的操作
+ * <p>
+ * 该类实现了从剪贴板读取图片数据，根据配置上传到指定的 OSS 服务，并将图片插入到当前光标位置的功能。支持从剪贴板获取图片或文件，并根据设置进行水印处理、压缩、重命名、存储和上传等操作。
+ * <p>
+ * 该类继承自 EditorActionHandler 并实现了 EditorTextInsertHandler 接口，用于在编辑器中执行图片粘贴和插入操作。
  *
  * @author dong4j
  * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2019.03.16 12:15
+ * @date 2019.03.16
  * @since 0.0.1
  */
 @Slf4j
 public class PasteImageAction extends EditorActionHandler implements EditorTextInsertHandler {
-    /** Editor action handler */
+    /** 编辑器操作处理器，用于处理编辑器相关的用户操作事件 */
     private final EditorActionHandler editorActionHandler;
 
     /**
-     * Instantiates a new Paste image handler.
+     * 初始化 PasteImageAction 对象
+     * <p>
+     * 通过传入的 EditorActionHandler 实例进行初始化
      *
-     * @param originalAction the original action
+     * @param originalAction 原始的 EditorActionHandler 实例
      * @since 0.0.1
      */
     public PasteImageAction(EditorActionHandler originalAction) {
@@ -94,16 +99,18 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
     }
 
     /**
-     * 使用 paste 功能入口
-     * 从 clipboard 操作图片文件
-     * 1. 如果是 image 类型, 根据设置进行处理
-     * 2. 如果是 file 类型, 则获取文件路径然后根据设置处理
+     * 执行 paste 功能，处理从剪贴板获取的图片或文件
+     * <p>
+     * 该方法作为 paste 功能的入口，根据当前设置判断是否需要处理剪贴板中的图片或文件。
+     * 如果是图片类型，根据配置进行压缩、重命名、上传等操作；如果是文件类型，则获取文件路径并进行处理。
+     * 处理完成后，将结果写入文档并刷新文件系统视图。
      *
-     * @param editor      the editor
-     * @param caret       the caret
-     * @param dataContext the data context
+     * @param editor      编辑器实例
+     * @param caret       光标实例，可能为 null
+     * @param dataContext 数据上下文
      * @since 0.0.1
      */
+    @SuppressWarnings("D")
     @Override
     protected void doExecute(@NotNull Editor editor, @Nullable Caret caret, DataContext dataContext) {
 
@@ -121,7 +128,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
 
                     Map<Document, List<MarkdownImage>> waitingProcessMap = this.buildWaitingProcessMap(entry, editor, state);
 
-                    if (waitingProcessMap.size() == 0) {
+                    if (waitingProcessMap.isEmpty()) {
                         this.defaultAction(editor, caret, dataContext);
                         return;
                     }
@@ -158,6 +165,13 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
                         .addHandler(new InsertToDocumentHandler())
                         .addHandler(new FinalChainHandler())
                         .addCallback(new TaskCallbackAdapter() {
+                            /**
+                             * 处理成功回调逻辑
+                             * <p>
+                             * 在操作成功时执行回调，记录日志并刷新虚拟文件系统（VFS），确保新增的图片能够及时显示
+                             *
+                             * @since 1.0
+                             */
                             @Override
                             public void onSuccess() {
                                 log.trace("Success callback");
@@ -177,12 +191,14 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
     }
 
     /**
-     * Build waiting process map
+     * 构建等待处理的图片映射关系
+     * <p>
+     * 根据传入的条目、编辑器状态和状态信息，解析剪贴板数据并构建包含Markdown图片信息的映射关系。
      *
-     * @param entry  entry
-     * @param editor editor
-     * @param state
-     * @return the map
+     * @param entry  条目信息，用于解析剪贴板数据
+     * @param editor 编辑器对象，用于获取文档信息
+     * @param state  状态信息，用于控制解析过程
+     * @return 包含文档与Markdown图片列表的映射关系
      * @since 0.0.1
      */
     @Contract(pure = true)
@@ -192,36 +208,51 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
         Map<Document, List<MarkdownImage>> waitingProcessMap = new HashMap<>(8);
         List<MarkdownImage> markdownImages = new ArrayList<>(8);
         for (Map.Entry<String, InputStream> inputStreamMap : this.resolveClipboardData(entry, state).entrySet()) {
-            MarkdownImage markdownImage = new MarkdownImage();
-            markdownImage.setFileName("");
-            markdownImage.setImageName(inputStreamMap.getKey());
-            markdownImage.setExtension("");
-            markdownImage.setOriginalLineText("");
-            markdownImage.setLineNumber(0);
-            markdownImage.setLineStartOffset(0);
-            markdownImage.setLineEndOffset(0);
-            markdownImage.setTitle("");
-            markdownImage.setPath("");
-            markdownImage.setLocation(ImageLocationEnum.LOCAL);
-            markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
-            markdownImage.setInputStream(inputStreamMap.getValue());
-            markdownImage.setFinalMark("");
+            final MarkdownImage markdownImage = getMarkdownImage(inputStreamMap);
 
             markdownImages.add(markdownImage);
         }
-        if (markdownImages.size() > 0) {
+        if (!markdownImages.isEmpty()) {
             waitingProcessMap.put(editor.getDocument(), markdownImages);
         }
         return waitingProcessMap;
     }
 
     /**
-     * 处理 clipboard 数据
+     * 创建一个 MarkdownImage 实例并初始化其基本属性
+     * <p>
+     * 该方法根据传入的输入流映射条目，初始化一个 MarkdownImage 对象，设置其文件名、图片名、扩展名、原始行文本、行号等信息。
      *
-     * @param entry the entry     List<File> 或者 Image 类型
-     * @param state
-     * @return the map              文件名-->File, File 有本地文件(resolveFromFile)和临时文件(resolveFromImage)
-     * @since 0.0.1
+     * @param inputStreamMap 输入流映射条目，包含图片的键值对
+     * @return 初始化后的 MarkdownImage 实例
+     */
+    @NotNull
+    private static MarkdownImage getMarkdownImage(Map.Entry<String, InputStream> inputStreamMap) {
+        MarkdownImage markdownImage = new MarkdownImage();
+        markdownImage.setFileName("");
+        markdownImage.setImageName(inputStreamMap.getKey());
+        markdownImage.setExtension("");
+        markdownImage.setOriginalLineText("");
+        markdownImage.setLineNumber(0);
+        markdownImage.setLineStartOffset(0);
+        markdownImage.setLineEndOffset(0);
+        markdownImage.setTitle("");
+        markdownImage.setPath("");
+        markdownImage.setLocation(ImageLocationEnum.LOCAL);
+        markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
+        markdownImage.setInputStream(inputStreamMap.getValue());
+        markdownImage.setFinalMark("");
+        return markdownImage;
+    }
+
+    /**
+     * 处理剪贴板数据，根据不同的数据类型填充对应的输入流映射
+     * <p>
+     * 该方法接收一个剪贴板条目和状态对象，根据条目的数据类型（文件列表或图像）分别调用相应的处理方法，将结果存入输入流映射中返回。
+     *
+     * @param entry 剪贴板条目，包含数据类型和数据对象
+     * @param state 状态对象，用于传递处理过程中需要的上下文信息
+     * @return 文件名到输入流的映射，其中文件名对应的是本地文件或临时文件的输入流
      */
     private Map<String, InputStream> resolveClipboardData(@NotNull Map.Entry<DataFlavor, Object> entry,
                                                           MikState state) {
@@ -236,11 +267,13 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
 
     /**
      * 处理 clipboard 中为 List<File> 类型的数据
+     * <p>
+     * 该方法用于处理剪贴板中包含的文件列表数据，首先过滤非图片文件，然后将符合条件的图片文件
+     * 加载到 imageMap 中，供后续使用。若处理过程中出现异常或不符合条件的文件，将提前终止处理。
      *
-     * @param entry    the entry
-     * @param imageMap the image map
-     * @param state
-     * @since 0.0.1
+     * @param entry    包含数据类型的条目，用于获取文件列表
+     * @param imageMap 用于存储图片文件的映射表，键为文件名，值为文件输入流
+     * @param state    状态对象，用于控制是否添加水印等操作
      */
     private void resolveFromFile(@NotNull Map.Entry<DataFlavor, Object> entry,
                                  Map<String, InputStream> imageMap, MikState state) {
@@ -269,12 +302,14 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
     }
 
     /**
-     * 处理 clipboard 中为 Image 类型的数据
+     * 处理剪贴板中为图像类型的数据
+     * <p>
+     * 该方法用于处理剪贴板中类型为Image的数据，将其转换为InputStream并存入imageMap中。
+     * 若启用了水印功能，则使用文本生成水印图片；否则将图像转换为PNG格式的输入流。
      *
-     * @param entry    the entry
-     * @param imageMap the image map
-     * @param state
-     * @since 0.0.1
+     * @param entry    剪贴板条目，包含数据类型和对应的数据对象
+     * @param imageMap 存储图像文件名与输入流的映射表
+     * @param state    状态对象，用于控制是否启用水印功能及水印文本
      */
     private void resolveFromImage(@NotNull Map.Entry<DataFlavor, Object> entry,
                                   Map<String, InputStream> imageMap, MikState state) {
@@ -308,11 +343,13 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
     }
 
     /**
-     * 默认 paste 操作, 如果是文件的话应该粘贴文件名
+     * 执行默认的粘贴操作，如果是文件则应粘贴文件名
+     * <p>
+     * 该方法用于处理粘贴操作，若存在已配置的编辑器操作处理器，则调用其执行方法
      *
-     * @param editor      the editor
-     * @param caret       the caret
-     * @param dataContext the data context
+     * @param editor      编辑器实例
+     * @param caret       光标位置信息
+     * @param dataContext 数据上下文，包含操作所需的数据
      * @since 0.0.1
      */
     private void defaultAction(@NotNull Editor editor, @Nullable Caret caret, DataContext dataContext) {
@@ -323,12 +360,12 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
     }
 
     /**
-     * Create a virtual file.
-     * <a href="https://intellij-support.jetbrains.com/hc/en-us/community/posts/206144389-Create-virtual-file-from-file-path">...</a>
+     * 创建虚拟文件
+     * <p>
+     * 根据指定的编辑器和图像文件路径创建虚拟文件，并根据版本控制系统（VCS）状态决定是否将其标记为待添加文件。
      *
-     * @param ed        the ed
-     * @param imageFile the image file
-     * @since 0.0.1
+     * @param ed        编辑器实例
+     * @param imageFile 图像文件对象
      */
     private void createVirtualFile(Editor ed, File imageFile) {
         VirtualFile fileByPath = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(imageFile);
@@ -340,11 +377,13 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
     }
 
     /**
-     * Execute
+     * 执行指定操作
+     * <p>
+     * 该方法用于执行特定的操作，接收编辑器、数据上下文和生产者作为参数，用于处理数据传输相关逻辑。
      *
-     * @param editor      editor
-     * @param dataContext data context
-     * @param producer    producer
+     * @param editor      编辑器对象，用于操作界面元素
+     * @param dataContext 数据上下文，包含当前操作所需的数据和状态
+     * @param producer    生产者，用于生成可传输的数据对象，可为 null
      * @since 0.0.1
      */
     @Override

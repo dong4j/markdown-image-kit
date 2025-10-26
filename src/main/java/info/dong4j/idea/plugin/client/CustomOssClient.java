@@ -29,28 +29,25 @@ import javax.swing.JPanel;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Description: oss client 实现步骤:
- * 1. 初始化配置: 从持久化配置中初始化 client
- * 2. 静态内部类获取 client 单例
- * 3. 实现 OssClient 接口
- * 4. 自定义 upload 逻辑</p>
+ * 自定义 OSS 客户端实现类
+ * <p>
+ * 该类实现了 OssClient 接口，用于处理自定义 OSS 服务的上传操作。支持从持久化配置中初始化客户端配置，并提供单例模式确保全局唯一实例。支持通过文件流上传文件，并解析返回结果获取文件 URL。同时支持测试按钮点击事件的上传逻辑，用于验证配置并保存状态。
  *
  * @author dong4j
  * @version 1.0.0
- * @email "mailto:dong4j@gmail.com"
- * @date 2020.04.22 01:17
+ * @date 2020.04.22
  * @since 1.5.0
  */
 @Slf4j
 @Client(CloudEnum.CUSTOMIZE)
 public class CustomOssClient implements OssClient {
-    /** bucketName */
+    /** API 的名称或标识，用于指定调用的具体服务接口 */
     private static String api;
-    /** regionName */
+    /** 请求标识符，用于标识不同的请求区域或来源 */
     private static String requestKey;
-    /** accessKey */
+    /** 响应的 URL 路径 */
     private static String responseUrlPath;
-    /** httpMethod */
+    /** HTTP 请求方法 */
     private static String httpMethod;
 
     static {
@@ -58,8 +55,10 @@ public class CustomOssClient implements OssClient {
     }
 
     /**
-     * 如果是第一次使用, ossClient == null, 使用持久化配置初始化
-     * 1. 如果是第一次设置, 获取的持久化配置为 null, 则初始化 ossClient 失败
+     * 初始化OSS客户端相关配置
+     * <p>
+     * 如果是第一次使用，ossClient为null，此时会通过持久化配置进行初始化。
+     * 若是第一次设置，获取的持久化配置为null，则初始化ossClient失败。
      *
      * @since 1.5.0
      */
@@ -73,9 +72,11 @@ public class CustomOssClient implements OssClient {
     }
 
     /**
-     * Gets instance.
+     * 获取 CustomOssClient 实例
+     * <p>
+     * 该方法用于获取自定义 OSS 客户端实例，若实例不存在则创建并缓存。
      *
-     * @return the instance
+     * @return 自定义 OSS 客户端实例
      * @since 1.5.0
      */
     @Contract(pure = true)
@@ -89,23 +90,26 @@ public class CustomOssClient implements OssClient {
     }
 
     /**
-     * 使用缓存的 map 映射获取已初始化的 client, 避免创建多个实例
+     * 单例处理类
+     * <p>
+     * 用于管理 CustomOssClient 的单例实例，通过缓存的 map 映射获取已初始化的 client，避免创建多个实例，确保全局唯一性。
      *
      * @author dong4j
      * @version 1.5.0
-     * @email "mailto:dong4j@gmail.com"
-     * @date 2020.04.22 01:17
+     * @date 2020.04.22
      * @since 1.5.0
      */
     private static class SingletonHandler {
-        /** SINGLETON */
+        /** 单例模式实例，用于提供全局唯一的 CustomOssClient 实例 */
         private static final CustomOssClient SINGLETON = new CustomOssClient();
     }
 
     /**
-     * 实现接口, 获取当前 client type
+     * 实现接口，获取当前客户端类型
+     * <p>
+     * 返回当前客户端所对应的云类型枚举值
      *
-     * @return the cloud typed
+     * @return 云类型枚举值
      * @since 1.5.0
      */
     @Override
@@ -115,11 +119,13 @@ public class CustomOssClient implements OssClient {
 
     /**
      * 通过文件流上传文件
+     * <p>
+     * 使用输入流将文件上传至对象存储服务，并解析返回结果获取文件访问URL。
      *
-     * @param inputStream the input stream
-     * @param fileName    the file name
-     * @return the string
-     * @throws Exception exception
+     * @param inputStream 文件输入流，用于读取上传文件的内容
+     * @param fileName    文件名，用于标识上传的文件
+     * @return 上传成功后返回的文件访问URL
+     * @throws Exception 上传过程中发生异常时抛出
      * @since 1.5.0
      */
     @Override
@@ -135,9 +141,8 @@ public class CustomOssClient implements OssClient {
 
         String[] split = responseUrlPath.split("\\.");
 
-        JsonParser parser = new JsonParser();
         String json = result.get("json");
-        JsonElement parse = parser.parse(json);
+        JsonElement parse = JsonParser.parseString(json);
 
         String url = this.getUrl(parse, split, split[0], 0);
         if (StringUtils.isNotBlank(url)) {
@@ -149,9 +154,11 @@ public class CustomOssClient implements OssClient {
     }
 
     /**
-     * Show dialog
+     * 显示上传错误对话框
+     * <p>
+     * 根据传入的 result 参数构建并显示一个自定义的上传错误对话框，展示请求头信息、参数、文件部分、响应内容和 JSON 数据。
      *
-     * @param result result
+     * @param result 包含上传相关信息的 Map 对象，包含 "headerInfo"、"params"、"filePart"、"response" 和 "json" 键
      * @since 1.5.0
      */
     private static void showDialog(Map<String, String> result) {
@@ -176,13 +183,15 @@ public class CustomOssClient implements OssClient {
     }
 
     /**
-     * Gets url *
+     * 根据数据、分割路径和索引生成对应的URL
+     * <p>
+     * 递归解析JSON数据，根据指定的分割路径获取对应的URL值
      *
-     * @param data  data
-     * @param split split
-     * @param path  path
-     * @param index index
-     * @return the url
+     * @param data  需要解析的JSON数据
+     * @param split 分割路径数组，用于定位URL字段
+     * @param path  当前路径片段
+     * @param index 当前路径片段在分割数组中的索引
+     * @return 生成的URL字符串，若未找到则返回空字符串
      * @since 1.5.0
      */
     private String getUrl(JsonElement data, String[] split, String path, int index) {
@@ -206,16 +215,16 @@ public class CustomOssClient implements OssClient {
         return "";
     }
 
-
     /**
-     * 在设置界面点击 'Test' 按钮上传时调用, 通过 JPanel 获取当前配置
-     * {@link info.dong4j.idea.plugin.settings.ProjectSettingsPage#testAndHelpListener()}
+     * 在设置界面点击 'Test' 按钮上传时调用，用于获取当前配置并执行上传操作
+     * <p>
+     * 该方法通过传入的 JPanel 获取配置信息，包括 API 地址、请求 key、响应 URL 路径和 HTTP 方法，然后调用 upload 方法执行上传逻辑。
      *
-     * @param inputStream the input stream
-     * @param fileName    the file name
-     * @param jPanel      the j panel
-     * @return the string
-     * @throws Exception exception
+     * @param inputStream 输入流，用于读取上传文件的内容
+     * @param fileName    文件名，表示上传的文件名称
+     * @param jPanel      JPanel 对象，用于获取当前界面配置信息
+     * @return 上传操作的结果字符串
+     * @throws Exception 上传过程中发生异常时抛出
      * @since 1.5.0
      */
     @Override
@@ -243,16 +252,19 @@ public class CustomOssClient implements OssClient {
     }
 
     /**
-     * test 按钮点击事件后请求, 成功后保留 client, paste 或者 右键 上传时使用
+     * 处理测试按钮点击事件后的上传请求，成功后保留 client 信息，用于 paste 或右键上传时使用
+     * <p>
+     * 该方法接收上传所需的输入流、文件名、API、请求键、响应URL路径和HTTP方法，设置 CustomOssClient 相关参数，并执行上传操作。
+     * 若上传成功且返回的URL不为空，则根据传入的API、请求键、响应URL路径和HTTP方法计算哈希值，并更新OSS状态。
      *
-     * @param inputStream     the input stream
-     * @param fileName        the file name
-     * @param api             api
-     * @param requestKey      request key
-     * @param responseUrlPath response url path
-     * @param httpMethod      http method
-     * @return the string
-     * @throws Exception exception
+     * @param inputStream     上传的输入流
+     * @param fileName        文件名
+     * @param api             使用的API名称
+     * @param requestKey      请求键
+     * @param responseUrlPath 响应URL路径
+     * @param httpMethod      HTTP请求方法
+     * @return 上传成功后的URL字符串，若上传失败或无返回则可能为空
+     * @throws Exception 上传过程中发生异常时抛出
      * @since 1.5.0
      */
     @NotNull

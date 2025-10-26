@@ -12,30 +12,35 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
- * <p>Description: </p>
+ * 字符集工具类
+ * <p>
+ * 提供常用字符集的定义和转换方法，用于处理不同编码格式的字符串和字节数据。
+ * 包含 ISO_8859_1、US_ASCII、UTF_16、UTF_16BE、UTF_16LE、UTF_8 等标准字符集的常量定义。
+ * 提供了将字符串转换为字符集对象的方法，以及获取所有必需字符集的映射。
  *
  * @author dong4j
  * @version 1.0.0
- * @email "mailto:dong4j@gmail.com"
- * @date 2021.02.14 23:02
+ * @date 2025.10.24
  * @since 1.1.0
  */
 public class Charsets {
-    /** ISO_8859_1 */
+    /** ISO-8859-1 字符集，表示一种单字节编码的字符集 */
     public static final Charset ISO_8859_1;
-    /** US_ASCII */
+    /** US_ASCII 字符集，表示美国ASCII字符编码 */
     public static final Charset US_ASCII;
-    /** UTF_16 */
+    /** UTF-16 字符集 */
     public static final Charset UTF_16;
-    /** UTF_16BE */
+    /** UTF-16 Big Endian 字符集 */
     public static final Charset UTF_16BE;
-    /** UTF_16LE */
+    /** UTF-16 Little Endian 字符集 */
     public static final Charset UTF_16LE;
-    /** UTF_8 */
+    /** UTF-8 字符集 */
     public static final Charset UTF_8;
 
     /**
-     * Charsets
+     * 默认构造函数，用于初始化Charsets类的实例
+     * <p>
+     * 该构造函数无具体逻辑，主要用于实例化Charsets类
      *
      * @since 1.1.0
      */
@@ -43,9 +48,11 @@ public class Charsets {
     }
 
     /**
-     * Required charsets
+     * 获取系统要求的字符集集合
+     * <p>
+     * 返回一个包含标准字符集的不可修改的有序映射，按照字符集名称的不区分大小写顺序排列。
      *
-     * @return the sorted map
+     * @return 包含标准字符集的不可修改有序映射
      * @since 1.1.0
      */
     public static SortedMap<String, Charset> requiredCharsets() {
@@ -60,10 +67,12 @@ public class Charsets {
     }
 
     /**
-     * To charset
+     * 将传入的字符集对象转换为实际使用的字符集
+     * <p>
+     * 如果传入的字符集对象为 null，则返回系统默认字符集；否则返回传入的字符集对象。
      *
-     * @param charset charset
-     * @return the charset
+     * @param charset 传入的字符集对象，可以为 null
+     * @return 实际使用的字符集对象
      * @since 1.1.0
      */
     public static Charset toCharset(Charset charset) {
@@ -71,10 +80,12 @@ public class Charsets {
     }
 
     /**
-     * To charset
+     * 将字符串转换为对应的字符集
+     * <p>
+     * 如果传入的字符集字符串为 null，则返回系统默认字符集；否则，根据传入的字符集字符串返回对应的 Charset 对象。
      *
-     * @param charset charset
-     * @return the charset
+     * @param charset 字符集名称，可以为 null
+     * @return 对应的 Charset 对象
      * @since 1.1.0
      */
     public static Charset toCharset(String charset) {

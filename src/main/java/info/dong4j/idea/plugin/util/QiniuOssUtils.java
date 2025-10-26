@@ -22,36 +22,40 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Description:  </p>
- * <a href="https://developer.qiniu.com/kodo/1208/upload-token">...</a>
- * <a href="https://developer.qiniu.com/kodo/1312/upload">...</a>
+ * 七牛云对象存储（OSS）工具类
+ * <p>
+ * 提供与七牛云对象存储服务相关的操作，包括上传文件、生成上传Token、处理上传请求参数等核心功能。支持多部分上传、文件流处理以及上传策略配置。
+ * <p>
+ * 该工具类封装了与七牛云API交互的细节，简化了上传文件到OSS的流程，适用于需要将文件上传至七牛云存储的业务场景。
  *
  * @author dong4j
  * @version 1.0.0
- * @email "mailto:dong4j@fkhwl.com"
- * @date 2021.02.18 17:57
+ * @date 2021.02.18
  * @since 1.6.1
  */
 @UtilityClass
 @Slf4j
 public class QiniuOssUtils {
-    /** 边界标识 */
+    /** 边界标识，用于区分不同请求的唯一标识符 */
     private final static String BOUNDARY = UUID.randomUUID().toString().toLowerCase().replaceAll("-", "");
-    /** PREFIX */
+    /** 前缀标识符，用于区分不同类型的参数或标识 */
     private final static String PREFIX = "--";
-    /** LINE_END */
+    /** 换行符，用于表示行结束符 */
     private final static String LINE_END = "\r\n";
 
     /**
-     * Put object
+     * 向七牛云OSS上传文件
+     * <p>
+     * 该方法用于将指定的文件内容上传到七牛云OSS服务。需要提供文件名、文件内容、OSS存储桶名称、主机地址、Access Key ID和Secret Access Key等参数。
+     * 上传过程中会构建相应的HTTP请求，并处理上传结果。如果上传失败，会记录相关信息并抛出运行时异常。
      *
-     * @param fileName        file name
-     * @param content         content
-     * @param ossBucket       oss bucket
-     * @param host            host
-     * @param accessKeyId     access key id
-     * @param secretAccessKey secret access key
-     * @throws Exception exception
+     * @param fileName        要上传的文件名
+     * @param content         要上传的文件内容流
+     * @param ossBucket       OSS存储桶名称
+     * @param host            上传服务的主机地址
+     * @param accessKeyId     Access Key ID
+     * @param secretAccessKey Secret Access Key
+     * @throws Exception 上传过程中发生异常时抛出
      * @since 1.6.1
      */
     public static void putObject(String fileName,
@@ -115,6 +119,7 @@ public class QiniuOssUtils {
                              + "\nContent-Type: " + connection.getContentType() + "\n";
 
                 Map<String, String> map = new HashMap<String, String>() {
+                    /** 序列化版本号，用于确保类的兼容性 */
                     private static final long serialVersionUID = -5643217270707235408L;
 
                     {
@@ -136,11 +141,12 @@ public class QiniuOssUtils {
     }
 
     /**
-     * Show response
+     * 显示输入流中的响应内容
+     * <p>
+     * 读取输入流中的数据，并将内容追加到 StringBuilder 中，最后将结果记录到日志中
      *
-     * @param input input
-     * @throws IOException io exception
-     * @since 1.6.1
+     * @param input 输入流对象，用于读取响应数据
+     * @throws IOException 如果读取输入流时发生异常
      */
     private static void showResponse(InputStream input) throws IOException {
         StringBuilder buffer;
@@ -155,14 +161,16 @@ public class QiniuOssUtils {
     }
 
     /**
-     * Write file
+     * 将文件内容写入输出流，并构建包含请求参数的字符串消息
+     * <p>
+     * 该方法用于处理文件上传请求，将指定的输入流内容写入输出流，并构建包含请求参数的字符串消息，用于后续的HTTP请求体构造。
      *
-     * @param requestKey  request key
-     * @param fileName    file name
-     * @param inputStream input stream
-     * @param os          os
-     * @return the string
-     * @throws Exception exception
+     * @param requestKey  请求键，用于标识请求参数的名称
+     * @param fileName    文件名，用于构造Content-Disposition头信息
+     * @param inputStream 文件内容的输入流
+     * @param os          输出流，用于写入文件内容和请求参数
+     * @return 构建的包含请求参数的字符串消息
+     * @throws Exception 如果在写入过程中发生异常
      * @since 1.6.1
      */
     private static String writeFile(String requestKey, String fileName, InputStream inputStream, OutputStream os) throws Exception {
@@ -197,12 +205,13 @@ public class QiniuOssUtils {
 
     /**
      * 对post参数进行编码处理并写入数据流中
+     * <p>
+     * 将请求参数按照指定格式编码，并写入给定的输出流中。如果参数为空，则返回"空"的提示信息。
      *
-     * @param requestText request text
-     * @param os          os
-     * @return the string
-     * @throws Exception exception
-     * @since 1.5.0
+     * @param requestText 请求参数的键值对集合
+     * @param os          输出流，用于写入编码后的参数数据
+     * @return 编码后的参数信息字符串
+     * @throws Exception 如果写入过程中发生异常
      */
     private static String writeParams(Map<String, String> requestText,
                                       OutputStream os) throws Exception {
@@ -229,16 +238,17 @@ public class QiniuOssUtils {
     }
 
     /**
-     * 生成上传token
+     * 生成用于上传的临时访问凭证（token）
+     * <p>
+     * 根据提供的参数生成一个用于对象存储服务的上传token，该token包含用于访问存储服务的临时凭证信息。
      *
-     * @param bucket          空间名
-     * @param key             key，可为 null
-     * @param expires         有效时长，单位秒。默认3600s
-     * @param policy          上传策略的其它参数，如 new StringMap().put("endUser", "uid").putNotEmpty("returnBody", "")。                scope通过
-     *                        bucket、key间接设置，deadline 通过 expires 间接设置
-     * @param accessKey       access key
-     * @param secretAccessKey secret access key
-     * @return 生成的上传token string
+     * @param bucket          存储空间名称
+     * @param key             对象的唯一标识，可以为 null
+     * @param expires         上传token的有效时长，单位为秒，默认为3600秒
+     * @param policy          上传策略的其他参数，如设置用户标识、返回体等。bucket和key参数会通过该策略间接设置，deadline通过expires间接设置
+     * @param accessKey       临时访问密钥
+     * @param secretAccessKey 临时访问密钥对应的密钥
+     * @return 生成的上传token字符串
      * @since 1.6.1
      */
     public static String uploadToken(String bucket, String key, long expires, StringMap policy, String accessKey, String secretAccessKey) {
@@ -247,16 +257,18 @@ public class QiniuOssUtils {
     }
 
     /**
-     * Upload token with deadline
+     * 根据指定参数生成带截止时间的上传令牌
+     * <p>
+     * 该方法用于创建一个包含bucket、key、截止时间、策略等信息的上传令牌，并进行签名处理。
      *
-     * @param bucket          bucket
-     * @param key             key
-     * @param deadline        deadline
-     * @param policy          policy
-     * @param strict          strict
-     * @param accessKey       access key
-     * @param secretAccessKey secret access key
-     * @return the string
+     * @param bucket          上传的bucket名称
+     * @param key             上传的文件key
+     * @param deadline        截止时间，单位为毫秒
+     * @param policy          策略配置，用于上传操作
+     * @param strict          是否严格模式，影响策略复制行为
+     * @param accessKey       用于签名的Access Key
+     * @param secretAccessKey 用于签名的Secret Access Key
+     * @return 生成并签名后的上传令牌字符串
      * @since 1.6.1
      */
     public static String uploadTokenWithDeadline(String bucket,
@@ -280,12 +292,14 @@ public class QiniuOssUtils {
     }
 
     /**
-     * Sign with data
+     * 使用数据和密钥生成签名字符串
+     * <p>
+     * 将数据进行编码后，使用访问密钥和秘密访问密钥生成签名，并将签名与编码后的数据拼接返回。
      *
-     * @param data            data
-     * @param accessKey       access key
-     * @param secretAccessKey secret access key
-     * @return the string
+     * @param data            数据字节数组
+     * @param accessKey       访问密钥
+     * @param secretAccessKey 秘密访问密钥
+     * @return 签名字符串，格式为 "签名:编码后的数据"
      * @since 1.6.1
      */
     public static String signWithData(byte[] data, String accessKey, String secretAccessKey) {
@@ -294,12 +308,14 @@ public class QiniuOssUtils {
     }
 
     /**
-     * Sign
+     * 对数据进行签名操作，生成包含访问密钥和签名的字符串
+     * <p>
+     * 使用 HMAC-SHA256 算法对数据进行签名，并将访问密钥与签名结果拼接返回
      *
-     * @param data            data
-     * @param accessKey       access key
-     * @param secretAccessKey secret access key
-     * @return the string
+     * @param data            需要签名的数据
+     * @param accessKey       访问密钥
+     * @param secretAccessKey 秘密访问密钥
+     * @return 包含访问密钥和签名的字符串，格式为 "accessKey:signature"
      * @since 1.6.1
      */
     public static String sign(byte[] data, String accessKey, String secretAccessKey) {
@@ -309,10 +325,13 @@ public class QiniuOssUtils {
     }
 
     /**
-     * Create mac
+     * 根据密钥创建HmacSHA1的MAC对象
+     * <p>
+     * 使用指定的密钥初始化一个HmacSHA1算法的MAC对象，用于生成消息认证码
      *
-     * @param secretAccessKey secret access key
-     * @return the mac
+     * @param secretAccessKey 密钥，用于初始化MAC对象
+     * @return 创建并初始化后的MAC对象
+     * @throws IllegalArgumentException 如果初始化过程中发生安全异常
      * @since 1.6.1
      */
     private static Mac createMac(String secretAccessKey) {
@@ -323,19 +342,19 @@ public class QiniuOssUtils {
             SecretKeySpec secretKeySpec = new SecretKeySpec(sk, "HmacSHA1");
             mac.init(secretKeySpec);
         } catch (GeneralSecurityException e) {
-            e.printStackTrace();
             throw new IllegalArgumentException(e);
         }
         return mac;
     }
 
-
     /**
-     * Copy policy
+     * 复制策略配置信息到目标策略对象
+     * <p>
+     * 该方法用于将源策略对象中的字段复制到目标策略对象中。在复制过程中会检查字段是否为已弃用字段，如果是则抛出异常。如果严格模式开启，则只复制目标策略对象中定义的字段。
      *
-     * @param policy       policy
-     * @param originPolicy origin policy
-     * @param strict       strict
+     * @param policy       目标策略对象，用于存储复制后的字段
+     * @param originPolicy 源策略对象，包含需要复制的字段
+     * @param strict       是否启用严格模式，若为true则仅复制目标策略中定义的字段
      * @since 1.6.1
      */
     private static void copyPolicy(StringMap policy, StringMap originPolicy, boolean strict) {
@@ -352,12 +371,11 @@ public class QiniuOssUtils {
         });
     }
 
-    /** deprecatedPolicyFields */
+    /** 已弃用的策略字段列表 */
     private static final String[] deprecatedPolicyFields = new String[] {
         "asyncOps",
         };
-
-    /** policyFields */
+    /** 用于存储策略配置字段的数组，包含回调地址、文件大小限制、持久化操作等关键参数 */
     private static final String[] policyFields = new String[] {
         "callbackUrl",
         "callbackBody",

@@ -12,37 +12,41 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 /**
- * <p>Description:  </p>
+ * 腾讯云对象存储（OSS）设置类
+ * <p>
+ * 该类用于封装腾讯云OSS相关的配置信息，包括存储桶名称、访问密钥、秘密密钥和区域名称等参数的管理。
+ * 实现了 OssSetting 接口，用于在配置界面中初始化、判断是否修改、应用和重置腾讯OSS的设置信息。
+ * 支持与状态对象的同步，确保配置信息的正确性和一致性。
  *
  * @author dong4j
  * @version 1.0.0
- * @email "mailto:dong4j@fkhwl.com"
- * @date 2021.02.17 14:03
+ * @date 2025.10.24
  * @since 1.4.0
  */
 public class TencentOssSetting implements OssSetting<TencentOssState> {
-    /** CREDENTIAL_ATTRIBUTES */
+    /** CREDENTIAL_ATTRIBUTES 用于标识腾讯云对象存储服务的凭证属性 */
     public static final CredentialAttributes CREDENTIAL_ATTRIBUTES =
         PasswordManager.buildCredentialAttributes(TencentOssSetting.class.getName(),
                                                   "TENCENTOSS_SETTINGS_PASSWORD_KEY",
                                                   TencentOssSetting.class);
-
-    /** Tencent backet name text field */
+    /** 腾讯云存储桶名称文本框 */
     private final JTextField tencentBacketNameTextField;
-    /** Tencent access key text field */
+    /** 腾讯访问密钥文本框 */
     private final JTextField tencentAccessKeyTextField;
-    /** Tencent secret key text field */
+    /** 腾讯密钥字段文本框，用于输入腾讯密钥信息 */
     private final JPasswordField tencentSecretKeyTextField;
-    /** Tencent region name text field */
+    /** 腾讯区域名称文本框，用于输入或显示腾讯云服务的区域名称 */
     private final JTextField tencentRegionNameTextField;
 
     /**
-     * Tencent oss setting
+     * 初始化腾讯云OSS配置信息
+     * <p>
+     * 通过传入的文本字段设置腾讯云OSS的相关配置参数，包括存储桶名称、访问密钥、秘密密钥和区域名称。
      *
-     * @param tencentBacketNameTextField tencent backet name text field
-     * @param tencentAccessKeyTextField  tencent access key text field
-     * @param tencentSecretKeyTextField  tencent secret key text field
-     * @param tencentRegionNameTextField tencent region name text field
+     * @param tencentBacketNameTextField 存储桶名称输入框
+     * @param tencentAccessKeyTextField  访问密钥输入框
+     * @param tencentSecretKeyTextField  秘密密钥输入框
+     * @param tencentRegionNameTextField 区域名称输入框
      * @since 1.4.0
      */
     public TencentOssSetting(JTextField tencentBacketNameTextField,
@@ -58,9 +62,11 @@ public class TencentOssSetting implements OssSetting<TencentOssState> {
     }
 
     /**
-     * Init
+     * 初始化组件状态
+     * <p>
+     * 根据传入的 TencentOssState 对象初始化相关文本字段的值
      *
-     * @param state state
+     * @param state 用于初始化的 TencentOssState 对象
      * @since 0.0.1
      */
     @Override
@@ -72,10 +78,13 @@ public class TencentOssSetting implements OssSetting<TencentOssState> {
     }
 
     /**
-     * Is modified
+     * 判断当前配置是否与给定的腾讯云OSS状态对象一致
+     * <p>
+     * 通过比较当前输入的Bucket名称、Access Key、Secret Key和Region名称
+     * 与给定状态对象中的对应值，判断配置是否已修改。
      *
-     * @param state state
-     * @return the boolean
+     * @param state 要比较的腾讯OSS状态对象
+     * @return 如果配置一致返回true，否则返回false
      * @since 1.4.0
      */
     @Override
@@ -94,9 +103,12 @@ public class TencentOssSetting implements OssSetting<TencentOssState> {
     }
 
     /**
-     * Apply
+     * 应用腾讯云OSS配置信息
+     * <p>
+     * 从界面获取腾讯云OSS的访问密钥、秘密密钥、区域名称和存储桶名称，并计算哈希值以保存状态。
+     * 哈希值用于验证配置信息的一致性。
      *
-     * @param state state
+     * @param state 腾讯OSS状态对象，用于存储配置信息
      * @since 0.0.1
      */
     @Override
@@ -120,9 +132,11 @@ public class TencentOssSetting implements OssSetting<TencentOssState> {
     }
 
     /**
-     * Reset
+     * 重置腾讯云OSS配置信息
+     * <p>
+     * 根据传入的腾讯云OSS状态对象，更新界面上的各个配置字段内容
      *
-     * @param state state
+     * @param state 腾讯云OSS状态对象，包含访问密钥、区域名称、存储桶名称等信息
      * @since 1.4.0
      */
     @Override

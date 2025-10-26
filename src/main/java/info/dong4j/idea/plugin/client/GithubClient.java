@@ -19,16 +19,14 @@ import java.io.InputStream;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Description: oss client 实现步骤:
- * 1. 初始化配置: 从持久化配置中初始化 client
- * 2. 静态内部类获取 client 单例
- * 3. 实现 OssClient 接口
- * 4. 自定义 upload 逻辑</p>
+ * GitHub 云存储客户端实现类
+ * <p>
+ * 该类用于实现 GitHub 云存储服务的客户端功能，支持初始化配置、获取单例实例、上传文件、构建图片 URL 等操作。通过静态内部类实现单例模式，确保全局唯一实例。同时支持对分支名称的处理和校验，如将 "master" 转换为 "main"。
+ * </p>
  *
  * @author dong4j
  * @version 1.0.0
- * @email "mailto:dong4j@gmail.com"
- * @date 2020.04.22 01:17
+ * @date 2020.04.22
  * @since 1.3.0
  */
 @Slf4j
@@ -40,8 +38,10 @@ public class GithubClient extends AbstractOpenClient {
     }
 
     /**
-     * 如果是第一次使用, ossClient == null, 使用持久化配置初始化
-     * 1. 如果是第一次设置, 获取的持久化配置为 null, 则初始化 ossClient 失败
+     * 初始化 GitHub Oss 相关配置
+     * <p>
+     * 检查是否为首次使用，若 ossClient 为 null，则使用持久化配置进行初始化。
+     * 包括获取仓库名、分支名、访问令牌以及文件目录等信息。
      *
      * @since 1.3.0
      */
@@ -55,9 +55,11 @@ public class GithubClient extends AbstractOpenClient {
     }
 
     /**
-     * Gets instance.
+     * 获取GithubClient实例
+     * <p>
+     * 该方法用于获取GithubClient的单例实例，若实例不存在则创建并缓存
      *
-     * @return the instance
+     * @return GithubClient实例
      * @since 1.3.0
      */
     @Contract(pure = true)
@@ -71,9 +73,11 @@ public class GithubClient extends AbstractOpenClient {
     }
 
     /**
-     * Gets client *
+     * 获取客户端实例
+     * <p>
+     * 返回当前配置的客户端实例，用于与外部服务进行通信
      *
-     * @return the client
+     * @return 客户端实例
      * @since 1.3.0
      */
     @Override
@@ -82,9 +86,11 @@ public class GithubClient extends AbstractOpenClient {
     }
 
     /**
-     * Gets state *
+     * 获取当前组件的状态信息
+     * <p>
+     * 通过获取MikPersistenComponent实例的状态，返回对应的GithubOss状态对象
      *
-     * @return the state
+     * @return 当前组件的状态对象
      * @since 1.3.0
      */
     @Override
@@ -93,23 +99,28 @@ public class GithubClient extends AbstractOpenClient {
     }
 
     /**
-     * 使用缓存的 map 映射获取已初始化的 client, 避免创建多个实例
+     * 单例处理器类
+     * <p>
+     * 使用静态内部类实现单例模式，确保 GithubClient 实例的唯一性，避免重复创建多个实例。
+     * 该类主要用于管理 GithubClient 的单例访问，提供线程安全的初始化方式。
      *
      * @author dong4j
      * @version 0.0.1
-     * @email "mailto:dong4j@gmail.com"
-     * @date 2020.04.22 01:17
+     * @date 2020.04.22
+     * @email mailto:dong4j@gmail.com
      * @since 1.3.0
      */
     private static class SingletonHandler {
-        /** SINGLETON */
+        /** 单例模式实例，用于全局访问 GithubClient 对象 */
         private static final GithubClient SINGLETON = new GithubClient();
     }
 
     /**
-     * 实现接口, 获取当前 client type
+     * 实现接口，获取当前客户端类型
+     * <p>
+     * 返回当前客户端所对应的云类型枚举值
      *
-     * @return the cloud typed
+     * @return 云类型枚举值
      * @since 1.3.0
      */
     @Override
@@ -118,10 +129,12 @@ public class GithubClient extends AbstractOpenClient {
     }
 
     /**
-     * Process branch
+     * 处理分支名称，将 "master" 转换为 "main"，其他分支名称保持不变
+     * <p>
+     * 如果传入的分支名称不为空且等于 "master"，则返回 "main"；否则返回原始分支名称
      *
-     * @param branch branch
-     * @return the string
+     * @param branch 分支名称
+     * @return 处理后的分支名称
      * @since 1.4.0
      */
     @Override
@@ -130,12 +143,13 @@ public class GithubClient extends AbstractOpenClient {
     }
 
     /**
-     * Put objects
+     * 将对象以指定的键存储到远程仓库
+     * <p>
+     * 通过给定的键和输入流，将数据上传至远程仓库
      *
-     * @param key      key
-     * @param instream instream
-     * @throws Exception exception
-     * @since 1.3.0
+     * @param key      存储数据的键
+     * @param instream 存储数据的输入流
+     * @throws Exception 上传过程中发生异常时抛出
      */
     @Override
     protected void putObjects(String key, InputStream instream) throws Exception {
@@ -147,10 +161,12 @@ public class GithubClient extends AbstractOpenClient {
     }
 
     /**
-     * Build image url
+     * 构建图片的URL地址
+     * <p>
+     * 根据提供的key参数拼接并返回图片的完整URL路径。
      *
-     * @param key key
-     * @return the string
+     * @param key 图片的标识符或路径参数
+     * @return 构建完成的图片URL字符串
      * @since 1.4.0
      */
     @Override
@@ -160,9 +176,11 @@ public class GithubClient extends AbstractOpenClient {
     }
 
     /**
-     * Check
+     * 检查分支名称是否为 "master"
+     * <p>
+     * 该方法用于验证传入的分支名称是否为 "master"，若为 "master" 则抛出异常提示。
      *
-     * @param branch
+     * @param branch 分支名称
      * @since 1.4.0
      */
     @Override

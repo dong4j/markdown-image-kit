@@ -12,20 +12,23 @@ import javax.swing.Icon;
 import icons.MikIcons;
 
 /**
- * <p>Description: </p>
+ * 上传到SMMS云服务的动作类
+ * <p>
+ * 该类继承自 UploadActionBase，用于处理将文件上传到SMMS云服务的具体逻辑。
+ * 提供了获取图标、名称和OSS客户端等方法，用于支持上传操作的可视化和执行。
  *
  * @author dong4j
  * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2021.02.14 18:40
+ * @date 2021.02.14
  * @since 0.0.1
  */
 public final class UploadSmmsCloudAction extends UploadActionBase {
-
     /**
-     * Gets icon *
+     * 获取图标
+     * <p>
+     * 返回预定义的图标常量 MikIcons.SM_MS
      *
-     * @return the icon
+     * @return 图标常量
      * @since 0.0.1
      */
     @Contract(pure = true)
@@ -35,9 +38,11 @@ public final class UploadSmmsCloudAction extends UploadActionBase {
     }
 
     /**
-     * Gets name *
+     * 获取名称
+     * <p>
+     * 返回预定义的名称常量，用于标识云服务类型。
      *
-     * @return the name
+     * @return 名称常量
      * @since 0.0.1
      */
     @Nullable
@@ -48,9 +53,11 @@ public final class UploadSmmsCloudAction extends UploadActionBase {
     }
 
     /**
-     * Gets client *
+     * 获取OSS客户端实例
+     * <p>
+     * 返回一个OSS客户端的单例实例，用于与对象存储服务进行交互
      *
-     * @return the client
+     * @return OssClient 实例
      * @since 0.0.1
      */
     @Contract(pure = true)

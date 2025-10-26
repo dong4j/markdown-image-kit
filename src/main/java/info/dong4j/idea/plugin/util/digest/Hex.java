@@ -5,27 +5,31 @@ import info.dong4j.idea.plugin.util.Charsets;
 import java.nio.charset.Charset;
 
 /**
- * <p>Description: </p>
+ * Hex 工具类
+ * <p>
+ * 提供将字节数组转换为十六进制字符串的工具方法，支持大小写转换。
+ * 主要用于数据编码和格式化输出。
  *
  * @author dong4j
  * @version 1.0.0
- * @email "mailto:dong4j@gmail.com"
- * @date 2021.02.14 23:41
+ * @date 2021.02.14
  * @since 1.1.0
  */
 public class Hex {
-    /** DEFAULT_CHARSET */
+    /** 默认字符集，用于指定编码格式 */
     public static final Charset DEFAULT_CHARSET;
-    /** DIGITS_LOWER */
+    /** 用于表示小写字母的字符数组 */
     private static final char[] DIGITS_LOWER;
-    /** DIGITS_UPPER */
+    /** 数字字符数组，用于表示大写形式的数字字符 */
     private static final char[] DIGITS_UPPER;
 
     /**
-     * Encode hex
+     * 将字节数组转换为十六进制字符数组
+     * <p>
+     * 该方法用于将输入的字节数组转换为对应的十六进制字符串表示形式。
      *
-     * @param data data
-     * @return the char [ ]
+     * @param data 需要转换的字节数组
+     * @return 十六进制字符数组
      * @since 1.1.0
      */
     public static char[] encodeHex(byte[] data) {
@@ -33,11 +37,13 @@ public class Hex {
     }
 
     /**
-     * Encode hex
+     * 将字节数组编码为十六进制字符数组
+     * <p>
+     * 该方法将输入的字节数组转换为十六进制表示形式，并根据参数决定输出是否为小写字母。
      *
-     * @param data        data
-     * @param toLowerCase to lower case
-     * @return the char [ ]
+     * @param data        需要编码的字节数组
+     * @param toLowerCase 一个布尔值，表示编码后的十六进制字符是否使用小写字母
+     * @return 十六进制字符数组
      * @since 1.1.0
      */
     public static char[] encodeHex(byte[] data, boolean toLowerCase) {
@@ -45,11 +51,13 @@ public class Hex {
     }
 
     /**
-     * Encode hex
+     * 将字节数组转换为十六进制字符数组
+     * <p>
+     * 该方法将输入的字节数组转换为十六进制表示形式的字符数组。每个字节被拆分为两个十六进制字符。
      *
-     * @param data     data
-     * @param toDigits to digits
-     * @return the char [ ]
+     * @param data     需要转换的字节数组
+     * @param toDigits 用于映射十六进制值的字符数组，通常为 "0123456789abcdef" 或类似格式
+     * @return 转换后的十六进制字符数组
      * @since 1.1.0
      */
     protected static char[] encodeHex(byte[] data, char[] toDigits) {
@@ -66,10 +74,12 @@ public class Hex {
     }
 
     /**
-     * Encode hex string
+     * 将字节数组转换为十六进制字符串
+     * <p>
+     * 该方法接收一个字节数组作为输入，将其转换为对应的十六进制字符串表示形式。
      *
-     * @param data data
-     * @return the string
+     * @param data 要转换的字节数组
+     * @return 转换后的十六进制字符串
      * @since 1.1.0
      */
     public static String encodeHexString(byte[] data) {

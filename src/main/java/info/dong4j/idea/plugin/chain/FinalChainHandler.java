@@ -11,19 +11,24 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * <p>Description: </p>
+ * FinalChainHandler 类
+ * <p>
+ * 该类是 ActionHandlerAdapter 的具体实现，用于处理最终的链式操作。主要功能是根据配置重新设置 imageName，并确保资源正确释放。
+ * <p>
+ * 在执行过程中，会遍历传入的 EventData 中的等待处理数据，对其中的 MarkdownImage 对象进行处理，关闭其输入流并清空相关数据结构，以释放资源。
  *
  * @author dong4j
  * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2021.02.14 18:40
+ * @date 2021.02.14
  * @since 0.0.1
  */
 public class FinalChainHandler extends ActionHandlerAdapter {
     /**
-     * Gets name *
+     * 获取名称
+     * <p>
+     * 返回与 "mik.action.final.title" 关键字关联的本地化名称信息
      *
-     * @return the name
+     * @return 名称
      * @since 0.0.1
      */
     @Override
@@ -32,10 +37,12 @@ public class FinalChainHandler extends ActionHandlerAdapter {
     }
 
     /**
-     * Is enabled
+     * 判断当前状态是否启用
+     * <p>
+     * 根据传入的事件数据判断当前状态是否启用，实际通过STATE对象的isRename方法返回结果
      *
-     * @param data data
-     * @return the boolean
+     * @param data 事件数据
+     * @return 是否启用
      * @since 0.0.1
      */
     @Override
@@ -45,9 +52,11 @@ public class FinalChainHandler extends ActionHandlerAdapter {
 
     /**
      * 根据配置重新设置 imageName
+     * <p>
+     * 清理事件数据中的 Markdown 图片资源，关闭输入流并清空相关数据结构。
      *
-     * @param data the data
-     * @return the boolean
+     * @param data 事件数据，包含待处理的图片信息
+     * @return 始终返回 true，表示操作成功
      * @since 0.0.1
      */
     @Override

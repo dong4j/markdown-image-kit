@@ -22,41 +22,33 @@ import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Description: </p>
+ * 上传工具类
+ * <p>
+ * 提供与文件上传相关的辅助方法，包括图片标签格式转换、虚拟文件查找等功能。
+ * 主要用于处理图片链接的格式转换，支持根据配置决定是否将图片链接替换为 HTML 标签格式。
+ * 同时提供查找虚拟文件的方法，用于在项目中定位特定文件。
  *
  * @author dong4j
  * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2021.02.14 18:40
+ * @date 2021.02.14
  * @since 0.0.1
  */
 @Slf4j
 public class UploadUtils {
-    /** state */
+    /** 系统状态信息，用于表示当前组件的运行状态 */
     private static final MikState state = MikPersistenComponent.getInstance().getState();
 
     /**
-     * 根据是否替换标签替换为最终的标签
-     * 所有标签保持统一格式
-     * [](./imgs/a.png)
-     * ![](https://ws2.sinaimg.cn/large/a.jpg)
-     * <a title='' href='https://ws2.sinaimg.cn/large/a.jpg' >![](https://ws2.sinaimg.cn/large/a.jpg)</a>
-     * 未开启标签替换:
-     * 1. [](./imgs/a.png) --> ![](https://ws2.sinaimg.cn/large/a.jpg)
-     * 2. ![](https://ws2.sinaimg.cn/large/a.jpg) --> ![](https://ws2.sinaimg.cn/large/a.jpg)
-     * 3. <a title='' href='https://ws2.sinaimg.cn/large/a.jpg' >![](https://ws2.sinaimg.cn/large/a.jpg)</a>
-     * -> <a title='' href='https://ws2.sinaimg.cn/large/a.jpg' >![](https://ws2.sinaimg.cn/large/a.jpg)</a>
-     * 开启标签替换 (按照设置的标签格式替换):
-     * 1. [](./imgs/a.png) --> <a title='' href='https://ws2.sinaimg.cn/large/a.jpg' >![](https://ws2.sinaimg.cn/large/a.jpg)</a>
-     * 2. ![](https://ws2.sinaimg.cn/large/a.jpg) ->
-     * <a title='' href='https://ws2.sinaimg.cn/large/a.jpg' >![](https://ws2.sinaimg.cn/large/a.jpg)</a>
-     * 3. 与设置的标签一样则不处理
+     * 根据标题、图片URL、原始内容和结束字符串生成最终的图片标记
+     * <p>
+     * 该方法用于处理图片标记的生成逻辑，根据是否开启标签替换功能，将图片标记转换为统一格式。
+     * 如果图片URL为空，则使用原始内容作为替代。根据设置的标签类型，生成对应的图片标记，并追加结束字符串。
      *
-     * @param title     the title
-     * @param imageUrl  the image url    上传后的 url, 有可能为 ""
-     * @param original  the original     如果为 "", 则使用此字段
-     * @param endString the end string
-     * @return the final image mark
+     * @param title     标题
+     * @param imageUrl  图片URL，上传后的URL，有可能为空
+     * @param original  原始内容，如果图片URL为空则使用该字段
+     * @param endString 结束字符串
+     * @return 最终的图片标记
      * @since 0.0.1
      */
     @NotNull
@@ -79,17 +71,20 @@ public class UploadUtils {
     }
 
     /**
-     * Search virtual file by name virtual file.
+     * 根据文件名搜索虚拟文件
+     * <p>
+     * 在读取操作线程或读取动作内查找指定项目中匹配名称的虚拟文件，并返回第一个找到的文件。
      *
-     * @param project the project
-     * @param name    the name
-     * @return the virtual file
+     * @param project 项目对象，用于限定搜索范围
+     * @param name    要搜索的文件名
+     * @return 匹配的第一个虚拟文件，若未找到则返回 null
      * @since 0.0.1
      */
     public static VirtualFile searchVirtualFileByName(Project project, String name) {
         // Read access is allowed from event dispatch thread or inside read-action only (see com.intellij.openapi.application.Application.runReadAction())
         AtomicReference<Collection<VirtualFile>> findedFiles = new AtomicReference<>();
         ApplicationManager.getApplication().runReadAction(() -> {
+            // fixme-dong4j : (2025.10.26 18:01) [修复过时 API]
             findedFiles.set(FilenameIndex.getVirtualFilesByName(project, name, GlobalSearchScope.allScope(project)));
         });
 
@@ -99,9 +94,11 @@ public class UploadUtils {
 
     /**
      * 通过文件精确查找 VirtualFile
+     * <p>
+     * 根据传入的 File 对象，在本地文件系统中查找对应的 VirtualFile。
      *
-     * @param file the file
-     * @return the virtual file
+     * @param file 要查找的文件对象
+     * @return 对应的 VirtualFile 对象，若未找到则返回 null
      * @since 0.0.1
      */
     public static VirtualFile searchVirtualFile(File file) {

@@ -11,18 +11,21 @@ import info.dong4j.idea.plugin.util.StringUtils;
 
 import org.jetbrains.annotations.Contract;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Description: 右键上传一次或者点击测试按钮时初始化一次</p>
+ * 阿里云OSS客户端类
+ * <p>
+ * 该类用于封装阿里云对象存储服务（OSS）的客户端操作，支持初始化、获取客户端实例、上传对象等功能。
+ * 实现了单例模式，确保系统中只有一个阿里云OSS客户端实例，避免重复初始化和资源浪费。
+ * 通过静态内部类SingletonHandler实现线程安全的懒加载单例模式，保证在首次使用时才初始化实例。
+ * 支持从配置中读取访问密钥、端点等信息，用于构建OSS客户端连接。
  *
  * @author dong4j
- * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2020.04.25 17:05
+ * @version 1.1.0
+ * @date 2025.10.24
  * @since 0.0.1
  */
 @Slf4j
@@ -34,7 +37,9 @@ public class AliyunOssClient extends AbstractOssClient {
     }
 
     /**
-     * 如果是第一次使用, ossClient == null
+     * 初始化OSS客户端相关配置信息
+     * <p>
+     * 该方法用于在首次使用时初始化OSS客户端所需的访问密钥、端点和文件目录等配置信息。
      *
      * @since 0.0.1
      */
@@ -48,16 +53,11 @@ public class AliyunOssClient extends AbstractOssClient {
     }
 
     /**
-     * 静态内部类实现单例
-     * 为什么这样实现就是单例的？
-     * 1. 因为这个类的实例化是靠静态内部类的静态常量实例化的;
-     * 2. INSTANCE 是常量，因此只能赋值一次；它还是静态的，因此随着内部类一起加载;
-     * 这样实现有什么好处？
-     * 1. 我记得以前接触的懒汉式的代码好像有线程安全问题，需要加同步锁才能解决;
-     * 2. 采用静态内部类实现的代码也是懒加载的，只有第一次使用这个单例的实例的时候才加载;
-     * 3. 不会有线程安全问题;
+     * 获取阿里云OSS客户端单例实例
+     * <p>
+     * 通过静态内部类实现单例模式，确保线程安全且支持懒加载。该方法返回阿里云OSS客户端的唯一实例。
      *
-     * @return the instance
+     * @return 阿里云OSS客户端实例
      * @since 0.0.1
      */
     @Contract(pure = true)
@@ -71,9 +71,11 @@ public class AliyunOssClient extends AbstractOssClient {
     }
 
     /**
-     * Gets client *
+     * 获取OSS客户端实例
+     * <p>
+     * 返回当前配置的OSS客户端对象，用于与对象存储服务进行交互
      *
-     * @return the client
+     * @return OSS客户端实例
      * @since 1.1.0
      */
     @Override
@@ -82,11 +84,13 @@ public class AliyunOssClient extends AbstractOssClient {
     }
 
     /**
-     * Put objects
+     * 将对象上传到阿里云OSS存储服务
+     * <p>
+     * 通过阿里云OSS SDK将指定的输入流中的对象以指定的键值存储到指定的存储桶中
      *
-     * @param key      key
-     * @param instream instream
-     * @throws IOException io exception
+     * @param key      存储对象的键值
+     * @param instream 要上传的输入流
+     * @throws Exception 上传过程中发生异常时抛出
      * @since 1.1.0
      */
     @Override
@@ -102,9 +106,11 @@ public class AliyunOssClient extends AbstractOssClient {
     }
 
     /**
-     * Gets state *
+     * 获取当前组件的状态信息
+     * <p>
+     * 通过获取MikPersistenComponent单例实例，进而获取其状态对象，并返回Aliyun Oss相关的状态信息。
      *
-     * @return the state
+     * @return 当前Aliyun Oss组件的状态对象
      * @since 1.1.0
      */
     @Override
@@ -113,23 +119,28 @@ public class AliyunOssClient extends AbstractOssClient {
     }
 
     /**
-     * 使用缓存的 map 映射获取已初始化的 client, 避免创建多个实例
+     * 单例模式处理类
+     * <p>
+     * 使用静态内部类实现单例模式，确保 AliyunOssClient 实例的唯一性，避免重复创建多个实例。
+     * 通过静态内部类的加载机制保证线程安全，并在首次使用时初始化实例。
      *
      * @author dong4j
      * @version 0.0.1
      * @email "mailto:dong4j@gmail.com"
-     * @date 2020.04.25 17:05
+     * @date 2020.04.25
      * @since 0.0.1
      */
     private static class SingletonHandler {
-        /** SINGLETON */
+        /** 单例模式实例，用于提供全局唯一的 AliyunOssClient 实例 */
         private static final AliyunOssClient SINGLETON = new AliyunOssClient();
     }
 
     /**
-     * Gets cloud type *
+     * 获取云类型
+     * <p>
+     * 返回当前配置的云类型枚举值，固定为阿里云
      *
-     * @return the cloud type
+     * @return 云类型枚举值
      * @since 0.0.1
      */
     @Override

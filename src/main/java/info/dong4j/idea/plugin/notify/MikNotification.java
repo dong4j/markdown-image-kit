@@ -30,38 +30,40 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Description: </p>
+ * 通知类，用于处理和展示各种通知信息
+ * <p>
+ * 该类继承自 Notification，提供了自定义的通知功能，包括帮助链接获取、通知隐藏以及压缩信息通知等操作。
+ * 支持通过 HTTP 请求动态获取帮助页面链接，并提供统一的通知展示方式。
+ * <p>
+ * 该类使用了日志记录和 HTTP 客户端进行网络请求，适用于需要展示用户操作反馈、系统状态信息或帮助文档的场景。
  *
  * @author dong4j
  * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2021.02.14 18:40
+ * @date 2021.02.14
  * @since 0.0.1
  */
 @SuppressWarnings("jol")
 @Slf4j
 public class MikNotification extends Notification {
-    /** CUSTOM_OSS_API_DEMO */
+    /** 自定义 OSS API 示例地址，指向 GitHub 项目仓库 */
     public static final String CUSTOM_OSS_API_DEMO = "https://github.com/dong4j/mik-help";
-    /** ABOUT_BLANK */
+    /** about:blank 是一个特殊的 URI，通常用于表示空的或默认的文档 */
     public static final String ABOUT_BLANK = "about:blank";
-    /**
-     * The Help url.
-     */
+    /** 帮助页面的 URL 地址 */
     static final String HELP_URL = helpUrl(HelpType.NOTTIFY.where);
-    /**
-     * The Upload notification group.
-     */
+    /** 上传通知组的名称 */
     static final String MIK_NOTIFICATION_GROUP = "MIK Group";
-    /** MIK_NOTIFICATION_NONE_GROUP */
+    /** 图片工具通知无组标识 */
     private static final String MIK_NOTIFICATION_NONE_GROUP = "Image Kit Group";
 
     /**
-     * Instantiates a new Upload notification.
+     * 创建一个新的上传通知对象
+     * <p>
+     * 该构造函数用于初始化一个上传通知，指定标题、内容和通知类型
      *
-     * @param title   the title
-     * @param content the content
-     * @param type    the type
+     * @param title   通知的标题
+     * @param content 通知的内容
+     * @param type    通知的类型，用于标识通知的类别
      * @since 0.0.1
      */
     MikNotification(@NotNull String title,
@@ -71,10 +73,12 @@ public class MikNotification extends Notification {
     }
 
     /**
-     * 获取帮助页
+     * 获取帮助页面的URL
+     * <p>
+     * 根据传入的参数构造帮助页面的URL，若参数为"custom"则返回预设的自定义帮助页面地址，否则通过HTTP请求获取帮助信息并返回对应的URL。
      *
-     * @param where the where
-     * @return the string
+     * @param where 指定帮助页面的类型或标识，如"custom"表示自定义帮助页面
+     * @return 返回帮助页面的URL字符串
      * @since 0.0.1
      */
     public static String helpUrl(String where) {
@@ -111,8 +115,7 @@ public class MikNotification extends Notification {
         } finally {
             try {
                 client.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException ignored) {
             }
         }
         if (helpResult == null) {
@@ -123,9 +126,11 @@ public class MikNotification extends Notification {
     }
 
     /**
-     * Hide balloon.
+     * 隐藏气球
+     * <p>
+     * 如果气球对象不为 null，则调用其 hide 方法进行隐藏操作
      *
-     * @param balloon the balloon
+     * @param balloon 气球对象
      * @since 0.0.1
      */
     static void hideBalloon(Balloon balloon) {
@@ -135,10 +140,12 @@ public class MikNotification extends Notification {
     }
 
     /**
-     * Notify compress info.
+     * 通知压缩信息完成情况
+     * <p>
+     * 将压缩信息转换为HTML格式，并通过通知系统显示给用户
      *
-     * @param project      the project
-     * @param compressInfo compress info
+     * @param project      项目对象，用于指定通知的目标
+     * @param compressInfo 压缩信息的键值对集合
      * @since 0.0.1
      */
     public static void notifyCompressInfo(Project project, Map<String, String> compressInfo) {
@@ -146,6 +153,7 @@ public class MikNotification extends Notification {
         for (Map.Entry<String, String> entry : compressInfo.entrySet()) {
             content.append("<p>").append(entry.getKey()).append("\t\t\t").append(entry.getValue()).append("</p>");
         }
+        //noinspection DialogTitleCapitalization
         Notifications.Bus.notify(new Notification(MIK_NOTIFICATION_NONE_GROUP,
                                                   "<p>Compress Finished: </p>",
                                                   content.toString(),

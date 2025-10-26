@@ -16,36 +16,42 @@ import java.util.Map;
 import javax.swing.JPanel;
 
 /**
- * <p>Description:  </p>
+ * Oss 客户端抽象类
+ * <p>
+ * 该类用于封装 Oss 客户端通用操作，提供上传文件的功能，并支持自定义端点和状态保存。
+ * 主要用于实现不同 Oss 服务的客户端适配，如阿里云、腾讯云等。
+ * <p>
+ * 包含一些静态字段用于存储配置信息，如仓库名、分支名、Token、文件目录和是否使用自定义端点。
+ * 提供抽象方法用于实现具体的上传逻辑、获取客户端和构建图片 URL。
  *
  * @author dong4j
  * @version 1.0.0
- * @email "mailto:dong4j@fkhwl.com"
- * @date 2021.02.17 17:34
- * @since 1.4.0
+ * @date 2025.10.24
+ * @since 1.0.0
  */
 public abstract class AbstractOpenClient implements OssClient {
-
-    /** repos */
+    /** 仓库配置信息 */
     protected static String repos;
-    /** branch */
+    /** 分支标识，用于标识当前处理的分支信息 */
     protected static String branch;
-    /** accesstoken */
+    /** AccessToken 值 */
     protected static String token;
-    /** filedir */
+    /** 文件存储目录路径 */
     protected static String filedir;
-    /** customEndpoint */
+    /** 是否使用自定义端点 */
     protected static boolean isCustomEndpoint;
-    /** customEndpoint */
+    /** 自定义端点地址，用于指定特定的服务接口地址 */
     protected static String customEndpoint;
 
     /**
-     * Upload
+     * 上传文件并返回文件访问地址
+     * <p>
+     * 通过输入流上传文件到指定路径，并根据配置返回对应的文件访问URL。
      *
-     * @param inputStream input stream
-     * @param fileName    file name
-     * @return the string
-     * @throws Exception exception
+     * @param inputStream 输入流，用于读取上传的文件内容
+     * @param fileName    文件名，用于生成存储路径和访问地址
+     * @return 文件的访问地址
+     * @throws Exception 上传过程中发生异常时抛出
      * @since 1.6.0
      */
     @Override
@@ -64,14 +70,15 @@ public abstract class AbstractOpenClient implements OssClient {
     }
 
     /**
-     * 在设置界面点击 'Test' 按钮上传时调用, 通过 JPanel 获取当前配置
-     * {@link info.dong4j.idea.plugin.settings.ProjectSettingsPage#testAndHelpListener()}
+     * 在设置界面点击 'Test' 按钮上传时调用，用于获取当前配置并执行上传操作。
+     * <p>
+     * 该方法通过传入的 JPanel 获取用户输入的配置信息，包括仓库名、分支名、Token、文件目录等，并进行校验后调用上传方法。
      *
-     * @param inputStream the input stream
-     * @param fileName    the file name
-     * @param jPanel      the j panel
-     * @return the string
-     * @throws Exception exception
+     * @param inputStream 输入流，用于读取上传文件的内容
+     * @param fileName    文件名，表示要上传的文件名称
+     * @param jPanel      用于获取配置信息的 JPanel 对象
+     * @return 上传结果字符串
+     * @throws Exception 上传过程中发生异常时抛出
      * @since 1.3.0
      */
     @Override
@@ -103,27 +110,32 @@ public abstract class AbstractOpenClient implements OssClient {
     }
 
     /**
-     * Check
+     * 检查指定的分支信息
+     * <p>
+     * 该方法用于验证传入的分支参数是否符合要求，若不符合则抛出异常
      *
-     * @param branch branch
-     * @since 1.4.0
+     * @param branch 需要检查的分支名称
+     * @throws IllegalArgumentException 如果分支参数无效
      */
     protected void check(String branch) {
     }
 
     /**
-     * test 按钮点击事件后请求, 成功后保留 client, paste 或者 右键 上传时使用
+     * 处理文件上传请求，用于测试按钮点击事件或右键上传场景
+     * <p>
+     * 该方法接收文件输入流、文件名、仓库名、分支、令牌、文件目录等参数，构建客户端配置并执行上传操作。
+     * 上传成功后，若返回URL不为空，会根据相关参数计算哈希值并更新OSS状态。
      *
-     * @param inputStream      the input stream
-     * @param fileName         the file name
-     * @param repos            the repos name
-     * @param branch           the access key
-     * @param token            the secret key
-     * @param filedir          filedir
-     * @param isCustomEndpoint is custom endpoint
-     * @param customEndpoint   custom endpoint
-     * @return the string
-     * @throws Exception exception
+     * @param inputStream      文件输入流
+     * @param fileName         文件名
+     * @param repos            仓库名称
+     * @param branch           分支名称
+     * @param token            访问令牌
+     * @param filedir          文件目录
+     * @param isCustomEndpoint 是否使用自定义端点
+     * @param customEndpoint   自定义端点地址
+     * @return 上传成功后的URL
+     * @throws Exception 上传过程中发生异常时抛出
      * @since 1.3.0
      */
     @NotNull
@@ -165,47 +177,56 @@ public abstract class AbstractOpenClient implements OssClient {
     }
 
     /**
-     * Gets client *
+     * 获取客户端实例
+     * <p>
+     * 返回当前客户端对象，用于与外部系统进行交互
      *
-     * @return the client
+     * @return 客户端实例
      * @since 1.3.0
      */
     protected abstract AbstractOpenClient getClient();
 
     /**
-     * Gets state *
+     * 获取状态
+     * <p>
+     * 返回当前对象的状态实例，该状态用于表示对象的运行时状态。
      *
-     * @return the state
+     * @return 当前对象的状态
      * @since 1.3.0
      */
     protected abstract AbstractOpenOssState getState();
 
     /**
-     * Process branch
+     * 处理分支信息
+     * <p>
+     * 接收一个分支字符串参数，并直接返回该字符串。此方法主要用于传递或处理分支信息，不做额外处理。
      *
-     * @param branch branch
-     * @return the string
-     * @since 1.4.0
+     * @param branch 分支名称或标识符
+     * @return 返回传入的分支字符串
      */
     protected String processBranch(String branch) {
         return branch;
     }
 
     /**
-     * Put objects
+     * 将对象数据存储到指定的键下
+     * <p>
+     * 该方法用于将输入流中的对象数据写入存储系统，具体实现由子类完成
      *
-     * @param key      key
-     * @param instream instream
-     * @throws Exception exception
+     * @param key      要存储数据的键
+     * @param instream 包含对象数据的输入流
+     * @throws Exception 存储过程中发生异常时抛出
      * @since 1.3.0
      */
     protected abstract void putObjects(String key, InputStream instream) throws Exception;
 
     /**
-     * Build image url
+     * 构建图片的URL地址
+     * <p>
+     * 根据给定的键生成对应的图片URL字符串
      *
-     * @param key key
-     * @return the string
+     * @param key 用于生成URL的键
+     * @return 图片的URL字符串
      * @since 1.4.0
      */
     @NotNull

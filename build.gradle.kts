@@ -1,7 +1,6 @@
 plugins {
     id("java")
     id("org.jetbrains.intellij.platform") version "2.1.0"
-    id("com.github.sherter.google-java-format") version "0.9"
 }
 
 group = providers.gradleProperty("pluginGroup").get()
@@ -30,6 +29,70 @@ intellijPlatform {
             untilBuild = providers.gradleProperty("platformUntilBuild")
         }
     }
+
+    pluginVerification {
+        ides {
+            ide("IC", "2022.3")
+            ide("IC", "2023.1")
+            ide("IC", "2023.2")
+            ide("IC", "2023.3")
+            ide("IC", "2024.1")
+            ide("IC", "2024.2")
+            ide("IC", "2024.3")
+            ide("IC", "2025.1")
+            ide("IC", "2025.2")
+
+            ide("IU", "2022.3")
+            ide("IU", "2023.1")
+            ide("IU", "2023.2")
+            ide("IU", "2023.3")
+            ide("IU", "2024.1")
+            ide("IU", "2024.2")
+            ide("IU", "2024.3")
+            ide("IU", "2025.1")
+            ide("IU", "2025.2")
+
+            ide("WS", "2022.3")
+            ide("WS", "2023.1")
+            ide("WS", "2023.2")
+            ide("WS", "2023.3")
+            ide("WS", "2024.1")
+            ide("WS", "2024.2")
+            ide("WS", "2024.3")
+            ide("WS", "2025.1")
+            ide("WS", "2025.2")
+
+            ide("PS", "2022.3")
+            ide("PS", "2023.1")
+            ide("PS", "2023.2")
+            ide("PS", "2023.3")
+            ide("PS", "2024.1")
+            ide("PS", "2024.2")
+            ide("PS", "2024.3")
+            ide("PS", "2025.1")
+            ide("PS", "2025.2")
+
+            ide("PY", "2022.3")
+            ide("PY", "2023.1")
+            ide("PY", "2023.2")
+            ide("PY", "2023.3")
+            ide("PY", "2024.1")
+            ide("PY", "2024.2")
+            ide("PY", "2024.3")
+            ide("PY", "2025.1")
+            ide("PY", "2025.2")
+
+            ide("GO", "2022.3")
+            ide("GO", "2023.1")
+            ide("GO", "2023.2")
+            ide("GO", "2023.3")
+            ide("GO", "2024.1")
+            ide("GO", "2024.2")
+            ide("GO", "2024.3")
+            ide("GO", "2025.1")
+            ide("GO", "2025.2")
+        }
+    }
 }
 
 dependencies {
@@ -37,11 +100,14 @@ dependencies {
     intellijPlatform {
         create(providers.gradleProperty("platformType"), providers.gradleProperty("platformVersion"))
 
-        // Bundled plugins
-        bundledPlugin("com.intellij.java")
-
         // Plugin development utilities
         instrumentationTools()
+
+        // Marketplace ZIP Signer for plugin signing
+        zipSigner()
+
+        // Plugin verifier for validation
+        pluginVerifier()
 
         // Test framework
         testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
@@ -92,7 +158,7 @@ tasks {
     }
 
     publishPlugin {
-        token.set(System.getenv("publishToken"))
+        token.set(System.getenv("PUBLISH_TOKEN"))
         channels = providers.gradleProperty("publishChannels").map { listOf(it) }
     }
 

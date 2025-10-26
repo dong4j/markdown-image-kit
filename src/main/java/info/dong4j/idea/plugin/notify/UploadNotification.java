@@ -28,26 +28,31 @@ import javax.swing.event.HyperlinkEvent;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-* <p>Description: 上传后消息通知 </p>
+ * 上传后消息通知类
+ * <p>
+ * 用于在文件上传过程中或完成后，向用户发送通知消息，包括上传失败、配置错误等场景的通知。
+ * 支持通过超链接跳转至设置面板或帮助页面，提升用户操作体验。
+ * </p>
  *
  * @author dong4j
  * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2019.03.22 22:57
+ * @date 2019.03.22
  * @since 0.0.1
  */
 @Slf4j
 @SuppressWarnings("jol")
 public class UploadNotification extends MikNotification {
-    /** UPLOAD_FINSHED */
+    /** 上传已完成状态标识 */
     private static final String UPLOAD_FINSHED = "Upload Finshed";
 
     /**
-     * Instantiates a new Upload notification.
+     * 创建一个新的上传通知对象
+     * <p>
+     * 该构造方法用于初始化一个上传通知实例，传入标题、内容和通知类型
      *
-     * @param title   the title
-     * @param content the content
-     * @param type    the type
+     * @param title   通知的标题
+     * @param content 通知的内容
+     * @param type    通知的类型，需为 {@link NotificationType} 枚举值
      * @since 0.0.1
      */
     public UploadNotification(@NotNull String title,
@@ -57,10 +62,11 @@ public class UploadNotification extends MikNotification {
     }
 
     /**
-     * 上传失败通知, 可打开设置面板
-     * 文件链接, 帮助链接, 设置链接
+     * 上传失败时通知用户，并可打开设置面板
+     * <p>
+     * 该方法用于在上传失败时向用户发送通知，同时提供文件链接、帮助链接和设置链接，以便用户进行后续操作。
      *
-     * @param project the project
+     * @param project 项目对象，用于获取相关链接信息
      * @since 0.0.1
      */
     public static void notifyUploadFailure(Project project) {
@@ -68,15 +74,14 @@ public class UploadNotification extends MikNotification {
     }
 
     /**
-     * 上传失败通知, 可打开设置面板
-     * 文件链接, 帮助链接, 设置链接
-     * todo-dong4j : (2019年03月23日 15:14) [{@link com.intellij.openapi.fileTypes.impl.ApproveRemovedMappingsActivity}]
+     * 上传失败时通知用户，并提供配置链接以打开设置面板
+     * <p>
+     * 该方法在上传失败时显示错误通知，包含错误详情和配置链接。点击链接可打开项目设置面板。
      *
-     * @param e       the e
-     * @param project the project
+     * @param e       上传异常对象，包含错误信息
+     * @param project 当前项目对象，用于关联通知和设置面板
      * @since 0.0.1
      */
-    @SuppressWarnings("JavadocReference")
     public static void notifyUploadFailure(UploadException e, Project project) {
         String details = e.getMessage();
         String content = "<p><a href=\"\">Configure oss...</a></p>";
@@ -97,12 +102,13 @@ public class UploadNotification extends MikNotification {
     }
 
     /**
-     * Notify upload failure.
+     * 通知上传失败信息
+     * <p>
+     * 根据提供的文件未找到列表和上传失败列表，构建通知内容并发送警告通知。
      *
-     * @param fileNotFoundListMap   the file not found list map
-     * @param uploadFailuredListMap the upload failured list map
-     * @param project               the project
-     * @since 0.0.1
+     * @param fileNotFoundListMap   文件未找到列表映射，键为VirtualFile，值为字符串列表
+     * @param uploadFailuredListMap 上传失败列表映射，键为VirtualFile，值为字符串列表
+     * @param project               项目对象，用于指定通知的目标项目
      */
     public static void notifyUploadFailure(Map<VirtualFile, List<String>> fileNotFoundListMap,
                                            Map<VirtualFile, List<String>> uploadFailuredListMap,
@@ -112,16 +118,25 @@ public class UploadNotification extends MikNotification {
         StringBuilder fileNotFoundContent = new StringBuilder();
         StringBuilder uploadFailuredContent = new StringBuilder();
 
-        if (fileNotFoundListMap.size() > 0) {
+        if (!fileNotFoundListMap.isEmpty()) {
             buildContent(fileNotFoundListMap, fileNotFoundContent, "Image Not Found:");
         }
 
-        if (uploadFailuredListMap.size() > 0) {
+        if (!uploadFailuredListMap.isEmpty()) {
             buildContent(uploadFailuredListMap, uploadFailuredContent, "Image Upload Failured:");
         }
         content.append(fileNotFoundContent).append(uploadFailuredContent);
         Notifications.Bus.notify(new Notification(MIK_NOTIFICATION_GROUP, "Upload Warning",
                                                   content.toString(), NotificationType.WARNING, new NotificationListener.Adapter() {
+            /**
+             * 处理超链接点击事件，根据点击的URL打开对应的文件
+             * <p>
+             * 当用户点击通知中的超链接时，该方法会被调用。它会获取点击的URL，并尝试通过RevealFileAction打开对应的文件。
+             * 如果URL无效，会记录警告日志。最后隐藏与该通知相关的气泡提示。
+             *
+             * @param notification 通知对象，包含超链接信息
+             * @param e            超链接事件对象，包含被点击的URL
+             */
             @Override
             protected void hyperlinkActivated(@NotNull Notification notification, @NotNull HyperlinkEvent e) {
                 URL url = e.getURL();
@@ -138,12 +153,14 @@ public class UploadNotification extends MikNotification {
     }
 
     /**
-     * Build content
+     * 根据文件映射关系构建内容字符串
+     * <p>
+     * 遍历传入的文件与图片列表的映射关系，将每个文件的名称和对应的图片列表
+     * 以HTML格式追加到内容构建器中，用于生成带有链接和列表的页面内容。
      *
-     * @param listMap list map
-     * @param content content
-     * @param s       s
-     * @since 0.0.1
+     * @param listMap 文件与图片列表的映射关系
+     * @param content 用于构建内容的字符串构建器
+     * @param s       用于插入到链接前的文本
      */
     private static void buildContent(Map<VirtualFile, List<String>> listMap, StringBuilder content, String s) {
         for (Map.Entry<VirtualFile, List<String>> entry : listMap.entrySet()) {
@@ -157,9 +174,11 @@ public class UploadNotification extends MikNotification {
     }
 
     /**
-     * 上传完成后通知
+     * 上传完成后发送通知
+     * <p>
+     * 创建并发送一个上传完成的通知，包含指定内容和标题。
      *
-     * @param content the content
+     * @param content 通知内容，可包含HTML标签
      * @since 0.0.1
      */
     public static void notifyUploadFinshed(String content) {
@@ -171,10 +190,12 @@ public class UploadNotification extends MikNotification {
     }
 
     /**
-     * 上传时检查到配置错误时通知
+     * 上传时检测到配置错误并通知用户
+     * <p>
+     * 当上传过程中发现配置错误时，生成通知内容并发送给用户，引导用户进行配置检查或查看帮助文档。
      *
-     * @param project    the project
-     * @param actionName the action name
+     * @param project    项目对象，用于指定通知的目标项目
+     * @param actionName 操作名称，用于构建通知内容中的链接文本
      * @since 0.0.1
      */
     public static void notifyConfigurableError(Project project, String actionName) {
@@ -186,6 +207,14 @@ public class UploadNotification extends MikNotification {
                                                   content,
                                                   NotificationType.ERROR,
                                                   new NotificationListener.Adapter() {
+                                                      /**
+                                                       * 处理超链接点击事件，根据链接内容执行相应操作
+                                                       * <p>
+                                                       * 当用户点击通知中的超链接时，根据链接描述内容决定是打开浏览器还是跳转到设置面板
+                                                       *
+                                                       * @param notification 通知对象
+                                                       * @param e            超链接事件对象
+                                                       */
                                                       @Override
                                                       protected void hyperlinkActivated(@NotNull Notification notification, @NotNull HyperlinkEvent e) {
                                                           String url = e.getDescription();

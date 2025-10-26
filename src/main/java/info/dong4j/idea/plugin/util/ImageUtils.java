@@ -19,7 +19,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.AlphaComposite;
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -56,21 +55,24 @@ import javax.swing.ImageIcon;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Description: </p>
+ * 图片工具类
+ * <p>
+ * 提供一系列图片处理相关的静态方法，包括从剪贴板获取图片、图片缩放、保存图片、加载图片、判断文件类型、生成临时文件、添加文字水印等功能。
+ * 该类主要用于简化图片操作，提高代码复用性。
  *
  * @author dong4j
- * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2019.03.16 12:12
+ * @version 1.0.0
+ * @date 2025.10.24
  * @since 0.0.1
  */
 @Slf4j
 public final class ImageUtils {
-
     /**
-     * Gets image from clipboard.
+     * 从剪贴板中获取图片
+     * <p>
+     * 该方法尝试从系统剪贴板中获取支持的图片数据，并返回对应的图片对象。如果剪贴板中不包含图片数据或获取失败，则返回 null。
      *
-     * @return the image from clipboard
+     * @return 从剪贴板中获取的图片对象，若未找到或获取失败则返回 null
      * @since 0.0.1
      */
     @Nullable
@@ -87,9 +89,11 @@ public final class ImageUtils {
     }
 
     /**
-     * Gets data from clipboard.
+     * 从剪切板中获取数据
+     * <p>
+     * 读取系统剪切板内容，并根据支持的数据类型（如文件列表、图片等）提取对应的数据，返回一个包含单一键值对的 Map。
      *
-     * @return the data from clipboard  map 中只有一对 kev-value
+     * @return 从剪切板获取到的数据，Map 中只包含一对 key-value，若剪切板内容不支持或获取失败则返回 null
      * @since 0.0.1
      */
     @Nullable
@@ -120,8 +124,10 @@ public final class ImageUtils {
 
     /**
      * 把文本设置到剪贴板（复制）
+     * <p>
+     * 该方法用于将指定的文本内容复制到系统的剪贴板中，以便其他应用程序可以粘贴使用。
      *
-     * @param text the text
+     * @param text 要设置到剪贴板的文本内容
      * @since 0.0.1
      */
     public static void setStringToClipboard(String text) {
@@ -134,12 +140,15 @@ public final class ImageUtils {
     }
 
     /**
-     * Scale image buffered image.
+     * 对给定的 BufferedImage 进行缩放操作，生成指定尺寸的新图片。
+     * <p>
+     * 该方法首先检查源图片和目标尺寸是否有效，若无效则返回 null。否则，使用仿射变换和双线性插值算法对图片进行缩放。
      *
-     * @param sourceImage the source image
-     * @param newWidth    the new width
-     * @param newHeight   the new height
-     * @return the buffered image
+     * @param sourceImage 源图片，若为 null 则返回 null
+     * @param newWidth    缩放后图片的宽度
+     * @param newHeight   缩放后图片的高度
+     * @return 缩放后的 BufferedImage，若输入无效则返回 null
+     * @throws NullPointerException 如果 sourceImage 为 null 且未正确处理
      * @since 0.0.1
      */
     @Contract("null, _, _ -> null")
@@ -161,11 +170,13 @@ public final class ImageUtils {
     }
 
     /**
-     * Save.
+     * 将 BufferedImage 图像保存到指定的文件路径，并使用指定的格式
+     * <p>
+     * 该方法使用 ImageIO 类将图像写入文件，若保存过程中发生异常，会打印错误信息到控制台
      *
-     * @param image  the image
-     * @param file   the file
-     * @param format the format
+     * @param image  需要保存的图像对象
+     * @param file   保存图像的目标文件对象
+     * @param format 保存图像的文件格式，如 "jpg"、"png" 等
      * @since 0.0.1
      */
     public static void save(BufferedImage image, File file, String format) {
@@ -178,10 +189,12 @@ public final class ImageUtils {
     }
 
     /**
-     * Load image from file buffered image.
+     * 从文件加载图像到 BufferedImage 对象。
+     * <p>
+     * 尝试读取指定文件中的图像数据，并返回对应的 BufferedImage 对象。如果文件无效或读取失败，返回 null。
      *
-     * @param cachedImageFile the cached image file
-     * @return Could be <code>null</code> if the image could not be read from the file (because of whatever strange     reason).
+     * @param cachedImageFile 要读取的图像文件
+     * @return 返回读取到的 BufferedImage 对象，若读取失败或文件无效则返回 null
      * @since 0.0.1
      */
     @Contract("null -> null")
@@ -217,10 +230,13 @@ public final class ImageUtils {
     }
 
     /**
-     * Load image from url buffered image.
+     * 从指定的URL加载图片并返回BufferedImage对象。
+     * <p>
+     * 该方法通过给定的图片URL创建ImageIcon，再将其转换为BufferedImage返回。
+     * 如果URL无效或转换过程中发生异常，将返回null。
      *
-     * @param imageURL the image url
-     * @return the buffered image
+     * @param imageURL 图片的URL地址
+     * @return 转换后的BufferedImage对象，若加载失败则返回null
      * @since 0.0.1
      */
     @Nullable
@@ -233,10 +249,13 @@ public final class ImageUtils {
     }
 
     /**
-     * To buffered image buffered image.
+     * 将给定的图像转换为 BufferedImage 对象
+     * <p>
+     * 如果传入的图像已经是 BufferedImage 类型，则直接返回；否则创建一个新的 BufferedImage
+     * 并将原图像绘制到新图像上。
      *
-     * @param src the src
-     * @return the buffered image
+     * @param src 需要转换的图像对象
+     * @return 转换后的 BufferedImage 对象，可能为 null
      * @since 0.0.1
      */
     @Nullable
@@ -262,11 +281,13 @@ public final class ImageUtils {
     }
 
     /**
-     * http://stackoverflow.com/questions/7603400/how-to-make-a-rounded-corner-image-in-java
+     * 创建带有圆角的图片
+     * <p>
+     * 该方法将给定的图片转换为带有指定圆角半径的圆角图片。首先创建一个与原图片大小相同的透明图片，然后使用图形绘制工具绘制圆角矩形作为背景，并将原图片绘制在圆角矩形之上。
      *
-     * @param image        the image
-     * @param cornerRadius the corner radius
-     * @return the buffered image
+     * @param image        需要处理的原始图片
+     * @param cornerRadius 圆角的半径，单位为像素
+     * @return 处理后的带有圆角的图片
      * @since 0.0.1
      */
     public static BufferedImage makeRoundedCorner(@NotNull BufferedImage image, int cornerRadius) {
@@ -287,12 +308,13 @@ public final class ImageUtils {
         return output;
     }
 
-
     /**
-     * http://stackoverflow.com/questions/464825/converting-transparent-gif-png-to-jpeg-using-java
+     * 移除图像的透明通道，将其转换为不透明的 RGB 图像
+     * <p>
+     * 该方法将输入的带有透明通道的图像转换为不透明的 RGB 图像，背景颜色默认为白色。
      *
-     * @param image the image
-     * @return the buffered image
+     * @param image 需要处理的图像对象
+     * @return 转换后的不透明 RGB 图像
      * @since 0.0.1
      */
     public static BufferedImage removeAlpha(@NotNull BufferedImage image) {
@@ -305,18 +327,30 @@ public final class ImageUtils {
         return bufferedImage;
     }
 
-
     /**
-     * http://stackoverflow.com/questions/665406/how-to-make-a-color-transparent-in-a-bufferedimage-and-save-as-png
+     * 将 BufferedImage 中的白色像素转换为透明，并生成新的 Image 对象
+     * <p>
+     * 该方法通过创建一个自定义的图像过滤器，将图像中所有白色像素的 alpha 通道设为 0，从而实现透明效果。适用于将白色背景变为透明的图像处理场景。
      *
-     * @param image the image
-     * @return the image
-     * @since 0.0.1
+     * @param image 需要处理的 BufferedImage 对象
+     * @return 处理后的 Image 对象，白色像素变为透明
+     * @throws NullPointerException 如果传入的 image 为 null
      */
     public static Image whiteToTransparent(@NotNull BufferedImage image) {
         ImageFilter filter = new RGBImageFilter() {
+            /** 标记颜色的 RGB 值，用于表示特定的标记颜色 */
             final int markerRGB = JBColor.WHITE.getRGB() | 0xFF000000;
 
+            /**
+             * 根据指定坐标和颜色值过滤RGB颜色值
+             * <p>
+             * 该方法用于处理图像像素颜色值，若颜色值与标记颜色匹配，则设置透明度为0（完全透明）；否则返回原颜色值。
+             *
+             * @param x   像素的x坐标
+             * @param y   像素的y坐标
+             * @param rgb 像素的原始RGB颜色值
+             * @return 处理后的RGB颜色值
+             */
             @Override
             public int filterRGB(int x, int y, int rgb) {
                 if ((rgb | 0xFF000000) == this.markerRGB) {
@@ -334,10 +368,12 @@ public final class ImageUtils {
     }
 
     /**
-     * Is image file boolean.
+     * 判断给定文件路径是否指向图片文件
+     * <p>
+     * 通过文件路径创建File对象，并调用内部方法判断是否为图片文件
      *
-     * @param filePath the file path
-     * @return the boolean
+     * @param filePath 文件路径
+     * @return 如果是图片文件返回true，否则返回false
      * @since 0.0.1
      */
     public static boolean isImageFile(String filePath) {
@@ -345,11 +381,12 @@ public final class ImageUtils {
     }
 
     /**
-     * 通过 ImageReader 来解码这个 file 并返回一个 BufferedImage 对象
-     * 如果找不到合适的 javax.imageio.ImageReader 则会返回 null, 则认为这不是图片文件
+     * 判断给定文件是否为图片文件
+     * <p>
+     * 通过 ImageReader 来解码文件并返回一个 BufferedImage 对象。如果找不到合适的 javax.imageio.ImageReader，则返回 null，认为该文件不是图片文件。
      *
-     * @param file the file
-     * @return the boolean
+     * @param file 要判断的文件对象
+     * @return 如果文件是图片文件则返回 true，否则返回 false
      * @since 0.0.1
      */
     public static boolean isImageFile(File file) {
@@ -358,10 +395,12 @@ public final class ImageUtils {
     }
 
     /**
-     * Gets image *
+     * 从文件中读取图像
+     * <p>
+     * 使用ImageIO工具类尝试从指定文件中加载图像，若读取失败则返回null
      *
-     * @param file file
-     * @return the image
+     * @param file 要读取的图像文件路径
+     * @return 读取到的图像对象，若读取失败则返回null
      * @since 1.6.2
      */
     private static Image getImage(File file) {
@@ -373,11 +412,14 @@ public final class ImageUtils {
     }
 
     /**
-     * Compress.
+     * 对文件进行压缩处理
+     * <p>
+     * 使用 Thumbnails 工具对指定的输入文件进行压缩，并将结果保存到输出文件中。
+     * 压缩比例由传入的百分比参数决定。
      *
-     * @param in      the in
-     * @param out     the out
-     * @param percent the percent
+     * @param in      需要压缩的输入文件
+     * @param out     压缩后的输出文件
+     * @param percent 压缩比例，取值范围为 0-100
      * @since 0.0.1
      */
     public static void compress(File in, File out, int percent) {
@@ -392,12 +434,13 @@ public final class ImageUtils {
     }
 
     /**
-     * Compress.
+     * 对输入流中的图像进行压缩，并将结果写入输出流
+     * <p>
+     * 该方法使用 Thumbnails 工具对图像进行压缩处理，压缩比例由 percent 参数控制。
      *
-     * @param in      the in
-     * @param out     the out
-     * @param percent the percent
-     * @since 0.0.1
+     * @param in      输入流，包含需要压缩的图像数据
+     * @param out     输出流，用于写入压缩后的图像数据
+     * @param percent 压缩比例，取值范围为 0-100，表示压缩质量百分比
      */
     public static void compress(InputStream in, OutputStream out, int percent) {
         try {
@@ -411,11 +454,14 @@ public final class ImageUtils {
     }
 
     /**
-     * Compress.
+     * 对输入的图像流进行压缩，并保存到指定的文件中。
+     * <p>
+     * 该方法使用 Thumbnails 工具对图像进行压缩处理，压缩比例由 percent 参数决定。
+     * 压缩后的图像将保存到指定的输出文件中。
      *
-     * @param in      the in
-     * @param out     the out
-     * @param percent the percent
+     * @param in      输入的图像流
+     * @param out     压缩后的图像保存路径
+     * @param percent 压缩比例，取值范围为 0-100，表示压缩到原始大小的百分比
      * @since 0.0.1
      */
     public static void compress(InputStream in, File out, int percent) {
@@ -430,11 +476,12 @@ public final class ImageUtils {
     }
 
     /**
-     * Description: 判断OSS服务文件上传时文件的contentType
+     * 判断OSS服务文件上传时文件的contentType
+     * <p>
+     * 根据文件名后缀判断对应的图片类型，并返回对应的MIME类型字符串
      *
-     * @param fileName the file name
-     * @return String string
-     * @since 0.0.1
+     * @param fileName 文件名
+     * @return 返回对应的图片MIME类型字符串，若无法识别则返回空字符串
      */
     public static String getImageType(String fileName) {
         String extension = getFileExtension(fileName);
@@ -452,10 +499,12 @@ public final class ImageUtils {
     }
 
     /**
-     * Get file suffix string.
+     * 获取文件的后缀字符串
+     * <p>
+     * 通过文件名获取文件的后缀部分，例如对于文件名"example.txt"，返回"txt"
      *
-     * @param fileName the file name
-     * @return the string
+     * @param fileName 文件名
+     * @return 文件后缀字符串
      * @since 0.0.1
      */
     @NotNull
@@ -464,12 +513,13 @@ public final class ImageUtils {
     }
 
     /**
-     * Gets file type.
+     * 根据输入流获取文件类型
+     * <p>
+     * 通过读取输入流的前28个字节，将其转换为十六进制字符串，并与已知的文件类型值进行匹配，返回对应的文件类型。
      *
-     * @param is the is
-     * @return the file type
-     * @throws IOException the io exception
-     * @since 0.0.1
+     * @param is 输入流，用于读取文件头信息
+     * @return 匹配的文件类型，若未找到匹配项则返回 null
+     * @throws IOException 如果读取输入流时发生异常
      */
     @Nullable
     public static FileType getFileType(InputStream is) throws IOException {
@@ -494,10 +544,12 @@ public final class ImageUtils {
     }
 
     /**
-     * Build temp file file.
+     * 创建一个临时文件
+     * <p>
+     * 根据给定的文件名在系统默认的临时目录下创建一个新的临时文件。
      *
-     * @param fileName the file name
-     * @return the file
+     * @param fileName 文件名
+     * @return 新创建的临时文件对象
      * @since 0.0.1
      */
     @NotNull
@@ -507,10 +559,12 @@ public final class ImageUtils {
     }
 
     /**
-     * 递归遍历目录, 返回所有 Image 文件
+     * 递归遍历目录，收集所有图片文件
+     * <p>
+     * 该方法通过递归方式遍历指定目录及其子目录，筛选出所有图片文件并添加到结果列表中。
      *
-     * @param virtualFile the virtual file
-     * @return the list
+     * @param virtualFile 要遍历的虚拟文件对象，表示目录入口
+     * @return 包含所有图片文件的虚拟文件列表
      * @since 0.0.1
      */
     public static List<VirtualFile> recursivelyImageFile(VirtualFile virtualFile) {
@@ -546,10 +600,12 @@ public final class ImageUtils {
     }
 
     /**
-     * Is valid for file boolean.
+     * 判断文件是否有效
+     * <p>
+     * 检查给定的文件是否为图片文件，并且是否可写。如果文件为空或不是图片文件，则返回 false。
      *
-     * @param file the file
-     * @return the boolean
+     * @param file 文件对象
+     * @return 文件是否有效（即是否为图片文件且可写）
      * @since 0.0.1
      */
     public static boolean isValidForFile(PsiFile file) {
@@ -564,10 +620,12 @@ public final class ImageUtils {
     }
 
     /**
-     * Is image file boolean.
+     * 判断给定文件是否为图片文件
+     * <p>
+     * 通过检查文件类型名称是否为图片类型来判断该文件是否为图片文件
      *
-     * @param file the file
-     * @return the boolean
+     * @param file 文件对象
+     * @return 如果是图片文件返回 true，否则返回 false
      * @since 0.0.1
      */
     private static boolean isImageFile(PsiFile file) {
@@ -575,10 +633,12 @@ public final class ImageUtils {
     }
 
     /**
-     * Is image file boolean.
+     * 判断给定文件是否为图片文件
+     * <p>
+     * 通过比较文件类型名称与预定义的图片类型名称，判断该文件是否为图片类型
      *
-     * @param file the file
-     * @return the boolean
+     * @param file 要判断的文件对象
+     * @return 如果是图片文件返回 true，否则返回 false
      * @since 0.0.1
      */
     public static boolean isImageFile(VirtualFile file) {
@@ -586,12 +646,14 @@ public final class ImageUtils {
     }
 
     /**
-     * Watermark from text
+     * 根据文本内容为图片添加水印并生成临时文件
+     * <p>
+     * 该方法接收一张图片、文件名和水印文本，为图片添加水印后，生成临时文件并返回。
      *
-     * @param srcImg   src img
-     * @param fileName file name
-     * @param text     text
-     * @return the file
+     * @param srcImg   原始图片对象
+     * @param fileName 生成的文件名
+     * @param text     水印文本内容
+     * @return 生成的临时文件对象
      * @since y.y.y
      */
     public static File watermarkFromText(Image srcImg, String fileName, String text) {
@@ -638,8 +700,11 @@ public final class ImageUtils {
 
     /**
      * 給图片添加文字水印
+     * <p>
+     * 读取指定图片文件，并在其上添加文字水印，返回添加水印后的图片文件。
      *
-     * @param file file
+     * @param file 要添加水印的图片文件
+     * @return 添加水印后的图片文件
      * @since 1.6.2
      */
     public static File watermarkFromText(File file, String text) {

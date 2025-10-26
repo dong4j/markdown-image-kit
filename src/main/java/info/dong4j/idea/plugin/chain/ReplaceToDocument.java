@@ -13,19 +13,23 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * <p>Description: 替换原有标签</p>
+ * 替换原有标签的处理类
+ * <p>
+ * 该类用于执行替换文档中旧标签的操作，主要功能是遍历待处理的文档和图片信息，根据指定的替换规则更新文档内容。
+ * 支持进度指示和文本更新，适用于需要批量替换文档中特定标记的场景。
  *
  * @author dong4j
  * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2021.02.14 18:40
+ * @date 2021.02.14
  * @since 0.0.1
  */
 public class ReplaceToDocument extends ActionHandlerAdapter {
     /**
-     * Gets name *
+     * 获取名称
+     * <p>
+     * 返回预定义的名称字符串，用于表示替换旧操作的标题
      *
-     * @return the name
+     * @return 名称字符串
      * @since 0.0.1
      */
     @Override
@@ -34,11 +38,13 @@ public class ReplaceToDocument extends ActionHandlerAdapter {
     }
 
     /**
-     * Execute
+     * 执行处理逻辑，用于处理文档中的 Markdown 图片标记替换
+     * <p>
+     * 该方法从事件数据中获取待处理的文档和图片信息，逐个处理图片标记，并更新文档内容。
+     * 同时通过进度指示器实时反馈处理进度和当前处理的图片名称。
      *
-     * @param data data
-     * @return the boolean
-     * @since 0.0.1
+     * @param data 事件数据，包含需要处理的文档、图片信息以及进度指示器等
+     * @return 始终返回 true，表示处理成功
      */
     @Override
     public boolean execute(EventData data) {
