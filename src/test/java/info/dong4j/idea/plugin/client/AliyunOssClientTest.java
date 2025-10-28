@@ -2,9 +2,8 @@ package info.dong4j.idea.plugin.client;
 
 import com.intellij.testFramework.LightPlatformTestCase;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.Objects;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,7 +29,7 @@ public class AliyunOssClientTest extends LightPlatformTestCase {
      */
     public void test() throws Exception {
         AliyunOssClient aliyunOssClient = AliyunOssClient.getInstance();
-        String url = aliyunOssClient.upload(new FileInputStream(new File("/Users/dong4j/Downloads/我可要开始皮了.png")), "我可要开始皮了.png");
+        String url = aliyunOssClient.upload(Objects.requireNonNull(this.getClass().getResourceAsStream("/mik.png")), "mik.png");
         log.info(url);
     }
 }

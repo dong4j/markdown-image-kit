@@ -2,6 +2,8 @@ package info.dong4j.idea.plugin.chain;
 
 import org.junit.Test;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * IActionHandlerTest 类
  * <p>
@@ -13,6 +15,7 @@ import org.junit.Test;
  * @date 2019.03.22
  * @since 1.1.0
  */
+@Slf4j
 public class IActionHandlerTest {
     /**
      * 测试 ActionManager 的执行流程
@@ -29,5 +32,6 @@ public class IActionHandlerTest {
         // manager.addHandler(new UploadAndInsertHandler());
         // manager.addHandler(new FinalActionHandler());
         // manager.invoke();
+        log.info("xxxxxxxxxx");
     }
 }
