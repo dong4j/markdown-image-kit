@@ -42,8 +42,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -222,6 +221,7 @@ public final class ImageUtils {
             }
         } catch (Throwable e) {
             System.err.println("deleting " + cachedImageFile);
+            //noinspection ResultOfMethodCallIgnored
             cachedImageFile.delete();
             return null;
         }
@@ -242,8 +242,8 @@ public final class ImageUtils {
     @Nullable
     public static BufferedImage loadImageFromURL(String imageURL) {
         try {
-            return toBufferedImage(new ImageIcon(new URL(imageURL)).getImage());
-        } catch (MalformedURLException ignored) {
+            return toBufferedImage(new ImageIcon(new URI(imageURL).toURL()).getImage());
+        } catch (Exception ignored) {
         }
         return null;
     }
@@ -293,7 +293,7 @@ public final class ImageUtils {
     public static BufferedImage makeRoundedCorner(@NotNull BufferedImage image, int cornerRadius) {
         int w = image.getWidth();
         int h = image.getHeight();
-        BufferedImage output = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage output = ImageUtil.createImage(w, h, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = output.createGraphics();
         g2.setComposite(AlphaComposite.Src);
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -318,7 +318,7 @@ public final class ImageUtils {
      * @since 0.0.1
      */
     public static BufferedImage removeAlpha(@NotNull BufferedImage image) {
-        BufferedImage bufferedImage = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_RGB);
+        BufferedImage bufferedImage = ImageUtil.createImage((image.getWidth(null)), image.getHeight(null), BufferedImage.TYPE_INT_RGB);
         Graphics g = bufferedImage.createGraphics();
         //Color.WHITE estes the background to white. You can use any other color
         g.drawImage(image, 0, 0, bufferedImage.getWidth(), bufferedImage.getHeight(), JBColor.WHITE, null);
@@ -485,17 +485,12 @@ public final class ImageUtils {
      */
     public static String getImageType(String fileName) {
         String extension = getFileExtension(fileName);
-        switch (extension.toLowerCase()) {
-            case ".gif":
-                return ImageMediaType.GIF.toString();
-            case ".png":
-                return ImageMediaType.PNG.toString();
-            case ".jpg":
-            case ".jpeg":
-                return ImageMediaType.JPEG.toString();
-            default:
-                return "";
-        }
+        return switch (extension.toLowerCase()) {
+            case ".gif" -> ImageMediaType.GIF.toString();
+            case ".png" -> ImageMediaType.PNG.toString();
+            case ".jpg", ".jpeg" -> ImageMediaType.JPEG.toString();
+            default -> "";
+        };
     }
 
     /**
@@ -662,7 +657,7 @@ public final class ImageUtils {
             int srcImgWidth = srcImg.getWidth(null);
             int srcImgHeight = srcImg.getHeight(null);
             // 加水印
-            bufImg = new BufferedImage(srcImgWidth,
+            bufImg = ImageUtil.createImage(srcImgWidth,
                                        srcImgHeight,
                                        BufferedImage.TYPE_INT_RGB);
             // 获取 Graphics2D 对象

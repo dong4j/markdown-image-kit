@@ -8,7 +8,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Serial;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -60,15 +59,9 @@ public class CustomOssUtils {
                                                 InputStream inputStream,
                                                 Map<String, String> requestText,
                                                 Map<String, String> header) throws Exception {
-        URL url = new URL(api);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-        connection.setDoOutput(true);
-        connection.setDoInput(true);
-        connection.setUseCaches(false);
-        connection.setConnectTimeout(3000);
-        connection.setReadTimeout(5000);
-        connection.setRequestMethod(httpMethod);
+        HttpURLConnection connection = OssUtils.connect(api, httpMethod);
+
         connection.setRequestProperty("Accept", "application/json");
         connection.setRequestProperty("Connection", "keep-alive");
         connection.setRequestProperty("User-Agent", "markdown-image-kit");
@@ -127,7 +120,7 @@ public class CustomOssUtils {
             // 断开连接
             connection.disconnect();
         }
-        return new HashMap<String, String>() {
+        return new HashMap<>() {
             /** 序列化版本号，用于确保类的兼容性 */
             @Serial
             private static final long serialVersionUID = -5643217270707235408L;

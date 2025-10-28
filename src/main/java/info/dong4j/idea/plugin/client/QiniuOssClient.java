@@ -16,7 +16,11 @@ import org.apache.http.util.Asserts;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
 import java.util.Optional;
@@ -143,7 +147,12 @@ public class QiniuOssClient implements OssClient {
     public String upload(InputStream inputStream, String fileName) throws Exception {
         QiniuOssUtils.putObject(fileName, inputStream, bucketName, host, accessKey, secretKey);
 
-        URL url = new URL(endpoint);
+        URL url;
+        try {
+            url = new URI(endpoint).toURL();
+        } catch (MalformedURLException | URISyntaxException e) {
+            throw new IOException("Invalid URL: " + endpoint, e);
+        }
         log.trace("getUserInfo = {}", url.getUserInfo());
         if (StringUtils.isBlank(url.getPath())) {
             endpoint = endpoint + "/";

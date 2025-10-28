@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Serial;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.HashMap;
@@ -66,15 +66,7 @@ public class QiniuOssUtils {
                                  String secretAccessKey) throws Exception {
         String token = uploadToken(ossBucket, fileName, 3600L * 1000 * 24 * 365 * 10, null, accessKeyId, secretAccessKey);
 
-        URL url = new URL("http://upload.qiniu.com");
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-        connection.setDoOutput(true);
-        connection.setDoInput(true);
-        connection.setUseCaches(false);
-        connection.setConnectTimeout(3000);
-        connection.setReadTimeout(5000);
-        connection.setRequestMethod("POST");
+        HttpURLConnection connection = OssUtils.connect("http://upload.qiniu.com", "POST");
 
         connection.setRequestProperty("Host", host);
         connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
@@ -118,8 +110,9 @@ public class QiniuOssUtils {
                 headerInfo = connection.getRequestMethod() + " " + connection.getURL()
                              + "\nContent-Type: " + connection.getContentType() + "\n";
 
-                Map<String, String> map = new HashMap<String, String>() {
+                Map<String, String> map = new HashMap<>() {
                     /** 序列化版本号，用于确保类的兼容性 */
+                    @Serial
                     private static final long serialVersionUID = -5643217270707235408L;
 
                     {

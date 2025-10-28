@@ -6,7 +6,6 @@ import com.google.gson.annotations.SerializedName;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
 
 import lombok.Builder;
 import lombok.Data;
@@ -98,12 +97,7 @@ public class GiteeUtils {
          */
         @Override
         public HttpURLConnection getHttpURLConnection(String url, String token) throws IOException {
-            URL realUrl = new URL(url);
-            HttpURLConnection connection = (HttpURLConnection) realUrl.openConnection();
-            connection.setConnectTimeout(3000);
-            connection.setReadTimeout(5000);
-            // 设置
-            connection.setRequestMethod("POST");
+            HttpURLConnection connection = OssUtils.connect(url, "POST");
             connection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
             connection.setRequestProperty("User-Agent", "markdown-image-kit");
             return connection;

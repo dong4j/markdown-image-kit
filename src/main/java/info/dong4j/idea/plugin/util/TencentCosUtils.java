@@ -4,23 +4,16 @@ import info.dong4j.idea.plugin.util.digest.DigestUtils;
 import info.dong4j.idea.plugin.util.digest.Hex;
 import info.dong4j.idea.plugin.util.digest.HmacUtils;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -157,15 +150,7 @@ public class TencentCosUtils {
      * @since 0.0.1
      */
     public static String get(String url, Map<String, String> head) throws IOException {
-        CloseableHttpClient client = HttpClients.createDefault();
-        HttpGet httpGet = new HttpGet(url);
-        for (String key : head.keySet()) {
-            httpGet.setHeader(key, head.get(key));
-        }
-        HttpResponse response = client.execute(httpGet);
-        response.getEntity().getContent();
-        HttpEntity entity = response.getEntity();
-        return EntityUtils.toString(entity, StandardCharsets.UTF_8);
+        return OssUtils.get(url, head);
     }
 
     /**
@@ -338,10 +323,9 @@ public class TencentCosUtils {
      *
      * @param inStr 需要编码的输入字符串
      * @return 编码后的十六进制字符串
-     * @throws Exception 如果SHA算法不可用或发生其他异常
      * @since 0.0.1
      */
-    public static String shaEncode(String inStr) throws Exception {
+    public static String shaEncode(String inStr) {
         MessageDigest sha;
         try {
             sha = MessageDigest.getInstance("SHA");
@@ -427,21 +411,11 @@ public class TencentCosUtils {
                                               String backet,
                                               String regionName) throws Exception {
         //创建连接
-        URL url = new URL(path);
-        HttpURLConnection connection;
-        StringBuilder sbuffer;
-
-        //添加 请求内容
-        connection = (HttpURLConnection) url.openConnection();
-        //设置http连接属性
-        connection.setDoOutput(true);
-        connection.setDoInput(true);
-        connection.setRequestMethod("PUT");
+        HttpURLConnection connection = OssUtils.connect(path, "PUT");
         connection.setRequestProperty("Content-Length", content.available() + "");
-
-        connection.setReadTimeout(5000);//设置读取超时时间
-        connection.setConnectTimeout(3000);//设置连接超时时间
         connection.connect();
+
+        StringBuilder sbuffer;
 
         try (OutputStream out = connection.getOutputStream()) {
             IOUtils.copy(content, out);
@@ -502,9 +476,9 @@ public class TencentCosUtils {
         String stringToSign = qSignAlgorithm + "\n" + qSignTime + "\n" + shaEncode(httpString) + "\n";
         String signature = genHMAC(signKey, stringToSign);
 
-        String url = getUrl(backet, regionName, key) + "?q-sign-algorithm=" + qSignAlgorithm + "&q-ak=" + secretId +
-                     "&q-sign-time=" + qSignTime + "&q-key-time=" + qKeyTime + "&q-header-list=&q-url-param-list=&q-signature" +
-                     "=" + signature;
+        // formatter:off
+        String url = MessageFormat.format("{0}?q-sign-algorithm={1}&q-ak={2}&q-sign-time={3}&q-key-time={4}&q-header-list=&q-url-param-list=&q-signature={5}",
+                                          getUrl(backet, regionName, key), qSignAlgorithm, secretId, qSignTime, qKeyTime, signature);
 
         return getUploadInformation(url, content, key, backet, regionName);
     }

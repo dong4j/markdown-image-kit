@@ -5,7 +5,6 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
 
 import lombok.Builder;
 import lombok.Data;
@@ -97,11 +96,7 @@ public class GithubUtils {
          */
         @Override
         public HttpURLConnection getHttpURLConnection(String url, String token) throws IOException {
-            URL realUrl = new URL(url);
-            HttpURLConnection connection = (HttpURLConnection) realUrl.openConnection();
-            connection.setConnectTimeout(5000);
-            connection.setReadTimeout(10000);
-            connection.setRequestMethod("PUT");
+            HttpURLConnection connection = OssUtils.connect(url, "PUT");
             connection.setRequestProperty("Content-Type", "application/vnd.github.v3+json");
             connection.setRequestProperty("Authorization", "token " + token);
             connection.setRequestProperty("User-Agent", "markdown-image-kit");

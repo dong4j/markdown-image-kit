@@ -13,6 +13,9 @@ import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -172,7 +175,13 @@ public class ActionManager {
                         } else {
                             // 将 URL 图片转成 inputstream
                             try {
-                                byte[] temp = FileUtil.loadBytes(new URL(markdownImage.getPath()).openStream());
+                                URL url;
+                                try {
+                                    url = new URI(markdownImage.getPath()).toURL();
+                                } catch (MalformedURLException | URISyntaxException e) {
+                                    throw new IOException("Invalid URL: " + markdownImage.getPath(), e);
+                                }
+                                byte[] temp = FileUtil.loadBytes(url.openStream());
                                 InputStream inputStream = new ByteArrayInputStream(temp);
                                 markdownImage.setInputStream(inputStream);
                                 // 这里设置为本地图片, 才会在 uploadhandler 中上传

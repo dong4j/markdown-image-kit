@@ -1,19 +1,11 @@
 package info.dong4j.idea.plugin.util;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
@@ -108,21 +100,11 @@ public class AliyunOssUtils {
             connectUrl = "http://" + customEndpoint;
         }
 
-        URL putUrl = new URL(connectUrl + key);
-        HttpURLConnection connection;
+        HttpURLConnection connection = OssUtils.connect(connectUrl + key, "PUT");
         StringBuffer sbuffer;
-
-        //添加 请求内容
-        connection = (HttpURLConnection) putUrl.openConnection();
-        //设置http连接属性
-        connection.setDoOutput(true);
-        connection.setRequestMethod("PUT");
         //设置请求头
         connection.setRequestProperty("Date", date);
         connection.setRequestProperty("Authorization", authorization);
-
-        connection.setReadTimeout(5000);
-        connection.setConnectTimeout(3000);
         connection.connect();
 
         try (OutputStream out = connection.getOutputStream()) {
@@ -161,16 +143,7 @@ public class AliyunOssUtils {
      * @throws IOException 如果请求过程中发生IO异常
      */
     public static String get(String url, Map<String, String> head) throws IOException {
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
-            HttpGet httpGet = new HttpGet(url);
-            for (String key : head.keySet()) {
-                httpGet.setHeader(key, head.get(key));
-            }
-            HttpResponse response = client.execute(httpGet);
-            response.getEntity().getContent();
-            HttpEntity entity = response.getEntity();
-            return EntityUtils.toString(entity, "utf-8");
-        }
+        return OssUtils.get(url, head);
     }
 
     /**
