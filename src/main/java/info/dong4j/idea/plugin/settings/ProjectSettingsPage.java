@@ -533,8 +533,10 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             // 其他平台的直接可执行文件
         });
 
-        // 添加浏览文件夹监听器
+        // 添加浏览文件夹监听器 todo-dong4j : (2025.10.28 16:11) [高版本不需要头 2 个参数]
         this.picListExeTextField.addBrowseFolderListener(
+            descriptor.getTitle(),
+            descriptor.getDescription(),
             null,  // 项目，可以为 null
             descriptor,
             TextComponentAccessor.TEXT_FIELD_WHOLE_TEXT
