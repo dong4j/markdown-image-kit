@@ -81,6 +81,15 @@
 > 填完认证信息后, 一定要点 `测试` 按钮测试认证信息.
 > 每次修改了认证信息后也需要进行测试, 不然将不可用.
 
+#### 自定义图床
+
+插件支持自定义图床，您可以实现自己的图片上传服务。详细信息请参考：
+
+- [自定义图床 API 规范](docs/CUSTOM_OSS_API_SPECIFICATION.md)
+- [自定义图床实现指南](docs/CUSTOM_OSS_IMPLEMENTATION_GUIDE.md)
+
+您也可以参考我们提供的[示例实现](../mik-help/src/main/java/info/dong4j/idea/plugin/help/controller/CustomOssController.java)。
+
 ### 全局设置
 
 ![](https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/6bqMQc.png)

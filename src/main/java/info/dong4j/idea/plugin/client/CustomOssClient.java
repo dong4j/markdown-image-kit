@@ -42,34 +42,13 @@ import lombok.extern.slf4j.Slf4j;
 @Client(CloudEnum.CUSTOMIZE)
 public class CustomOssClient implements OssClient {
     /** API 的名称或标识，用于指定调用的具体服务接口 */
-    private static String api;
+    private String api;
     /** 请求标识符，用于标识不同的请求区域或来源 */
-    private static String requestKey;
+    private String requestKey;
     /** 响应的 URL 路径 */
-    private static String responseUrlPath;
+    private String responseUrlPath;
     /** HTTP 请求方法 */
-    private static String httpMethod;
-
-    static {
-        init();
-    }
-
-    /**
-     * 初始化OSS客户端相关配置
-     * <p>
-     * 如果是第一次使用，ossClient为null，此时会通过持久化配置进行初始化。
-     * 若是第一次设置，获取的持久化配置为null，则初始化ossClient失败。
-     *
-     * @since 1.5.0
-     */
-    private static void init() {
-        CustomOssState state = MikPersistenComponent.getInstance().getState().getCustomOssState();
-        api = state.getApi();
-        requestKey = state.getRequestKey();
-        responseUrlPath = state.getResponseUrlPath();
-        httpMethod = state.getHttpMethod();
-
-    }
+    private String httpMethod;
 
     /**
      * 获取 CustomOssClient 实例
@@ -105,6 +84,22 @@ public class CustomOssClient implements OssClient {
     }
 
     /**
+     * 初始化OSS客户端相关配置
+     * <p>
+     * 如果是第一次使用，ossClient为null，此时会通过持久化配置进行初始化。
+     * 若是第一次设置，获取的持久化配置为null，则初始化ossClient失败。
+     *
+     * @since 1.5.0
+     */
+    private void init() {
+        CustomOssState state = MikPersistenComponent.getInstance().getState().getCustomOssState();
+        this.api = state.getApi();
+        this.requestKey = state.getRequestKey();
+        this.responseUrlPath = state.getResponseUrlPath();
+        this.httpMethod = state.getHttpMethod();
+    }
+
+    /**
      * 实现接口，获取当前客户端类型
      * <p>
      * 返回当前客户端所对应的云类型枚举值
@@ -130,27 +125,68 @@ public class CustomOssClient implements OssClient {
      */
     @Override
     public String upload(InputStream inputStream, String fileName) throws Exception {
+        // 确保配置已初始化
+        if (this.api == null) {
+            init();
+        }
 
-        Map<String, String> result = CustomOssUtils.putObject(api,
-                                                              requestKey,
-                                                              httpMethod.toUpperCase(),
+        Map<String, String> result = CustomOssUtils.putObject(this.api,
+                                                              this.requestKey,
+                                                              this.httpMethod.toUpperCase(),
                                                               fileName,
                                                               inputStream,
                                                               null,
                                                               null);
 
-        String[] split = responseUrlPath.split("\\.");
-
         String json = result.get("json");
-        JsonElement parse = JsonParser.parseString(json);
+        if (StringUtils.isBlank(json)) {
+            showDialog(result);
+            throw new RuntimeException("服务器返回空响应");
+        }
 
-        String url = this.getUrl(parse, split, split[0], 0);
+        JsonElement parse = JsonParser.parseString(json);
+        String url = this.extractUrlFromJson(parse, this.responseUrlPath);
+        
         if (StringUtils.isNotBlank(url)) {
             return url;
         }
 
         showDialog(result);
-        throw new RuntimeException("url 路径解析错误: " + responseUrlPath);
+        throw new RuntimeException("无法从响应中提取URL，请检查'响应URL路径'配置是否正确: " + responseUrlPath + "\n响应内容: " + json);
+    }
+
+    /**
+     * 从JSON响应中提取URL
+     * <p>
+     * 根据指定的路径表达式从JSON数据中提取URL值
+     *
+     * @param json JSON数据
+     * @param path URL路径表达式，如 "url" 或 "data.url"
+     * @return 提取的URL字符串，若未找到则返回空字符串
+     * @since 1.5.0
+     */
+    private String extractUrlFromJson(JsonElement json, String path) {
+        if (json == null || StringUtils.isBlank(path)) {
+            return "";
+        }
+
+        String[] parts = path.split("\\.");
+        JsonElement current = json;
+
+        for (String part : parts) {
+            if (current == null || !current.isJsonObject()) {
+                return "";
+            }
+
+            JsonObject obj = current.getAsJsonObject();
+            current = obj.get(part);
+
+            if (current == null) {
+                return "";
+            }
+        }
+
+        return current.isJsonPrimitive() ? current.getAsString() : "";
     }
 
     /**
@@ -172,7 +208,7 @@ public class CustomOssClient implements OssClient {
 
         builder.setOkActionEnabled(true);
         builder.setCenterPanel(dialog.getContentPane());
-        builder.setTitle("Response");
+        builder.setTitle("上传错误详情");
         builder.removeAllActions();
         builder.addOkAction();
         builder.setOkOperation((() -> {
@@ -180,39 +216,6 @@ public class CustomOssClient implements OssClient {
         }));
 
         builder.show();
-    }
-
-    /**
-     * 根据数据、分割路径和索引生成对应的URL
-     * <p>
-     * 递归解析JSON数据，根据指定的分割路径获取对应的URL值
-     *
-     * @param data  需要解析的JSON数据
-     * @param split 分割路径数组，用于定位URL字段
-     * @param path  当前路径片段
-     * @param index 当前路径片段在分割数组中的索引
-     * @return 生成的URL字符串，若未找到则返回空字符串
-     * @since 1.5.0
-     */
-    private String getUrl(JsonElement data, String[] split, String path, int index) {
-        if (data != null) {
-            if (data.isJsonObject()) {
-                JsonObject asJsonObject1 = data.getAsJsonObject();
-                JsonElement url = asJsonObject1.get(split[index]);
-                index++;
-                if (index == split.length) {
-                    if (url == null) {
-                        return "";
-                    } else {
-                        return url.getAsString();
-                    }
-                }
-                return this.getUrl(url, split, split[index], index);
-            } else {
-                return data.getAsString();
-            }
-        }
-        return "";
     }
 
     /**
@@ -276,14 +279,13 @@ public class CustomOssClient implements OssClient {
                          String responseUrlPath,
                          String httpMethod) throws Exception {
 
-        CustomOssClient.api = api;
-        CustomOssClient.requestKey = requestKey;
-        CustomOssClient.responseUrlPath = responseUrlPath;
-        CustomOssClient.httpMethod = httpMethod;
+        // 临时设置配置用于测试
+        this.api = api;
+        this.requestKey = requestKey;
+        this.responseUrlPath = responseUrlPath;
+        this.httpMethod = httpMethod;
 
-        CustomOssClient client = CustomOssClient.getInstance();
-
-        String url = client.upload(inputStream, fileName);
+        String url = this.upload(inputStream, fileName);
 
         if (StringUtils.isNotBlank(url)) {
             int hashcode = api.hashCode() +

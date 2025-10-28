@@ -1,12 +1,10 @@
 package info.dong4j.idea.plugin.util;
 
-
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.Serial;
 import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -31,11 +29,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CustomOssUtils {
     /** 边界标识，用于标识请求的边界，由 UUID 生成并格式化为小写字符串 */
-    private final static String BOUNDARY = UUID.randomUUID().toString().toLowerCase().replaceAll("-", "");
+    private static final String BOUNDARY = UUID.randomUUID().toString().toLowerCase().replaceAll("-", "");
     /** 命令行参数前缀，用于标识参数的开始 */
-    private final static String PREFIX = "--";
+    private static final String PREFIX = "--";
     /** 换行符，用于表示文本行结束的字符序列 */
-    private final static String LINE_END = "\r\n";
+    private static final String LINE_END = "\r\n";
 
     /**
      * 向指定API地址发送HTTP请求并返回响应信息
@@ -62,6 +60,7 @@ public class CustomOssUtils {
 
         HttpURLConnection connection = OssUtils.connect(api, httpMethod);
 
+        // 设置请求头
         connection.setRequestProperty("Accept", "application/json");
         connection.setRequestProperty("Connection", "keep-alive");
         connection.setRequestProperty("User-Agent", "markdown-image-kit");
@@ -74,65 +73,59 @@ public class CustomOssUtils {
 
         connection.connect();
 
-        // 往服务器端写内容 也就是发起http请求需要带的参数
-        StringBuilder buffer;
-        String params;
-        String filePart;
-        String headerInfo;
-        StringBuilder result;
-        try (OutputStream os = new DataOutputStream(connection.getOutputStream())) {
+        // 发送请求数据
+        String params = "";
+        String filePart = "";
+        String headerInfo = "";
+        String responseInfo = "";
+        String jsonResponse = "";
 
-            // 请求参数部分
+        try (OutputStream os = new DataOutputStream(connection.getOutputStream())) {
+            // 写入请求参数
             params = writeParams(requestText, os);
-            // 请求上传文件部分
+            // 写入文件数据
             filePart = writeFile(requestKey, fileName, inputStream, os);
-            // 请求结束标志
+            // 写入结束标志
             String endTarget = PREFIX + BOUNDARY + PREFIX + LINE_END;
             os.write(endTarget.getBytes());
             os.flush();
-            result = new StringBuilder();
-            // 读取服务器端返回的内容
-            result.append("ResponseCode: ")
-                .append(connection.getResponseCode())
-                .append(", ResponseMessage: ")
-                .append(connection.getResponseMessage())
-                .append("\n");
 
-            InputStream input;
-            if (connection.getResponseCode() == 200) {
-                input = connection.getInputStream();
-            } else {
-                input = connection.getErrorStream();
+            // 读取响应信息
+            responseInfo = "ResponseCode: " + connection.getResponseCode() +
+                           ", ResponseMessage: " + connection.getResponseMessage() + "\n";
+
+            // 根据响应码选择输入流
+            InputStream input = (connection.getResponseCode() == 200) ?
+                                connection.getInputStream() :
+                                connection.getErrorStream();
+
+            // 读取响应内容
+            StringBuilder buffer = new StringBuilder();
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    buffer.append(line);
+                }
             }
+            jsonResponse = buffer.toString();
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8));
-
-            String line;
-            buffer = new StringBuilder();
-            while ((line = br.readLine()) != null) {
-                buffer.append(line);
-            }
-
-            headerInfo = connection.getRequestMethod() + " " + connection.getURL()
-                         + "\nContent-Type: " + connection.getContentType() + "\n";
-
+            // 获取请求头信息
+            headerInfo = connection.getRequestMethod() + " " + connection.getURL() +
+                         "\nContent-Type: " + connection.getContentType() + "\n";
         } finally {
             // 断开连接
             connection.disconnect();
         }
-        return new HashMap<>() {
-            /** 序列化版本号，用于确保类的兼容性 */
-            @Serial
-            private static final long serialVersionUID = -5643217270707235408L;
 
-            {
-                this.put("headerInfo", headerInfo);
-                this.put("params", params);
-                this.put("filePart", filePart);
-                this.put("response", result.toString());
-                this.put("json", buffer.toString());
-            }
-        };
+        // 构建并返回结果
+        Map<String, String> result = new HashMap<>();
+        result.put("headerInfo", headerInfo);
+        result.put("params", params);
+        result.put("filePart", filePart);
+        result.put("response", responseInfo);
+        result.put("json", jsonResponse);
+
+        return result;
     }
 
     /**
@@ -148,22 +141,18 @@ public class CustomOssUtils {
      * @throws Exception 如果在写入过程中发生异常
      */
     private static String writeFile(String requestKey, String fileName, InputStream inputStream, OutputStream os) throws Exception {
-        StringBuilder msg = new StringBuilder("请求上传文件部分:\n");
         StringBuilder requestParams = new StringBuilder();
         requestParams.append(PREFIX).append(BOUNDARY).append(LINE_END);
         requestParams.append("Content-Disposition: form-data; name=\"")
             .append(requestKey).append("\"; filename=\"")
             .append(fileName).append("\"")
             .append(LINE_END);
-        requestParams.append("Content-Type:")
-            .append("application/octet-stream")
-            .append(LINE_END);
-
-        // 参数头设置完以后需要两个换行，然后才是参数内容
-        requestParams.append(LINE_END);
+        requestParams.append("Content-Type: application/octet-stream").append(LINE_END);
+        requestParams.append(LINE_END); // 参数头和内容之间的空行
 
         os.write(requestParams.toString().getBytes());
 
+        // 写入文件内容
         try (InputStream is = inputStream) {
             byte[] buffer = new byte[1024 * 1024];
             int len;
@@ -173,8 +162,8 @@ public class CustomOssUtils {
             os.write(LINE_END.getBytes());
             os.flush();
         }
-        msg.append(requestParams);
-        return msg.toString();
+
+        return "请求上传文件部分:\n" + requestParams;
     }
 
     /**
@@ -188,29 +177,28 @@ public class CustomOssUtils {
      * @throws Exception 如果写入过程中发生异常
      * @since 1.5.0
      */
-    private static String writeParams(Map<String, String> requestText,
-                                      OutputStream os) throws Exception {
-        String msg = "请求参数部分:\n";
+    private static String writeParams(Map<String, String> requestText, OutputStream os) throws Exception {
         if (requestText == null || requestText.isEmpty()) {
-            msg += "空\n";
-        } else {
-            StringBuilder requestParams = new StringBuilder();
-            Set<Map.Entry<String, String>> set = requestText.entrySet();
-            for (Map.Entry<String, String> entry : set) {
-                requestParams.append(PREFIX).append(BOUNDARY).append(LINE_END);
-                requestParams.append("Content-Disposition: form-data; name=\"").append(entry.getKey()).append("\"").append(LINE_END);
-                requestParams.append("Content-Type: text/plain; charset=utf-8").append(LINE_END);
-                // 参数头设置完以后需要两个换行，然后才是参数内容
-                requestParams.append(LINE_END);
-                requestParams.append(entry.getValue());
-                requestParams.append(LINE_END);
-            }
-            os.write(requestParams.toString().getBytes());
-            os.flush();
-            msg += requestParams.toString();
+            return "请求参数部分:\n空\n";
         }
-        return msg;
+
+        StringBuilder requestParams = new StringBuilder();
+        Set<Map.Entry<String, String>> entries = requestText.entrySet();
+
+        for (Map.Entry<String, String> entry : entries) {
+            requestParams.append(PREFIX).append(BOUNDARY).append(LINE_END);
+            requestParams.append("Content-Disposition: form-data; name=\"")
+                .append(entry.getKey()).append("\"")
+                .append(LINE_END);
+            requestParams.append("Content-Type: text/plain; charset=utf-8")
+                .append(LINE_END);
+            requestParams.append(LINE_END); // 参数头和内容之间的空行
+            requestParams.append(entry.getValue()).append(LINE_END);
+        }
+
+        os.write(requestParams.toString().getBytes());
+        os.flush();
+
+        return "请求参数部分:\n" + requestParams;
     }
-
-
 }
