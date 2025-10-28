@@ -1,7 +1,7 @@
 package info.dong4j.idea.plugin.settings;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 
@@ -32,13 +32,13 @@ public class MikPersistenComponent implements PersistentStateComponent<MikState>
     /**
      * 获取该服务的实例。
      * <p>
-     * 通过服务管理器获取唯一的 {@link MikPersistenComponent} 实例。
+     * 通过应用程序管理器获取唯一的 {@link MikPersistenComponent} 实例。
      *
      * @return 唯一的 {@link MikPersistenComponent} 实例
      * @since 0.0.1
      */
     public static MikPersistenComponent getInstance() {
-        return ServiceManager.getService(MikPersistenComponent.class);
+        return ApplicationManager.getApplication().getService(MikPersistenComponent.class);
     }
 
     /**

@@ -72,7 +72,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      * @see MikPersistenComponent
      */
     private final MikPersistenComponent config;
-    /** 主面板，用于显示主要界面内容 */
+    /** 主面板，用于显示主要界面内容 todo-dong4j : (2025.10.27 01:24) [初始化大小, 添加滑动] */
     private JPanel myMainPanel;
 
     //region authorizationPanel

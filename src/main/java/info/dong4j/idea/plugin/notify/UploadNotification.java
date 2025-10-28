@@ -1,10 +1,8 @@
 package info.dong4j.idea.plugin.notify;
 
-import com.intellij.ide.BrowserUtil;
 import com.intellij.ide.actions.RevealFileAction;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationAction;
-import com.intellij.notification.NotificationListener;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -15,17 +13,12 @@ import com.intellij.openapi.vfs.VirtualFile;
 
 import info.dong4j.idea.plugin.exception.UploadException;
 import info.dong4j.idea.plugin.settings.ProjectSettingsPage;
-import info.dong4j.idea.plugin.util.StringUtils;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
-
-import javax.swing.event.HyperlinkEvent;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -148,22 +141,6 @@ public class UploadNotification extends MikNotification {
                 notification.expire();
             }
         });
-
-        // 保留 hyperlink listener 用于处理 HTML 链接中的文件打开
-        notification.setListener(new NotificationListener.Adapter() {
-            @Override
-            protected void hyperlinkActivated(@NotNull Notification notification1, @NotNull HyperlinkEvent e) {
-                URL url = e.getURL();
-                if (url != null) {
-                    try {
-                        RevealFileAction.openFile(new File(url.toURI()));
-                    } catch (URISyntaxException ex) {
-                        log.warn("invalid URL: {}", url, ex);
-                    }
-                }
-                hideBalloon(notification1.getBalloon());
-            }
-        });
         Notifications.Bus.notify(notification, project);
     }
 
@@ -230,31 +207,6 @@ public class UploadNotification extends MikNotification {
                 // 打开设置面板
                 ShowSettingsUtil.getInstance().editConfigurable(project, configurable);
                 notification.expire();
-            }
-        });
-
-        // 保留 hyperlink listener 用于处理 HTML 链接
-        notification.setListener(new NotificationListener.Adapter() {
-            /**
-             * 处理超链接点击事件，根据链接内容执行相应操作
-             * <p>
-             * 当用户点击通知中的超链接时，根据链接描述内容决定是打开浏览器还是跳转到设置面板
-             *
-             * @param notification1 通知对象
-             * @param e             超链接事件对象
-             */
-            @Override
-            protected void hyperlinkActivated(@NotNull Notification notification1, @NotNull HyperlinkEvent e) {
-                String url = e.getDescription();
-                log.trace("{}", e.getDescription());
-                if (StringUtils.isBlank(url)) {
-                    ProjectSettingsPage configurable = new ProjectSettingsPage();
-                    // 打开设置面板
-                    ShowSettingsUtil.getInstance().editConfigurable(project, configurable);
-                } else {
-                    BrowserUtil.browse(url);
-                }
-                hideBalloon(notification1.getBalloon());
             }
         });
         Notifications.Bus.notify(notification, project);

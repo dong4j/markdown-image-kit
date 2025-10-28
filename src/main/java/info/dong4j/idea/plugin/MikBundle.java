@@ -1,6 +1,6 @@
 package info.dong4j.idea.plugin;
 
-import com.intellij.CommonBundle;
+import com.intellij.AbstractBundle;
 
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -57,7 +57,7 @@ public class MikBundle {
      */
     @NotNull
     public static String message(@NotNull @PropertyKey(resourceBundle = BUNDLE) String key, @NotNull Object... params) {
-        return CommonBundle.message(getBundle(), key, params);
+        return AbstractBundle.message(getBundle(), key, params);
     }
 
     /**

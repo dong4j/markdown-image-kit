@@ -4,8 +4,7 @@ import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.ui.JBColor;
-import com.intellij.util.containers.hash.HashMap;
-import com.intellij.util.ui.UIUtil;
+import com.intellij.util.ui.ImageUtil;
 
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.content.MikContents;
@@ -46,6 +45,7 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -272,7 +272,7 @@ public final class ImageUtils {
 
         // other options
         int type = BufferedImage.TYPE_INT_ARGB;
-        BufferedImage dest = UIUtil.createImage(w, h, type);
+        BufferedImage dest = ImageUtil.createImage(w, h, type);
         Graphics2D g2 = dest.createGraphics();
         g2.drawImage(src, 0, 0, null);
         g2.dispose();
