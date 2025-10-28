@@ -7,6 +7,7 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 
 import info.dong4j.idea.plugin.MikBundle;
+import info.dong4j.idea.plugin.action.intention.IntentionActionBase;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
@@ -63,7 +64,7 @@ public class ImageStorageHandler extends ActionHandlerAdapter {
      */
     @Override
     public boolean isEnabled(EventData data) {
-        return STATE.isCopyToDir();
+        return IntentionActionBase.getState().isCopyToDir();
     }
 
     /**
@@ -91,7 +92,7 @@ public class ImageStorageHandler extends ActionHandlerAdapter {
             }
 
             File curDocument = new File(currentFile.getPath());
-            String savepath = STATE.getImageSavePath();
+            String savepath = IntentionActionBase.getState().getImageSavePath();
 
             for (MarkdownImage markdownImage : imageEntry.getValue()) {
                 String imageName = markdownImage.getImageName();

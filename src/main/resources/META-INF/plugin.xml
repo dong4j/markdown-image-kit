@@ -22,6 +22,7 @@
   ~ SOFTWARE.
   -->
 
+<!--suppress PluginXmlI18n -->
 <idea-plugin>
     <id>info.dong4j.idea.plugin.markdown.image.kit</id>
     <name>Markdown Image Kit</name>
@@ -44,12 +45,15 @@
         <applicationService serviceImplementation="info.dong4j.idea.plugin.settings.MikPersistenComponent"/>
         <!-- alt + enter -->
         <intentionAction>
+            <language>TEXT</language>
             <className>info.dong4j.idea.plugin.action.intention.ImageUploadIntentionAction</className>
         </intentionAction>
         <intentionAction>
+            <language>TEXT</language>
             <className>info.dong4j.idea.plugin.action.intention.ImageMoveIntentionAction</className>
         </intentionAction>
         <intentionAction>
+            <language>TEXT</language>
             <className>info.dong4j.idea.plugin.action.intention.ImageLabelChangeIntetionAction</className>
         </intentionAction>
 
@@ -120,7 +124,6 @@
             <add-to-group group-id="ToolsMenu" anchor="last"/>
             <add-to-group group-id="MainToolBar" anchor="last"/>
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
-            <add-to-group group-id="ChangesViewPopupMenu" anchor="last"/>
         </group>
 
         <!-- 编辑器右键菜单 -->

@@ -38,8 +38,16 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public abstract class IntentionActionBase extends PsiElementBaseIntentionAction {
-    /** 当前组件的状态信息 */
-    static final MikState STATE = MikPersistenComponent.getInstance().getState();
+    /**
+     * 获取当前组件的状态信息
+     * <p>
+     * 在需要时按需获取服务实例，而不是在类初始化时获取
+     *
+     * @return 当前组件的状态信息
+     */
+    public static MikState getState() {
+        return MikPersistenComponent.getInstance().getState();
+    }
 
     /**
      * 获取消息内容
@@ -85,7 +93,7 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
      * @since 0.0.1
      */
     protected CloudEnum getCloudType() {
-        CloudEnum cloudEnum = OssState.getCloudType(STATE.getCloudType());
+        CloudEnum cloudEnum = OssState.getCloudType(getState().getCloudType());
         return OssState.getStatus(cloudEnum) ? cloudEnum : CloudEnum.SM_MS_CLOUD;
     }
 

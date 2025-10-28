@@ -3,6 +3,7 @@ package info.dong4j.idea.plugin.chain;
 import com.intellij.openapi.editor.Document;
 
 import info.dong4j.idea.plugin.MikBundle;
+import info.dong4j.idea.plugin.action.intention.IntentionActionBase;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 
@@ -47,7 +48,7 @@ public class FinalChainHandler extends ActionHandlerAdapter {
      */
     @Override
     public boolean isEnabled(EventData data) {
-        return STATE.isRename();
+        return IntentionActionBase.getState().isRename();
     }
 
     /**

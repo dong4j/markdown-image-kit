@@ -1,6 +1,7 @@
 package info.dong4j.idea.plugin.chain;
 
 import info.dong4j.idea.plugin.MikBundle;
+import info.dong4j.idea.plugin.action.intention.IntentionActionBase;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.util.ImageUtils;
@@ -56,7 +57,7 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
      */
     @Override
     public boolean isEnabled(EventData data) {
-        return STATE.isCompress();
+        return IntentionActionBase.getState().isCompress();
     }
 
     /**
@@ -84,7 +85,7 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
 
         InputStream inputStream = markdownImage.getInputStream();
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            ImageUtils.compress(inputStream, outputStream, STATE.getCompressBeforeUploadOfPercent());
+            ImageUtils.compress(inputStream, outputStream, IntentionActionBase.getState().getCompressBeforeUploadOfPercent());
             markdownImage.setInputStream(new ByteArrayInputStream(outputStream.toByteArray()));
         } catch (Exception e) {
             log.trace("", e);

@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Document;
 
 import info.dong4j.idea.plugin.MikBundle;
+import info.dong4j.idea.plugin.action.intention.IntentionActionBase;
 import info.dong4j.idea.plugin.chain.ActionManager;
 import info.dong4j.idea.plugin.chain.FinalChainHandler;
 import info.dong4j.idea.plugin.chain.ImageCompressionHandler;
@@ -69,7 +70,7 @@ public final class ImageUploadAction extends ImageActionBase {
     @Override
     protected void buildChain(AnActionEvent event, Map<Document, List<MarkdownImage>> waitingProcessMap) {
         // 使用默认 client
-        CloudEnum cloudEnum = OssState.getCloudType(STATE.getCloudType());
+        CloudEnum cloudEnum = OssState.getCloudType(IntentionActionBase.getState().getCloudType());
         OssClient client = ClientUtils.getClient(cloudEnum);
 
         EventData data = new EventData()

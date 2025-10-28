@@ -14,8 +14,6 @@ import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
-import info.dong4j.idea.plugin.settings.MikPersistenComponent;
-import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.util.ActionUtils;
 import info.dong4j.idea.plugin.util.ImageUtils;
 
@@ -45,9 +43,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public abstract class ImageActionBase extends AnAction {
-    /** 当前组件状态 */
-    protected static final MikState STATE = MikPersistenComponent.getInstance().getState();
-
     /**
      * 获取图标
      * <p>

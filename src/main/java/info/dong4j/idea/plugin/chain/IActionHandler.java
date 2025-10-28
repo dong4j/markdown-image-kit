@@ -1,8 +1,6 @@
 package info.dong4j.idea.plugin.chain;
 
 import info.dong4j.idea.plugin.entity.EventData;
-import info.dong4j.idea.plugin.settings.MikPersistenComponent;
-import info.dong4j.idea.plugin.settings.MikState;
 
 /**
  * 事件处理接口
@@ -17,9 +15,6 @@ import info.dong4j.idea.plugin.settings.MikState;
  * @since 0.0.1
  */
 public interface IActionHandler {
-    /** 当前组件状态常量 */
-    MikState STATE = MikPersistenComponent.getInstance().getState();
-
     /**
      * 获取名称
      *

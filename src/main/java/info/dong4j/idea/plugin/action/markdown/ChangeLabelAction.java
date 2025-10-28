@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 
 import info.dong4j.idea.plugin.MikBundle;
+import info.dong4j.idea.plugin.action.intention.IntentionActionBase;
 import info.dong4j.idea.plugin.chain.ActionHandlerAdapter;
 import info.dong4j.idea.plugin.chain.ActionManager;
 import info.dong4j.idea.plugin.chain.FinalChainHandler;
@@ -107,7 +108,7 @@ public final class ChangeLabelAction extends AnAction {
                         }
 
                         // 如果没有勾选 标签替换开关, 则全部替换为原始标签
-                        if (!STATE.isChangeToHtmlTag()) {
+                        if (!IntentionActionBase.getState().isChangeToHtmlTag()) {
                             markdownImage.setFinalMark(ParserUtils.parse2(ImageMarkEnum.ORIGINAL.code,
                                                                           markdownImage.getTitle(),
                                                                           markdownImage.getPath()));
@@ -115,7 +116,7 @@ public final class ChangeLabelAction extends AnAction {
                         }
 
                         ImageMarkEnum currentMarkType = markdownImage.getImageMarkType();
-                        if (!STATE.getTagType().equals(currentMarkType.text)) {
+                        if (!IntentionActionBase.getState().getTagType().equals(currentMarkType.text)) {
                             ImageLabelChangeHandler.change(markdownImage);
                         }
                     }

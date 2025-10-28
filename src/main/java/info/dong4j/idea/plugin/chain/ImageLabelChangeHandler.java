@@ -1,6 +1,7 @@
 package info.dong4j.idea.plugin.chain;
 
 import info.dong4j.idea.plugin.MikBundle;
+import info.dong4j.idea.plugin.action.intention.IntentionActionBase;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
@@ -52,7 +53,7 @@ public class ImageLabelChangeHandler extends ActionHandlerAdapter {
      */
     @Override
     public boolean isEnabled(EventData data) {
-        return STATE.isChangeToHtmlTag();
+        return IntentionActionBase.getState().isChangeToHtmlTag();
     }
 
     /**
@@ -88,7 +89,7 @@ public class ImageLabelChangeHandler extends ActionHandlerAdapter {
     public static void change(MarkdownImage markdownImage) {
         String finalMark;
         // 最后替换与配置不一致的标签
-        String typeCode = STATE.getTagTypeCode();
+        String typeCode = IntentionActionBase.getState().getTagTypeCode();
         if (MikBundle.message("mik.change.mark.message").equals(typeCode)) {
             finalMark = MESSAGE;
         } else {

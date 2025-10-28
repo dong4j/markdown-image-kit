@@ -19,6 +19,7 @@ import info.dong4j.idea.plugin.task.ActionTask;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -71,7 +72,7 @@ public class ImageLabelChangeIntetionAction extends IntentionActionBase {
     public boolean isAvailable(@NotNull Project project, Editor editor,
                                @NotNull PsiElement element) {
 
-        return super.isAvailable(project, editor, element) && STATE.isChangeToHtmlTag();
+        return super.isAvailable(project, editor, element) && getState().isChangeToHtmlTag();
     }
 
     /**
@@ -93,13 +94,15 @@ public class ImageLabelChangeIntetionAction extends IntentionActionBase {
                 return;
             }
 
-            Map<Document, List<MarkdownImage>> waitingForMoveMap = new HashMap<Document, List<MarkdownImage>>(1) {
+            Map<Document, List<MarkdownImage>> waitingForMoveMap = new HashMap<>(1) {
                 /** 序列化版本号，用于确保类的兼容性 */
+                @Serial
                 private static final long serialVersionUID = 2431958015276934209L;
 
                 {
-                    this.put(editor.getDocument(), new ArrayList<MarkdownImage>(1) {
+                    this.put(editor.getDocument(), new ArrayList<>(1) {
                         /** 序列化版本号，用于确保类的兼容性 */
+                        @Serial
                         private static final long serialVersionUID = -9013015357454667709L;
 
                         {
