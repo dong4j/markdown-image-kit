@@ -535,8 +535,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
 
         // 添加浏览文件夹监听器
         this.picListExeTextField.addBrowseFolderListener(
-            descriptor.getTitle(),
-            descriptor.getDescription(),
             null,  // 项目，可以为 null
             descriptor,
             TextComponentAccessor.TEXT_FIELD_WHOLE_TEXT
