@@ -57,15 +57,12 @@ public class PasswordManager {
      *
      * @param serviceName 服务名称
      * @param key         密钥
-     * @param clazz       类型信息
      * @return 凭证属性对象
      * @since 1.6.0
      */
     @NotNull
-    public CredentialAttributes buildCredentialAttributes(String serviceName, String key, Class<?> clazz) {
-        return new CredentialAttributes(serviceName,
-                                        key,
-                                        clazz);
+    public CredentialAttributes buildCredentialAttributes(String serviceName, String key) {
+        return new CredentialAttributes(serviceName, key);
     }
 
 }

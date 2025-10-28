@@ -25,8 +25,7 @@ public class BaiduBosSetting extends AbstractOssSetting<BaiduBosState> {
     /** CREDENTIAL_ATTRIBUTES 用于存储与百度云存储凭证相关的属性配置 */
     public static final CredentialAttributes CREDENTIAL_ATTRIBUTES =
         PasswordManager.buildCredentialAttributes(BaiduBosSetting.class.getName(),
-                                                  "BAIDUBOS_SETTINGS_PASSWORD_KEY",
-                                                  BaiduBosSetting.class);
+                                                  "BAIDUBOS_SETTINGS_PASSWORD_KEY");
     /** 百度云对象存储服务（BOS）帮助文档地址 */
     private static final String BAIDU_HELPER_DOC = "https://cloud.baidu.com/doc/BOS/s/ckaqihkra";
 

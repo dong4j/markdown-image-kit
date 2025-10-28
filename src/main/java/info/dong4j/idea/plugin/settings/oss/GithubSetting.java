@@ -26,8 +26,7 @@ public class GithubSetting extends AbstractOpenOssSetting<GithubOssState> {
     /** CREDENTIAL_ATTRIBUTES 是用于存储 GitHub 身份凭证属性的常量，包含密码键信息 */
     public static final CredentialAttributes CREDENTIAL_ATTRIBUTES =
         PasswordManager.buildCredentialAttributes(GithubSetting.class.getName(),
-                                                  "GITHUB_SETTINGS_PASSWORD_KEY",
-                                                  GithubSetting.class);
+                                                  "GITHUB_SETTINGS_PASSWORD_KEY");
     /** GitHub 页面帮助文档地址 */
     private static final String HELPER_DOC = "https://docs.github.com/en/github/working-with-github-pages/configuring-a-custom-domain-for-your-github-pages-site";
     /** GitHub API 基础地址 */

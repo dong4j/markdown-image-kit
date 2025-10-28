@@ -27,8 +27,7 @@ public class GiteeSetting extends AbstractOpenOssSetting<GiteeOssState> {
     /** 用于存储 Gitee 身份凭证属性的常量，包含密码键等配置信息 */
     public static final CredentialAttributes CREDENTIAL_ATTRIBUTES =
         PasswordManager.buildCredentialAttributes(GiteeSetting.class.getName(),
-                                                  "GITEE_SETTINGS_PASSWORD_KEY",
-                                                  GiteeSetting.class);
+                                                  "GITEE_SETTINGS_PASSWORD_KEY");
     /** 项目帮助文档地址 */
     private static final String HELPER_DOC = "https://gitee.com/help/articles/4228";
     /** GITEE_API 是 Gitee 平台的 API 地址 */

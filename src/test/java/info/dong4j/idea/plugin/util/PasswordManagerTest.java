@@ -4,7 +4,6 @@ import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.credentialStore.CredentialAttributesKt;
 import com.intellij.credentialStore.Credentials;
 import com.intellij.ide.passwordSafe.PasswordSafe;
-import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.6.0
  */
 @Slf4j
-public class PasswordManagerTest extends LightPlatformCodeInsightFixtureTestCase {
+public class PasswordManagerTest {
 
     /**
      * Storge
@@ -67,8 +66,7 @@ public class PasswordManagerTest extends LightPlatformCodeInsightFixtureTestCase
         System.out.println(this.getPassword("aaaaa"));
 
         CredentialAttributes credentialAttributes = PasswordManager.buildCredentialAttributes(PasswordManagerTest.class.getName(),
-                                                                                              "special_key",
-                                                                                              PasswordManagerTest.class);
+                                                                                              "special_key");
 
 
         PasswordManager.setPassword(credentialAttributes, "aaaaa");

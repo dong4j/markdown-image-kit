@@ -33,8 +33,7 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
     /** 用于存储七牛OSS设置相关的凭证属性 */
     public static final CredentialAttributes CREDENTIAL_ATTRIBUTES =
         PasswordManager.buildCredentialAttributes(QiniuOssSetting.class.getName(),
-                                                  "QINIUOSS_SETTINGS_PASSWORD_KEY",
-                                                  QiniuOssSetting.class);
+                                                  "QINIUOSS_SETTINGS_PASSWORD_KEY");
     /** 域名提示，用于构建完整的请求地址 */
     private static final String DOMAIN_HINT = "http(s)://domain/";
     /** 七牛 oss 存储桶名称文本字段 */

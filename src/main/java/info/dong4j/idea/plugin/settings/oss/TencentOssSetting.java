@@ -27,8 +27,7 @@ public class TencentOssSetting implements OssSetting<TencentOssState> {
     /** CREDENTIAL_ATTRIBUTES 用于标识腾讯云对象存储服务的凭证属性 */
     public static final CredentialAttributes CREDENTIAL_ATTRIBUTES =
         PasswordManager.buildCredentialAttributes(TencentOssSetting.class.getName(),
-                                                  "TENCENTOSS_SETTINGS_PASSWORD_KEY",
-                                                  TencentOssSetting.class);
+                                                  "TENCENTOSS_SETTINGS_PASSWORD_KEY");
     /** 腾讯云存储桶名称文本框 */
     private final JTextField tencentBacketNameTextField;
     /** 腾讯访问密钥文本框 */

@@ -26,8 +26,7 @@ public class AliyunOssSetting extends AbstractOssSetting<AliyunOssState> {
     /** CREDENTIAL_ATTRIBUTES 表示阿里云 OSS 设置的凭证属性，用于密码管理 */
     public static final CredentialAttributes CREDENTIAL_ATTRIBUTES =
         PasswordManager.buildCredentialAttributes(AliyunOssSetting.class.getName(),
-                                                  "ALIYUNOSS_SETTINGS_PASSWORD_KEY",
-                                                  AliyunOssSetting.class);
+                                                  "ALIYUNOSS_SETTINGS_PASSWORD_KEY");
     /** 阿里云帮助文档链接，用于提供相关技术支持和说明 */
     private static final String ALIYUN_HELPER_DOC = "https://help.aliyun.com/document_detail/31836.html";
 
