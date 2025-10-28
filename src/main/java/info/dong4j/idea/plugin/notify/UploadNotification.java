@@ -11,6 +11,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.exception.UploadException;
 import info.dong4j.idea.plugin.settings.ProjectSettingsPage;
 
@@ -38,7 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 @SuppressWarnings( {"jol", "DuplicatedCode"})
 public class UploadNotification extends MikNotification {
     /** 上传已完成状态标识 */
-    private static final String UPLOAD_FINSHED = "Upload Finshed";
+    private static final String UPLOAD_FINSHED = MikBundle.message("notification.upload.finished");
 
     /**
      * 创建一个新的上传通知对象
@@ -79,14 +80,16 @@ public class UploadNotification extends MikNotification {
      */
     public static void notifyUploadFailure(UploadException e, Project project) {
         String details = e.getMessage();
-        String content = "<p><a href=\"\">Configure oss...</a></p>";
+        String template = "<p><a href=\"\">%s</a></p>";
+        String content = String.format(template, MikBundle.message("notification.configure.oss"));
         if (StringUtil.isNotEmpty(details)) {
-            content = "<p>" + details + "</p>" + content;
+            content = String.format("<p>%s</p>%s", details, content);
         }
-        Notification notification = new Notification(MIK_NOTIFICATION_GROUP, "Upload Failured",
+        Notification notification = new Notification(MIK_NOTIFICATION_GROUP,
+                                                     MikBundle.message("notification.upload.failed"),
                                                      content, NotificationType.ERROR);
         // 使用 addAction 替代过时的 setListener
-        notification.addAction(new NotificationAction("Configure OSS") {
+        notification.addAction(new NotificationAction(MikBundle.message("notification.configure.oss")) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
                 ProjectSettingsPage configurable = new ProjectSettingsPage();
@@ -116,17 +119,17 @@ public class UploadNotification extends MikNotification {
         StringBuilder uploadFailuredContent = new StringBuilder();
 
         if (!fileNotFoundListMap.isEmpty()) {
-            buildContent(fileNotFoundListMap, fileNotFoundContent, "Image Not Found:");
+            buildContent(fileNotFoundListMap, fileNotFoundContent, MikBundle.message("notification.image.not.found"));
         }
 
         if (!uploadFailuredListMap.isEmpty()) {
-            buildContent(uploadFailuredListMap, uploadFailuredContent, "Image Upload Failured:");
+            buildContent(uploadFailuredListMap, uploadFailuredContent, MikBundle.message("notification.image.upload.failed"));
         }
         content.append(fileNotFoundContent).append(uploadFailuredContent);
-        Notification notification = new Notification(MIK_NOTIFICATION_GROUP, "Upload Warning",
+        Notification notification = new Notification(MIK_NOTIFICATION_GROUP, MikBundle.message("notification.upload.warning"),
                                                      content.toString(), NotificationType.WARNING);
         // 使用 addAction 替代过时的 setListener
-        notification.addAction(new NotificationAction("Open File") {
+        notification.addAction(new NotificationAction(MikBundle.message("notification.open.file")) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
                 // Action 点击时，尝试打开第一个可用文件
@@ -158,9 +161,20 @@ public class UploadNotification extends MikNotification {
         for (Map.Entry<VirtualFile, List<String>> entry : listMap.entrySet()) {
             String fileName = entry.getKey().getName();
             List<String> images = entry.getValue();
-            content.append("<p>").append(s).append(" <a href='").append(entry.getKey().getUrl()).append("'>Open ").append(fileName).append("</a></p>");
+
+            // 使用占位符构建链接行
+            String linkTemplate = "<p>%s <a href='%s'>%s %s</a></p>";
+            String linkContent = String.format(linkTemplate,
+                                               s,  // {0} - 提示文本（如 "Image Not Found:"）
+                                               entry.getKey().getUrl(),  // {1} - 文件URL
+                                               MikBundle.message("notification.open.file"),  // {2} - "Open File"
+                                               fileName);  // {3} - 文件名
+            content.append(linkContent);
+
+            // 使用占位符构建列表项
+            String itemTemplate = "<p><li>%s</li></p>";
             for (String image : images) {
-                content.append("<p><li>").append(image).append("</li></p>");
+                content.append(String.format(itemTemplate, image));
             }
         }
     }
@@ -191,16 +205,20 @@ public class UploadNotification extends MikNotification {
      * @since 0.0.1
      */
     public static void notifyConfigurableError(Project project, String actionName) {
-        String content = "<p><a href=''>Configure " + actionName + " OSS</a></p><br />";
-        content =
-            "<p>You may need to set or reset your account. Please be sure to <b>test</b> it after the setup is complete.</p>" + content + "<br />";
-        content = content + "<p>Or you may need <a href='" + HELP_URL + "'>Help</a></p>";
+        // 使用占位符构建完整的通知内容
+        String template = "<p><a href=''>%s</a></p><br /><p>%s</p><br /><p>%s <a href='%s'>Help</a></p>";
+        String content = String.format(template,
+                                       MikBundle.message("notification.configure.action", actionName),  // {0}
+                                       MikBundle.message("notification.help.or.configure"),  // {1}
+                                       MikBundle.message("notification.may.need.help"),  // {2}
+                                       HELP_URL);  // {3}
+
         Notification notification = new Notification(MIK_NOTIFICATION_GROUP,
-                                                     "Configurable Error",
+                                                     MikBundle.message("notification.configurable.error"),
                                                      content,
                                                      NotificationType.ERROR);
         // 添加设置动作
-        notification.addAction(new NotificationAction("Configure OSS") {
+        notification.addAction(new NotificationAction(MikBundle.message("notification.configure.oss")) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
                 ProjectSettingsPage configurable = new ProjectSettingsPage();

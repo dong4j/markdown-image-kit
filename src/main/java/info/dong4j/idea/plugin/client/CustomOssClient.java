@@ -7,6 +7,7 @@ import com.google.gson.JsonParser;
 import com.intellij.openapi.ui.DialogBuilder;
 import com.intellij.openapi.ui.DialogWrapper;
 
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.CustomUploadErrorDialog;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
@@ -208,7 +209,7 @@ public class CustomOssClient implements OssClient {
 
         builder.setOkActionEnabled(true);
         builder.setCenterPanel(dialog.getContentPane());
-        builder.setTitle("上传错误详情");
+        builder.setTitle(MikBundle.message("custom.oss.error.dialog.title"));
         builder.removeAllActions();
         builder.addOkAction();
         builder.setOkOperation((() -> {

@@ -125,7 +125,6 @@ public abstract class OssState {
             return false;
         }
 
-        // todo-dong4j : (2025.10.26 17:53) [将 false 的服务商删除]
         return switch (cloudEnum) {
             case SM_MS_CLOUD -> true;
             case ALIYUN_CLOUD -> getStatus(state.getAliyunOssState());

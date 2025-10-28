@@ -9,20 +9,25 @@ import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Description: ${description}</p>
+ * 枚举工具类测试类
+ * <p>
+ * 用于测试枚举相关工具类的功能，包括枚举对象的获取、枚举值的定义和使用等。
+ * 包含多个测试方法，用于验证枚举类型 {@link SuffixSelectType} 的行为和功能。
  *
  * @author dong4j
  * @version 1.0.0
- * @email "mailto:dong4j@gmail.com"
- * @date 2019.03.13 16:02
+ * @date 2025.10.24
  * @since 1.1.0
  */
 @Slf4j
 public class EnumsUtilsTest {
     /**
-     * Test enums utils
-     *
-     * @since 1.1.0
+     * 测试枚举工具类的功能
+     * <p>
+     * 测试场景：验证通过名称和索引获取枚举对象的正确性
+     * 预期结果：应成功获取对应的枚举值并输出其名称和索引
+     * <p>
+     * 该测试通过 {@link EnumsUtils#getEnumObject(Class, java.util.function.Predicate)} 方法实现枚举对象的查找
      */
     @Test
     public void testEnumsUtils() {
@@ -38,32 +43,36 @@ public class EnumsUtilsTest {
     }
 
     /**
-     * <p>Description: </p>
+     * 后缀选择类型枚举
+     * <p>
+     * 定义了文件名后缀选择的三种类型，用于标识不同的后缀生成策略。
+     * 包括基于文件名的后缀、基于日期-文件名的后缀以及随机后缀。
+     * </p>
      *
      * @author dong4j
      * @version 1.0.0
-     * @email "mailto:dong4j@gmail.com"
-     * @date 2021.02.14 22:44
+     * @date 2021.02.14
      * @since 1.1.0
      */
     enum SuffixSelectType {
-        /** File name suffix select type */
+        /** 文件名后缀选择类型 */
         FILE_NAME(1, "文件名"),
-        /** Date file name suffix select type */
+        /** 日期-文件名类型，用于指定文件名后缀选择类型 */
         DATE_FILE_NAME(2, "日期-文件名"),
-        /** Random suffix select type */
+        /** 随机后缀选择类型 */
         RANDOM(3, "随机");
-
-        /** Index */
+        /** 索引位置 */
         private final int index;
-        /** Name */
+        /** 名称 */
         private final String name;
 
         /**
-         * Suffix select type
+         * 构造一个后缀选择类型对象
+         * <p>
+         * 根据给定的索引和名称初始化后缀选择类型
          *
-         * @param index index
-         * @param name  name
+         * @param index 索引值
+         * @param name  名称
          * @since 1.1.0
          */
         SuffixSelectType(int index, String name) {
@@ -72,9 +81,11 @@ public class EnumsUtilsTest {
         }
 
         /**
-         * Gets index *
+         * 获取当前对象的索引值
+         * <p>
+         * 返回该对象内部维护的索引属性值。
          *
-         * @return the index
+         * @return 当前对象的索引值
          * @since 1.1.0
          */
         @Contract(pure = true)
@@ -83,9 +94,11 @@ public class EnumsUtilsTest {
         }
 
         /**
-         * Gets name *
+         * 获取名称
+         * <p>
+         * 返回当前对象的名称属性值
          *
-         * @return the name
+         * @return 名称
          * @since 1.1.0
          */
         @Contract(pure = true)
@@ -95,9 +108,12 @@ public class EnumsUtilsTest {
     }
 
     /**
-     * Test 1
-     *
-     * @since 1.1.0
+     * 测试字符串拼接与格式化输出功能
+     * <p>
+     * 测试场景：遍历预定义的云服务名称数组，进行字符串拼接和格式化输出
+     * 预期结果：控制台输出应包含每个云服务名称及其对应的拼接字符串
+     * <p>
+     * 注意：该测试方法主要用于验证字符串拼接逻辑和格式化输出的正确性
      */
     @Test
     public void test1() {

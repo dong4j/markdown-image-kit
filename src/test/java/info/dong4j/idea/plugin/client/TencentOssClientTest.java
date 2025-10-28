@@ -17,14 +17,12 @@ import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
@@ -48,37 +46,45 @@ import javax.crypto.spec.SecretKeySpec;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Description: 腾讯与 COS 简单上传文件 </p>
+ * 腾讯云对象存储服务（COS）客户端测试类
+ * <p>
+ * 该类主要用于测试腾讯云COS服务的简单文件上传和对象获取功能，包含上传文件、获取对象、构建授权签名等核心逻辑。
+ * 支持通过构造函数动态创建OssClient实例，并提供基于HTTP的上传和下载接口，适用于开发和测试环境。
  *
  * @author dong4j
- * @version 0.0.1
- * @email "mailto:dong4j@gmail.com"
- * @date 2019.04.16 20:11
+ * @version 1.0.0
+ * @date 2021.02.14
  * @since 1.1.0
  */
 @Slf4j
 public class TencentOssClientTest {
-    /** secretId */
+    /** secretId 从系统属性中获取的密钥标识符 */
     private static final String secretId = System.getProperty("secretId");
-    /** secretKey */
+    /** secretKey 用于加密和解密数据的密钥，从系统属性中获取 */
     private static final String secretKey = System.getProperty("secretKey");
-    /** bucketName */
     // bucket名需包含appid
+    /** bucket 名，需包含 appid 信息 */
     private static final String bucketName = System.getProperty("bucketName");
 
     /**
-     * Test
-     *
-     * @since 1.1.0
+     * 测试方法的通用描述
+     * <p>
+     * 测试目标：验证方法在不同场景下的行为
+     * 测试场景：未指定具体测试场景，需根据实际实现补充
+     * 预期结果：方法应按照预期逻辑执行
      */
     @Test
     public void test() {
     }
 
     /**
-     * Test 2
-     *
-     * @since 1.1.0
+     * 测试 OssClient 的实例化与注入功能
+     * <p>
+     * 测试目标：验证通过反射实例化被 @Client 标识的 OssClient 类，并将其存入 INSTANCES 集合中
+     * 测试场景：当 CloudEnum.TENCENT_CLOUD 对应的类存在且可被实例化时
+     * 预期结果：成功创建 OssClient 实例并注入到 INSTANCES 中，后续调用 upload 方法应正常执行
+     * <p>
+     * 注意：该测试依赖于 CloudEnum.TENCENT_CLOUD 的 feature 字段指向一个有效的类名，且该类需有无参构造函数
      */
     @Test
     public void test2() {
@@ -86,8 +92,7 @@ public class TencentOssClientTest {
         Class<?> clz = null;
         try {
             clz = Class.forName(CloudEnum.TENCENT_CLOUD.feature);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (ClassNotFoundException ignored) {
         }
         try {
             Constructor<?> constructor = Objects.requireNonNull(clz).getDeclaredConstructor();
@@ -99,36 +104,41 @@ public class TencentOssClientTest {
             this.upload();
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             log.trace("", e);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
     }
 
     /**
-     * Upload *
+     * 上传文件到对象存储服务
+     * <p>
+     * 通过腾讯云对象存储客户端上传指定图片文件，并记录上传后的URL
      *
-     * @throws FileNotFoundException file not found exception
-     * @since 1.1.0
+     * @throws Exception 上传过程中发生异常时抛出
      */
     private void upload() throws Exception {
         OssClient uploader = OssClient.INSTANCES.get(CloudEnum.TENCENT_CLOUD);
         log.info("{}", uploader.getName());
-        String url = uploader.upload(new FileInputStream(new File("/Users/dong4j/Downloads/xu.png")), "x2.png");
+        String url = uploader.upload(new FileInputStream("/Users/dong4j/Downloads/xu.png"), "x2.png");
         log.info("url = {}", url);
     }
 
     /**
-     * Test web api *
-     *
-     * @throws FileNotFoundException file not found exception
-     * @since 1.1.0
+     * 测试 Web API 的上传功能
+     * <p>
+     * 测试场景：验证使用 TencentCosUtils 工具类上传文件到腾讯云对象存储（COS）的接口
+     * 预期结果：上传操作应成功执行，返回正确的文件路径或状态信息
+     * <p>
+     * 注意：测试中使用的文件路径为本地路径，需确保文件存在且路径正确
+     * 上传文件的 key 必须以 / 为前缀，否则可能上传失败
+     * <p>
+     * 该测试未实际验证文件是否成功上传至 COS，仅验证接口调用是否正常
      */
     @Test
     public void test_web_api() throws Exception {
 
         // key 必须使用 / 为前缀
         String putResult = TencentCosUtils.putObject("/yguy.jpg",
-                                                     new FileInputStream(new File("/Users/dong4j/Downloads/mik.png")),
+                                                     new FileInputStream("/Users/dong4j/Downloads/mik.png"),
                                                      bucketName,
                                                      "ap-chengdu",
                                                      secretId,
@@ -140,12 +150,15 @@ public class TencentOssClientTest {
     }
 
     /**
-     * <p>Description: </p>
+     * CosWebApi 类
+     * <p>
+     * 提供腾讯云对象存储服务（COS）的 Web API 接口封装，包括获取授权信息、构建请求 URL、上传和下载对象等功能。
+     * 该类主要用于简化与 COS 服务的交互，支持 GET 和 PUT 请求方法，并实现了签名和时间戳的生成逻辑。
+     * </p>
      *
      * @author dong4j
      * @version 1.0.0
-     * @email "mailto:dong4j@gmail.com"
-     * @date 2021.02.14 22:44
+     * @date 2025.10.24
      * @since 1.1.0
      */
     public static class CosWebApi {
@@ -154,39 +167,38 @@ public class TencentOssClientTest {
         // private static final String SecretId = secretId;
         // private static final String SecretKey = secretKey;
         // private static final String host = ".cos.ap-chengdu.myqcloud.com";
-
-        /** effectiveMinu */
         //资源授权有效期(分钟)
+        /** 资源授权的有效时间，单位为分钟 */
         private static final int effectiveMinu = 10;
-
-        /** LINE_SEPARATOR */
+        /** 换行分隔符，用于表示换行符 */
         public static final String LINE_SEPARATOR = "\n";
-        /** Q_SIGN_ALGORITHM_KEY */
+        /** Q_SIGN_ALGORITHM_KEY 表示请求签名算法的参数键，值为 "q-sign-algorithm" */
         public static final String Q_SIGN_ALGORITHM_KEY = "q-sign-algorithm";
-        /** Q_SIGN_ALGORITHM_VALUE */
+        /** Q_SIGN_ALGORITHM_VALUE 表示使用的签名算法类型，值为 "sha1" */
         public static final String Q_SIGN_ALGORITHM_VALUE = "sha1";
-        /** Q_AK */
+        /** Q_AK 是用于标识某个特定配置项的常量，通常用于权限或认证相关场景 */
         public static final String Q_AK = "q-ak";
         /** Q_SIGN_TIME */
         public static final String Q_SIGN_TIME = "q-sign-time";
-        /** Q_KEY_TIME */
+        /** q-key-time 字段用于标识请求头中的时间戳参数 */
         public static final String Q_KEY_TIME = "q-key-time";
-        /** Q_HEADER_LIST */
+        /** 请求头列表参数名 */
         public static final String Q_HEADER_LIST = "q-header-list";
-        /** Q_URL_PARAM_LIST */
+        /** q-url-param-list 参数名，用于传递查询参数列表 */
         public static final String Q_URL_PARAM_LIST = "q-url-param-list";
-        /** Q_SIGNATURE */
+        /** Q_SIGNATURE 用于标识请求中的签名参数名 */
         public static final String Q_SIGNATURE = "q-signature";
-        /** GET */
+        /** HTTP GET 方法 */
         public static final String GET = "get";
-        /** PUT */
+        /** HTTP PUT 方法 */
         public static final String PUT = "put";
 
-
         /**
-         * Gets gmt date *
+         * 获取当前的GMT时间字符串
+         * <p>
+         * 返回格式为 "EEE, dd MMM yyyy HH:mm:ss GMT" 的GMT时间字符串
          *
-         * @return the gmt date
+         * @return 当前GMT时间字符串
          * @since 1.1.0
          */
         public static String getGMTDate() {
@@ -197,15 +209,18 @@ public class TencentOssClientTest {
         }
 
         /**
-         * Gets authorization *
+         * 生成授权信息
+         * <p>
+         * 根据请求头、参数、HTTP方法、URI路径名、密钥和密钥ID生成用于鉴权的授权字符串。
+         * 该授权字符串包含签名算法、时间戳、签名等信息，用于请求的身份验证。
          *
-         * @param headers     headers
-         * @param params      params
-         * @param httpMethod  http method
-         * @param UriPathname uri pathname
-         * @param SecretKey   secret key
-         * @param SecretId    secret id
-         * @return the authorization
+         * @param headers     请求头信息，包含需要参与签名的头字段
+         * @param params      请求参数信息，包含需要参与签名的查询参数
+         * @param httpMethod  HTTP请求方法，如GET、POST等
+         * @param UriPathname 请求的URI路径名
+         * @param SecretKey   密钥，用于生成签名
+         * @param SecretId    密钥ID，用于标识密钥
+         * @return 生成的授权字符串
          * @since 1.1.0
          */
         public static String getAuthorization(Map<String, String> headers,
@@ -251,17 +266,19 @@ public class TencentOssClientTest {
                    Q_URL_PARAM_LIST + "=" + qUrlParamListStr + "&" +
                    Q_SIGNATURE + "=" + signature;
         }
+        //http get请求
 
         /**
-         * Get
+         * 发送 HTTP GET 请求并获取响应内容
+         * <p>
+         * 通过指定的 URL 和请求头获取服务器返回的字符串数据
          *
-         * @param url  url
-         * @param head head
-         * @return the string
-         * @throws IOException io exception
+         * @param url  请求的目标 URL
+         * @param head 请求头信息，包含键值对
+         * @return 服务器返回的字符串内容
+         * @throws IOException 如果网络请求过程中发生异常
          * @since 1.1.0
          */
-        //http get请求
         public static String get(String url, Map<String, String> head) throws IOException {
             HttpClient client = HttpClients.createDefault();
             HttpGet httpGet = new HttpGet(url);
@@ -274,12 +291,13 @@ public class TencentOssClientTest {
             return EntityUtils.toString(entity, StandardCharsets.UTF_8);
         }
 
-
         /**
-         * Build time str
+         * 构建时间字符串
+         * <p>
+         * 将当前时间戳和指定的过期时间戳拼接成一个字符串，格式为"startTime;endTime"
          *
-         * @param expiredTime expired time
-         * @return the string
+         * @param expiredTime 过期时间对象
+         * @return 拼接后的时间字符串
          * @since 1.1.0
          */
         public static String buildTimeStr(Date expiredTime) {
@@ -291,10 +309,12 @@ public class TencentOssClientTest {
         }
 
         /**
-         * Format map to str
+         * 将键值对映射转换为字符串格式
+         * <p>
+         * 遍历传入的键值对映射，将每个键值对按照 key=value 的格式拼接成一个字符串，键名转换为小写并进行编码，值也进行编码处理。
          *
-         * @param kVMap k v map
-         * @return the string
+         * @param kVMap 要转换的键值对映射
+         * @return 拼接后的字符串
          * @since 1.1.0
          */
         public static String formatMapToStr(Map<String, String> kVMap) {
@@ -318,10 +338,12 @@ public class TencentOssClientTest {
         }
 
         /**
-         * Build sign headers
+         * 构建用于签名的请求头信息
+         * <p>
+         * 根据原始请求头信息，筛选并构建用于签名的头信息。仅包含特定类型的头字段，如内容类型、内容长度、内容MD5以及以"x"开头的自定义头。
          *
-         * @param originHeaders origin headers
-         * @return the map
+         * @param originHeaders 原始请求头信息
+         * @return 包含签名所需头信息的Map
          * @since 1.1.0
          */
         private static Map<String, String> buildSignHeaders(Map<String, String> originHeaders) {
@@ -340,10 +362,12 @@ public class TencentOssClientTest {
         }
 
         /**
-         * Build sign member str
+         * 构建签名成员字符串
+         * <p>
+         * 将传入的签名头信息中的键转换为小写，并用分号分隔拼接成一个字符串。
          *
-         * @param signHeaders sign headers
-         * @return the string
+         * @param signHeaders 签名头信息，键值对集合
+         * @return 拼接后的签名成员字符串
          * @since 1.1.0
          */
         public static String buildSignMemberStr(Map<String, String> signHeaders) {
@@ -361,10 +385,12 @@ public class TencentOssClientTest {
         }
 
         /**
-         * Encode
+         * 对原始URL进行编码处理
+         * <p>
+         * 将原始URL使用UTF-8编码格式进行URL编码，并对特殊字符进行替换处理
          *
-         * @param originUrl origin url
-         * @return the string
+         * @param originUrl 原始URL字符串
+         * @return 编码后的URL字符串
          * @since 1.1.0
          */
         public static String encode(String originUrl) {
@@ -372,12 +398,14 @@ public class TencentOssClientTest {
         }
 
         /**
-         * Gets url *
+         * 构建 COS 服务的访问 URL
+         * <p>
+         * 根据指定的存储桶名称、区域名称和对象键生成对应的 COS 访问 URL。
          *
-         * @param backet     backet
-         * @param regionName region name
-         * @param key        key
-         * @return the url
+         * @param backet     存储桶名称
+         * @param regionName 区域名称
+         * @param key        对象键，若不以斜杠开头则自动补上
+         * @return 构建完成的 COS 访问 URL
          * @since 1.1.0
          */
         public static String getUrl(String backet, String regionName, String key) {
@@ -388,14 +416,16 @@ public class TencentOssClientTest {
         }
 
         /**
-         * Gets obj *
+         * 根据指定参数获取对象内容
+         * <p>
+         * 构建请求头和参数，调用获取对象的 HTTP 请求方法，并返回响应结果
          *
-         * @param key        key
-         * @param backet     backet
-         * @param regionName region name
-         * @param SecretKey  secret key
-         * @param SecretId   secret id
-         * @return the obj
+         * @param key        对象键名
+         * @param backet     存储桶名称
+         * @param regionName 区域名称
+         * @param SecretKey  密钥
+         * @param SecretId   会话密钥
+         * @return 获取到的对象内容，若请求失败则返回 null
          * @since 1.1.0
          */
         public static String getObj(String key, String backet, String regionName,
@@ -416,28 +446,26 @@ public class TencentOssClientTest {
 
             try {
                 return get(getUrl(backet, regionName, key), httpHeader);
-            } catch (IOException ex) {
-                ex.printStackTrace();
+            } catch (IOException ignored) {
             }
             return null;
         }
-
-
+        ////////////////////////////////////////////////////////////////////
         /**
-         * Sha encode
+         * 对字符串进行SHA编码处理
+         * <p>
+         * 将输入的字符串转换为字节数组，使用SHA算法进行哈希处理，并将结果转换为十六进制字符串返回。
          *
-         * @param inStr in str
-         * @return the string
-         * @throws Exception exception
+         * @param inStr 需要编码的输入字符串
+         * @return SHA编码后的十六进制字符串
+         * @throws Exception 如果SHA算法初始化失败或发生其他异常
          * @since 1.1.0
          */
-        ////////////////////////////////////////////////////////////////////
         public static String shaEncode(String inStr) throws Exception {
             MessageDigest sha;
             try {
                 sha = MessageDigest.getInstance("SHA");
             } catch (Exception e) {
-                e.printStackTrace();
                 return "";
             }
 
@@ -455,10 +483,12 @@ public class TencentOssClientTest {
         }
 
         /**
-         * Gets second timestamp *
+         * 获取时间戳的前部分（去除最后三位）
+         * <p>
+         * 将给定的日期对象转换为时间戳字符串，并截取去除最后三位数字的部分。
          *
-         * @param date date
-         * @return the second timestamp
+         * @param date 日期对象
+         * @return 截取后的时间戳字符串，若输入为null则返回空字符串
          * @since 1.1.0
          */
         public static String getSecondTimestamp(Date date) {
@@ -475,11 +505,14 @@ public class TencentOssClientTest {
         }
 
         /**
-         * Gen hmac
+         * 使用HMAC算法生成消息摘要字符串
+         * <p>
+         * 该方法基于HmacSHA1算法，使用指定的密钥对源字符串进行加密，返回十六进制格式的摘要结果。
          *
-         * @param key key
-         * @param src src
-         * @return the string
+         * @param key 密钥，用于生成HMAC的加密密钥
+         * @param src 源字符串，需要加密的数据内容
+         * @return 返回使用HMAC算法生成的十六进制字符串摘要
+         * @throws RuntimeException 如果加密过程中发生异常
          * @since 1.1.0
          */
         public static String genHMAC(String key, String src) {
@@ -495,18 +528,20 @@ public class TencentOssClientTest {
         }
 
         /**
-         * Gets upload information *
+         * 获取上传信息
+         * <p>
+         * 向指定路径发送PUT请求，上传输入流内容，并读取服务器返回的响应信息。
          *
-         * @param path    path
-         * @param content content
-         * @throws Exception exception
+         * @param path    上传的目标路径
+         * @param content 要上传的输入流内容
+         * @throws Exception 发生异常时抛出
          * @since 1.1.0
          */
         public static void getUploadInformation(String path, InputStream content) throws Exception {
             //创建连接
             URL url = new URL(path);
             HttpURLConnection connection;
-            StringBuffer sbuffer;
+            StringBuilder sbuffer;
             try {
                 //添加 请求内容
                 connection = (HttpURLConnection) url.openConnection();
@@ -531,7 +566,7 @@ public class TencentOssClientTest {
                     BufferedReader reader = new BufferedReader(inputStream);
 
                     String lines;
-                    sbuffer = new StringBuffer();
+                    sbuffer = new StringBuilder();
 
                     while ((lines = reader.readLine()) != null) {
 
@@ -542,21 +577,23 @@ public class TencentOssClientTest {
                 }
                 //断开连接
                 connection.disconnect();
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException ignored) {
             }
         }
 
         /**
-         * Put obj
+         * 上传对象到指定存储桶并生成带签名的URL
+         * <p>
+         * 该方法用于构建带签名的URL，用于上传对象到指定的存储桶。生成的URL包含签名信息，确保请求的安全性。
+         * 上传完成后返回对象的键（key），若上传失败则返回null。
          *
-         * @param key        key
-         * @param content    content
-         * @param backet     backet
-         * @param regionName region name
-         * @param secretKey  secret key
-         * @param secretId   secret id
-         * @return the string
+         * @param key        对象的键（key）
+         * @param content    要上传的内容流
+         * @param backet     存储桶名称
+         * @param regionName 区域名称
+         * @param secretKey  秘钥
+         * @param secretId   秘钥ID
+         * @return 对象的键（key），若上传失败则返回null
          * @since 1.1.0
          */
         public static String putObj(String key,
@@ -593,17 +630,19 @@ public class TencentOssClientTest {
         }
 
         /**
-         * Main
+         * 主方法，用于测试对象存储功能
+         * <p>
+         * 该方法用于演示上传和下载对象的操作，通过调用 putObj 和 getObj 方法完成
          *
-         * @param args args
-         * @throws FileNotFoundException file not found exception
+         * @param args 命令行参数，目前未使用
+         * @throws FileNotFoundException 如果文件未找到时抛出
          * @since 1.1.0
          */
         public static void main(String[] args) throws FileNotFoundException {
 
             String putResult = putObj("/10A914D0CC18.jpg",
-                                      new FileInputStream(new File("/Users/dong4j/Downloads/05B3AB1C-BBA9-4113-B212" +
-                                                                   "-10A914D0CC18.jpg")),
+                                      new FileInputStream("/Users/dong4j/Downloads/05B3AB1C-BBA9-4113-B212" +
+                                                          "-10A914D0CC18.jpg"),
                                       bucketName, "ap-chengdu", secretKey, secretId
                                      );
             System.out.println("putResult:" + putResult);

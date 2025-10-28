@@ -4,26 +4,28 @@ import com.intellij.testFramework.LightPlatformTestCase;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Description: ${description}</p>
+ * 七牛云对象存储客户端测试类
+ * <p>
+ * 用于测试七牛云对象存储客户端的基本功能，包括文件上传等操作
+ * </p>
  *
  * @author dong4j
  * @version 1.0.0
- * @email "mailto:dong4j@gmail.com"
- * @date 2019.03.19 15:35
+ * @date 2019.03.19
  * @since 1.1.0
  */
 @Slf4j
 public class QiniuOssClientTest extends LightPlatformTestCase {
-
     /**
-     * Test 1
+     * 测试文件上传功能
+     * <p>
+     * 创建七牛云OSS客户端实例，上传指定路径的文件，并记录上传后的URL
      *
-     * @throws FileNotFoundException file not found exception
+     * @throws Exception 上传过程中可能抛出的异常
      * @since 1.1.0
      */
     public void test1() throws Exception {

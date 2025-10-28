@@ -1,5 +1,6 @@
 package info.dong4j.idea.plugin.action;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 
@@ -32,4 +33,18 @@ public final class MikGroupAction extends DefaultActionGroup {
     public void update(@NotNull AnActionEvent event) {
         event.getPresentation().setIcon(MikIcons.MIK);
     }
+
+    /**
+     * 获取用于更新操作的线程类型
+     * <p>
+     * 返回在后台线程中执行更新操作的线程类型，以避免阻塞事件调度线程（EDT）。
+     *
+     * @return 更新操作所使用的线程类型
+     */
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        // 在后台线程中执行 update，避免阻塞 EDT
+        return ActionUpdateThread.BGT;
+    }
+
 }

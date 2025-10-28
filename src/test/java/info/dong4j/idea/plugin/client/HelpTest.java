@@ -17,23 +17,27 @@ import java.nio.charset.StandardCharsets;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Description: </p>
+ * 帮助测试类
+ * <p>
+ * 该类主要用于测试与帮助相关的 HTTP 请求功能，提供了一个帮助方法用于发送 HTTP POST 请求，并包含一个测试方法用于验证功能。
+ * <p>
+ * 主要功能包括构建 HTTP 客户端、发送请求、处理响应以及关闭资源。
  *
  * @author dong4j
  * @version 1.0.0
- * @email "mailto:dong4j@gmail.com"
- * @date 2021.02.14 22:44
- * @since 0.0.1
+ * @date 2021.02.14
+ * @since 1.0.0
  */
 @Slf4j
 public class HelpTest {
-
     /**
-     * Help
+     * 根据指定路径发送帮助请求并返回 HTTP 客户端
+     * <p>
+     * 该方法创建并配置一个 HTTP 客户端，发送 POST 请求到指定路径，处理响应并关闭客户端。
      *
-     * @param where where
-     * @return the http client
-     * @throws Exception exception
+     * @param where 请求的路径参数
+     * @return 配置好的 HTTP 客户端
+     * @throws Exception 发生异常时抛出
      * @since 1.1.0
      */
     private CloseableHttpClient help(String where) throws Exception {
@@ -59,24 +63,25 @@ public class HelpTest {
         } finally {
             try {
                 client.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException ignored) {
             }
         }
         return client;
     }
 
     /**
-     * Test
-     *
-     * @since 1.1.0
+     * 测试 help 方法在设置模式下的异常处理逻辑
+     * <p>
+     * 测试场景：调用 help 方法并传入 "setting" 参数
+     * 预期结果：方法应捕获并打印异常堆栈信息
+     * <p>
+     * 注意：该测试需要确保 help 方法内部会抛出异常以验证异常处理逻辑
      */
     @Test
     public void test() {
         try {
             this.help("setting");
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
     }
 }

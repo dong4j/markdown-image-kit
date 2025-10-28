@@ -72,7 +72,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      * @see MikPersistenComponent
      */
     private final MikPersistenComponent config;
-    /** 主面板，用于显示主要界面内容 todo-dong4j : (2025.10.27 01:24) [初始化大小, 添加滑动] */
+    /** 主面板，用于显示主要界面内容 */
     private JPanel myMainPanel;
 
     //region authorizationPanel
@@ -499,7 +499,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      */
     private void initPicListExeBrowser() {
         if (this.picListExeTextField == null) {
-            log.warn("picListExeTextField 未初始化");
+            log.warn(MikBundle.message("settings.warn.piclist.exe.not.initialized"));
             return;
         }
 
@@ -514,8 +514,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         );
 
         // 设置标题和描述
-        descriptor.setTitle("选择 PicList/PicGo 可执行文件");
-        descriptor.setDescription("macOS: 选择 .app 目录\nWindows: 选择 .exe 文件\nLinux: 选择 .AppImage 文件");
+        descriptor.setTitle(MikBundle.message("settings.dialog.choose.executable.title"));
+        descriptor.setDescription(MikBundle.message("settings.dialog.choose.executable.description"));
 
         // 设置文件过滤器（允许选择可执行文件和 .app 目录）
         descriptor.withFileFilter(virtualFile -> {
@@ -542,7 +542,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             TextComponentAccessor.TEXT_FIELD_WHOLE_TEXT
                                                         );
 
-        log.debug("PicList/PicGo 可执行文件选择器初始化完成");
+        log.debug(MikBundle.message("settings.dialog.choose.executable.finished"));
     }
 
     /**
@@ -581,7 +581,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                         }
                     }
                     Messages.showMessageDialog(this.myMainPanel,
-                                               cloudEnum.getTitle() + " 上传成功",
+                                               MikBundle.message("settings.upload.success", cloudEnum.getTitle()),
                                                "Successed",
                                                Messages.getInformationIcon());
                     // 主动保存
@@ -591,13 +591,13 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                     }
                 } else {
                     Messages.showMessageDialog(this.myMainPanel,
-                                               cloudEnum.getTitle() + " 上传失败",
+                                               MikBundle.message("settings.upload.failed", cloudEnum.getTitle()),
                                                "Error",
                                                Messages.getErrorIcon());
                 }
             } else {
                 Messages.showMessageDialog(this.myMainPanel,
-                                           cloudEnum.getTitle() + " 不可用, 请检查配置是否正确",
+                                           MikBundle.message("settings.upload.not.available", cloudEnum.getTitle()),
                                            "Error",
                                            Messages.getErrorIcon());
             }
@@ -932,7 +932,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      */
     @Override
     public void apply() {
-        log.trace("apply invoke");
         MikState state = this.config.getState();
 
         this.aliyunOssSetting.apply(state.getAliyunOssState());
@@ -1006,7 +1005,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      */
     @Override
     public void reset() {
-        log.trace("reset invoke");
         MikState state = this.config.getState();
 
         this.aliyunOssSetting.reset(state.getAliyunOssState());

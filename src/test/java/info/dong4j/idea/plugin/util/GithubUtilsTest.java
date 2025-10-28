@@ -10,7 +10,6 @@ import org.junit.Test;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
@@ -24,28 +23,42 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
- * <p>Description:  </p>
+ * GitHub 工具类测试
+ * <p>
+ * 该类主要用于测试 GitHub 文件上传和更新功能，包括通过 API 创建或更新文件内容的操作。
+ * <p>
+ * 由于未考虑文件的 SHA 值，当前只能实现新建文件的功能，若需更新文件，需先获取 SHA 值再进行 PUT 请求。
+ * <p>
+ * 包含测试方法 test()，用于模拟文件上传流程，并通过 create() 和 update() 方法实现具体的上传和更新逻辑。
+ * <p>
+ * 使用了 Builder 模式来构建 GitHubRequest 对象，便于配置上传参数。
  *
  * @author dong4j
  * @version 1.0.0
- * @email "mailto:dong4j@gmail.com"
- * @date 2020.04.25 16:36
+ * @date 2025.10.24
  * @since 1.1.0
  */
 public class GithubUtilsTest {
+    /** GitHub API 基础地址 */
     private static final String GITHUB_API = "https://api.github.com";
+    /** 下载资源的 URL 模板，用于构建 GitHub 上的文件下载地址 */
     private static final String DOWNLOAD_URL = "https://raw.githubusercontent.com/{owner}/{repos}/{branch}{path}";
-    /** token */
+    /** token 值，从系统属性中获取 */
     private static final String token = System.getProperty("token");
+    /** 仓库名称，用于标识测试环境的仓库 */
     private static final String repos = "markdown-image-kit-test";
+    /** 所有者标识，固定为 "dong4j" */
     private static final String owner = "dong4j";
+    /** 资源文件路径，指向图片文件 xu.png */
     private static final String path = "/xu.png";
 
     /**
-     * https://docs.github.com/en/rest/reference/repos#create-or-update-file-contents
-     *
-     * @throws IOException io exception
-     * @since 1.1.0
+     * 测试创建或更新文件内容功能
+     * <p>
+     * 测试场景：向 GitHub 仓库的指定路径上传文件
+     * 预期结果：应返回操作是否成功的布尔值
+     * <p>
+     * 说明：该测试需要本地存在指定路径的文件（如 /Users/dong4j/Downloads/xu.png），并确保 GitHub API 地址和认证 token 正确配置
      */
     @Test
     public void test() throws Exception {
@@ -56,12 +69,16 @@ public class GithubUtilsTest {
     }
 
     /**
-     * 由于没有考虑 sha，故而只能新建文件，而不能更新文件 (更新文件需要先 get 访问得到 sha，然后再 put)
+     * 向指定的 GitHub 仓库路径上传文件
+     * <p>
+     * 该方法用于通过 PUT 请求将文件内容上传到 GitHub 仓库的指定路径。由于未考虑文件的 SHA 值，因此无法更新已有文件，只能新建文件。
+     * 如果上传失败并返回 422 状态码，则尝试调用更新方法。其他异常情况则抛出运行时异常。
      *
-     * @param url   https://api.github.com/repos/:owner/:repo/contents/:path
-     * @param file  需确保文件存在
-     * @param token 用于鉴权
-     * @return
+     * @param url   GitHub API 的文件上传地址，格式为 <a href="https://api.github.com/repos/:owner/:repo/contents/:path">...</a>
+     * @param file  要上传的文件对象，需确保文件存在
+     * @param token GitHub 鉴权 token，用于验证身份
+     * @return 上传操作是否成功，返回 true 表示成功，false 表示失败
+     * @throws Exception 如果发生网络或 I/O 异常
      */
     public static boolean create(String url, File file, String token) throws Exception {
         URL realUrl = new URL(url);
@@ -118,12 +135,15 @@ public class GithubUtilsTest {
     }
 
     /**
-     * 更新文件(先get访问得到sha，然后再put)
+     * 向指定URL上传文件，用于更新GitHub仓库中的文件内容
+     * <p>
+     * 该方法首先通过GET请求获取目标文件的SHA值，然后使用PUT请求上传新文件内容。
+     * 上传过程中会记录并输出耗时信息。
      *
-     * @param url   https://api.github.com/repos/:owner/:repo/contents/:path
-     * @param file  需确保文件存在
-     * @param token 用于鉴权
-     * @return
+     * @param url   GitHub API的文件更新接口地址，格式为 <a href="https://api.github.com/repos/:owner/:repo/contents/:path">...</a>
+     * @param file  需要上传的文件对象，需确保文件已存在
+     * @param token GitHub API鉴权使用的访问令牌
+     * @return 上传操作是否成功，true表示成功，false表示失败
      */
     public static boolean update(String url, File file, String token) {
         long begin = System.currentTimeMillis();
@@ -137,7 +157,7 @@ public class GithubUtilsTest {
         System.out.println("上传开始...");
         //StringBuffer result = new StringBuffer();
         BufferedReader in = null;
-        HttpURLConnection conn = null;
+        HttpURLConnection conn;
         try {
             URL realUrl = new URL(url);
             conn = (HttpURLConnection) realUrl.openConnection();
@@ -178,18 +198,16 @@ public class GithubUtilsTest {
             dos.close();
 
             in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            String line;
-            while ((line = in.readLine()) != null) {
+            while (in.readLine() != null) {
                 //result.append(line).append("\n");
             }
         } catch (Exception e) {
             System.out.println("发送PUT请求出现异常！");
-            e.printStackTrace();
             return false;
         } finally {
             try {
                 in.close();
-            } catch (Exception e2) {
+            } catch (Exception ignored) {
             }
         }
         end = System.currentTimeMillis();
@@ -198,19 +216,21 @@ public class GithubUtilsTest {
         return true;
     }
 
-    /**
-     * 获取url 对应的SHA
-     *
-     * @param url
-     * @param token
-     * @return
-     */
+    /** 匹配 URL 对应的 SHA 值的正则表达式模式 */
     static Pattern pattern = Pattern.compile("\"sha\": *\"([^\"]+)\"");
 
+    /**
+     * 从指定URL获取SHA值
+     * <p>
+     * 通过发送GET请求获取指定URL的内容，并使用正则表达式提取其中的SHA值。
+     *
+     * @param url 请求的URL地址
+     * @return 提取到的SHA值，若未找到或发生异常则返回null
+     */
     public static String getSHA(String url) {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         BufferedReader in = null;
-        HttpURLConnection conn = null;
+        HttpURLConnection conn;
         try {
             URL realUrl = new URL(url);
             conn = (HttpURLConnection) realUrl.openConnection();
@@ -230,22 +250,35 @@ public class GithubUtilsTest {
             }
         } catch (Exception e) {
             System.out.println("请求SHA出现异常！");
-            e.printStackTrace();
         } finally {
             try {
                 in.close();
-            } catch (Exception e2) {
+            } catch (Exception ignored) {
             }
         }
         return null;
     }
 
+    /**
+     * GitHub 请求数据类
+     * <p>
+     * 用于封装向 GitHub 发起请求时所需的数据信息，包括提交信息、分支名称、内容和提交哈希值等字段。
+     *
+     * @author 未知
+     * @version 1.0.0
+     * @date 2025.10.24
+     * @since 1.0.0
+     */
     @Data
     @Builder
     private static class GithubRequest {
+        /** 消息内容 */
         private String message;
+        /** 分支名称 */
         private String branch;
+        /** 内容字段，用于存储主要文本或数据内容 */
         private String content;
+        /** SHA 值 */
         private String sha;
     }
 

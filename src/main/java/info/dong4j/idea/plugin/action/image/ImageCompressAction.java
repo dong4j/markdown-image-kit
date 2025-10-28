@@ -93,7 +93,7 @@ public final class ImageCompressAction extends ImageActionBase {
                  */
                 @Override
                 public String getName() {
-                    return "替换原图";
+                    return MikBundle.message("mik.action.replace.original");
                 }
 
                 /**

@@ -8,7 +8,7 @@ import com.intellij.notification.Notifications;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.Balloon;
 
-import info.dong4j.idea.plugin.MikBundle;
+import info.dong4j.idea.plugin.content.MikContents;
 import info.dong4j.idea.plugin.entity.HelpResult;
 import info.dong4j.idea.plugin.enums.HelpType;
 import info.dong4j.idea.plugin.util.IOUtils;
@@ -92,7 +92,7 @@ public class MikNotification extends Notification {
         builder.setUserAgent("Mozilla/5.0 (Windows; U; Windows NT 6.1; zh-CN; rv:1.9.2.6)");
         CloseableHttpClient client = builder.build();
 
-        HttpPost httpPost = new HttpPost(MikBundle.message("mik.help.rest.url") + where);
+        HttpPost httpPost = new HttpPost(MikContents.HELP_REST_URL_KEY + where);
 
         RequestConfig requestConfig = RequestConfig.custom()
             .setConnectTimeout(3000).setConnectionRequestTimeout(1000)

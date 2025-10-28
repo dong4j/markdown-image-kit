@@ -17,9 +17,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * PicList 命令行上传测试
+ * PicList 命令行上传测试类
  * <p>
- * 用于验证 PicList 命令行执行时的输出行为
+ * 该类用于验证 PicList 命令行工具在执行上传操作时的行为，包括输出内容的验证和版本信息的检查。
+ * 主要测试 PicList 是否会在标准输出或标准错误中输出图片上传的 URL。
  *
  * @author dong4j
  * @date 2025.10.27
@@ -27,13 +28,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SuppressWarnings("D")
 @Slf4j
 public class PicListClientCommandTest {
-
     /** PicList 可执行文件路径（需要根据实际环境修改） */
     private static final String PICLIST_EXE_PATH = System.getProperty("piclist.exe.path",
                                                                       "/Applications/PicList.app/Contents/MacOS/PicList");
 
     /**
-     * 测试前检查
+     * 测试前执行的初始化方法，用于设置测试路径信息
+     * <p>
+     * 在每次测试方法执行前调用，记录测试路径到日志中
+     *
+     * @since 1.0
      */
     @BeforeEach
     public void setUp() {
@@ -43,10 +47,12 @@ public class PicListClientCommandTest {
     /**
      * 测试 PicList 命令行执行的输出
      * <p>
-     * 验证 PicList 上传图片时是否会输出 URL 到 stdout
-     *
-     * @param tempDir 临时目录
-     * @throws Exception 测试失败时抛出
+     * 测试场景：验证 PicList 上传图片时是否会输出 URL 到 stdout 或 stderr
+     * 预期结果：命令执行成功后，stdout 或 stderr 应包含有效的 URL（http:// 或 https://）
+     * <p>
+     * 注意：测试依赖 PicList 可执行文件存在，若不存在则跳过测试。测试过程中会执行 PicList 命令并读取其输出。
+     * <p>
+     * 验证逻辑：检查 stdout 和 stderr 是否包含 URL 格式字符串，若存在则输出成功提示，否则记录警告。
      */
     @Test
     public void testPicListCommandOutput(@TempDir Path tempDir) throws Exception {
@@ -147,7 +153,12 @@ public class PicListClientCommandTest {
     }
 
     /**
-     * 测试 PicList 命令行版本信息
+     * 测试 PicList 命令行版本信息获取功能
+     * <p>
+     * 测试场景：检查 PicList 可执行文件是否存在，并尝试通过命令行参数 "--version" 获取其版本信息
+     * 预期结果：若 PicList 存在，应成功执行并输出版本信息及退出码；若不存在，应记录警告并跳过测试
+     * <p>
+     * 注意：该测试需要系统中存在 PicList 可执行文件，且路径配置正确。测试过程中会启动外部进程，可能需要适当调整超时时间或权限
      */
     @Test
     public void testPicListVersion() throws Exception {
@@ -182,7 +193,14 @@ public class PicListClientCommandTest {
     }
 
     /**
-     * 创建一个测试图片文件
+     * 在指定目录下创建一个测试图片文件
+     * <p>
+     * 该方法会创建一个最小有效的 JPEG 格式图片文件（1x1 像素的红色图片），用于测试目的。
+     *
+     * @param directory 目标目录，用于存储生成的图片文件
+     * @param filename  生成的图片文件名
+     * @return 创建成功的图片文件对象
+     * @throws IOException 如果文件创建过程中发生异常
      */
     private File createTestImageFile(File directory, String filename) throws IOException {
         File file = new File(directory, filename);
@@ -241,7 +259,12 @@ public class PicListClientCommandTest {
     }
 
     /**
-     * 解析可执行文件路径（处理 macOS .app 目录）
+     * 解析可执行文件路径，处理 macOS 系统下的 .app 目录结构
+     * <p>
+     * 根据操作系统类型判断是否为 macOS，并对 .app 目录进行特殊处理，返回实际可执行文件路径。
+     *
+     * @param exePath 可执行文件路径
+     * @return 处理后的可执行文件路径
      */
     private String resolveExecutablePath(String exePath) {
         String osName = System.getProperty("os.name").toLowerCase();
