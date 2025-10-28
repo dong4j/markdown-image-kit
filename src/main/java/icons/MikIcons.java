@@ -7,17 +7,20 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Icon;
 
 /**
- * <p>Description: {@link com.intellij.icons.AllIcons}</p>
+ * <p>Description: MIK Plugin Icons</p>
  *
  * @author dong4j
- * @version 0.0.1
+ * @version 2.0.0
  * @email "mailto:dong4j@gmail.com"
- * @date 2019.03.13 21:10
- * @since 0.0.1
+ * @date 2022.10.24
+ * @since 2.0.0
  */
 public class MikIcons {
     private static final String ICON_FOLDER = "/icons/";
 
+    /** MIK ICON */
+    public static final Icon MIK = load("mikIcon.svg");
+    
     /** ALIYUN_OSS */
     public static final Icon ALIYUN_OSS = load("aliyun.svg");
     /** QINIU_OSS */
@@ -36,6 +39,19 @@ public class MikIcons {
     public static final Icon CUSTOM = load("custom.svg");
     /** PICLIST */
     public static final Icon PICLIST = load("piclist.svg");
+
+    /** QINGCLOUD */
+    public static final Icon QINGCLOUD = load("qingcloud.svg");
+    /** UCLOUD */
+    public static final Icon UCLOUD = load("ucloud.svg");
+    /** WANGYI */
+    public static final Icon WANGYI = load("wangyi.svg");
+    /** WEIBO */
+    public static final Icon WEIBO = load("weibo.svg");
+    /** JINGDONG */
+    public static final Icon JINGDONG = load("jingdong.svg");
+    /** IMGUR */
+    public static final Icon IMGUR = load("imgur.svg");
 
     /**
      * Load

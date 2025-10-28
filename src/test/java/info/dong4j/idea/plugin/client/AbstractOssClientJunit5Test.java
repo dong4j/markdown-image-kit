@@ -11,7 +11,9 @@ import java.io.InputStream;
 
 import javax.swing.JPanel;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AbstractOssClientJunit5Test {
@@ -23,9 +25,36 @@ public class AbstractOssClientJunit5Test {
         }
 
         @Override
-        protected void putObjects(String key, InputStream instream) {
+        protected void putObjects(String key, InputStream instream) throws Exception {
             assertTrue(key.startsWith("/"));
             assertNotNull(instream);
+
+            // 模拟上传失败的情况
+            if ("fail.jpg".equals(key.substring(1))) {
+                throw new RuntimeException("上传失败");
+            }
+        }
+
+        @Override
+        protected AbstractExtendOssState getState() {
+            return null;
+        }
+
+        @Override
+        public CloudEnum getCloudType() {
+            return CloudEnum.CUSTOMIZE;
+        }
+    }
+
+    static class DummyClientWithNullState extends AbstractOssClient {
+        @Override
+        protected AbstractOssClient getClient() {
+            return this;
+        }
+
+        @Override
+        protected void putObjects(String key, InputStream instream) throws Exception {
+            // 空实现
         }
 
         @Override
@@ -66,6 +95,88 @@ public class AbstractOssClientJunit5Test {
 
         String url = client.upload(new ByteArrayInputStream(new byte[] {9}), "x.jpg", panel);
         assertTrue(url.startsWith("https://"));
+        assertTrue(url.contains("cdn.example.com"));
+    }
+
+    @Test
+    @DisplayName("测试文件目录处理")
+    void testFiledirHandling() throws Exception {
+        DummyClient client = new DummyClient();
+        JPanel panel = new JPanel();
+        TestPanelUtils.addText(panel, "bucketName", "b");
+        TestPanelUtils.addText(panel, "accessKey", "ak");
+        TestPanelUtils.addText(panel, "secretKey", "sk");
+        TestPanelUtils.addText(panel, "endpoint", "e.com");
+        TestPanelUtils.addText(panel, "filedir", ""); // 空目录
+        TestPanelUtils.addText(panel, "customEndpoint", "");
+        TestPanelUtils.addBoolean(panel, "isCustomEndpoint", false);
+
+        String url = client.upload(new ByteArrayInputStream(new byte[] {9}), "x.jpg", panel);
+        assertTrue(url.startsWith("https://"));
+    }
+
+    @Test
+    @DisplayName("测试上传失败情况")
+    void testUploadFailure() {
+        DummyClient client = new DummyClient();
+        InputStream in = new ByteArrayInputStream(new byte[] {1, 2, 3});
+
+        // 应该抛出异常
+        assertThrows(Exception.class, () -> {
+            client.upload(in, "fail.jpg");
+        });
+    }
+
+    @Test
+    @DisplayName("测试空文件名")
+    void testEmptyFileName() throws Exception {
+        DummyClient client = new DummyClient();
+        InputStream in = new ByteArrayInputStream(new byte[] {1, 2, 3});
+
+        // 空文件名应该能正常处理
+        String url = client.upload(in, "");
+        assertTrue(url.startsWith("https://"));
+    }
+
+    @Test
+    @DisplayName("测试null输入流")
+    void testNullInputStream() {
+        DummyClient client = new DummyClient();
+
+        // null输入流应该抛出异常
+        assertThrows(Exception.class, () -> {
+            client.upload(null, "test.jpg");
+        });
+    }
+
+    @Test
+    @DisplayName("测试带目录的文件路径")
+    void testFileWithDirectory() throws Exception {
+        DummyClient client = new DummyClient();
+        InputStream in = new ByteArrayInputStream(new byte[] {1, 2, 3});
+
+        // 测试文件名包含路径的情况
+        String url = client.upload(in, "path/to/file.jpg");
+        assertTrue(url.startsWith("https://"));
+    }
+
+    @Test
+    @DisplayName("测试getState返回null的情况")
+    void testGetStateReturnsNull() throws Exception {
+        DummyClientWithNullState client = new DummyClientWithNullState();
+        InputStream in = new ByteArrayInputStream(new byte[] {1, 2, 3});
+
+        // 应该正常工作，即使getState返回null
+        String url = client.upload(in, "test.jpg");
+        assertEquals("", url); // 因为putObjects是空实现，所以返回空字符串
+    }
+
+    @Test
+    @DisplayName("测试getClient返回自身")
+    void testGetClientReturnsSelf() {
+        DummyClient client = new DummyClient();
+        AbstractOssClient returnedClient = client.getClient();
+        assertEquals(client, returnedClient);
     }
 }
 
@@ -84,5 +195,3 @@ class TestPanelUtils {
         p.add(c);
     }
 }
-
-

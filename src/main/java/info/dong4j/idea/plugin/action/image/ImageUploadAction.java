@@ -1,6 +1,5 @@
 package info.dong4j.idea.plugin.action.image;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Document;
 
@@ -29,6 +28,7 @@ import java.util.Map;
 
 import javax.swing.Icon;
 
+import icons.MikIcons;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -56,7 +56,7 @@ public final class ImageUploadAction extends ImageActionBase {
     @Contract(pure = true)
     @Override
     protected Icon getIcon() {
-        return AllIcons.Debugger.Overhead;
+        return MikIcons.MIK;
     }
 
     /**

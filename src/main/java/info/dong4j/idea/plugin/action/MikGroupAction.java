@@ -1,10 +1,11 @@
 package info.dong4j.idea.plugin.action;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 
 import org.jetbrains.annotations.NotNull;
+
+import icons.MikIcons;
 
 /**
  * 用于通过代码方式添加 Group 的动作类
@@ -29,6 +30,6 @@ public final class MikGroupAction extends DefaultActionGroup {
      */
     @Override
     public void update(@NotNull AnActionEvent event) {
-        event.getPresentation().setIcon(AllIcons.Gutter.Colors);
+        event.getPresentation().setIcon(MikIcons.MIK);
     }
 }

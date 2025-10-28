@@ -128,7 +128,7 @@
 
         <!-- 编辑器右键菜单 -->
         <group popup="true" id="info.dong4j.idea.plugin.editor.popup.menu.group" text="Upload Image"
-               icon="AllIcons.Gutter.Colors">
+               icon="icons.MikIcons.MIK">
             <reference ref="PicListObjectStorageServiceAction"/>
             <reference ref="SmmsObjectStorageServiceAction"/>
             <reference ref="AliyunObjectStorageServiceAction"/>

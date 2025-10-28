@@ -1,6 +1,5 @@
 package info.dong4j.idea.plugin.action.markdown;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -30,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.event.DocumentEvent;
 
+import icons.MikIcons;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -65,7 +65,7 @@ public final class MoveToOtherStorageAction extends AnAction {
      */
     @Override
     public void update(@NotNull AnActionEvent event) {
-        ActionUtils.isAvailable(true, event, AllIcons.Actions.Lightning, MarkdownContents.MARKDOWN_TYPE_NAME);
+        ActionUtils.isAvailable(true, event, MikIcons.MIK, MarkdownContents.MARKDOWN_TYPE_NAME);
     }
 
     /**

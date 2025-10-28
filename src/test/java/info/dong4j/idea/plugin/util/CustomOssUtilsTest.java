@@ -1,367 +1,382 @@
 package info.dong4j.idea.plugin.util;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
-import org.junit.Test;
-
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
-
-import lombok.extern.slf4j.Slf4j;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
- * 自定义OSS工具类测试
+ * CustomOssUtils 工具类测试
  * <p>
- * 测试CustomOssUtils类的基本功能
- * </p>
+ * 测试 CustomOssUtils 类中的文件上传功能，包括参数处理、文件写入、HTTP 连接等。
  *
  * @author dong4j
  * @version 1.0.0
- * @email "mailto:dong4j@gmail.com"
- * @date 2020.04.25 16:36
- * @since 1.5.0
+ * @since 2025-10-28
  */
-@Slf4j
 public class CustomOssUtilsTest {
-    /** API */
-    private static final String API = "http://127.0.0.1:8080/upload";
-    /** 边界标识 */
-    private final static String BOUNDARY = UUID.randomUUID().toString().toLowerCase().replaceAll("-", "");
-    /** PREFIX */
-    private final static String PREFIX = "--";// 必须存在
-    /** LINE_END */
-    private final static String LINE_END = "\r\n";
 
-    /**
-     * POST Multipart Request
-     *
-     * @param requestUrl  请求url
-     * @param requestText 请求参数(字符串键值对map)
-     * @param requestFile 请求上传的文件(File)
-     * @param header      header
-     * @return string
-     * @throws Exception exception
-     * @Description:
-     * @since 1.5.0
-     */
-    public static String sendRequest(String requestUrl,
-                                     Map<String, String> requestText,
-                                     Map<String, File> requestFile,
-                                     Map<String, String> header) throws Exception {
+    private MockedStatic<OssUtils> ossUtilsMock;
+    private HttpURLConnection mockConnection;
 
-        URL url = new URL(requestUrl);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-        connection.setDoOutput(true);
-        connection.setDoInput(true);
-        connection.setUseCaches(false);
-        connection.setConnectTimeout(1000 * 10);
-        connection.setReadTimeout(1000 * 10);
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Accept", "*/*");
-        connection.setRequestProperty("Connection", "keep-alive");
-        connection.setRequestProperty("User-Agent", "markdown-image-kit");
-        connection.setRequestProperty("Charset", "UTF-8");
-        connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
-
-        if (header != null && !header.isEmpty()) {
-            header.forEach(connection::setRequestProperty);
-        }
-
-        connection.connect();
-
-        // 往服务器端写内容 也就是发起http请求需要带的参数
-
-        StringBuffer buffer;
-
-        try (OutputStream os = new DataOutputStream(connection.getOutputStream())) {
-
-            // 请求参数部分
-            writeParams(requestText, os);
-            // 请求上传文件部分
-            writeFile(requestFile, os);
-            // 请求结束标志
-            String endTarget = PREFIX + BOUNDARY + PREFIX + LINE_END;
-            os.write(endTarget.getBytes());
-            os.flush();
-
-            // 读取服务器端返回的内容
-            log.info("======================响应体=========================");
-            log.info("ResponseCode:" + connection.getResponseCode() + ",ResponseMessage:" + connection.getResponseMessage());
-
-            InputStream input;
-            if (connection.getResponseCode() == 200) {
-                input = connection.getInputStream();
-            } else {
-                input = connection.getErrorStream();
-            }
-
-            BufferedReader br = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8));
-            buffer = new StringBuffer();
-            String line;
-            while ((line = br.readLine()) != null) {
-                buffer.append(line);
-            }
-            log.info("返回报文:" + buffer);
-
-        } catch (Exception e) {
-            throw new Exception(e);
-        } finally {
-            // 断开连接
-            connection.disconnect();
-        }
-        return buffer.toString();
-    }
-
-    /**
-     * 对post参数进行编码处理并写入数据流中
-     *
-     * @param requestText request text
-     * @param os          os
-     * @throws Exception exception
-     * @since 1.5.0
-     */
-    private static String writeParams(Map<String, String> requestText,
-                                      OutputStream os) throws Exception {
-        String msg = "请求参数部分:\n";
+    @BeforeEach
+    public void setUp() {
+        // Mock OssUtils.connect 方法
+        ossUtilsMock = mockStatic(OssUtils.class);
+        mockConnection = mock(HttpURLConnection.class);
+        
         try {
-            if (requestText == null || requestText.isEmpty()) {
-                msg += "空";
-            } else {
-                StringBuilder requestParams = new StringBuilder();
-                Set<Map.Entry<String, String>> set = requestText.entrySet();
-                for (Map.Entry<String, String> entry : set) {
-                    requestParams.append(PREFIX).append(BOUNDARY).append(LINE_END);
-                    requestParams.append("Content-Disposition: form-data; name=\"").append(entry.getKey()).append("\"").append(LINE_END);
-                    requestParams.append("Content-Type: text/plain; charset=utf-8").append(LINE_END);
-                    requestParams.append(LINE_END);// 参数头设置完以后需要两个换行，然后才是参数内容
-                    requestParams.append(entry.getValue());
-                    requestParams.append(LINE_END);
-                }
-                os.write(requestParams.toString().getBytes());
-                os.flush();
-
-                msg += requestParams.toString();
-            }
-
-            log.info(msg);
-        } catch (Exception e) {
-            throw new Exception(e);
-        }
-
-        return msg;
-    }
-
-    /**
-     * 对post上传的文件进行编码处理并写入数据流中
-     *
-     * @param requestFile request file
-     * @param os          os
-     * @throws Exception exception
-     * @since 1.5.0
-     */
-    private static void writeFile(Map<String, File> requestFile,
-                                  OutputStream os) throws Exception {
-        try {
-            StringBuilder msg = new StringBuilder("请求上传文件部分:\n");
-            if (requestFile == null || requestFile.isEmpty()) {
-                msg.append("空");
-            } else {
-                StringBuilder requestParams = new StringBuilder();
-                Set<Map.Entry<String, File>> set = requestFile.entrySet();
-                for (Map.Entry<String, File> entry : set) {
-                    requestParams.append(PREFIX).append(BOUNDARY).append(LINE_END);
-                    requestParams.append("Content-Disposition: form-data; name=\"")
-                        .append(entry.getKey()).append("\"; filename=\"")
-                        .append(entry.getValue().getName()).append("\"")
-                        .append(LINE_END);
-                    requestParams.append("Content-Type:")
-                        .append(getContentType(entry.getValue()))
-                        .append(LINE_END);
-
-                    // 参数头设置完以后需要两个换行，然后才是参数内容
-                    requestParams.append(LINE_END);
-
-                    os.write(requestParams.toString().getBytes());
-
-                    try (InputStream is = new FileInputStream(entry.getValue())) {
-                        byte[] buffer = new byte[1024 * 1024];
-                        int len;
-                        while ((len = is.read(buffer)) != -1) {
-                            os.write(buffer, 0, len);
-                        }
-                        os.write(LINE_END.getBytes());
-                        os.flush();
-                    }
-                    msg.append(requestParams);
-                }
-            }
-            log.info(msg.toString());
-        } catch (Exception e) {
-            throw new Exception(e);
-        }
-    }
-
-
-    /**
-     * ContentType
-     *
-     * @param file file
-     * @return content type
-     * @Description:
-     * @since 1.5.0
-     */
-    public static String getContentType(File file) {
-        String streamContentType = "application/octet-stream";
-        String imageContentType;
-
-        try (ImageInputStream image = ImageIO.createImageInputStream(file)) {
-            if (image == null) {
-                return streamContentType;
-            }
-            Iterator<ImageReader> it = ImageIO.getImageReaders(image);
-            if (it.hasNext()) {
-                imageContentType = "image/" + it.next().getFormatName();
-                return imageContentType;
-            }
+            when(OssUtils.connect(anyString(), anyString())).thenReturn(mockConnection);
         } catch (IOException e) {
-            throw new RuntimeException(e.getMessage());
+            // 不应该发生
         }
-        return streamContentType;
     }
 
-    /**
-     * Test 1
-     *
-     * @throws Exception exception
-     * @since 1.5.0
-     */
-    @Test
-    public void test_1() throws Exception {
+    @AfterEach
+    public void tearDown() {
+        // 关闭静态 mock
+        if (ossUtilsMock != null) {
+            ossUtilsMock.close();
+        }
+    }
 
+    @Test
+    public void testPutObjectWithValidParameters() throws Exception {
+        // 设置 mock 行为
+        when(mockConnection.getResponseCode()).thenReturn(200);
+        when(mockConnection.getResponseMessage()).thenReturn("OK");
+        when(mockConnection.getInputStream()).thenReturn(new ByteArrayInputStream("{}".getBytes()));
+        when(mockConnection.getRequestMethod()).thenReturn("POST");
+        when(mockConnection.getURL()).thenReturn(new URL("https://example.com/upload"));
+        when(mockConnection.getContentType()).thenReturn("multipart/form-data");
+
+        // 准备测试数据
+        String api = "https://example.com/upload";
+        String requestKey = "file";
+        String httpMethod = "POST";
+        String fileName = "test.jpg";
+        InputStream inputStream = new ByteArrayInputStream("test image data".getBytes());
         Map<String, String> requestText = new HashMap<>();
-        requestText.put("xxx", "xxx");
-        requestText.put("yyy", "yyy");
-        Map<String, File> requestFile = new HashMap<>();
-        requestFile.put("fileName", new File("/Users/dong4j/Downloads/xu.png"));
-
+        requestText.put("param1", "value1");
         Map<String, String> header = new HashMap<>();
-        header.put("x-header", new Date().getTime() + "");
-        String request = CustomOssUtilsTest.sendRequest(API, requestText, requestFile, header);
-        log.info(request);
+        header.put("Authorization", "Bearer token");
+
+        // 执行测试
+        Map<String, String> result = CustomOssUtils.putObject(api, requestKey, httpMethod, fileName, inputStream, requestText, header);
+
+        // 验证结果
+        assertNotNull(result);
+        assertTrue(result.containsKey("headerInfo"));
+        assertTrue(result.containsKey("params"));
+        assertTrue(result.containsKey("filePart"));
+        assertTrue(result.containsKey("response"));
+        assertTrue(result.containsKey("json"));
+
+        // 验证 mock 调用
+        verify(mockConnection).setRequestMethod("POST");
+        verify(mockConnection).setDoOutput(true);
+        verify(mockConnection).setDoInput(true);
+        verify(mockConnection).setUseCaches(false);
+        verify(mockConnection).connect();
+        verify(mockConnection).disconnect();
     }
 
     @Test
-    public void test_2() throws Exception {
-        String upload1 = this.upload("{\"data\": {\"url\": \"可访问的图片地址\"}}", "data.url");
-        assertEquals(upload1, "可访问的图片地址");
+    public void testPutObjectWithNullRequestText() throws Exception {
+        // 设置 mock 行为
+        when(mockConnection.getResponseCode()).thenReturn(200);
+        when(mockConnection.getResponseMessage()).thenReturn("OK");
+        when(mockConnection.getInputStream()).thenReturn(new ByteArrayInputStream("{}".getBytes()));
+        when(mockConnection.getRequestMethod()).thenReturn("POST");
+        when(mockConnection.getURL()).thenReturn(new URL("https://example.com/upload"));
+        when(mockConnection.getContentType()).thenReturn("multipart/form-data");
 
-        String upload2 = this.upload("{\"url\": \"可访问的图片地址\"}", "url");
-        assertEquals(upload2, "可访问的图片地址");
+        // 准备测试数据
+        String api = "https://example.com/upload";
+        String requestKey = "file";
+        String httpMethod = "POST";
+        String fileName = "test.jpg";
+        InputStream inputStream = new ByteArrayInputStream("test image data".getBytes());
+        Map<String, String> requestText = null; // null 参数
+        Map<String, String> header = null; // null 头部
 
+        // 执行测试
+        Map<String, String> result = CustomOssUtils.putObject(api, requestKey, httpMethod, fileName, inputStream, requestText, header);
+
+        // 验证结果
+        assertNotNull(result);
+        assertTrue(result.containsKey("headerInfo"));
+        assertTrue(result.containsKey("params"));
+        assertTrue(result.containsKey("filePart"));
+        assertTrue(result.containsKey("response"));
+        assertTrue(result.containsKey("json"));
     }
 
-    @Test(expected = RuntimeException.class)
-    public void test_3() throws Exception {
-        this.upload("{\"data1\": {\"url\": \"可访问的图片地址\"}}", "data.url");
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void test_4() throws Exception {
-        this.upload("{\"data\": {\"url1\": \"可访问的图片地址\"}}", "data.url");
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void test_5() throws Exception {
-        this.upload("{\"data\": {\"url1\": {\"xxx\":\"可访问的图片地址\"}}}", "data.url");
-    }
-
-    public String upload(String json, String path) throws Exception {
-        String[] split = path.split("\\.");
-
-        JsonParser parser = new JsonParser();
-        JsonElement parse = parser.parse(json);
-
-        String url = this.getUrl(parse, split, split[0], 0);
-        if (StringUtils.isNotBlank(url)) {
-            return url;
-        }
-
-        throw new RuntimeException(json);
-    }
-
-    private String getUrl(JsonElement data, String[] split, String path, int index) {
-        if (data != null) {
-            if (data.isJsonObject()) {
-                JsonObject asJsonObject1 = data.getAsJsonObject();
-                JsonElement url = asJsonObject1.get(split[index]);
-                index++;
-                if (index == split.length) {
-                    if (url == null) {
-                        return "";
-                    } else {
-                        return url.getAsString();
-                    }
-                }
-                return this.getUrl(url, split, split[index], index);
-            } else {
-                return data.getAsString();
-            }
-        }
-        return "";
-    }
-
-    /**
-     * 测试生成边界标识
-     */
     @Test
-    public void testBoundaryGeneration() {
-        // 边界标识应该不为空
-        assertNotNull(CustomOssUtils.class);
-        // 注意：由于BOUNDARY是私有静态变量，我们无法直接访问它
-        // 但我们可以通过调用putObject方法间接测试其功能
+    public void testPutObjectWithEmptyRequestText() throws Exception {
+        // 设置 mock 行为
+        when(mockConnection.getResponseCode()).thenReturn(200);
+        when(mockConnection.getResponseMessage()).thenReturn("OK");
+        when(mockConnection.getInputStream()).thenReturn(new ByteArrayInputStream("{}".getBytes()));
+        when(mockConnection.getRequestMethod()).thenReturn("POST");
+        when(mockConnection.getURL()).thenReturn(new URL("https://example.com/upload"));
+        when(mockConnection.getContentType()).thenReturn("multipart/form-data");
+
+        // 准备测试数据
+        String api = "https://example.com/upload";
+        String requestKey = "file";
+        String httpMethod = "POST";
+        String fileName = "test.jpg";
+        InputStream inputStream = new ByteArrayInputStream("test image data".getBytes());
+        Map<String, String> requestText = new HashMap<>(); // 空参数
+        Map<String, String> header = new HashMap<>(); // 空头部
+
+        // 执行测试
+        Map<String, String> result = CustomOssUtils.putObject(api, requestKey, httpMethod, fileName, inputStream, requestText, header);
+
+        // 验证结果
+        assertNotNull(result);
+        assertTrue(result.containsKey("headerInfo"));
+        assertTrue(result.containsKey("params"));
+        assertTrue(result.containsKey("filePart"));
+        assertTrue(result.containsKey("response"));
+        assertTrue(result.containsKey("json"));
     }
 
-    /**
-     * 测试写入参数功能
-     */
     @Test
-    public void testWriteParams() {
-        // 这个测试主要是为了确保代码覆盖率，实际的写入功能需要通过集成测试验证
-        assertTrue(true);
+    public void testPutObjectWithInvalidApi() throws Exception {
+        // 设置 mock 行为，模拟连接失败
+        when(OssUtils.connect(anyString(), anyString())).thenThrow(new IOException("Invalid URL"));
+
+        // 准备测试数据
+        String api = "invalid-url";
+        String requestKey = "file";
+        String httpMethod = "POST";
+        String fileName = "test.jpg";
+        InputStream inputStream = new ByteArrayInputStream("test image data".getBytes());
+        Map<String, String> requestText = new HashMap<>();
+        Map<String, String> header = new HashMap<>();
+
+        // 执行测试并验证异常
+        assertThrows(Exception.class, () -> {
+            CustomOssUtils.putObject(api, requestKey, httpMethod, fileName, inputStream, requestText, header);
+        });
     }
 
-    /**
-     * 测试写入文件功能
-     */
     @Test
-    public void testWriteFile() {
-        // 这个测试主要是为了确保代码覆盖率，实际的写入功能需要通过集成测试验证
-        assertTrue(true);
+    public void testPutObjectWithNullInputStream() throws Exception {
+        // 设置 mock 行为
+        when(mockConnection.getResponseCode()).thenReturn(200);
+        when(mockConnection.getResponseMessage()).thenReturn("OK");
+        when(mockConnection.getInputStream()).thenReturn(new ByteArrayInputStream("{}".getBytes()));
+        when(mockConnection.getRequestMethod()).thenReturn("POST");
+        when(mockConnection.getURL()).thenReturn(new URL("https://example.com/upload"));
+        when(mockConnection.getContentType()).thenReturn("multipart/form-data");
+
+        // 准备测试数据
+        String api = "https://example.com/upload";
+        String requestKey = "file";
+        String httpMethod = "POST";
+        String fileName = "test.jpg";
+        InputStream inputStream = null; // null 输入流
+        Map<String, String> requestText = new HashMap<>();
+        Map<String, String> header = new HashMap<>();
+
+        // 执行测试并验证异常
+        assertThrows(Exception.class, () -> {
+            CustomOssUtils.putObject(api, requestKey, httpMethod, fileName, inputStream, requestText, header);
+        });
+    }
+
+    @Test
+    public void testPutObjectWithEmptyFileName() throws Exception {
+        // 设置 mock 行为
+        when(mockConnection.getResponseCode()).thenReturn(200);
+        when(mockConnection.getResponseMessage()).thenReturn("OK");
+        when(mockConnection.getInputStream()).thenReturn(new ByteArrayInputStream("{}".getBytes()));
+        when(mockConnection.getRequestMethod()).thenReturn("POST");
+        when(mockConnection.getURL()).thenReturn(new URL("https://example.com/upload"));
+        when(mockConnection.getContentType()).thenReturn("multipart/form-data");
+
+        // 准备测试数据
+        String api = "https://example.com/upload";
+        String requestKey = "file";
+        String httpMethod = "POST";
+        String fileName = ""; // 空文件名
+        InputStream inputStream = new ByteArrayInputStream("test image data".getBytes());
+        Map<String, String> requestText = new HashMap<>();
+        Map<String, String> header = new HashMap<>();
+
+        // 执行测试
+        Map<String, String> result = CustomOssUtils.putObject(api, requestKey, httpMethod, fileName, inputStream, requestText, header);
+
+        // 验证结果
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testPutObjectWithServerError() throws Exception {
+        // 设置 mock 行为，模拟服务器错误
+        when(mockConnection.getResponseCode()).thenReturn(500);
+        when(mockConnection.getResponseMessage()).thenReturn("Internal Server Error");
+        when(mockConnection.getErrorStream()).thenReturn(new ByteArrayInputStream("Server Error".getBytes()));
+        when(mockConnection.getRequestMethod()).thenReturn("POST");
+        when(mockConnection.getURL()).thenReturn(new URL("https://example.com/upload"));
+        when(mockConnection.getContentType()).thenReturn("multipart/form-data");
+
+        // 准备测试数据
+        String api = "https://example.com/upload";
+        String requestKey = "file";
+        String httpMethod = "POST";
+        String fileName = "test.jpg";
+        InputStream inputStream = new ByteArrayInputStream("test image data".getBytes());
+        Map<String, String> requestText = new HashMap<>();
+        Map<String, String> header = new HashMap<>();
+
+        // 执行测试
+        Map<String, String> result = CustomOssUtils.putObject(api, requestKey, httpMethod, fileName, inputStream, requestText, header);
+
+        // 验证结果
+        assertNotNull(result);
+        assertTrue(result.containsKey("response"));
+        assertTrue(result.get("response").contains("500"));
+        assertTrue(result.containsKey("json"));
+    }
+
+    @Test
+    public void testWriteFileWithValidParameters() throws Exception {
+        // 使用反射调用私有方法
+        java.lang.reflect.Method writeFileMethod = CustomOssUtils.class.getDeclaredMethod(
+            "writeFile", String.class, String.class, InputStream.class, java.io.OutputStream.class);
+        writeFileMethod.setAccessible(true);
+
+        // 准备测试数据
+        String requestKey = "file";
+        String fileName = "test.jpg";
+        InputStream inputStream = new ByteArrayInputStream("test image data".getBytes());
+        java.io.OutputStream outputStream = new java.io.ByteArrayOutputStream();
+
+        // 执行测试
+        String result = (String) writeFileMethod.invoke(null, requestKey, fileName, inputStream, outputStream);
+
+        // 验证结果
+        assertNotNull(result);
+        assertTrue(result.contains("请求上传文件部分"));
+    }
+
+    @Test
+    public void testWriteParamsWithValidParameters() throws Exception {
+        // 使用反射调用私有方法
+        java.lang.reflect.Method writeParamsMethod = CustomOssUtils.class.getDeclaredMethod(
+            "writeParams", Map.class, java.io.OutputStream.class);
+        writeParamsMethod.setAccessible(true);
+
+        // 准备测试数据
+        Map<String, String> requestText = new HashMap<>();
+        requestText.put("param1", "value1");
+        requestText.put("param2", "value2");
+        java.io.OutputStream outputStream = new java.io.ByteArrayOutputStream();
+
+        // 执行测试
+        String result = (String) writeParamsMethod.invoke(null, requestText, outputStream);
+
+        // 验证结果
+        assertNotNull(result);
+        assertTrue(result.contains("请求参数部分"));
+        assertTrue(result.contains("param1"));
+        assertTrue(result.contains("param2"));
+    }
+
+    @Test
+    public void testWriteParamsWithNullParameters() throws Exception {
+        // 使用反射调用私有方法
+        java.lang.reflect.Method writeParamsMethod = CustomOssUtils.class.getDeclaredMethod(
+            "writeParams", Map.class, java.io.OutputStream.class);
+        writeParamsMethod.setAccessible(true);
+
+        // 执行测试
+        String result = (String) writeParamsMethod.invoke(null, null, new java.io.ByteArrayOutputStream());
+
+        // 验证结果
+        assertNotNull(result);
+        assertTrue(result.contains("请求参数部分"));
+        assertTrue(result.contains("空"));
+    }
+
+    @Test
+    public void testWriteParamsWithEmptyParameters() throws Exception {
+        // 使用反射调用私有方法
+        java.lang.reflect.Method writeParamsMethod = CustomOssUtils.class.getDeclaredMethod(
+            "writeParams", Map.class, java.io.OutputStream.class);
+        writeParamsMethod.setAccessible(true);
+
+        // 准备测试数据
+        Map<String, String> requestText = new HashMap<>();
+        java.io.OutputStream outputStream = new java.io.ByteArrayOutputStream();
+
+        // 执行测试
+        String result = (String) writeParamsMethod.invoke(null, requestText, outputStream);
+
+        // 验证结果
+        assertNotNull(result);
+        assertTrue(result.contains("请求参数部分"));
+        assertTrue(result.contains("空"));
+    }
+
+    @Test
+    public void testBoundaryGeneration() throws Exception {
+        // 测试边界标识符的生成
+        java.lang.reflect.Field boundaryField = CustomOssUtils.class.getDeclaredField("BOUNDARY");
+        boundaryField.setAccessible(true);
+        String boundary = (String) boundaryField.get(null);
+
+        // 验证边界标识符不为空且不包含连字符
+        assertNotNull(boundary);
+        assertTrue(boundary.length() > 0);
+        assertTrue(boundary.matches("[a-z0-9]+")); // 只包含小写字母和数字
+    }
+
+    @Test
+    public void testConnectionDisconnectCalled() throws Exception {
+        // 设置 mock 行为
+        when(mockConnection.getResponseCode()).thenReturn(200);
+        when(mockConnection.getResponseMessage()).thenReturn("OK");
+        when(mockConnection.getInputStream()).thenReturn(new ByteArrayInputStream("{}".getBytes()));
+        when(mockConnection.getRequestMethod()).thenReturn("POST");
+        when(mockConnection.getURL()).thenReturn(new URL("https://example.com/upload"));
+        when(mockConnection.getContentType()).thenReturn("multipart/form-data");
+
+        // 准备测试数据
+        String api = "https://example.com/upload";
+        String requestKey = "file";
+        String httpMethod = "POST";
+        String fileName = "test.jpg";
+        InputStream inputStream = new ByteArrayInputStream("test image data".getBytes());
+        Map<String, String> requestText = new HashMap<>();
+        Map<String, String> header = new HashMap<>();
+
+        // 执行测试
+        CustomOssUtils.putObject(api, requestKey, httpMethod, fileName, inputStream, requestText, header);
+
+        // 验证 disconnect 方法被调用
+        verify(mockConnection, times(1)).disconnect();
     }
 }

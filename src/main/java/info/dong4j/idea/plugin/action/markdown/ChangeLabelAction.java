@@ -1,6 +1,5 @@
 package info.dong4j.idea.plugin.action.markdown;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -26,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 
+import icons.MikIcons;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -52,7 +52,7 @@ public final class ChangeLabelAction extends AnAction {
      */
     @Override
     public void update(@NotNull AnActionEvent event) {
-        ActionUtils.isAvailable(true, event, AllIcons.Actions.ListChanges, MarkdownContents.MARKDOWN_TYPE_NAME);
+        ActionUtils.isAvailable(true, event, MikIcons.MIK, MarkdownContents.MARKDOWN_TYPE_NAME);
     }
 
     /**
