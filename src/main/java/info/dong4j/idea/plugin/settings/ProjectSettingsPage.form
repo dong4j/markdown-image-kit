@@ -3,11 +3,11 @@
   <grid id="27dc6" binding="myMainPanel" layout-manager="GridLayoutManager" row-count="4" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="769" height="797"/>
+      <xy x="20" y="20" width="800" height="797"/>
     </constraints>
     <properties>
       <autoscrolls value="true"/>
-      <minimumSize width="300" height="500"/>
+      <minimumSize width="800" height="769"/>
       <preferredSize width="300" height="500"/>
       <requestFocusEnabled value="true"/>
     </properties>
@@ -387,7 +387,7 @@
                     </constraints>
                     <properties>
                       <name value="endpoint"/>
-                      <text value=""/>
+                      <text value="oss-cn-hangzhou.aliyuncs.com"/>
                     </properties>
                   </component>
                   <component id="a9d3c" class="javax.swing.JLabel">
@@ -430,6 +430,7 @@
                     <properties>
                       <name value="filedir"/>
                       <text value=""/>
+                      <toolTipText value="目录名(可选)"/>
                     </properties>
                   </component>
                   <component id="c09bb" class="javax.swing.JLabel">
@@ -651,7 +652,7 @@
                     </constraints>
                     <properties>
                       <name value="regionName"/>
-                      <text value=""/>
+                      <text value="ap-chengdu"/>
                     </properties>
                   </component>
                   <component id="88c98" class="javax.swing.JLabel">
@@ -789,7 +790,7 @@
                     </constraints>
                     <properties>
                       <name value="endpoint"/>
-                      <text value=""/>
+                      <text value="cd.bcebos.com"/>
                     </properties>
                   </component>
                   <component id="dfb93" class="javax.swing.JLabel">
@@ -832,6 +833,7 @@
                     <properties>
                       <name value="filedir"/>
                       <text value=""/>
+                      <toolTipText value="目录名(可选)"/>
                     </properties>
                   </component>
                   <component id="cae78" class="javax.swing.JLabel">
@@ -933,6 +935,7 @@
                     </constraints>
                     <properties>
                       <name value="branch"/>
+                      <text value="main"/>
                     </properties>
                   </component>
                   <component id="2f926" class="javax.swing.JLabel">
@@ -1082,6 +1085,7 @@
                     </constraints>
                     <properties>
                       <name value="branch"/>
+                      <text value="master"/>
                     </properties>
                   </component>
                   <component id="8aaa5" class="javax.swing.JLabel">
