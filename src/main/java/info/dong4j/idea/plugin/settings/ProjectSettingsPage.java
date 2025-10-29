@@ -605,11 +605,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
 
         // help button 监听
         this.helpButton.addActionListener(e -> {
-            String url = MikNotification.helpUrl(HelpType.CUSTOM.where);
             CloudEnum cloudType = OssState.getCloudType(this.authorizationTabbedPanel.getSelectedIndex());
-            if (cloudType != CloudEnum.CUSTOMIZE) {
-                url = MikNotification.helpUrl(HelpType.SETTING.where);
-            }
+            // https://mik.dong4j.site/mik/help/settings/aliyun_cloud
+            String url = MikNotification.helpUrl(HelpType.SETTING.where + "/" + cloudType.name().toLowerCase());
             if (!url.equals(MikNotification.ABOUT_BLANK)) {
                 BrowserUtil.browse(url);
             }

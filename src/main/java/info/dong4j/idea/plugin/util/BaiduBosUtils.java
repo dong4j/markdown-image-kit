@@ -9,8 +9,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -95,25 +93,14 @@ public class BaiduBosUtils {
             connectUrl = "http://" + customEndpoint;
         }
 
-        URL putUrl = new URI(connectUrl + key).toURL();
-        HttpURLConnection connection;
+        HttpURLConnection connection = OssUtils.connect(connectUrl + key, "PUT");
         StringBuffer sbuffer;
-
-        //添加 请求内容
-        connection = (HttpURLConnection) putUrl.openConnection();
-        //设置http连接属性
-        connection.setDoOutput(true);
-        connection.setRequestMethod("PUT");
         //设置请求头
-        // 注意：setRequestProperty() 必须在 connect() 之前调用
         connection.setRequestProperty("Date", getHttpDate());
         connection.setRequestProperty("Authorization", authorization);
         connection.setRequestProperty("Content-Length", String.valueOf(contentLength));
         connection.setRequestProperty("Content-Type", getContentType(key));
         // 注意：Host 头不需要手动设置，HttpURLConnection 会根据 URL 自动设置
-
-        connection.setReadTimeout(5000);
-        connection.setConnectTimeout(3000);
         connection.connect();
 
         try (OutputStream out = connection.getOutputStream();

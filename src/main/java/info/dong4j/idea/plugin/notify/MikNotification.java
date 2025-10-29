@@ -45,8 +45,6 @@ import lombok.extern.slf4j.Slf4j;
 @SuppressWarnings("jol")
 @Slf4j
 public class MikNotification extends Notification {
-    /** 自定义 OSS API 示例地址，指向 GitHub 项目仓库 */
-    public static final String CUSTOM_OSS_API_DEMO = "https://github.com/dong4j/mik-help";
     /** about:blank 是一个特殊的 URI，通常用于表示空的或默认的文档 */
     public static final String ABOUT_BLANK = "about:blank";
     /** 帮助页面的 URL 地址 */
@@ -82,9 +80,6 @@ public class MikNotification extends Notification {
      * @since 0.0.1
      */
     public static String helpUrl(String where) {
-        if ("custom".equals(where)) {
-            return CUSTOM_OSS_API_DEMO;
-        }
         HelpResult helpResult = null;
 
         HttpClientBuilder builder = HttpClients.custom();
@@ -92,11 +87,13 @@ public class MikNotification extends Notification {
         builder.setUserAgent("Mozilla/5.0 (Windows; U; Windows NT 6.1; zh-CN; rv:1.9.2.6)");
         CloseableHttpClient client = builder.build();
 
-        HttpPost httpPost = new HttpPost(MikContents.HELP_REST_URL_KEY + where);
+        HttpPost httpPost = new HttpPost(String.format(MikContents.HELP_REST_URL, where));
 
         RequestConfig requestConfig = RequestConfig.custom()
-            .setConnectTimeout(3000).setConnectionRequestTimeout(1000)
-            .setSocketTimeout(3000).build();
+            .setConnectTimeout(3000)
+            .setConnectionRequestTimeout(1000)
+            .setSocketTimeout(3000)
+            .build();
 
         httpPost.setConfig(requestConfig);
 
