@@ -10,6 +10,8 @@ import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,6 +19,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -166,28 +169,26 @@ public class ActionManager {
                     while (iterator.hasNext()) {
                         MarkdownImage markdownImage = iterator.next();
                         OssClient client = data.getClient();
-                        // 排除 LOCAL 和用户输入不匹配的标签和
+                        // 排除 LOCAL 和用户输入不匹配的标签
                         if (markdownImage.getLocation().name().equals(ImageLocationEnum.LOCAL.name())
                             || !markdownImage.getPath().contains(filterString)
                             || markdownImage.getPath().contains(client.getCloudType().feature)) {
 
                             iterator.remove();
                         } else {
-                            // 将 URL 图片转成 inputstream
+                            // 通过 url 下载图片
                             try {
-                                URL url;
-                                try {
-                                    url = new URI(markdownImage.getPath()).toURL();
-                                } catch (MalformedURLException | URISyntaxException e) {
-                                    throw new IOException("Invalid URL: " + markdownImage.getPath(), e);
+                                final URLConnection connection = getUrlConnection(markdownImage);
+                                byte[] temp;
+                                try (InputStream in = connection.getInputStream()) {
+                                    temp = FileUtil.loadBytes(in);
                                 }
-                                byte[] temp = FileUtil.loadBytes(url.openStream());
                                 InputStream inputStream = new ByteArrayInputStream(temp);
                                 markdownImage.setInputStream(inputStream);
                                 // 这里设置为本地图片, 才会在 uploadhandler 中上传
                                 markdownImage.setLocation(ImageLocationEnum.LOCAL);
                             } catch (IOException e) {
-                                log.trace("", e);
+                                log.info("下载图片出错: {}", e.getMessage());
                                 iterator.remove();
                             }
                         }
@@ -207,5 +208,19 @@ public class ActionManager {
             // 写入标签
             .addHandler(new ReplaceToDocument())
             .addHandler(new FinalChainHandler());
+    }
+
+    @NotNull
+    private static URLConnection getUrlConnection(MarkdownImage markdownImage) throws IOException {
+        URL url;
+        try {
+            url = new URI(markdownImage.getPath()).toURL();
+        } catch (MalformedURLException | URISyntaxException e) {
+            throw new IOException("Invalid URL: " + markdownImage.getPath(), e);
+        }
+        URLConnection connection = url.openConnection();
+        connection.setConnectTimeout(3000);
+        connection.setReadTimeout(5000);
+        return connection;
     }
 }

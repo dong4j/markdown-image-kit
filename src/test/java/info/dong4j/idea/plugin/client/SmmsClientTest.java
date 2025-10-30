@@ -98,14 +98,7 @@ public class SmmsClientTest {
         return "";
     }
 
-    /**
-     * 测试文件上传功能
-     * <p>
-     * 测试场景：模拟上传图片文件
-     * 预期结果：日志中应记录上传文件的路径信息
-     * <p>
-     * 注意：测试需要本地存在指定路径的图片文件，路径为 /Users/dong4j/Downloads/mik.webp
-     */
+
     @Test
     public void test_2() throws FileNotFoundException {
         log.info("{}", this.upload(new FileInputStream("/Users/dong4j/Downloads/mik.webp"),

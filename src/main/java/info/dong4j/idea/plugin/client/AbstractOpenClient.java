@@ -15,6 +15,8 @@ import java.util.Map;
 
 import javax.swing.JPanel;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Oss 客户端抽象类
  * <p>
@@ -29,6 +31,7 @@ import javax.swing.JPanel;
  * @date 2025.10.24
  * @since 1.0.0
  */
+@Slf4j
 public abstract class AbstractOpenClient implements OssClient {
     /** 仓库配置信息 */
     protected static String repos;

@@ -87,7 +87,7 @@ public abstract class ImageActionBase extends AnAction {
     @SuppressWarnings("D")
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
-        Map<Document, List<MarkdownImage>> waitingProcessMap = new HashMap<>(32);
+        Map<Document, List<MarkdownImage>> waitingProcessMap = new HashMap<>(64);
 
         Project project = event.getProject();
         if (project != null) {

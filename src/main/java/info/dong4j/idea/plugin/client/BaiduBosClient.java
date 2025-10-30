@@ -48,12 +48,14 @@ public class BaiduBosClient extends AbstractOssClient {
      */
     private static void init() {
         BaiduBosState baiduBosState = MikPersistenComponent.getInstance().getState().getBaiduBosState();
+        endpoint = baiduBosState.getEndpoint();
         accessKey = baiduBosState.getAccessKey();
         accessSecretKey = PasswordManager.getPassword(BaiduBosSetting.CREDENTIAL_ATTRIBUTES);
-        endpoint = baiduBosState.getEndpoint();
+        bucketName = baiduBosState.getBucketName();
         String tempFileDir = baiduBosState.getFiledir();
         filedir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";
-
+        customEndpoint = baiduBosState.getCustomEndpoint();
+        isCustomEndpoint = baiduBosState.getIsCustomEndpoint();
     }
 
     /**

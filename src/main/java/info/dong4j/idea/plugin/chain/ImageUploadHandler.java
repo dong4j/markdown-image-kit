@@ -4,6 +4,7 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.progress.ProgressIndicator;
 
 import info.dong4j.idea.plugin.MikBundle;
+import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
@@ -71,6 +72,7 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
      * @param data 包含事件数据的对象，包括进度指示器、总大小、待处理图片列表等信息
      * @return 始终返回true，表示执行成功
      */
+    @SuppressWarnings("D")
     @Override
     public boolean execute(EventData data) {
         ProgressIndicator indicator = data.getIndicator();
@@ -81,27 +83,52 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
             .mapToInt(List::size)
             .sum();
 
-        // 使用原子变量跟踪进度，确保线程安全
-        AtomicInteger processedCount = new AtomicInteger(0);
-
-        // 动态计算线程池大小，最多使用10个线程，但要考虑图片数量
-        int threadPoolSize = Math.min(Math.max(totalCount, 2), 10);
-        ExecutorService executorService = Executors.newFixedThreadPool(threadPoolSize);
-
-        log.info("开始上传 {} 张图片，使用 {} 个线程", totalCount, threadPoolSize);
-
-        List<CompletableFuture<?>> futures = new ArrayList<>();
+        if (totalCount == 0) {
+            log.info("没有待处理的数据");
+            return false;
+        }
 
         // 收集所有需要处理的图片
         List<ImageUploadTask> uploadTasks = new ArrayList<>();
         for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
             for (MarkdownImage markdownImage : imageEntry.getValue()) {
-                uploadTasks.add(new ImageUploadTask(markdownImage, imageEntry.getValue()));
+                String imageName = markdownImage.getImageName();
+
+                // 已上传过的不处理
+                if (ImageLocationEnum.NETWORK.equals(markdownImage.getLocation())) {
+                    log.debug("图片 {} 已经上传过，跳过", imageName);
+                    continue;
+                }
+
+                // 验证图片数据
+                if (StringUtils.isBlank(imageName) || markdownImage.getInputStream() == null) {
+                    log.warn("图片名称或输入流为空，移除该图片: {}", markdownImage);
+                    continue;
+                }
+                uploadTasks.add(new ImageUploadTask(markdownImage));
             }
         }
 
+        // 如果没有需要处理的图片，直接返回
+        if (uploadTasks.isEmpty()) {
+            log.info("数据被清洗后没有添加任何可处理任务");
+            return false;
+        }
+
+        // 重设任务数
+        totalCount = uploadTasks.size();
+
+        // 使用原子变量跟踪进度，确保线程安全
+        AtomicInteger processedCount = new AtomicInteger(0);
+        // 动态计算线程池大小，最多使用15个线程，但要考虑图片数量
+        int threadPoolSize = Math.min(totalCount, 15);
+        ExecutorService executorService = Executors.newFixedThreadPool(threadPoolSize);
+        log.info("开始上传 {} 张图片，使用 {} 个线程", totalCount, threadPoolSize);
+        List<CompletableFuture<?>> futures = new ArrayList<>();
+
         // 为每个图片创建异步任务
         for (ImageUploadTask task : uploadTasks) {
+            int finalTotalCount = totalCount;
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 try {
                     MarkdownImage markdownImage = task.markdownImage;
@@ -110,10 +137,10 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
                     // 更新进度
                     String imageName = markdownImage.getImageName();
                     indicator.setText2(MikBundle.message("mik.action.processing.title", imageName));
-                    indicator.setFraction(((currentProcessed * 1.0) + data.getIndex() * size) / (totalCount * size));
+                    indicator.setFraction(((currentProcessed * 1.0) + data.getIndex() * size) / (finalTotalCount * size));
 
                     // 执行上传逻辑
-                    uploadImage(data, task.imageIterator, markdownImage);
+                    uploadImage(data, markdownImage);
                 } catch (Exception e) {
                     log.error("上传图片时发生异常: {}", task.markdownImage.getImageName(), e);
                 }
@@ -134,68 +161,28 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
     }
 
     /**
-     * 内部类，用于封装图片上传任务
-     */
-    private static class ImageUploadTask {
-        final MarkdownImage markdownImage;
-        final List<MarkdownImage> imageList;
-        final Iterator<MarkdownImage> imageIterator;
-
-        ImageUploadTask(MarkdownImage markdownImage, List<MarkdownImage> imageList) {
-            this.markdownImage = markdownImage;
-            this.imageList = imageList;
-            // 创建一个可以直接操作列表的迭代器
-            this.imageIterator = new Iterator<MarkdownImage>() {
-                @Override
-                public boolean hasNext() {
-                    return false; // 不用于遍历，只用于删除操作
-                }
-
-                @Override
-                public MarkdownImage next() {
-                    return null;
-                }
-
-                @Override
-                public void remove() {
-                    imageList.remove(markdownImage);
-                }
-            };
-        }
+         * 内部类，用于封装图片上传任务
+         */
+        private record ImageUploadTask(MarkdownImage markdownImage) {
     }
 
     /**
      * 上传图片的核心逻辑
      *
      * @param data          事件数据
-     * @param imageIterator 图片迭代器
      * @param markdownImage 待上传的图片
      */
-    private void uploadImage(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
+    private void uploadImage(EventData data, MarkdownImage markdownImage) {
         String imageName = markdownImage.getImageName();
 
-        // 已上传过的不处理
-        if (ImageLocationEnum.NETWORK.equals(markdownImage.getLocation())) {
-            log.debug("图片 {} 已经上传过，跳过", imageName);
-            return;
-        }
-
-        // 验证图片数据
-        if (StringUtils.isBlank(imageName) || markdownImage.getInputStream() == null) {
-            log.warn("图片名称或输入流为空，移除该图片: {}", markdownImage);
-            imageIterator.remove();
-            return;
-        }
-
         String imageUrl = null;
-        Exception uploadException = null;
 
         try {
             log.debug("开始上传图片: {}", imageName);
-            imageUrl = data.getClient().upload(markdownImage.getInputStream(), markdownImage.getImageName());
-            log.debug("图片上传成功: {} -> {}", imageName, imageUrl);
+            final OssClient client = data.getClient();
+            imageUrl = client.upload(markdownImage.getInputStream(), markdownImage.getImageName());
+            log.info("图片上传成功: {} {} -> {}", client.getName(), imageName, imageUrl);
         } catch (Exception e) {
-            uploadException = e;
             log.error("上传图片失败: {}, 错误信息: {}", imageName, e.getMessage(), e);
         }
 
@@ -268,6 +255,7 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
 
         try {
             imageUrl = data.getClient().upload(markdownImage.getInputStream(), markdownImage.getImageName());
+            log.info("图片上传成功: {} -> {}", imageName, imageUrl);
         } catch (Exception ignored) {
         }
 

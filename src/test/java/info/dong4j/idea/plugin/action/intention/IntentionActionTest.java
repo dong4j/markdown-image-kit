@@ -63,9 +63,9 @@ public class IntentionActionTest extends LightPlatformTestCase {
     }
 
     /**
-     * 验证 ImageUploadIntentionAction 是否继承自 PsiElementBaseIntentionAction
+     * 验证 ImageUploadIntention 是否继承自 PsiElementBaseIntentionAction
      * <p>
-     * 该方法通过实例化 ImageUploadIntentionAction 并检查其是否为 PsiElementBaseIntentionAction 的子类，
+     * 该方法通过实例化 ImageUploadIntention 并检查其是否为 PsiElementBaseIntentionAction 的子类，
      * 以确保其继承关系正确。
      *
      * @since 1.0

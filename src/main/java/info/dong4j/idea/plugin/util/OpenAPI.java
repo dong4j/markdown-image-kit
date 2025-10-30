@@ -57,6 +57,9 @@ public interface OpenAPI {
             } else if (responseCode == 404) {
                 throw new RuntimeException(responseCode + " " + connection.getResponseMessage()
                                            + " :The branch (" + branch + ") may not be created");
+            } else if (responseCode == 409) {
+                // github: 409 表示存在同名文件, 直接返回 true, 后续逻辑会直接返回已存在的图片 url
+                return true;
             } else {
                 throw new RuntimeException(responseCode + " " + connection.getResponseMessage());
             }

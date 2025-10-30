@@ -4,7 +4,8 @@ import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
-import info.dong4j.idea.plugin.settings.oss.SmmsOssState;
+import info.dong4j.idea.plugin.settings.oss.SmmsOssSetting;
+import info.dong4j.idea.plugin.util.PasswordManager;
 import info.dong4j.idea.plugin.util.SmmsUtils;
 import info.dong4j.idea.plugin.util.StringUtils;
 
@@ -83,8 +84,7 @@ public class SmmsClient implements OssClient {
      * @since 1.5.0
      */
     private void init() {
-        SmmsOssState state = MikPersistenComponent.getInstance().getState().getSmmsOssState();
-        this.token = state.getToken();
+        this.token = PasswordManager.getPassword(SmmsOssSetting.CREDENTIAL_ATTRIBUTES);
     }
 
     /**

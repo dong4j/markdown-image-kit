@@ -1,6 +1,7 @@
 package info.dong4j.idea.plugin.action.markdown;
 
 import com.intellij.ide.util.PropertiesComponent;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -89,11 +90,11 @@ public final class MoveToOtherStorageAction extends AnAction {
             if (StringUtils.isBlank(domain)) {
                 return;
             }
-            if (!OssState.getStatus(dialog.getCloudComboBox().getSelectedIndex() - 1)) {
+            if (!OssState.getStatus(dialog.getCloudComboBox().getSelectedIndex())) {
                 return;
             }
 
-            int cloudIndex = dialog.getCloudComboBox().getSelectedIndex() - 1;
+            int cloudIndex = dialog.getCloudComboBox().getSelectedIndex();
             CloudEnum cloudEnum = OssState.getCloudType(cloudIndex);
 
             EventData data = new EventData()
@@ -127,14 +128,15 @@ public final class MoveToOtherStorageAction extends AnAction {
     private static MoveToOtherOssSettingsDialog showDialog() {
         DialogBuilder builder = new DialogBuilder();
         MoveToOtherOssSettingsDialog dialog = new MoveToOtherOssSettingsDialog();
-
+        // 获取设置的默认图床索引, 如果在设置页面中关闭了默认图床, 那就是 CloudEnum.SM_MS_CLOUD (0)
         int index = MikPersistenComponent.getInstance().getState().getCloudType();
-        dialog.getCloudComboBox().setSelectedIndex(index + 1);
+        // 设置选中默认的图床
+        dialog.getCloudComboBox().setSelectedIndex(index);
         showMessage(builder, dialog, index);
 
         dialog.getCloudComboBox().addActionListener(e -> {
             int selectedIndex = dialog.getCloudComboBox().getSelectedIndex();
-            showMessage(builder, dialog, selectedIndex - 1);
+            showMessage(builder, dialog, selectedIndex);
         });
 
         dialog.getDomain().getDocument().addDocumentListener(new DocumentAdapter() {
@@ -148,7 +150,7 @@ public final class MoveToOtherStorageAction extends AnAction {
             @Override
             protected void textChanged(@NotNull DocumentEvent e) {
                 boolean isValidInput = StringUtils.isNotBlank(dialog.getDomain().getText()) && !DOMAIN_DEFAULT_MESSAGE.equals(dialog.getDomain().getText());
-                boolean isClientEnable = OssState.getStatus(dialog.getCloudComboBox().getSelectedIndex() - 1);
+                boolean isClientEnable = OssState.getStatus(dialog.getCloudComboBox().getSelectedIndex());
                 builder.setOkActionEnabled(isValidInput && isClientEnable);
             }
         });
@@ -192,5 +194,20 @@ public final class MoveToOtherStorageAction extends AnAction {
         dialog.getMessage().setText(isClientEnable ? "" : MikBundle.message("oss.not.available"));
         dialog.getMessage().setForeground(isClientEnable ? JBColor.WHITE : JBColor.RED);
         builder.setOkActionEnabled(isClientEnable && isValidInput);
+    }
+
+    /**
+     * 获取动作更新线程
+     *
+     * <p>指定 update 方法在后台线程中执行，避免阻塞事件调度线程(EDT)。
+     * 提高 UI 响应性，防止界面卡顿。
+     *
+     * @return ActionUpdateThread.BGT 后台线程
+     * @see ActionUpdateThread#BGT
+     */
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        // 在后台线程中执行 update，避免阻塞 EDT
+        return ActionUpdateThread.BGT;
     }
 }

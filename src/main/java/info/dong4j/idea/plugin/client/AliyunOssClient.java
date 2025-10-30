@@ -45,11 +45,15 @@ public class AliyunOssClient extends AbstractOssClient {
      */
     private static void init() {
         AliyunOssState aliyunOssState = MikPersistenComponent.getInstance().getState().getAliyunOssState();
+        endpoint = aliyunOssState.getEndpoint();
         accessKey = aliyunOssState.getAccessKey();
         accessSecretKey = PasswordManager.getPassword(AliyunOssSetting.CREDENTIAL_ATTRIBUTES);
-        endpoint = aliyunOssState.getEndpoint();
+        bucketName = aliyunOssState.getBucketName();
         String tempFileDir = aliyunOssState.getFiledir();
         filedir = StringUtils.isBlank(tempFileDir) ? "" : tempFileDir + "/";
+        customEndpoint = aliyunOssState.getCustomEndpoint();
+        isCustomEndpoint = aliyunOssState.getIsCustomEndpoint();
+
     }
 
     /**

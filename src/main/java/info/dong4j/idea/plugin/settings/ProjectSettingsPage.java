@@ -574,6 +574,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                 String url;
                 try {
                     url = client.upload(inputStream, TEST_FILE_NAME, (JPanel) this.authorizationTabbedPanel.getComponentAt(index));
+                    log.info("测试按钮上传的图片返回结果: {}", url);
                 } catch (Exception exception) {
                     //显示对话框
                     Messages.showMessageDialog(this.myMainPanel,

@@ -44,17 +44,23 @@
         <!-- 持久化 -->
         <applicationService serviceImplementation="info.dong4j.idea.plugin.settings.MikPersistenComponent"/>
         <!-- alt + enter -->
+        <!--suppress PluginXmlExtensionRegistration -->
         <intentionAction>
-            <language>TEXT</language>
             <className>info.dong4j.idea.plugin.action.intention.ImageUploadIntentionAction</className>
+            <category>MIK</category>
+            <descriptionDirectoryName>ImageUploadIntention</descriptionDirectoryName>
         </intentionAction>
+        <!--suppress PluginXmlExtensionRegistration -->
         <intentionAction>
-            <language>TEXT</language>
             <className>info.dong4j.idea.plugin.action.intention.ImageMoveIntentionAction</className>
+            <category>MIK</category>
+            <descriptionDirectoryName>ImageMoveIntention</descriptionDirectoryName>
         </intentionAction>
+        <!--suppress PluginXmlExtensionRegistration -->
         <intentionAction>
-            <language>TEXT</language>
             <className>info.dong4j.idea.plugin.action.intention.ImageLabelChangeIntetionAction</className>
+            <category>MIK</category>
+            <descriptionDirectoryName>ImageLabelChangeIntetion</descriptionDirectoryName>
         </intentionAction>
 
     </extensions>

@@ -79,7 +79,6 @@ public class BaiduBosUtils {
         String canonicalRequest = "PUT\n" + canonicalURI + "\n" + canonicalQueryString + "\n" + canonicalHeaders;
         // 5. 计算 signature
         String signature = HmacUtils.hmacSha256Hex(signingKey, canonicalRequest);
-        log.info("signature: {}", signature);
         // 6. 生成 authorization: bce-auth-v1/{accessKeyId}/{timestamp}/{expirationPeriodInSeconds}/{signedHeaders}/{signature}
         String authorization = authStringPrefix + "/" + signedHeaders + "/" + signature;
         // 读取 InputStream 到字节数组以获取准确的 Content-Length
