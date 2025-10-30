@@ -52,7 +52,7 @@ public class SmmsClientTest {
      */
     @Test
     public void test1() throws IOException {
-        log.info("{}", this.start("https://sm.ms/api/v2/upload", "/Users/dong4j/Downloads/05B3AB1C-BBA9-4113-B212-10A914D0CC18.jpg"));
+        log.info("{}", this.start("https://sm.ms/api/v2/upload", "/Users/dong4j/Downloads/mik.webp"));
     }
 
     /**
@@ -78,6 +78,8 @@ public class SmmsClientTest {
             .build();
 
         post.setEntity(reqEntity);
+        // 添加 Authorization header
+        post.setHeader("Authorization", "xxx");
 
         HttpClientBuilder builder = HttpClients.custom();
         // 必须设置 UA, 不然会报 403
@@ -102,12 +104,12 @@ public class SmmsClientTest {
      * 测试场景：模拟上传图片文件
      * 预期结果：日志中应记录上传文件的路径信息
      * <p>
-     * 注意：测试需要本地存在指定路径的图片文件，路径为 /Users/dong4j/Downloads/xu.png
+     * 注意：测试需要本地存在指定路径的图片文件，路径为 /Users/dong4j/Downloads/mik.webp
      */
     @Test
     public void test_2() throws FileNotFoundException {
-        log.info("{}", this.upload(new FileInputStream("/Users/dong4j/Downloads/xu.png"),
-                                   "xu.png"));
+        log.info("{}", this.upload(new FileInputStream("/Users/dong4j/Downloads/mik.webp"),
+                                   "mik.webp"));
     }
 
     /**
@@ -134,6 +136,8 @@ public class SmmsClientTest {
 
             HttpPost post = new HttpPost("https://sm.ms/api/v2/upload");
             post.setEntity(reqEntity);
+            // 添加 Authorization header
+            post.setHeader("Authorization", "xxx");
 
             HttpResponse response = client.execute(post);
 

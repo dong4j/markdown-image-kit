@@ -37,7 +37,7 @@ public class QiniuOssUtilsTest extends TestCase {
     public void test() throws Exception {
         // key 必须使用 / 为前缀
         QiniuOssUtils.putObject("xu.jpg",
-                                new FileInputStream("/Users/dong4j/Downloads/xu.png"),
+                                new FileInputStream("/Users/dong4j/Downloads/mik.webp"),
                                 bucketName,
                                 "upload.qiniup.com",
                                 secretId,

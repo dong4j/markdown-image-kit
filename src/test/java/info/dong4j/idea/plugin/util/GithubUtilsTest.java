@@ -49,8 +49,8 @@ public class GithubUtilsTest {
     private static final String repos = "markdown-image-kit-test";
     /** 所有者标识，固定为 "dong4j" */
     private static final String owner = "dong4j";
-    /** 资源文件路径，指向图片文件 xu.png */
-    private static final String path = "/xu.png";
+    /** 资源文件路径，指向图片文件 mik.webp */
+    private static final String path = "/mik.webp";
 
     /**
      * 测试创建或更新文件内容功能
@@ -58,12 +58,12 @@ public class GithubUtilsTest {
      * 测试场景：向 GitHub 仓库的指定路径上传文件
      * 预期结果：应返回操作是否成功的布尔值
      * <p>
-     * 说明：该测试需要本地存在指定路径的文件（如 /Users/dong4j/Downloads/xu.png），并确保 GitHub API 地址和认证 token 正确配置
+     * 说明：该测试需要本地存在指定路径的文件（如 /Users/dong4j/Downloads/mik.webp），并确保 GitHub API 地址和认证 token 正确配置
      */
     @Test
     public void test() throws Exception {
         String url = GITHUB_API + "/repos/" + owner + "/" + repos + "/contents" + path;
-        File file = new File("/Users/dong4j/Downloads/xu.png");
+        File file = new File("/Users/dong4j/Downloads/mik.webp");
         boolean result = create(url, file, token);
         System.out.println(result);
     }

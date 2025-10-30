@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
  * 用于管理配置信息的持久化操作，支持从指定存储位置加载和保存配置状态。
  * 该组件实现了 {@link PersistentStateComponent} 接口，用于与配置状态进行交互。
  * <p>
- * 支持的存储格式为 XML，存储路径为 "markdown.image.kit.configs.xml"。
+ * 支持的存储格式为 XML，存储路径为: ./build/idea-sandbox/IC-2022.3/config/options/markdown.image.kit.configs.2.0.0.xml
  * 提供获取组件实例的方法，以及加载和获取配置状态的功能。
  *
  * @author dong4j

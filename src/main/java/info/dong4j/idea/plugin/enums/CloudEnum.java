@@ -18,23 +18,23 @@ import org.jetbrains.annotations.Contract;
  */
 public enum CloudEnum {
     /** sm.ms 云服务配置信息 */
-    SM_MS_CLOUD(-1, "sm.ms", "info.dong4j.idea.plugin.client.SmmsClient"),
+    SM_MS_CLOUD(0, "sm.ms", "info.dong4j.idea.plugin.client.SmmsClient"),
     /** 代表阿里云存储服务的枚举项 */
-    ALIYUN_CLOUD(0, MikBundle.message("oss.title.aliyun"), "info.dong4j.idea.plugin.client.AliyunOssClient"),
+    ALIYUN_CLOUD(1, MikBundle.message("oss.title.aliyun"), "info.dong4j.idea.plugin.client.AliyunOssClient"),
     /** 七牛云配置信息 */
-    QINIU_CLOUD(1, MikBundle.message("oss.title.qiniu"), "info.dong4j.idea.plugin.client.QiniuOssClient"),
+    QINIU_CLOUD(2, MikBundle.message("oss.title.qiniu"), "info.dong4j.idea.plugin.client.QiniuOssClient"),
     /** 腾讯云 OSS 客户端配置信息 */
-    TENCENT_CLOUD(2, MikBundle.message("oss.title.tencent"), "info.dong4j.idea.plugin.client.TencentOssClient"),
+    TENCENT_CLOUD(3, MikBundle.message("oss.title.tencent"), "info.dong4j.idea.plugin.client.TencentOssClient"),
     /** 百度云存储客户端类，用于与百度对象存储服务进行交互 */
-    BAIDU_CLOUD(3, MikBundle.message("oss.title.baidu"), "info.dong4j.idea.plugin.client.BaiduBosClient"),
+    BAIDU_CLOUD(4, MikBundle.message("oss.title.baidu"), "info.dong4j.idea.plugin.client.BaiduBosClient"),
     /** GitHub 云服务类型枚举值 */
-    GITHUB(4, "GitHub", "info.dong4j.idea.plugin.client.GithubClient"),
+    GITHUB(5, "GitHub", "info.dong4j.idea.plugin.client.GithubClient"),
     /** Gitee 云服务枚举值 */
-    GITEE(5, "Gitee", "info.dong4j.idea.plugin.client.GiteeClient"),
+    GITEE(6, "Gitee", "info.dong4j.idea.plugin.client.GiteeClient"),
     /** 自定义云存储类型枚举值，表示用户自定义的云存储配置 */
-    CUSTOMIZE(6, MikBundle.message("oss.title.custom"), "info.dong4j.idea.plugin.client.CustomOssClient"),
+    CUSTOMIZE(7, MikBundle.message("oss.title.custom"), "info.dong4j.idea.plugin.client.CustomOssClient"),
     /** PicList 图床服务 */
-    PICLIST(7, "PicList/PicGo", "info.dong4j.idea.plugin.client.PicListClient");
+    PICLIST(8, "PicList/PicGo", "info.dong4j.idea.plugin.client.PicListClient");
     /** 索引位置 */
     public final int index;
     /** 标题信息 */

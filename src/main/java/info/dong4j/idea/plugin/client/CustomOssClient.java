@@ -127,7 +127,7 @@ public class CustomOssClient implements OssClient {
     @Override
     public String upload(InputStream inputStream, String fileName) throws Exception {
         // 确保配置已初始化
-        if (this.api == null) {
+        if (StringUtils.isBlank(this.api)) {
             init();
         }
 
@@ -175,7 +175,7 @@ public class CustomOssClient implements OssClient {
         JsonElement current = json;
 
         for (String part : parts) {
-            if (current == null || !current.isJsonObject()) {
+            if (!current.isJsonObject()) {
                 return "";
             }
 

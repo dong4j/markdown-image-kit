@@ -24,6 +24,7 @@ public class SmmsResult {
     private DataBean data;
     /** 消息内容 */
     private String message;
+    private String images;
 
     /**
      * 数据 bean 类

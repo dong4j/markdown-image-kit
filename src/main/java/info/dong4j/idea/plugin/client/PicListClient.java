@@ -148,7 +148,7 @@ public class PicListClient implements OssClient {
         boolean hasParam = false;
 
         if (StringUtils.isNotEmpty(picbedValue)) {
-            urlBuilder.append(hasParam ? "&" : "?")
+            urlBuilder.append("?")
                 .append("picbed=")
                 .append(URLEncoder.encode(picbedValue, StandardCharsets.UTF_8));
             hasParam = true;

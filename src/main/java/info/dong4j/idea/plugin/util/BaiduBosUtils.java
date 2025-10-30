@@ -181,6 +181,7 @@ public class BaiduBosUtils {
      * @return Content-Type字符串
      * @since 0.0.1
      */
+    @SuppressWarnings("D")
     private static String getContentType(String fileName) {
         if (fileName == null || fileName.isEmpty()) {
             return "application/octet-stream";
@@ -193,6 +194,8 @@ public class BaiduBosUtils {
             return "image/png";
         } else if (lowerName.endsWith(".gif")) {
             return "image/gif";
+        } else if (lowerName.endsWith(".webp")) {  // 添加WebP支持
+            return "image/webp";
         } else if (lowerName.endsWith(".txt") || lowerName.endsWith(".text")) {
             return "text/plain";
         } else if (lowerName.endsWith(".html") || lowerName.endsWith(".htm")) {

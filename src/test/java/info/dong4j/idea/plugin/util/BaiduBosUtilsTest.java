@@ -31,14 +31,14 @@ public class BaiduBosUtilsTest {
      * 测试场景：验证使用以 / 为前缀的 key 进行文件上传的逻辑
      * 预期结果：应成功上传文件并返回正确的结果
      * <p>
-     * 注意：测试需要本地文件系统支持，文件路径为 /Users/dong4j/Downloads/xu.png
+     * 注意：测试需要本地文件系统支持，文件路径为 /Users/dong4j/Downloads/mik.webp
      */
     @Test
     public void test_1() throws Exception {
 
         // key 必须使用 / 为前缀
         String putResult = BaiduBosUtils.putObject("/c/xu.jpg",
-                                                   new FileInputStream("/Users/dong4j/Downloads/xu.png"),
+                                                   new FileInputStream("/Users/dong4j/Downloads/mik.webp"),
                                                    bucketName,
                                                    "bj.bcebos.com",
                                                    secretId,

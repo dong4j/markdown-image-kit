@@ -9,6 +9,7 @@ import info.dong4j.idea.plugin.settings.oss.GiteeOssState;
 import info.dong4j.idea.plugin.settings.oss.GithubOssState;
 import info.dong4j.idea.plugin.settings.oss.PicListOssState;
 import info.dong4j.idea.plugin.settings.oss.QiniuOssState;
+import info.dong4j.idea.plugin.settings.oss.SmmsOssState;
 import info.dong4j.idea.plugin.settings.oss.TencentOssState;
 
 import lombok.Data;
@@ -32,6 +33,8 @@ public class MikState {
     public static final String OLD_HASH_KEY = "old";
     /** 新的哈希键，用于标识特定的哈希配置 */
     public static final String NEW_HASH_KEY = "new";
+    /** smms oss 状态 */
+    private SmmsOssState smmsOssState;
     /** AliyunOssState 对象，用于存储阿里云 OSS 的状态信息 */
     private AliyunOssState aliyunOssState;
     /** Baidu Bos 状态信息，用于记录与 Baidu Bos 服务交互的状态 */
@@ -72,10 +75,10 @@ public class MikState {
     private String imageSavePath = "./imgs";
     /** 是否启用自定义默认图床功能 */
     private boolean defaultCloudCheck = false;
-    /** 默认图床类型，取值为 CloudEnum.SM_MS_CLOUD 的 index */
-    private int cloudType = CloudEnum.PICLIST.index;
+    /** 默认图床类型，取值为 CloudEnum.ALIYUN_CLOUD 的 getIndex(), 注意: 不是枚举的 index */
+    private int cloudType = CloudEnum.SM_MS_CLOUD.getIndex();
     /** 用于保存未勾选自定义默认图床时需要保存的下拉列表选项，仅在 setting 页面使用 */
-    private int tempCloudType = CloudEnum.PICLIST.index;
+    private int tempCloudType = CloudEnum.SM_MS_CLOUD.getIndex();
     /** 重命名文件标志，用于指示是否需要对文件进行重命名操作 */
     private boolean rename = false;
     /** 文件名后缀索引，用于标识当前文件的后缀类型 */
@@ -90,6 +93,7 @@ public class MikState {
      * @since 0.0.1
      */
     public MikState() {
+        this.smmsOssState = new SmmsOssState();
         this.aliyunOssState = new AliyunOssState();
         this.baiduBosState = new BaiduBosState();
         this.qiniuOssState = new QiniuOssState();

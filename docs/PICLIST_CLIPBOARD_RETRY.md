@@ -42,7 +42,7 @@ private String getUrlFromClipboardWithRetry() {
 [DEBUG] 第 1 次尝试，剪贴板中尚未有 URL，等待 500ms 后重试...
 [DEBUG] 第 2 次尝试，剪贴板中尚未有 URL，等待 500ms 后重试...
 [DEBUG] 第 3 次尝试，成功获取 URL: https://example.com/image.jpg
-[INFO] 上传成功: mik.png -> https://example.com/image.jpg
+[INFO] 上传成功: mik.webp -> https://example.com/image.jpg
 ```
 
 ### 错误处理

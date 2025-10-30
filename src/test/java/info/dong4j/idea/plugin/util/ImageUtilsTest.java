@@ -460,7 +460,7 @@ public class ImageUtilsTest {
     @Test
     public void test15() {
         // 注释掉硬编码路径的测试
-        // File in = new File("/Users/dong4j/Downloads/xu.png");
+        // File in = new File("/Users/dong4j/Downloads/mik.webp");
         // BufferedImage image = ImageIO.read(in);
         // ByteArrayOutputStream os = new ByteArrayOutputStream();
         // ImageIO.write(image, "png", os);
@@ -511,7 +511,7 @@ public class ImageUtilsTest {
     @Test
     public void fileCopyTest() {
         // 注释掉硬编码路径的测试
-        // File file1 = new File("/Users/dong4j/Downloads/xu.png");
+        // File file1 = new File("/Users/dong4j/Downloads/mik.webp");
         // File file2 = new File("/Users/dong4j/Downloads/xu1.png");
         // FileUtils.copyFile(file1, file2);
     }

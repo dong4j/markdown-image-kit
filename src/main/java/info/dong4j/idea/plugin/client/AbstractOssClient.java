@@ -164,6 +164,7 @@ public abstract class AbstractOssClient implements OssClient {
 
         this.putObjects(key, instream);
 
+        // 如果没有报错说明上传成功, 开始组装 url
         if (isCustomEndpoint) {
             return "https://" + customEndpoint + key;
         }

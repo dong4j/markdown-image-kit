@@ -48,7 +48,7 @@ public class HttpUploadFile {
      */
     public static void testUploadImage() {
         String url = "https://sm.ms/api/upload";
-        String fileName = "/Users/dong4j/Downloads/mik.png";
+        String fileName = "/Users/dong4j/Downloads/mik.webp";
         Map<String, String> textMap = new HashMap<String, String>();
         //可以设置多个input的name，value
         textMap.put("name", "testname");

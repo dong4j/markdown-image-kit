@@ -21,6 +21,7 @@ import info.dong4j.idea.plugin.settings.oss.GiteeSetting;
 import info.dong4j.idea.plugin.settings.oss.GithubSetting;
 import info.dong4j.idea.plugin.settings.oss.PicListOssSetting;
 import info.dong4j.idea.plugin.settings.oss.QiniuOssSetting;
+import info.dong4j.idea.plugin.settings.oss.SmmsOssSetting;
 import info.dong4j.idea.plugin.settings.oss.TencentOssSetting;
 import info.dong4j.idea.plugin.swing.JTextFieldHintListener;
 import info.dong4j.idea.plugin.util.ClientUtils;
@@ -63,7 +64,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ProjectSettingsPage implements SearchableConfigurable, Configurable.NoMargin {
     /** 测试文件名，用于测试场景中的文件标识 */
-    public static final String TEST_FILE_NAME = "mik.png";
+    public static final String TEST_FILE_NAME = "mik.webp";
     /**
      * 配置信息
      * <p>
@@ -287,8 +288,16 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JCheckBox uploadAndReplaceCheckBox;
     /** 默认云配置复选框 */
     private JCheckBox defaultCloudCheckBox;
+    private JPasswordField smmsTokenTextField;
+    private JTextField smmsUrlTextField;
     // endregion
 
+
+    // region sm.ms
+    /** sm.ms OSS 配置信息，用于存储和管理OSS相关设置参数 */
+    private final SmmsOssSetting smmsOssSetting = new SmmsOssSetting(this.smmsUrlTextField,
+                                                                     this.smmsTokenTextField);
+    //endregion
 
     // region AliyunOssSetting
     /** 阿里云OSS配置信息，用于存储和管理OSS相关设置参数 */
@@ -463,6 +472,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      */
     private void initAuthorizationTabbedPanel(@NotNull MikState state) {
         int defaultCloudIndex = state.getCloudType();
+
         // 打开设置页时默认选中默认上传图床
         this.authorizationTabbedPanel.setSelectedIndex(defaultCloudIndex);
 
@@ -477,6 +487,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
             this.helpButton.setText("Help & " + cloudType.getTitle());
         });
 
+        this.smmsOssSetting.init(this.config.getState().getSmmsOssState());
         this.aliyunOssSetting.init(this.config.getState().getAliyunOssState());
         this.baiduBosSetting.init(this.config.getState().getBaiduBosState());
         this.githubSetting.init(this.config.getState().getGithubOssState());
@@ -626,9 +637,10 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.defaultCloudCheckBox.setSelected(isDefaultCloudCheck);
         // 没有设置默认图床, 则显示提示消息
         if (!isDefaultCloudCheck) {
-            this.customMessage.setText("sm.ms");
+            this.customMessage.setText("");
         } else {
-            this.customMessage.setText(OssState.getStatus(state.getCloudType()) ? "" : MikBundle.message("oss.not.available"));
+            this.customMessage.setText(OssState.getStatus(state.getCloudType()) ? MikBundle.message("oss.available") : MikBundle.message(
+                "oss.not.available"));
         }
         this.defaultCloudComboBox.setEnabled(isDefaultCloudCheck);
         this.defaultCloudComboBox.setSelectedIndex(state.getCloudType());
@@ -678,9 +690,9 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private void showSelectCloudMessage(int cloudType) {
         if (this.defaultCloudCheckBox.isSelected()) {
             boolean isClientEnable = OssState.getStatus(cloudType);
-            this.customMessage.setText(isClientEnable ? "" : MikBundle.message("oss.not.available"));
+            this.customMessage.setText(isClientEnable ? MikBundle.message("oss.available") : MikBundle.message("oss.not.available"));
         } else {
-            this.customMessage.setText("sm.ms");
+            this.customMessage.setText("");
         }
     }
 
@@ -830,6 +842,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         MikState state = this.config.getState();
 
         return !(this.aliyunOssSetting.isModified(state.getAliyunOssState())
+                 && this.smmsOssSetting.isModified(state.getSmmsOssState())
                  && this.baiduBosSetting.isModified(state.getBaiduBosState())
                  && this.githubSetting.isModified(state.getGithubOssState())
                  && this.giteeSetting.isModified(state.getGiteeOssState())
@@ -932,6 +945,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     public void apply() {
         MikState state = this.config.getState();
 
+        this.smmsOssSetting.apply(state.getSmmsOssState());
         this.aliyunOssSetting.apply(state.getAliyunOssState());
         this.baiduBosSetting.apply(state.getBaiduBosState());
         this.githubSetting.apply(state.getGithubOssState());
@@ -1005,6 +1019,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     public void reset() {
         MikState state = this.config.getState();
 
+        this.smmsOssSetting.reset(state.getSmmsOssState());
         this.aliyunOssSetting.reset(state.getAliyunOssState());
         this.baiduBosSetting.reset(state.getBaiduBosState());
         this.githubSetting.reset(state.getGithubOssState());

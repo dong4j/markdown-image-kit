@@ -53,13 +53,13 @@ public class GiteeUtilsTest {
      * 测试场景：向指定仓库的路径上传文件
      * 预期结果：应返回创建操作的成功状态
      * <p>
-     * 该测试需要本地存在指定路径的文件（如 /Users/dong4j/Downloads/xu.png），并确保 token 有效
+     * 该测试需要本地存在指定路径的文件（如 /Users/dong4j/Downloads/mik.webp），并确保 token 有效
      */
     @Test
     public void test() throws Exception {
         // https://gitee.com/api/v5/repos/{owner}/{repo}/contents/{path}
         String url = GITEE_API + "/repos/" + owner + "/" + repos + "/contents" + path;
-        File file = new File("/Users/dong4j/Downloads/xu.png");
+        File file = new File("/Users/dong4j/Downloads/mik.webp");
         boolean result = create(url, file, token);
         System.out.println(result);
     }
