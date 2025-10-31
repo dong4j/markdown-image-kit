@@ -41,6 +41,13 @@
         <!-- 设置面板 -->
         <applicationConfigurable groupId="other" instance="info.dong4j.idea.plugin.settings.ProjectSettingsPage"
                                  displayName="Markdown Image Kit"/>
+
+        <applicationConfigurable
+                parentId="tools"
+                instance="info.dong4j.idea.plugin.settings.ProjectSettingsPagePreview"
+                id="markdown.image.kit.preview"
+                displayName="Markdown Image Kit (Preview)"/>
+
         <!-- 持久化 -->
         <applicationService serviceImplementation="info.dong4j.idea.plugin.settings.MikPersistenComponent"/>
         <!-- alt + enter -->
