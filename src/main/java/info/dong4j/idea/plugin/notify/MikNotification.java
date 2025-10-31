@@ -16,7 +16,7 @@ import info.dong4j.idea.plugin.util.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
@@ -87,7 +87,7 @@ public class MikNotification extends Notification {
         builder.setUserAgent("Mozilla/5.0 (Windows; U; Windows NT 6.1; zh-CN; rv:1.9.2.6)");
         CloseableHttpClient client = builder.build();
 
-        HttpPost httpPost = new HttpPost(String.format(MikContents.HELP_REST_URL, where));
+        HttpGet httpGet = new HttpGet(String.format(MikContents.HELP_REST_URL, where));
 
         RequestConfig requestConfig = RequestConfig.custom()
             .setConnectTimeout(3000)
@@ -95,10 +95,10 @@ public class MikNotification extends Notification {
             .setSocketTimeout(3000)
             .build();
 
-        httpPost.setConfig(requestConfig);
+        httpGet.setConfig(requestConfig);
 
         try {
-            HttpResponse response = client.execute(httpPost);
+            HttpResponse response = client.execute(httpGet);
 
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 byte[] res = EntityUtils.toByteArray(response.getEntity());
