@@ -149,7 +149,6 @@ public final class MarkdownUtils {
      * @param lineText    当前处理的文本行
      * @param line        文本中的行号
      * @return 解析后的Markdown图片对象，若解析失败则返回null
-     * @throws IOException 在读取文件或处理路径时可能抛出的异常
      * @since 0.0.1
      */
     @Nullable
@@ -344,7 +343,7 @@ public final class MarkdownUtils {
         if (StringUtils.isBlank(mark)) {
             return "";
         }
-        log.info("find mark: {}", mark);
+        log.trace("find mark: {}", mark);
         try {
             // 找到最后一个 "](" 的位置
             int start = mark.lastIndexOf(ImageContents.IMAGE_MARK_MIDDLE);
