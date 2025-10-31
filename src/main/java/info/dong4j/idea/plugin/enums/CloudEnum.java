@@ -1,8 +1,11 @@
 package info.dong4j.idea.plugin.enums;
 
 import info.dong4j.idea.plugin.MikBundle;
+import info.dong4j.idea.plugin.util.EnumsUtils;
 
 import org.jetbrains.annotations.Contract;
+
+import java.util.Optional;
 
 /**
  * 云存储服务枚举类
@@ -96,5 +99,19 @@ public enum CloudEnum {
     @Contract(pure = true)
     public String getFeature() {
         return this.feature;
+    }
+
+    /**
+     * 根据给定的云索引获取对应的枚举值
+     * <p>
+     * 该方法通过传入的索引查找对应的 CloudEnum 枚举对象，由于业务逻辑已确保索引有效，因此不会返回 null。
+     *
+     * @param cloudIndex 云索引值
+     * @return 对应的 CloudEnum 枚举对象
+     * @since 0.0.1
+     */
+    public static CloudEnum of(int cloudIndex) {
+        Optional<CloudEnum> cloudType = EnumsUtils.getEnumObject(CloudEnum.class, e -> e.getIndex() == cloudIndex);
+        return cloudType.orElse(null);
     }
 }

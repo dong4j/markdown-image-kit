@@ -60,7 +60,7 @@ public abstract class OssState {
      */
     @Contract(pure = true)
     public static boolean getStatus(int cloudIndex) {
-        if(cloudIndex == CloudEnum.SM_MS_CLOUD.index){
+        if (cloudIndex == CloudEnum.SM_MS_CLOUD.index) {
             return true;
         }
         return getStatus(getCloudType(cloudIndex));
@@ -76,8 +76,7 @@ public abstract class OssState {
      * @since 0.0.1
      */
     public static CloudEnum getCloudType(int cloudIndex) {
-        Optional<CloudEnum> cloudType = EnumsUtils.getEnumObject(CloudEnum.class, e -> e.getIndex() == cloudIndex);
-        return cloudType.orElse(null);
+        return CloudEnum.of(cloudIndex);
     }
 
     /**
@@ -89,7 +88,8 @@ public abstract class OssState {
      * @since 0.0.1
      */
     public static CloudEnum getDefaultCloud() {
-        Optional<CloudEnum> cloudType = EnumsUtils.getEnumObject(CloudEnum.class, e -> e.getIndex() == MikPersistenComponent.getInstance().getState().getCloudType());
+        Optional<CloudEnum> cloudType = EnumsUtils.getEnumObject(CloudEnum.class,
+                                                                 e -> e.getIndex() == MikPersistenComponent.getInstance().getState().getCloudType());
         return cloudType.orElse(null);
     }
 

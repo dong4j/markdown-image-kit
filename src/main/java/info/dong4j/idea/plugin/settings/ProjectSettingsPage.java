@@ -970,6 +970,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.tencentOssSetting.apply(state.getTencentOssState());
         this.customOssSetting.apply(state.getCustomOssState());
         this.picListOssSetting.apply(state.getPicListOssState());
+
+
         this.applyGeneralConfigs(state);
         this.applyClipboardConfigs(state);
     }
@@ -1046,6 +1048,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.qiniuOssSetting.reset(state.getQiniuOssState());
         this.customOssSetting.reset(state.getCustomOssState());
         this.picListOssSetting.reset(state.getPicListOssState());
+
+
         this.resetGeneralCOnfigs(state);
         this.resetClipboardConfigs(state);
     }
