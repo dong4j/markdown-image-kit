@@ -243,7 +243,7 @@ public final class MarkdownUtils {
 
         // ![]() path 不能为空
         String path = getImagePath(mark);
-        if(StringUtils.isBlank(path)){
+        if (StringUtils.isBlank(path)) {
             return true;
         }
 
@@ -254,7 +254,7 @@ public final class MarkdownUtils {
         }
 
         // 如果是 url, 则不在本地查询文件
-        if(path.startsWith(ImageContents.IMAGE_LOCATION)){
+        if (path.startsWith(ImageContents.IMAGE_LOCATION)) {
             return false;
         }
 
@@ -272,6 +272,37 @@ public final class MarkdownUtils {
      * 从 markdown 标签中提取图片名称
      * <p>
      * 根据传入的 markdown 图片标签，解析并获取图片名称。支持两种图片路径格式：以 {@link ImageContents#IMAGE_LOCATION} 开头的路径和系统文件路径。
+     * <p>
+     * 示例输入和预期输出：
+     * 示例 1：网络图片
+     * 输入: ![示例图片](https://example.com/images/logo.png)
+     * 输出: logo.png
+     * 说明: 识别为网络图片，从 URL 中提取最后的文件名
+     * <p>
+     * 示例 2：本地图片（正斜杠）
+     * 输入: ![本地图片](./images/photo.jpg)
+     * 输出: photo.jpg
+     * 说明: 识别为本地图片，从路径中提取文件名
+     * <p>
+     * 示例 3：本地图片（反斜杠）
+     * 输入: ![本地图片](.\images\photo.jpg)
+     * 输出: photo.jpg
+     * 说明: Windows 路径格式，使用反斜杠分隔符
+     * <p>
+     * 示例 4：带括号的图片标题
+     * 输入: ![图片 (带括号)](./images/special1.png)
+     * 输出: special1.png
+     * 说明: 标题中包含括号，但不影响路径提取
+     * <p>
+     * 示例 5：空路径
+     * 输入: ![图片]()
+     * 输出: "" (空字符串)
+     * 说明: 路径为空，直接返回空字符串
+     * <p>
+     * 示例 6：无效格式
+     * 输入: 这是普通文本，不是图片标记
+     * 输出: "" (空字符串)
+     * 说明: 无法提取路径，返回空字符串
      *
      * @param mark markdown 图片标签，必须是有效的 markdown 图片语法格式
      * @return 提取的图片名称，若解析失败或路径为空则返回空字符串
@@ -281,18 +312,18 @@ public final class MarkdownUtils {
     @Contract(pure = true)
     public static String getImageName(String mark) {
         String path = getImagePath(mark);
-        if(StringUtils.isBlank(path)){
+        if (StringUtils.isBlank(path)) {
             return "";
         }
         String imageName = "";
         // 设置图片位置类型
-        try{
+        try {
             if (path.startsWith(ImageContents.IMAGE_LOCATION)) {
                 imageName = path.substring(path.lastIndexOf("/") + 1);
             } else {
                 imageName = path.substring(path.lastIndexOf(File.separator) + 1);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             log.trace("get iamge name from path error. path = {}", path);
         }
         return imageName;
@@ -302,20 +333,35 @@ public final class MarkdownUtils {
      * 根据标记字符串获取图片路径
      * <p>
      * 从传入的标记字符串中提取图片路径部分，若标记字符串为空或不合规，则返回空字符串
+     * 支持处理路径中包含括号的情况，如：![图片 (带括号)](./images/special1.png)
      *
      * @param mark 标记字符串，用于提取图片路径
      * @return 提取后的图片路径字符串
      * @since 0.0.1
      */
     @NotNull
-    private static String getImagePath(String mark){
+    private static String getImagePath(String mark) {
         if (StringUtils.isBlank(mark)) {
             return "";
         }
-
-        return mark.substring(mark.indexOf(ImageContents.IMAGE_MARK_MIDDLE) + ImageContents.IMAGE_MARK_MIDDLE.length(),
-                              mark.indexOf(ImageContents.IMAGE_MARK_SUFFIX)).trim();
+        log.info("find mark: {}", mark);
+        try {
+            // 找到最后一个 "](" 的位置
+            int start = mark.lastIndexOf(ImageContents.IMAGE_MARK_MIDDLE);
+            if (start == -1) {
+                return "";
+            }
+            // 从 "](" 后面开始找第一个 ")" 的位置
+            int end = mark.indexOf(ImageContents.IMAGE_MARK_SUFFIX, start + ImageContents.IMAGE_MARK_MIDDLE.length());
+            if (end == -1) {
+                return "";
+            }
+            return mark.substring(start + ImageContents.IMAGE_MARK_MIDDLE.length(), end).trim();
+        } catch (Exception e) {
+            return "";
+        }
     }
+
 
     /**
      * 解析文本并返回图像标记的起始和结束偏移量
@@ -329,7 +375,7 @@ public final class MarkdownUtils {
      */
     @Nullable
     private static int[] resolveText(String lineText) {
-        if(StringUtils.isBlank(lineText)){
+        if (StringUtils.isBlank(lineText)) {
             return null;
         }
         int[] offset = new int[2];
@@ -381,7 +427,8 @@ public final class MarkdownUtils {
         VfsUtilCore.iterateChildrenRecursively(virtualFile,
                                                file -> {
                                                    // todo-dong4j : (2019年03月15日 13:02) [从 .gitignore 中获取忽略的文件]
-                                                   boolean allowAccept = file.isDirectory() && !file.getName().equals(MikContents.NODE_MODULES_FILE);
+                                                   boolean allowAccept =
+                                                       file.isDirectory() && !file.getName().equals(MikContents.NODE_MODULES_FILE);
                                                    if (allowAccept || file.getName().endsWith(MarkdownContents.MARKDOWN_FILE_SUFIX)) {
                                                        log.trace("accept = {}", file.getPath());
                                                        return true;
@@ -446,7 +493,8 @@ public final class MarkdownUtils {
                         for (VirtualFile virtualFile : markdownFiles) {
                             ApplicationManager.getApplication().runReadAction(() -> {
                                 Document documentFromVirtualFile = FileDocumentManager.getInstance().getDocument(virtualFile);
-                                waitingProcessMap.put(documentFromVirtualFile, MarkdownUtils.getImageInfoFromFiles(project, documentFromVirtualFile, virtualFile));
+                                waitingProcessMap.put(documentFromVirtualFile, MarkdownUtils.getImageInfoFromFiles(project,
+                                                                                                                   documentFromVirtualFile, virtualFile));
                             });
                         }
                     }
