@@ -83,6 +83,8 @@ public class MikState {
     private boolean rename = false;
     /** 文件名后缀索引，用于标识当前文件的后缀类型 */
     private int suffixIndex = SuffixEnum.FILE_NAME.index;
+    /** 是否将图片转换为 webp 格式 */
+    private boolean convertToWebp = false;
 
     /**
      * 初始化MikState对象，用于管理各种对象存储服务的状态

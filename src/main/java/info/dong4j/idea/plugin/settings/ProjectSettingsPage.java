@@ -265,6 +265,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
     private JSlider compressSlider;
     /** 压缩标签 */
     private JLabel compressLabel;
+    /** 转换为 WebP 复选框 */
+    private JCheckBox convertToWebpCheckBox;
     /** 重命名复选框 */
     private JCheckBox renameCheckBox;
     /** 文件名后缀选择框字段 */
@@ -786,6 +788,10 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.compressSlider.setEnabled(compressStatus);
         this.compressSlider.setValue(this.config.getState().getCompressBeforeUploadOfPercent());
 
+        // 初始化转换为 WebP
+        this.convertToWebpCheckBox.setSelected(this.config.getState().isConvertToWebp());
+        this.convertToWebpCheckBox.setEnabled(compressStatus);
+
         // 设置主刻度间隔
         this.compressSlider.setMajorTickSpacing(10);
         // 设置次刻度间隔
@@ -801,6 +807,12 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.compressCheckBox.addChangeListener(e -> {
             JCheckBox checkBox = (JCheckBox) e.getSource();
             this.compressSlider.setEnabled(checkBox.isSelected());
+            if (this.convertToWebpCheckBox != null) {
+                this.convertToWebpCheckBox.setEnabled(checkBox.isSelected());
+                if (!checkBox.isSelected()) {
+                    this.convertToWebpCheckBox.setSelected(false);
+                }
+            }
         });
     }
 
@@ -894,6 +906,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         boolean compress = this.compressCheckBox.isSelected();
         // 压缩比例
         int compressBeforeUploadOfPercent = this.compressSlider.getValue();
+        // 是否转换为 webp
+        boolean convertToWebp = this.convertToWebpCheckBox.isSelected();
 
         boolean isRename = this.renameCheckBox.isSelected();
         // 图片后缀
@@ -913,6 +927,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                && watermarkText.equals(state.getWatermarkText())
                && isRename == state.isRename()
                && index == state.getSuffixIndex()
+               && convertToWebp == state.isConvertToWebp()
                && isDefaultCloudCheck == state.isDefaultCloudCheck()
                && this.defaultCloudComboBox.getSelectedIndex() == state.getCloudType();
 
@@ -988,6 +1003,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         }
         state.setCompress(this.compressCheckBox.isSelected());
         state.setCompressBeforeUploadOfPercent(this.compressSlider.getValue());
+        // 仅在压缩启用时允许 webp 转换生效
+        state.setConvertToWebp(this.compressCheckBox.isSelected() && this.convertToWebpCheckBox != null && this.convertToWebpCheckBox.isSelected());
         state.setRename(this.renameCheckBox.isSelected());
         state.setSuffixIndex(this.fileNameSuffixBoxField.getSelectedIndex());
         state.setDefaultCloudCheck(this.defaultCloudCheckBox.isSelected());
@@ -1049,6 +1066,8 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.compressCheckBox.setSelected(state.isCompress());
         this.compressSlider.setValue(state.getCompressBeforeUploadOfPercent());
         this.compressLabel.setText(String.valueOf(this.compressSlider.getValue()));
+        this.convertToWebpCheckBox.setSelected(state.isConvertToWebp());
+        this.convertToWebpCheckBox.setEnabled(state.isCompress());
         this.renameCheckBox.setSelected(state.isRename());
         this.fileNameSuffixBoxField.setSelectedIndex(state.getSuffixIndex());
         this.defaultCloudCheckBox.setSelected(state.isDefaultCloudCheck());

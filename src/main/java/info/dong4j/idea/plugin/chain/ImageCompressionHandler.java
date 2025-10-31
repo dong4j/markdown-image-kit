@@ -70,6 +70,7 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
      * @param imageIterator 图片迭代器，用于遍历和移除图片
      * @param markdownImage Markdown图片对象，包含图片名称和输入流
      */
+    @SuppressWarnings("D")
     @Override
     public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
         String imageName = markdownImage.getImageName();
@@ -84,13 +85,101 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
         }
 
         InputStream inputStream = markdownImage.getInputStream();
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            ImageUtils.compress(inputStream, outputStream, IntentionActionBase.getState().getCompressBeforeUploadOfPercent());
-            markdownImage.setInputStream(new ByteArrayInputStream(outputStream.toByteArray()));
+        int compressPercent = IntentionActionBase.getState().getCompressBeforeUploadOfPercent();
+
+        try {
+            // 先将输入流读取到字节数组，确保可以重新读取
+            ByteArrayOutputStream tempOut = new ByteArrayOutputStream();
+            inputStream.transferTo(tempOut);
+            byte[] originalBytes = tempOut.toByteArray();
+            tempOut.close(); // 关闭临时输出流
+
+            // 如果开启了"转换成 webp"，直接从原始字节数组转换成 webp，使用配置的压缩质量
+            if (IntentionActionBase.getState().isConvertToWebp()) {
+                String ext = markdownImage.getExtension();
+                boolean alreadyWebp = "webp".equalsIgnoreCase(ext);
+                if (!alreadyWebp) {
+                    // 直接从原始字节数组转换成 webp，使用配置的质量参数
+                    try (ByteArrayOutputStream webpOut = new ByteArrayOutputStream()) {
+                        try (ByteArrayInputStream originalIn = new ByteArrayInputStream(originalBytes)) {
+                            ImageUtils.toWebp(originalIn, webpOut, compressPercent);
+                        }
+                        byte[] webpBytes = webpOut.toByteArray();
+                        if (webpBytes.length > 0) {
+                            // 替换流为 webp 数据
+                            markdownImage.setInputStream(new ByteArrayInputStream(webpBytes));
+                            // 更新文件名与扩展名为 .webp（保持同名）
+                            String baseName = imageName;
+                            int dot = baseName.lastIndexOf('.');
+                            if (dot > 0) {
+                                baseName = baseName.substring(0, dot);
+                            }
+                            String newName = baseName + ".webp";
+                            markdownImage.setImageName(newName);
+                            markdownImage.setFileName(newName);
+                            markdownImage.setExtension("webp");
+
+                            // 更新文件路径，将后缀改为 .webp
+                            String originalPath = markdownImage.getPath();
+                            if (originalPath != null && !originalPath.isEmpty()) {
+                                // 如果路径中包含文件扩展名，则替换为 .webp
+                                int pathDot = originalPath.lastIndexOf('.');
+                                int pathSeparator = Math.max(originalPath.lastIndexOf('/'), originalPath.lastIndexOf('\\'));
+                                // 确保点号在最后一个分隔符之后（即文件扩展名位置）
+                                if (pathDot > pathSeparator) {
+                                    String newPath = originalPath.substring(0, pathDot) + ".webp";
+                                    markdownImage.setPath(newPath);
+                                } else {
+                                    // 如果没有扩展名，直接追加 .webp
+                                    markdownImage.setPath(originalPath + ".webp");
+                                }
+                            }
+                        } else {
+                            // 转换失败，回退到普通压缩
+                            webpOut.close(); // 关闭之前打开的流
+                            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                            try (ByteArrayInputStream fallbackIn = new ByteArrayInputStream(originalBytes)) {
+                                ImageUtils.compress(fallbackIn, outputStream, compressPercent);
+                            }
+                            markdownImage.setInputStream(new ByteArrayInputStream(outputStream.toByteArray()));
+                            outputStream.close();
+                        }
+                    }
+                    // 确保webpOut被关闭
+                } else {
+                    // 已经是 webp，直接压缩
+                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                    try (ByteArrayInputStream originalIn = new ByteArrayInputStream(originalBytes)) {
+                        ImageUtils.compress(originalIn, outputStream, compressPercent);
+                    }
+                    markdownImage.setInputStream(new ByteArrayInputStream(outputStream.toByteArray()));
+                    outputStream.close();
+                }
+            } else {
+                // 未开启 webp 转换，仅压缩
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                try (ByteArrayInputStream originalIn = new ByteArrayInputStream(originalBytes)) {
+                    ImageUtils.compress(originalIn, outputStream, compressPercent);
+                }
+                markdownImage.setInputStream(new ByteArrayInputStream(outputStream.toByteArray()));
+                outputStream.close();
+            }
+
+            // 关闭原始输入流
+            try {
+                inputStream.close();
+            } catch (Exception ignored) {
+            }
         } catch (Exception e) {
             log.trace("", e);
+            // 发生异常时也要确保关闭流
+            try {
+                inputStream.close();
+            } catch (Exception ignored) {
+            }
         }
     }
+
 
     /**
      * 构建压缩信息，计算并存储压缩前后的大小及压缩率

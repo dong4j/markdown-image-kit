@@ -1,5 +1,7 @@
 package info.dong4j.idea.plugin.enums;
 
+import info.dong4j.idea.plugin.util.StringUtils;
+
 import org.jetbrains.annotations.NonNls;
 
 /**
@@ -39,6 +41,20 @@ public enum ImageMediaType {
     NAPLPS("image/naplps"),
     /** PNG 图像媒体类型 */
     PNG("image/png"),
+    /** BMP 图像媒体类型 */
+    BMP("image/bmp"),
+    /** SVG 图像媒体类型 */
+    SVG_XML("image/svg+xml"),
+    /** WEBP 图像媒体类型 */
+    WEBP("image/webp"),
+    /** AVIF 图像媒体类型 */
+    AVIF("image/avif"),
+    /** HEIC 图像媒体类型 */
+    HEIC("image/heic"),
+    /** HEIF 图像媒体类型 */
+    HEIF("image/heif"),
+    /** x-icon 图标媒体类型 */
+    X_ICON("image/x-icon"),
     /** PRS_BTIF 媒体类型，表示图像的 PRS.btif 格式 */
     PRS_BTIF("image/prs.btif"),
     /** PRS-PTI 图像媒体类型 */
@@ -118,5 +134,62 @@ public enum ImageMediaType {
     @Override
     public String toString() {
         return this.contentType;
+    }
+
+    /**
+     * 根据文件后缀名获取 Content-Type
+     * <p>
+     * 支持传入包含或不包含点号的后缀（例如 ".png" 或 "png"）。
+     *
+     * @param extension 文件后缀
+     * @return 对应的 Content-Type，无法识别时返回空字符串
+     */
+    public static String fromExtension(String extension, String defaultContentType) {
+        if (extension == null || extension.isEmpty()) {
+            return "";
+        }
+        String ext = extension.startsWith(".") ? extension.toLowerCase() : "." + extension.toLowerCase();
+        return switch (ext) {
+            // 常见 Web 类型
+            case ".gif" -> GIF.toString();
+            case ".png" -> PNG.toString();
+            case ".jpg", ".jpeg", ".jfif", ".pjpeg" -> JPEG.toString();
+            case ".webp" -> WEBP.toString();
+            case ".bmp" -> BMP.toString();
+            case ".svg" -> SVG_XML.toString();
+            case ".tif", ".tiff" -> TIFF.toString();
+            case ".ico" -> X_ICON.toString();
+            case ".wbmp" -> VND_WAP_WBMP.toString();
+            case ".avif" -> AVIF.toString();
+            case ".heic" -> HEIC.toString();
+            case ".heif" -> HEIF.toString();
+            // JPEG 2000 系列
+            case ".jp2" -> JP2.toString();
+            case ".jpx" -> JPX.toString();
+            case ".jpm" -> JPM.toString();
+            default -> StringUtils.isBlank(defaultContentType) ? "" : defaultContentType;
+        };
+    }
+
+    public static String fromFileName(String fileName) {
+        return fromExtension(fileName, "");
+    }
+
+    /**
+     * 根据文件名获取 Content-Type
+     *
+     * @param fileName 文件名
+     * @return 对应的 Content-Type，无法识别时返回空字符串
+     */
+    public static String fromFileName(String fileName, String defaultContentType) {
+        if (fileName == null || fileName.isEmpty()) {
+            return "";
+        }
+        int dot = fileName.lastIndexOf('.');
+        if (dot < 0 || dot == fileName.length() - 1) {
+            return "";
+        }
+        String ext = fileName.substring(dot).toLowerCase();
+        return fromExtension(ext, defaultContentType);
     }
 }

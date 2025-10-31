@@ -476,6 +476,48 @@ public final class ImageUtils {
     }
 
     /**
+     * 将输入流中的图片转换为 WebP 格式并输出到指定输出流
+     * <p>
+     * 依赖 ImageIO 对 WebP 的支持（例如通过相应的插件），否则可能失败。
+     *
+     * @param in  原始图片输入流
+     * @param out WebP 图片输出流
+     */
+    public static void toWebp(InputStream in, OutputStream out) {
+        try {
+            Thumbnails.of(in)
+                .scale(1f)
+                .outputFormat("webp")
+                .toOutputStream(out);
+        } catch (IOException e) {
+            log.trace("", e);
+        }
+    }
+
+    /**
+     * 将输入流中的图片转换为 WebP 格式并输出到指定输出流，支持指定质量参数
+     * <p>
+     * 依赖 ImageIO 对 WebP 的支持（例如通过相应的插件），否则可能失败。
+     * 使用配置的质量参数，充分利用 WebP 兼备质量与压缩比的特性。
+     *
+     * @param in      原始图片输入流
+     * @param out     WebP 图片输出流
+     * @param percent 压缩质量，取值范围为 0-100，表示压缩质量百分比
+     */
+    public static void toWebp(InputStream in, OutputStream out, int percent) {
+        try {
+            Thumbnails.of(in)
+                // 保持原始图片尺寸
+                .scale(1f)
+                .outputFormat("webp")
+                .outputQuality(percent * 1.0 / 100)
+                .toOutputStream(out);
+        } catch (Exception e) {
+            log.trace("", e);
+        }
+    }
+
+    /**
      * 判断OSS服务文件上传时文件的contentType
      * <p>
      * 根据文件名后缀判断对应的图片类型，并返回对应的MIME类型字符串
@@ -484,13 +526,7 @@ public final class ImageUtils {
      * @return 返回对应的图片MIME类型字符串，若无法识别则返回空字符串
      */
     public static String getImageType(String fileName) {
-        String extension = getFileExtension(fileName);
-        return switch (extension.toLowerCase()) {
-            case ".gif" -> ImageMediaType.GIF.toString();
-            case ".png" -> ImageMediaType.PNG.toString();
-            case ".jpg", ".jpeg" -> ImageMediaType.JPEG.toString();
-            default -> "";
-        };
+        return ImageMediaType.fromFileName(fileName);
     }
 
     /**

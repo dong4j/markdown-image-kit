@@ -1,5 +1,6 @@
 package info.dong4j.idea.plugin.util;
 
+import info.dong4j.idea.plugin.enums.ImageMediaType;
 import info.dong4j.idea.plugin.util.digest.HmacUtils;
 
 import java.io.BufferedReader;
@@ -180,34 +181,11 @@ public class BaiduBosUtils {
      * @return Content-Type字符串
      * @since 0.0.1
      */
-    @SuppressWarnings("D")
     private static String getContentType(String fileName) {
         if (fileName == null || fileName.isEmpty()) {
             return "application/octet-stream";
         }
-
-        String lowerName = fileName.toLowerCase();
-        if (lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg")) {
-            return "image/jpeg";
-        } else if (lowerName.endsWith(".png")) {
-            return "image/png";
-        } else if (lowerName.endsWith(".gif")) {
-            return "image/gif";
-        } else if (lowerName.endsWith(".webp")) {  // 添加WebP支持
-            return "image/webp";
-        } else if (lowerName.endsWith(".txt") || lowerName.endsWith(".text")) {
-            return "text/plain";
-        } else if (lowerName.endsWith(".html") || lowerName.endsWith(".htm")) {
-            return "text/html";
-        } else if (lowerName.endsWith(".json")) {
-            return "application/json";
-        } else if (lowerName.endsWith(".xml")) {
-            return "application/xml";
-        } else if (lowerName.endsWith(".pdf")) {
-            return "application/pdf";
-        } else {
-            return "application/octet-stream";
-        }
+        return ImageMediaType.fromFileName(fileName, "application/octet-stream");
     }
 
     /**

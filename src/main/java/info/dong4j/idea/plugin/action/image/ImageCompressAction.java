@@ -19,6 +19,7 @@ import info.dong4j.idea.plugin.task.ActionTask;
 
 import org.jetbrains.annotations.Contract;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -111,8 +112,30 @@ public final class ImageCompressAction extends ImageActionBase {
                 @Override
                 public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
                     InputStream inputStream = markdownImage.getInputStream();
+                    String newPath = markdownImage.getPath();
+                    String originalPath = null;
+
+                    // 保存原始文件路径（如果存在）
+                    if (markdownImage.getVirtualFile() != null) {
+                        originalPath = markdownImage.getVirtualFile().getPath();
+                    }
+                    
                     try {
-                        FileUtil.copy(inputStream, new FileOutputStream(markdownImage.getPath()));
+                        // 写入新文件（如果路径已更新为 webp，会写入到新位置）
+                        FileUtil.copy(inputStream, new FileOutputStream(newPath));
+
+                        // 如果原始文件存在且路径与新路径不同（说明已转换为 webp），则删除原始文件
+                        if (originalPath != null && !originalPath.equals(newPath)) {
+                            File originalFile = new File(originalPath);
+                            if (originalFile.exists() && originalFile.isFile()) {
+                                boolean deleted = originalFile.delete();
+                                if (deleted) {
+                                    log.debug("已删除原始文件: {}", originalPath);
+                                } else {
+                                    log.warn("删除原始文件失败: {}", originalPath);
+                                }
+                            }
+                        }
                     } catch (IOException e) {
                         log.trace("", e);
                     }

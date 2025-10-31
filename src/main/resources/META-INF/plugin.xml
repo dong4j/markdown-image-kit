@@ -95,7 +95,7 @@
         </action>
 
         <action id="ImageCompressAction" class="info.dong4j.idea.plugin.action.image.ImageCompressAction"
-                popup="true" text="图片压缩">
+                popup="true" text="图片压缩" description="按照设置压缩图片, 如果启用 webp 将转换成 WebP 格式">
         </action>
         <!-- 仅上传图片, 上传成功后会将 markdown 图片标签回写到剪切板 -->
         <action id="ImageUploadAction" class="info.dong4j.idea.plugin.action.image.ImageUploadAction"

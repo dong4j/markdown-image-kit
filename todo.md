@@ -9,3 +9,8 @@
 - [x] 提高版本兼容性与稳定性
 - [x] 重构异步任务
 - [ ] 解决 Github 上的问题
+    - https://github.com/dong4j/markdown-image-kit/issues/25
+    - https://github.com/dong4j/markdown-image-kit/issues/19
+    - https://github.com/dong4j/markdown-image-kit/issues/18
+- [ ] 新特性
+    - 图床迁移添加一个 迁移到本地的功能, 意思是将图床的图片下载到本地并替换为本地图片标签 
