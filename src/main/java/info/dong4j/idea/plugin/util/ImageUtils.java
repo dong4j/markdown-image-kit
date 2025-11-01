@@ -90,7 +90,8 @@ public final class ImageUtils {
     /**
      * 从剪切板中获取数据
      * <p>
-     * 读取系统剪切板内容，并根据支持的数据类型（如文件列表、图片等）提取对应的数据，返回一个包含单一键值对的 Map。
+     * 读取系统剪切板内容，并根据支持的数据类型（如文件列表、图片、字符串等）提取对应的数据，返回一个包含单一键值对的 Map。
+     * 优先级：文件列表 > 图片 > 字符串
      *
      * @return 从剪切板获取到的数据，Map 中只包含一对 key-value，若剪切板内容不支持或获取失败则返回 null
      * @since 0.0.1
@@ -100,22 +101,25 @@ public final class ImageUtils {
         Map<DataFlavor, Object> data = new HashMap<>(1);
         Transferable transferable = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
         if (transferable != null) {
-            // 如果剪切板的内容是文件
+            // 按优先级检查剪切板内容类型
             try {
                 DataFlavor dataFlavor;
                 if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-                    // List<File>
+                    // List<File> - 优先级最高
                     dataFlavor = DataFlavor.javaFileListFlavor;
                 } else if (transferable.isDataFlavorSupported(DataFlavor.imageFlavor)) {
-                    // Image
+                    // Image - 优先级第二
                     dataFlavor = DataFlavor.imageFlavor;
+                } else if (transferable.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+                    // String - 优先级第三（支持网络图片 URL）
+                    dataFlavor = DataFlavor.stringFlavor;
                 } else {
                     return null;
                 }
                 Object object = transferable.getTransferData(dataFlavor);
                 data.put(dataFlavor, object);
             } catch (IOException | UnsupportedFlavorException ignored) {
-                // 如果 clipboard 没有文件, 不处理
+                // 如果 clipboard 获取失败, 不处理
             }
         }
         return data;

@@ -22,6 +22,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Iterator;
+import java.util.UUID;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -123,11 +124,13 @@ public class DownloadImageHandler extends ActionHandlerAdapter {
                 log.trace("无法推断图片类型，使用默认扩展名: {}", extension);
             }
 
-            // 更新图片名称和扩展名
-            String originalImageName = markdownImage.getImageName();
-            String newImageName = updateImageNameWithExtension(originalImageName, extension);
+            // 使用 UUID 生成文件名（小写无横线）
+            String uuid = UUID.randomUUID().toString().replace("-", "").toLowerCase();
+            String extWithoutDot = extension.startsWith(".") ? extension.substring(1) : extension;
+            String newImageName = uuid + "." + extWithoutDot;
+            
             markdownImage.setImageName(newImageName);
-            markdownImage.setExtension(extension.startsWith(".") ? extension.substring(1) : extension);
+            markdownImage.setExtension(extWithoutDot);
 
             // 设置输入流
             markdownImage.setInputStream(new ByteArrayInputStream(imageBytes));
@@ -229,34 +232,5 @@ public class DownloadImageHandler extends ActionHandlerAdapter {
         return null;
     }
 
-    /**
-     * 更新图片名称，添加或替换扩展名
-     * <p>
-     * 如果原图片名称已有扩展名，则替换为新的扩展名；如果没有扩展名，则添加新的扩展名。
-     * 对于包含查询参数的 URL（如 `image.png?param=value`），会先移除查询参数，再处理扩展名。
-     *
-     * @param originalImageName 原始图片名称
-     * @param extension         新的扩展名（带点号，如 ".jpg"）
-     * @return 更新后的图片名称
-     * @since 1.0.0
-     */
-    @NotNull
-    private String updateImageNameWithExtension(@NotNull String originalImageName, @NotNull String extension) {
-        // 移除查询参数（如 ?x-oss-process=...）
-        String nameWithoutQuery = originalImageName.split("\\?")[0];
-
-        // 检查是否已有扩展名
-        int lastDot = nameWithoutQuery.lastIndexOf('.');
-        int lastSlash = Math.max(nameWithoutQuery.lastIndexOf('/'), nameWithoutQuery.lastIndexOf('\\'));
-
-        // 如果点号在最后一个斜杠之后，说明已有扩展名
-        if (lastDot > lastSlash) {
-            // 替换扩展名
-            return nameWithoutQuery.substring(0, lastDot) + extension;
-        } else {
-            // 添加扩展名
-            return nameWithoutQuery + extension;
-        }
-    }
 }
 

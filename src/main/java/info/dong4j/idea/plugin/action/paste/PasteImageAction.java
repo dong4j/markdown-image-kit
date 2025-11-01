@@ -50,11 +50,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Image;
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -132,35 +129,27 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
             currentCaret = editor.getCaretModel().getCurrentCaret();
         }
 
-        try {
-
-            if (virtualFile != null
-                && MarkdownUtils.isMardownFile(virtualFile)
-                && insertImageAction != null
-                && insertImageAction != InsertImageActionEnum.NONE) {
-
-                // 检测是否是网络图片且光标在图片路径中
-                if (state.isApplyToNetworkImages() && this.isCaretInImagePath(editor, currentCaret)) {
-                    String imageUrl = this.getNetworkImageUrlFromClipboard();
-                    if (imageUrl != null && !imageUrl.isEmpty()) {
-                        this.handleNetworkImageDownload(editor, currentCaret, state, imageUrl);
-                        return;
-                    }
-                }
-
+        if (virtualFile != null
+            && MarkdownUtils.isMardownFile(virtualFile)
+            && insertImageAction != null
+            && insertImageAction != InsertImageActionEnum.NONE) {
+            try {
                 Map<DataFlavor, Object> clipboardData = ImageUtils.getDataFromClipboard();
                 if (clipboardData != null) {
                     Iterator<Map.Entry<DataFlavor, Object>> iterator = clipboardData.entrySet().iterator();
                     Map.Entry<DataFlavor, Object> entry = iterator.next();
 
-                    Map<Document, List<MarkdownImage>> waitingProcessMap = this.buildWaitingProcessMap(entry, editor, state);
+                    Map<Document, List<MarkdownImage>> waitingProcessMap = this.buildWaitingProcessMap(entry, editor, virtualFile, state);
 
                     if (waitingProcessMap.isEmpty()) {
                         this.defaultAction(editor, caret, dataContext);
                         return;
                     }
 
-                    final ActionManager manager = createManager(editor, state, waitingProcessMap);
+                    // 检查是否包含网络图片
+                    boolean hasNetworkImage = this.hasNetworkImage(waitingProcessMap);
+
+                    final ActionManager manager = createManager(editor, state, waitingProcessMap, hasNetworkImage);
 
                     addImageStorageHandler(editor, insertImageAction, state, virtualFile, manager);
 
@@ -169,17 +158,17 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
                     new ActionTask(editor.getProject(), MikBundle.message("mik.action.paste.task"), manager).queue();
                     return;
                 }
+            } catch (Exception ignored) {
             }
-        } catch (Exception e) {
-            // 兜底, 回退到默认逻辑
-            this.defaultAction(editor, caret, dataContext);
         }
+        // 兜底, 回退到默认逻辑
         this.defaultAction(editor, caret, dataContext);
     }
 
     private static ActionManager createManager(@NotNull Editor editor,
                                                MikState state,
-                                               Map<Document, List<MarkdownImage>> waitingProcessMap) {
+                                               Map<Document, List<MarkdownImage>> waitingProcessMap,
+                                               boolean hasNetworkImage) {
         // 使用默认 client
         CloudEnum cloudEnum = OssState.getCloudType(state.getDefaultCloudType());
         OssClient client = ClientUtils.getClient(cloudEnum);
@@ -191,7 +180,14 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
             .setClientName(cloudEnum.title)
             .setWaitingProcessMap(waitingProcessMap);
 
-        return new ActionManager(data)
+        ActionManager manager = new ActionManager(data);
+
+        // 如果包含网络图片，先添加下载处理器
+        if (hasNetworkImage) {
+            manager.addHandler(new DownloadImageHandler());
+        }
+
+        return manager
             // 图片压缩
             .addHandler(new ImageCompressionHandler())
             // 图片重命名
@@ -275,20 +271,33 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
      * <p>
      * 根据传入的条目、编辑器状态和状态信息，解析剪贴板数据并构建包含Markdown图片信息的映射关系。
      *
-     * @param entry  条目信息，用于解析剪贴板数据
-     * @param editor 编辑器对象，用于获取文档信息
-     * @param state  状态信息，用于控制解析过程
+     * @param entry       条目信息，用于解析剪贴板数据
+     * @param editor      编辑器对象，用于获取文档信息
+     * @param virtualFile 当前编辑的虚拟文件
+     * @param state       状态信息，用于控制解析过程
      * @return 包含文档与Markdown图片列表的映射关系
      * @since 0.0.1
      */
     @Contract(pure = true)
     private Map<Document, List<MarkdownImage>> buildWaitingProcessMap(@NotNull Map.Entry<DataFlavor, Object> entry,
                                                                       Editor editor,
+                                                                      @Nullable VirtualFile virtualFile,
                                                                       MikState state) {
+        // 如果 caret 为 null，尝试获取当前的 caret
+        Caret caret = null;
+        try {
+            caret = editor.getCaretModel().getCurrentCaret();
+        } catch (Exception e) {
+            log.trace("无法获取当前 caret", e);
+        }
+
+        // 获取当前文档名
+        String fileName = virtualFile != null ? virtualFile.getName() : "";
+        
         Map<Document, List<MarkdownImage>> waitingProcessMap = new HashMap<>(8);
         List<MarkdownImage> markdownImages = new ArrayList<>(8);
-        for (Map.Entry<String, InputStream> inputStreamMap : this.resolveClipboardData(entry, state).entrySet()) {
-            final MarkdownImage markdownImage = getMarkdownImage(inputStreamMap);
+        for (Map.Entry<String, InputStream> inputStreamMap : this.resolveClipboardData(entry, editor, caret, state).entrySet()) {
+            final MarkdownImage markdownImage = getMarkdownImage(inputStreamMap, fileName);
 
             markdownImages.add(markdownImage);
         }
@@ -303,40 +312,85 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
      * <p>
      * 该方法根据传入的输入流映射条目，初始化一个 MarkdownImage 对象，设置其文件名、图片名、扩展名、原始行文本、行号等信息。
      *
-     * @param inputStreamMap 输入流映射条目，包含图片的键值对
+     * @param inputStreamMap 输入流映射条目，包含图片的键值对（key可能是文件名或包含元数据的字符串）
+     * @param fileName       当前 markdown 文档的文件名
      * @return 初始化后的 MarkdownImage 实例
      */
     @NotNull
-    private static MarkdownImage getMarkdownImage(Map.Entry<String, InputStream> inputStreamMap) {
+    private static MarkdownImage getMarkdownImage(Map.Entry<String, InputStream> inputStreamMap, String fileName) {
+        String key = inputStreamMap.getKey();
         MarkdownImage markdownImage = new MarkdownImage();
-        markdownImage.setFileName("");
-        markdownImage.setImageName(inputStreamMap.getKey());
-        markdownImage.setExtension("");
-        markdownImage.setOriginalLineText("");
-        markdownImage.setLineNumber(0);
-        markdownImage.setLineStartOffset(0);
-        markdownImage.setLineEndOffset(0);
-        markdownImage.setTitle("");
-        markdownImage.setPath("");
-        markdownImage.setLocation(ImageLocationEnum.LOCAL);
-        markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
+
+        // 检查是否是网络图片（key以"network:"开头表示是网络图片）
+        if (key.startsWith("network:")) {
+            // 解析网络图片的元数据
+            // 格式：network:originalLineText|lineNumber|pathStartOffset|pathEndOffset|imageUrl|originalMark
+            String[] parts = key.substring(8).split("\\|", -1);
+
+            markdownImage.setFileName(fileName);
+            markdownImage.setImageName(""); // 图片名称由 DownloadImageHandler 解析
+            markdownImage.setExtension(""); // 扩展名由 DownloadImageHandler 解析
+            markdownImage.setOriginalLineText(parts.length > 0 ? parts[0] : "");
+            markdownImage.setLineNumber(parts.length > 1 && !parts[1].isEmpty() ? Integer.parseInt(parts[1]) : 0);
+            markdownImage.setLineStartOffset(parts.length > 2 && !parts[2].isEmpty() ? Integer.parseInt(parts[2]) : 0);
+            markdownImage.setLineEndOffset(parts.length > 3 && !parts[3].isEmpty() ? Integer.parseInt(parts[3]) : 0);
+            markdownImage.setTitle("");
+            markdownImage.setPath(parts.length > 4 ? parts[4] : ""); // URL
+            markdownImage.setLocation(ImageLocationEnum.NETWORK);
+            markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
+            markdownImage.setOriginalMark(parts.length > 5 ? parts[5] : "");
+            markdownImage.setFinalMark("");
+        } else {
+            // 本地图片
+            markdownImage.setFileName(fileName);
+            markdownImage.setImageName(key);
+            markdownImage.setExtension("");
+            markdownImage.setOriginalLineText("");
+            markdownImage.setLineNumber(0);
+            markdownImage.setLineStartOffset(0);
+            markdownImage.setLineEndOffset(0);
+            markdownImage.setTitle("");
+            markdownImage.setPath("");
+            markdownImage.setLocation(ImageLocationEnum.LOCAL);
+            markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
+            markdownImage.setFinalMark("");
+        }
+
         markdownImage.setInputStream(inputStreamMap.getValue());
-        markdownImage.setFinalMark("");
         return markdownImage;
     }
 
     /**
      * 处理剪贴板数据，根据不同的数据类型填充对应的输入流映射
      * <p>
-     * 该方法接收一个剪贴板条目和状态对象，根据条目的数据类型（文件列表或图像）分别调用相应的处理方法，将结果存入输入流映射中返回。
+     * 该方法接收一个剪贴板条目和状态对象，根据条目的数据类型（文件列表、图像或网络URL）分别调用相应的处理方法，将结果存入输入流映射中返回。
      *
-     * @param entry 剪贴板条目，包含数据类型和数据对象
-     * @param state 状态对象，用于传递处理过程中需要的上下文信息
+     * @param entry  剪贴板条目，包含数据类型和数据对象
+     * @param editor 编辑器对象
+     * @param caret  光标对象
+     * @param state  状态对象，用于传递处理过程中需要的上下文信息
      * @return 文件名到输入流的映射，其中文件名对应的是本地文件或临时文件的输入流
      */
     private Map<String, InputStream> resolveClipboardData(@NotNull Map.Entry<DataFlavor, Object> entry,
+                                                          Editor editor,
+                                                          Caret caret,
                                                           MikState state) {
         Map<String, InputStream> imageMap = new HashMap<>(8);
+
+        // 检查是否是网络图片URL
+        if (state.isApplyToNetworkImages() && entry.getKey().equals(DataFlavor.stringFlavor)) {
+            String text = (String) entry.getValue();
+            if (text != null && (text.trim().startsWith("http://") || text.trim().startsWith("https://"))) {
+                // 检查光标是否在图片路径中 ![](光标必须在这里, 复制才能生效)
+                if (this.isCaretInImagePath(editor, caret)) {
+                    this.resolveFromNetworkUrl(text.trim(), editor, caret, imageMap);
+                    if (!imageMap.isEmpty()) {
+                        return imageMap;
+                    }
+                }
+            }
+        }
+
         if (entry.getKey().equals(DataFlavor.javaFileListFlavor)) {
             this.resolveFromFile(entry, imageMap, state);
         } else {
@@ -420,6 +474,81 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
         if (is != null) {
             imageMap.put(fileName, is);
         }
+    }
+
+    /**
+     * 处理网络图片 URL
+     * <p>
+     * 该方法用于处理剪贴板中的网络图片 URL，解析光标所在的图片标签信息，并构建相应的元数据。
+     * 元数据将以特殊格式存储在 imageMap 的 key 中。图片名称和扩展名的解析由 DownloadImageHandler 处理。
+     *
+     * @param imageUrl 网络图片 URL
+     * @param editor   编辑器对象
+     * @param caret    光标对象
+     * @param imageMap 存储图像文件名与输入流的映射表
+     */
+    private void resolveFromNetworkUrl(@NotNull String imageUrl,
+                                       Editor editor,
+                                       Caret caret,
+                                       Map<String, InputStream> imageMap) {
+        Document doc = editor.getDocument();
+        int caretOffset = caret.getOffset();
+        int lineNumber = doc.getLineNumber(caretOffset);
+        int lineStartOffset = doc.getLineStartOffset(lineNumber);
+        int lineEndOffset = doc.getLineEndOffset(lineNumber);
+        String originalLineText = doc.getText(new TextRange(lineStartOffset, lineEndOffset));
+
+        // 解析图片标签信息
+        int prefixIndex = originalLineText.indexOf(ImageContents.IMAGE_MARK_PREFIX);
+        if (prefixIndex == -1) {
+            return;
+        }
+
+        int middleIndex = originalLineText.indexOf(ImageContents.IMAGE_MARK_MIDDLE, prefixIndex);
+        if (middleIndex == -1) {
+            return;
+        }
+
+        int suffixIndex = originalLineText.indexOf(ImageContents.IMAGE_MARK_SUFFIX, middleIndex);
+        if (suffixIndex == -1) {
+            return;
+        }
+
+        // 计算路径部分的偏移量（相对于文档）
+        int pathStartOffset = lineStartOffset + middleIndex + ImageContents.IMAGE_MARK_MIDDLE.length();
+        int pathEndOffset = lineStartOffset + suffixIndex;
+        String originalMark = originalLineText.substring(prefixIndex, suffixIndex + 1);
+
+        // 构建元数据 key
+        // 格式：network:originalLineText|lineNumber|pathStartOffset|pathEndOffset|imageUrl|originalMark
+        // 图片名称和扩展名将在 DownloadImageHandler 中根据 URL 和响应头解析
+        String metadataKey = String.format("network:%s|%d|%d|%d|%s|%s",
+                                           originalLineText,
+                                           lineNumber,
+                                           pathStartOffset,
+                                           pathEndOffset,
+                                           imageUrl,
+                                           originalMark);
+
+        // 使用空的 ByteArrayInputStream 作为占位符，实际下载会在 DownloadImageHandler 中进行
+        imageMap.put(metadataKey, new ByteArrayInputStream(new byte[0]));
+    }
+
+    /**
+     * 检查 waitingProcessMap 中是否包含网络图片
+     *
+     * @param waitingProcessMap 待处理的图片映射
+     * @return 如果包含网络图片返回 true，否则返回 false
+     */
+    private boolean hasNetworkImage(Map<Document, List<MarkdownImage>> waitingProcessMap) {
+        for (List<MarkdownImage> images : waitingProcessMap.values()) {
+            for (MarkdownImage image : images) {
+                if (image.getLocation() == ImageLocationEnum.NETWORK) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -593,177 +722,4 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
         return caretOffsetInLine >= pathStartOffset && caretOffsetInLine <= suffixIndex;
     }
 
-    /**
-     * 从剪贴板获取网络图片 URL
-     * <p>
-     * 该方法用于从系统剪贴板中获取字符串类型的网络图片 URL。
-     *
-     * @return 网络图片 URL，如果获取失败或不是 URL 则返回 null
-     * @since 1.0.0
-     */
-    @Nullable
-    private String getNetworkImageUrlFromClipboard() {
-        try {
-            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            Transferable transferable = clipboard.getContents(null);
-            if (transferable == null || !transferable.isDataFlavorSupported(DataFlavor.stringFlavor)) {
-                return null;
-            }
-            Object data = transferable.getTransferData(DataFlavor.stringFlavor);
-            if (data instanceof String text) {
-                String trimmed = text.trim();
-                if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
-                    return trimmed;
-                }
-            }
-        } catch (UnsupportedFlavorException | IOException e) {
-            log.trace("从剪贴板获取 URL 失败", e);
-        }
-        return null;
-    }
-
-    /**
-     * 处理网络图片下载
-     * <p>
-     * 该方法用于处理网络图片的下载流程，将从剪贴板获取的网络图片 URL 下载到本地，
-     * 然后执行后续的图片处理流程（压缩、重命名、存储、上传等）。
-     *
-     * @param editor   编辑器实例
-     * @param caret    光标位置，可能为 null
-     * @param state    状态信息
-     * @param imageUrl 网络图片 URL
-     * @since 1.0.0
-     */
-    private void handleNetworkImageDownload(@NotNull Editor editor, @Nullable Caret caret, @NotNull MikState state,
-                                            @NotNull String imageUrl) {
-        Document document = editor.getDocument();
-        VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
-
-        // 如果光标在图片路径中，解析现有的图片标签信息
-        Caret currentCaret = caret;
-        if (currentCaret == null) {
-            currentCaret = editor.getCaretModel().getCurrentCaret();
-        }
-
-        boolean shouldReplacePath = false;
-        int pathStartOffset = -1;
-        int pathEndOffset = -1;
-        String originalLineText = "";
-        String originalMark = "";
-        int lineNumber = 0;
-
-        if (this.isCaretInImagePath(editor, currentCaret)) {
-            // 解析图片标签信息
-            Document doc = editor.getDocument();
-            int caretOffset = currentCaret.getOffset();
-            lineNumber = doc.getLineNumber(caretOffset);
-            int lineStartOffset = doc.getLineStartOffset(lineNumber);
-            int lineEndOffset = doc.getLineEndOffset(lineNumber);
-            originalLineText = doc.getText(new TextRange(lineStartOffset, lineEndOffset));
-
-            // 查找图片标签的位置
-            int prefixIndex = originalLineText.indexOf(ImageContents.IMAGE_MARK_PREFIX);
-            if (prefixIndex != -1) {
-                int middleIndex = originalLineText.indexOf(ImageContents.IMAGE_MARK_MIDDLE, prefixIndex);
-                if (middleIndex != -1) {
-                    int suffixIndex = originalLineText.indexOf(ImageContents.IMAGE_MARK_SUFFIX, middleIndex);
-                    if (suffixIndex != -1) {
-                        // 计算路径部分的偏移量（相对于文档）
-                        pathStartOffset = lineStartOffset + middleIndex + ImageContents.IMAGE_MARK_MIDDLE.length();
-                        pathEndOffset = lineStartOffset + suffixIndex;
-                        originalMark = originalLineText.substring(prefixIndex, suffixIndex + 1);
-                        shouldReplacePath = true;
-                    }
-                }
-            }
-        }
-
-        // 解析图片名称
-        // 移除查询参数（如 ?x-oss-process=...）
-        String urlWithoutQuery = imageUrl.split("\\?")[0];
-        String imageName = urlWithoutQuery.substring(urlWithoutQuery.lastIndexOf("/") + 1);
-
-        // 如果没有扩展名，使用随机名称（扩展名会在下载时根据 Content-Type 或文件头确定）
-        if (!imageName.contains(".") || imageName.endsWith(".")) {
-            imageName = CharacterUtils.getRandomString(6);
-        }
-
-        // 创建 MarkdownImage 对象
-        MarkdownImage markdownImage = new MarkdownImage();
-        markdownImage.setFileName(virtualFile != null ? virtualFile.getName() : "");
-        markdownImage.setImageName(imageName);
-        // 扩展名会在下载时根据 Content-Type 或文件头确定，这里先设置为空
-        // 如果 URL 中包含扩展名，则尝试提取
-        String extension = "";
-        int lastDot = imageName.lastIndexOf('.');
-        if (lastDot > 0 && lastDot < imageName.length() - 1) {
-            extension = imageName.substring(lastDot + 1);
-        }
-        markdownImage.setExtension(extension);
-        markdownImage.setOriginalLineText(shouldReplacePath ? originalLineText : "");
-        markdownImage.setLineNumber(lineNumber);
-        markdownImage.setLineStartOffset(shouldReplacePath ? pathStartOffset : 0);
-        markdownImage.setLineEndOffset(shouldReplacePath ? pathEndOffset : 0);
-        markdownImage.setTitle("");
-        markdownImage.setPath(imageUrl);
-        markdownImage.setLocation(ImageLocationEnum.NETWORK);
-        markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
-        markdownImage.setOriginalMark(shouldReplacePath ? originalMark : "");
-        markdownImage.setFinalMark("");
-
-        Map<Document, List<MarkdownImage>> waitingProcessMap = new HashMap<>(8);
-        waitingProcessMap.put(document, Collections.singletonList(markdownImage));
-
-        // 使用默认 client
-        CloudEnum cloudEnum = OssState.getCloudType(state.getDefaultCloudType());
-        OssClient client = ClientUtils.getClient(cloudEnum);
-
-        EventData data = new EventData()
-            .setProject(editor.getProject())
-            .setEditor(editor)
-            .setClient(client)
-            .setClientName(cloudEnum.title)
-            .setWaitingProcessMap(waitingProcessMap);
-
-        ActionManager manager = new ActionManager(data)
-            // 下载图片
-            .addHandler(new DownloadImageHandler())
-            // 图片压缩
-            .addHandler(new ImageCompressionHandler())
-            // 图片重命名
-            .addHandler(new ImageRenameHandler());
-
-        InsertImageActionEnum insertImageAction = state.getInsertImageAction();
-
-        // 处理复制到指定路径的逻辑
-        if (insertImageAction == InsertImageActionEnum.COPY_TO_CURRENT
-            || insertImageAction == InsertImageActionEnum.COPY_TO_ASSETS
-            || insertImageAction == InsertImageActionEnum.COPY_TO_FILENAME_ASSETS
-            || insertImageAction == InsertImageActionEnum.COPY_TO_CUSTOM) {
-
-            // 获取当前路径，如果为空则根据枚举类型设置默认路径
-            String currentPath = state.getCurrentInsertPath();
-            if (currentPath == null || currentPath.isEmpty()) {
-                String customPath = insertImageAction == InsertImageActionEnum.COPY_TO_CUSTOM
-                                    ? state.getSavedCustomInsertPath()
-                                    : null;
-                currentPath = InsertImageActionEnum.getPathByAction(insertImageAction, customPath);
-            }
-            // 处理占位符并设置保存路径
-            String processedPath = this.processPathPlaceholders(
-                currentPath,
-                virtualFile,
-                editor.getProject()
-                                                               );
-            // 设置处理后的路径
-            state.setImageSavePath(processedPath);
-            // 图片保存
-            manager.addHandler(new ImageStorageHandler());
-        }
-
-        // 处理上传图片的逻辑
-        addPostHanler(insertImageAction, manager);
-
-        new ActionTask(editor.getProject(), MikBundle.message("mik.action.paste.task"), manager).queue();
-    }
 }
