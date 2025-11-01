@@ -357,6 +357,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                                                                         this.qiniuOssNortChinaRadioButton,
                                                                         this.qiniuOssSouthChinaRadioButton,
                                                                         this.qiniuOssNorthAmeriaRadioButton,
+                                                                        this.qiniuOssNorthAmeriaRadioButton,
                                                                         this.zoneIndexTextFiled);
     //endregion
 
@@ -469,7 +470,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
      * @param state 当前状态对象，用于获取云类型信息
      */
     private void initAuthorizationTabbedPanel(@NotNull MikState state) {
-        int defaultCloudIndex = state.getCloudType();
+        int defaultCloudIndex = state.getDefaultCloudType();
 
         // 打开设置页时默认选中默认上传图床
         this.authorizationTabbedPanel.setSelectedIndex(defaultCloudIndex);
@@ -638,13 +639,14 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         if (!isDefaultCloudCheck) {
             this.customMessage.setText("");
         } else {
-            this.customMessage.setText(OssState.getStatus(state.getCloudType()) ? MikBundle.message("oss.available") : MikBundle.message(
+            this.customMessage.setText(OssState.getStatus(state.getDefaultCloudType()) ? MikBundle.message("oss.available") :
+                                       MikBundle.message(
                 "oss.not.available"));
         }
         this.defaultCloudComboBox.setEnabled(isDefaultCloudCheck);
-        this.defaultCloudComboBox.setSelectedIndex(state.getCloudType());
+        this.defaultCloudComboBox.setSelectedIndex(state.getDefaultCloudType());
 
-        this.showSelectCloudMessage(state.getCloudType());
+        this.showSelectCloudMessage(state.getDefaultCloudType());
 
         this.defaultCloudCheckBox.addActionListener(e -> {
             this.showSelectCloudMessage(state.getTempCloudType());
@@ -925,7 +927,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                && index == state.getSuffixIndex()
                && convertToWebp == state.isConvertToWebp()
                && isDefaultCloudCheck == state.isDefaultCloudCheck()
-               && this.defaultCloudComboBox.getSelectedIndex() == state.getCloudType();
+               && this.defaultCloudComboBox.getSelectedIndex() == state.getDefaultCloudType();
 
     }
 
@@ -1006,7 +1008,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         state.setRename(this.renameCheckBox.isSelected());
         state.setSuffixIndex(this.fileNameSuffixBoxField.getSelectedIndex());
         state.setDefaultCloudCheck(this.defaultCloudCheckBox.isSelected());
-        state.setCloudType(state.isDefaultCloudCheck() ? this.defaultCloudComboBox.getSelectedIndex() : CloudEnum.SM_MS_CLOUD.index);
+        state.setDefaultCloudType(state.isDefaultCloudCheck() ? this.defaultCloudComboBox.getSelectedIndex() : CloudEnum.SM_MS_CLOUD.index);
         state.setTempCloudType(this.defaultCloudComboBox.getSelectedIndex());
         state.setWatermark(this.watermarkCheckBox.isSelected());
         state.setWatermarkText(this.watermarkTextField.getText());
@@ -1071,7 +1073,7 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
         this.renameCheckBox.setSelected(state.isRename());
         this.fileNameSuffixBoxField.setSelectedIndex(state.getSuffixIndex());
         this.defaultCloudCheckBox.setSelected(state.isDefaultCloudCheck());
-        this.defaultCloudComboBox.setSelectedIndex(state.getCloudType());
+        this.defaultCloudComboBox.setSelectedIndex(state.getDefaultCloudType());
         this.watermarkCheckBox.setSelected(state.isWatermark());
         this.watermarkTextField.setText(state.getWatermarkText());
     }

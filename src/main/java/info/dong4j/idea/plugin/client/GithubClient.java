@@ -1,5 +1,7 @@
 package info.dong4j.idea.plugin.client;
 
+import com.intellij.credentialStore.CredentialAttributes;
+
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
@@ -190,4 +192,8 @@ public class GithubClient extends AbstractOpenClient {
         Asserts.check(!branch.equals("master"), MikBundle.message("error.branch.name"));
     }
 
+    @Override
+    protected CredentialAttributes credentialAttributes() {
+        return GithubSetting.CREDENTIAL_ATTRIBUTES;
+    }
 }

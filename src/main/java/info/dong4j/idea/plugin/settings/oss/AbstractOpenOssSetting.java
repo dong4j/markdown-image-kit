@@ -228,12 +228,12 @@ public abstract class AbstractOpenOssSetting<T extends AbstractOpenOssState> imp
         String customEndpoint = this.customEndpointTextField.getText().trim();
         boolean isCustomEndpoint = this.customEndpointCheckBox.isSelected();
 
-        return repos.equals(state.getRepos())
-               && branch.equals(state.getBranch())
-               && token.equals(PasswordManager.getPassword(this.credentialAttributes()))
-               && filedir.equals(state.getFiledir())
-               && state.getIsCustomEndpoint() == isCustomEndpoint
-               && customEndpoint.equals(state.getCustomEndpoint());
+        return !(repos.equals(state.getRepos())
+                 && branch.equals(state.getBranch())
+                 && token.equals(PasswordManager.getPassword(this.credentialAttributes()))
+                 && filedir.equals(state.getFiledir())
+                 && state.getIsCustomEndpoint() == isCustomEndpoint
+                 && customEndpoint.equals(state.getCustomEndpoint()));
     }
 
     /**

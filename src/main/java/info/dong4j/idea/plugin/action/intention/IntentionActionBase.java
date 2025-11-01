@@ -93,7 +93,7 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
      * @since 0.0.1
      */
     protected CloudEnum getCloudType() {
-        CloudEnum cloudEnum = OssState.getCloudType(getState().getCloudType());
+        CloudEnum cloudEnum = OssState.getCloudType(getState().getDefaultCloudType());
         return OssState.getStatus(cloudEnum) ? cloudEnum : CloudEnum.SM_MS_CLOUD;
     }
 

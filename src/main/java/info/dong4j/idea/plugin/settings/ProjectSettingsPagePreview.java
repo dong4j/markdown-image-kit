@@ -127,6 +127,13 @@ public class ProjectSettingsPagePreview implements SearchableConfigurable {
         uploadServicePanel.initUploadServicePanel(state);
     }
 
+    /**
+     * 判断配置是否发生修改
+     * <p>
+     * 检查各个配置面板的设置是否发生变化，若所有设置均未修改，则返回 false，否则返回 true
+     *
+     * @return 配置是否发生修改
+     */
     @Override
     public boolean isModified() {
         log.trace("isModified invoke");
@@ -138,7 +145,7 @@ public class ProjectSettingsPagePreview implements SearchableConfigurable {
         // 检查上传服务设定是否修改
         boolean uploadServiceModified = uploadServicePanel.isUploadServiceModified(state);
 
-        return !(imageEnhancementModified && uploadServiceModified && imageProcessingModified);
+        return imageProcessingModified || imageEnhancementModified || uploadServiceModified;
     }
 
     @Override

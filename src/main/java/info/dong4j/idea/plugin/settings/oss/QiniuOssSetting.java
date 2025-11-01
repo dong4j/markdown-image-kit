@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.event.ActionListener;
 
-import javax.swing.ButtonGroup;
 import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
@@ -52,6 +51,7 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
     private final JRadioButton qiniuOssSouthChinaRadioButton;
     /** Qiniu OSS 北美区域选择按钮 */
     private final JRadioButton qiniuOssNorthAmeriaRadioButton;
+    private final JRadioButton qiniuOssSoutheastAsiaRadioButton;
     /** Zone 索引文本字段 */
     private final JTextField zoneIndexTextFiled;
 
@@ -68,6 +68,7 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
      * @param qiniuOssNortChinaRadioButton     七牛OSS华北地区单选按钮
      * @param qiniuOssSouthChinaRadioButton    七牛OSS华南地区单选按钮
      * @param qiniuOssNorthAmeriaRadioButton   七牛OSS北美地区单选按钮
+     * @param qiniuOssSoutheastAsiaRadioButton 七牛OSS东南亚地区单选按钮
      * @param zoneIndexTextFiled               区域索引文本框
      * @since 1.4.0
      */
@@ -79,6 +80,7 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
                            JRadioButton qiniuOssNortChinaRadioButton,
                            JRadioButton qiniuOssSouthChinaRadioButton,
                            JRadioButton qiniuOssNorthAmeriaRadioButton,
+                           JRadioButton qiniuOssSoutheastAsiaRadioButton,
                            JTextField zoneIndexTextFiled) {
 
         this.qiniuOssBucketNameTextField = qiniuOssBucketNameTextField;
@@ -89,6 +91,7 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
         this.qiniuOssNortChinaRadioButton = qiniuOssNortChinaRadioButton;
         this.qiniuOssSouthChinaRadioButton = qiniuOssSouthChinaRadioButton;
         this.qiniuOssNorthAmeriaRadioButton = qiniuOssNorthAmeriaRadioButton;
+        this.qiniuOssSoutheastAsiaRadioButton = qiniuOssSoutheastAsiaRadioButton;
         this.zoneIndexTextFiled = zoneIndexTextFiled;
 
     }
@@ -107,43 +110,53 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
 
         this.qiniuOssUpHostTextField.addFocusListener(new JTextFieldHintListener(this.qiniuOssUpHostTextField, DOMAIN_HINT));
 
-        ButtonGroup group = new ButtonGroup();
-        this.qiniuOssEastChinaRadioButton.setMnemonic(ZoneEnum.EAST_CHINA.index);
-        this.qiniuOssNortChinaRadioButton.setMnemonic(ZoneEnum.NORT_CHINA.index);
-        this.qiniuOssSouthChinaRadioButton.setMnemonic(ZoneEnum.SOUTH_CHINA.index);
-        this.qiniuOssNorthAmeriaRadioButton.setMnemonic(ZoneEnum.NORTH_AMERIA.index);
-
-        this.addZoneRadioButton(group, this.qiniuOssEastChinaRadioButton);
-        this.addZoneRadioButton(group, this.qiniuOssNortChinaRadioButton);
-        this.addZoneRadioButton(group, this.qiniuOssSouthChinaRadioButton);
-        this.addZoneRadioButton(group, this.qiniuOssNorthAmeriaRadioButton);
-
-        this.qiniuOssEastChinaRadioButton.setSelected(state.getZoneIndex() == this.qiniuOssEastChinaRadioButton.getMnemonic());
-        this.qiniuOssNortChinaRadioButton.setSelected(state.getZoneIndex() == this.qiniuOssNortChinaRadioButton.getMnemonic());
-        this.qiniuOssSouthChinaRadioButton.setSelected(state.getZoneIndex() == this.qiniuOssSouthChinaRadioButton.getMnemonic());
-        this.qiniuOssNorthAmeriaRadioButton.setSelected(state.getZoneIndex() == this.qiniuOssNorthAmeriaRadioButton.getMnemonic());
-
-        this.zoneIndexTextFiled.setText(String.valueOf(state.getZoneIndex()));
+        this.addZoneRadioButton(this.qiniuOssEastChinaRadioButton);
+        this.addZoneRadioButton(this.qiniuOssNortChinaRadioButton);
+        this.addZoneRadioButton(this.qiniuOssSouthChinaRadioButton);
+        this.addZoneRadioButton(this.qiniuOssNorthAmeriaRadioButton);
+        this.addZoneRadioButton(this.qiniuOssSoutheastAsiaRadioButton);
     }
 
     /**
      * 处理被选中的 zone 单选框
      * <p>
-     * 将指定的 JRadioButton 添加到 ButtonGroup 中，并为该按钮绑定一个监听器，用于在按钮被点击时更新 zoneIndexTextFiled 的文本为所选按钮的快捷键值。
+     * 为指定的单选按钮绑定一个监听器，用于在按钮被选中时更新 zoneIndexTextFiled 的文本为对应区域枚举的索引值。
      *
-     * @param group  要添加按钮的按钮组
      * @param button 要添加的单选按钮
      * @since 0.0.1
      */
-    private void addZoneRadioButton(@NotNull ButtonGroup group, JRadioButton button) {
-        group.add(button);
+    private void addZoneRadioButton(JRadioButton button) {
         ActionListener actionListener = e -> {
-            Object sourceObject = e.getSource();
-            if (sourceObject instanceof JRadioButton sourceButton) {
-                this.zoneIndexTextFiled.setText(String.valueOf(sourceButton.getMnemonic()));
-            }
+            // 判断哪个按钮被选中，获取对应的区域索引
+            int zoneIndex = getSelectedZoneIndex();
+            this.zoneIndexTextFiled.setText(String.valueOf(zoneIndex));
         };
         button.addActionListener(actionListener);
+    }
+
+    /**
+     * 获取当前选中的区域索引
+     * <p>
+     * 通过判断哪个区域单选按钮被选中，返回对应的区域索引值。
+     * 如果没有按钮被选中，默认返回华东区域的索引。
+     *
+     * @return 选中的区域索引值
+     * @since 2.0.0
+     */
+    private int getSelectedZoneIndex() {
+        if (this.qiniuOssEastChinaRadioButton.isSelected()) {
+            return ZoneEnum.EAST_CHINA.index;
+        } else if (this.qiniuOssNortChinaRadioButton.isSelected()) {
+            return ZoneEnum.NORT_CHINA.index;
+        } else if (this.qiniuOssSouthChinaRadioButton.isSelected()) {
+            return ZoneEnum.SOUTH_CHINA.index;
+        } else if (this.qiniuOssNorthAmeriaRadioButton.isSelected()) {
+            return ZoneEnum.NORTH_AMERIA.index;
+        } else if (this.qiniuOssSoutheastAsiaRadioButton.isSelected()) {
+            return ZoneEnum.SOUTHEAST_ASIA.index;
+        }
+        // 默认返回华东区域
+        return ZoneEnum.EAST_CHINA.index;
     }
 
     /**
@@ -163,14 +176,14 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
 
         // todo-dong4j : (2019年03月19日 21:01) [重构为 domain]
         String endpoint = JTextFieldHintListener.getRealText(this.qiniuOssUpHostTextField, DOMAIN_HINT);
-        // todo-dong4j : (2019年03月19日 21:13) [zone]
-        int zoneIndex = Integer.parseInt(this.zoneIndexTextFiled.getText());
+        // 从选中的单选按钮获取区域索引
+        int zoneIndex = getSelectedZoneIndex();
 
-        return bucketName.equals(state.getBucketName())
-               && accessKey.equals(state.getAccessKey())
-               && secretKey.equals(PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES))
-               && zoneIndex == state.getZoneIndex()
-               && endpoint.equals(state.getEndpoint());
+        return !(bucketName.equals(state.getBucketName())
+                 && accessKey.equals(state.getAccessKey())
+                 && secretKey.equals(PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES))
+                 && zoneIndex == state.getZoneIndex()
+                 && endpoint.equals(state.getEndpoint()));
     }
 
     /**
@@ -186,11 +199,11 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
     public void apply(@NotNull QiniuOssState state) {
         // todo-dong4j : (2019年03月19日 21:01) [重构为 domain]
         String endpoint = JTextFieldHintListener.getRealText(this.qiniuOssUpHostTextField, DOMAIN_HINT);
-        // todo-dong4j : (2019年03月19日 21:13) [zone]
         String bucketName = this.qiniuOssBucketNameTextField.getText().trim();
         String accessKey = this.qiniuOssAccessKeyTextField.getText().trim();
         String secretKey = new String(this.qiniuOssAccessSecretKeyTextField.getPassword());
-        int zoneIndex = Integer.parseInt(this.zoneIndexTextFiled.getText());
+        // 从选中的单选按钮获取区域索引
+        int zoneIndex = getSelectedZoneIndex();
         // 需要在加密之前计算 hashcode
         int hashcode = bucketName.hashCode() +
                        accessKey.hashCode() +
@@ -222,5 +235,11 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
         this.qiniuOssUpHostTextField.setText(state.getEndpoint());
         JTextFieldHintListener.init(this.qiniuOssUpHostTextField, DOMAIN_HINT);
         this.zoneIndexTextFiled.setText(String.valueOf(state.getZoneIndex()));
+
+        this.qiniuOssEastChinaRadioButton.setSelected(state.getZoneIndex() == ZoneEnum.EAST_CHINA.index);
+        this.qiniuOssNortChinaRadioButton.setSelected(state.getZoneIndex() == ZoneEnum.NORT_CHINA.index);
+        this.qiniuOssSouthChinaRadioButton.setSelected(state.getZoneIndex() == ZoneEnum.SOUTH_CHINA.index);
+        this.qiniuOssNorthAmeriaRadioButton.setSelected(state.getZoneIndex() == ZoneEnum.NORTH_AMERIA.index);
+        this.qiniuOssSoutheastAsiaRadioButton.setSelected(state.getZoneIndex() == ZoneEnum.SOUTHEAST_ASIA.index);
     }
 }

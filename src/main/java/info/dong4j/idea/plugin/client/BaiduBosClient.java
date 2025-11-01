@@ -1,5 +1,7 @@
 package info.dong4j.idea.plugin.client;
 
+import com.intellij.credentialStore.CredentialAttributes;
+
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
@@ -155,5 +157,10 @@ public class BaiduBosClient extends AbstractOssClient {
     @Override
     protected AbstractExtendOssState getState(MikState state) {
         return state.getBaiduBosState();
+    }
+
+    @Override
+    protected CredentialAttributes credentialAttributes() {
+        return BaiduBosSetting.CREDENTIAL_ATTRIBUTES;
     }
 }

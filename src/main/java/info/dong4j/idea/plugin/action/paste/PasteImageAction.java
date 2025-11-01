@@ -134,7 +134,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
                     }
 
                     // 使用默认 client
-                    CloudEnum cloudEnum = OssState.getCloudType(state.getCloudType());
+                    CloudEnum cloudEnum = OssState.getCloudType(state.getDefaultCloudType());
                     OssClient client = ClientUtils.getClient(cloudEnum);
 
                     EventData data = new EventData()

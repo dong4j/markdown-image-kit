@@ -94,7 +94,7 @@ public class UploadServicePanel {
      * <p>
      * 【字段映射】对应老页面的 defaultCloudComboBox
      */
-    private JComboBox<String> defaultCloudComboBox;
+    // private JComboBox<String> defaultCloudComboBox;
     /** 自定义消息标签，用于显示用户自定义的提示信息 */
     private JLabel cloudServerAvailableMessage;
     /**
@@ -367,6 +367,7 @@ public class UploadServicePanel {
      * 【字段映射】对应老页面的 qiniuOssNorthAmeriaRadioButton
      */
     private JRadioButton qiniuOssNorthAmeriaRadioButton;
+    private JRadioButton qiniuOssSoutheastAsiaRadioButton;
     /**
      * 七牛云区域索引隐藏字段
      * <p>
@@ -498,24 +499,6 @@ public class UploadServicePanel {
         createUploadServicePanel();
     }
 
-    /**
-     * 从 CloudEnum 枚举生成下拉框选项数组
-     * <p>
-     * 按照 CloudEnum 的 index 顺序生成标题数组，用于填充下拉框。
-     * 确保选项顺序与枚举的 index 一致。
-     *
-     * @return 云服务商标题数组，按 index 顺序排列
-     */
-    @NotNull
-    private String[] createCloudServiceOptions() {
-        CloudEnum[] values = CloudEnum.values();
-        String[] options = new String[values.length];
-        // 按照 index 排序，确保顺序正确
-        for (CloudEnum cloudEnum : values) {
-            options[cloudEnum.getIndex()] = cloudEnum.getTitle();
-        }
-        return options;
-    }
 
     /**
      * 创建上传服务设定区域面板
@@ -541,11 +524,6 @@ public class UploadServicePanel {
         gbc.gridwidth = 1;
         gbc.weightx = 1.0; // 设置较大的权重，占比更大
         cloudServiceComboBox = new com.intellij.openapi.ui.ComboBox<>(createCloudServiceOptions());
-
-        cloudServiceComboBox.addActionListener(e -> {
-            setCloudServiceConfigContainer(cloudServiceComboBox.getSelectedIndex());
-        });
-
         content.add(cloudServiceComboBox, gbc);
 
         // 默认图床复选框和下拉框 - 与选择服务商在同一行
@@ -555,16 +533,13 @@ public class UploadServicePanel {
         setAsDefaultCloudCheckBox = new JCheckBox("设为默认");
         content.add(setAsDefaultCloudCheckBox, gbc);
 
-        gbc.gridx = 3;
-        gbc.gridwidth = 1;
-        gbc.weightx = 1.0;
-        defaultCloudComboBox = new com.intellij.openapi.ui.ComboBox<>(createCloudServiceOptions());
-        defaultCloudComboBox.setEnabled(false);
-        content.add(defaultCloudComboBox, gbc);
+        // gbc.gridx = 3;
+        // gbc.gridwidth = 1;
+        // gbc.weightx = 1.0;
+        // defaultCloudComboBox = new com.intellij.openapi.ui.ComboBox<>(createCloudServiceOptions());
+        // defaultCloudComboBox.setEnabled(false);
+        // content.add(defaultCloudComboBox, gbc);
 
-        setAsDefaultCloudCheckBox.addActionListener(e -> {
-            defaultCloudComboBox.setEnabled(setAsDefaultCloudCheckBox.isSelected());
-        });
 
         // 配置消息字段 cloudServerAvailableMessage
         gbc.gridx = 4;
@@ -624,17 +599,58 @@ public class UploadServicePanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         content.add(buttonPanel, gbc);
 
-        this.cloudServiceComboBox.addActionListener(e -> {
-            // 获得指定索引的选项卡标签
-            int selectedIndex = this.cloudServiceComboBox.getSelectedIndex();
-            CloudEnum cloudType = OssState.getCloudType(selectedIndex);
-            this.helpButton.setText("Help & " + cloudType.getTitle());
-        });
-
+        this.cloudServiceConboBoxListener();
+        this.setAsDefaultCloudCheckBoxListener();
         // 初始化测试按钮和帮助按钮
         this.testAndHelpListener();
 
     }
+
+    /**
+     * 从 CloudEnum 枚举生成下拉框选项数组
+     * <p>
+     * 按照 CloudEnum 的 index 顺序生成标题数组，用于填充下拉框。
+     * 确保选项顺序与枚举的 index 一致。
+     *
+     * @return 云服务商标题数组，按 index 顺序排列
+     */
+    @NotNull
+    private String[] createCloudServiceOptions() {
+        CloudEnum[] values = CloudEnum.values();
+        String[] options = new String[values.length];
+        // 按照 index 排序，确保顺序正确
+        for (CloudEnum cloudEnum : values) {
+            options[cloudEnum.getIndex()] = cloudEnum.getTitle();
+        }
+        return options;
+    }
+
+    private void setAsDefaultCloudCheckBoxListener() {
+        // 勾选后将 cloudServiceComboBox 选择的图床设置为默认图床
+        setAsDefaultCloudCheckBox.addActionListener(e -> {
+            if (setAsDefaultCloudCheckBox.isSelected()) {
+                int cloudTypeIndex = this.cloudServiceComboBox.getSelectedIndex();
+                MikPersistenComponent.getInstance().getState().setDefaultCloudType(cloudTypeIndex);
+            } else {
+                // 如果取消勾选，则将默认图床设置为默认图床
+                MikPersistenComponent.getInstance().getState().setDefaultCloudType(MikState.DEFAULT_CLOUD.getIndex());
+            }
+        });
+    }
+
+    private void cloudServiceConboBoxListener() {
+        this.cloudServiceComboBox.addActionListener(e -> {
+            // 动态设置图床配置面板
+            setCloudServiceConfigContainer(cloudServiceComboBox.getSelectedIndex());
+
+            // 动态设置帮助按钮的文字
+            int selectedIndex = this.cloudServiceComboBox.getSelectedIndex();
+            CloudEnum cloudType = OssState.getCloudType(selectedIndex);
+            this.helpButton.setText("Help & " + cloudType.getTitle());
+        });
+    }
+
+    //region 图床 panel 初始化
 
     /**
      * 创建 Sm.ms 配置面板
@@ -1007,7 +1023,7 @@ public class UploadServicePanel {
         qiniuOssConfigPanel.add(new JBLabel("Bucket 名称:"), gbc);
 
         gbc.gridx = 1;
-        gbc.gridwidth = 5;
+        gbc.gridwidth = 6;
         gbc.weightx = 1.0;
         qiniuOssBucketNameTextField = new JTextField();
         qiniuOssConfigPanel.add(qiniuOssBucketNameTextField, gbc);
@@ -1020,7 +1036,7 @@ public class UploadServicePanel {
         qiniuOssConfigPanel.add(new JBLabel("Access Key:"), gbc);
 
         gbc.gridx = 1;
-        gbc.gridwidth = 5;
+        gbc.gridwidth = 6;
         gbc.weightx = 1.0;
         qiniuOssAccessKeyTextField = new JTextField();
         qiniuOssConfigPanel.add(qiniuOssAccessKeyTextField, gbc);
@@ -1033,7 +1049,7 @@ public class UploadServicePanel {
         qiniuOssConfigPanel.add(new JBLabel("Access Secret:"), gbc);
 
         gbc.gridx = 1;
-        gbc.gridwidth = 5;
+        gbc.gridwidth = 6;
         gbc.weightx = 1.0;
         qiniuOssAccessSecretTextField = new JPasswordField();
         qiniuOssConfigPanel.add(qiniuOssAccessSecretTextField, gbc);
@@ -1046,7 +1062,7 @@ public class UploadServicePanel {
         qiniuOssConfigPanel.add(new JBLabel("Domain:"), gbc);
 
         gbc.gridx = 1;
-        gbc.gridwidth = 5;
+        gbc.gridwidth = 6;
         gbc.weightx = 1.0;
         qiniuOssDomainTextField = new JTextField();
         qiniuOssConfigPanel.add(qiniuOssDomainTextField, gbc);
@@ -1066,7 +1082,6 @@ public class UploadServicePanel {
         gbc.weightx = 0;
         gbc.fill = GridBagConstraints.NONE;
         qiniuOssEastChinaRadioButton = new JRadioButton("EastChina");
-        qiniuOssEastChinaRadioButton.setSelected(true);
         zoneGroup.add(qiniuOssEastChinaRadioButton);
         qiniuOssConfigPanel.add(qiniuOssEastChinaRadioButton, gbc);
 
@@ -1093,6 +1108,13 @@ public class UploadServicePanel {
         qiniuOssNorthAmeriaRadioButton = new JRadioButton("NorthAmeria");
         zoneGroup.add(qiniuOssNorthAmeriaRadioButton);
         qiniuOssConfigPanel.add(qiniuOssNorthAmeriaRadioButton, gbc);
+
+        gbc.gridx = 5;
+        gbc.gridwidth = 1;
+        gbc.weightx = 0;
+        qiniuOssSoutheastAsiaRadioButton = new JRadioButton("东南亚");
+        zoneGroup.add(qiniuOssSoutheastAsiaRadioButton);
+        qiniuOssConfigPanel.add(qiniuOssSoutheastAsiaRadioButton, gbc);
 
         // 恢复 fill 设置
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -1292,6 +1314,7 @@ public class UploadServicePanel {
 
         return picListConfigPanel;
     }
+    //endregion
 
     /**
      * 初始化 PicList 可执行文件选择器
@@ -1415,12 +1438,10 @@ public class UploadServicePanel {
      */
     public void initUploadServicePanel(@NotNull MikState state) {
         // 从持久化配置中获取选中的图床服务商
-        int currentCloudIndex = state.getCloudType();
+        int currentCloudIndex = state.getDefaultCloudType();
 
         // 默认图床设置
         this.setAsDefaultCloudCheckBox.setSelected(state.isDefaultCloudCheck());
-        this.defaultCloudComboBox.setEnabled(state.isDefaultCloudCheck());
-        this.defaultCloudComboBox.setSelectedIndex(currentCloudIndex);
         this.cloudServiceComboBox.setSelectedIndex(currentCloudIndex);
 
         // 手动触发切换以显示对应的配置面板
@@ -1462,20 +1483,19 @@ public class UploadServicePanel {
      * @param cloudIndex 云服务索引
      */
     private void setCloudServiceConfigContainer(int cloudIndex) {
-        this.cloudServiceConfigContainer.removeAll();
-
         // 获取图床设置面板, 如果未创建则创建
         JPanel configPanel = getConfigPanelForIndex(cloudIndex);
+        final MikState state = MikPersistenComponent.getInstance().getState();
+        initOssSettings(cloudIndex, state);
+        resetAvailableStatus(cloudIndex);
+
+        this.cloudServiceConfigContainer.removeAll();
         this.cloudServiceConfigContainer.add(configPanel, BorderLayout.CENTER);
         this.cloudServiceConfigContainer.revalidate();
         this.cloudServiceConfigContainer.repaint();
 
-        // 初始化指定的 OSS 设置对象, 如果已初始化会忽略
-        final MikState state = MikPersistenComponent.getInstance().getState();
-        // 设置当前云服务类型
-        state.setCloudType(cloudIndex);
-        initOssSettings(state);
-        resetAvailableStatus(cloudIndex);
+        // 如果默认图床和当前选择的图床不一致, 取消勾选 设置默认
+        this.setAsDefaultCloudCheckBox.setSelected(state.getDefaultCloudType() == cloudIndex);
     }
 
     /**
@@ -1485,15 +1505,8 @@ public class UploadServicePanel {
      * @return 如果当前状态与给定状态一致，返回 true；否则返回 false
      */
     public boolean isUploadServiceModified(@NotNull MikState state) {
-        boolean defaultCloudCheck = this.setAsDefaultCloudCheckBox.isSelected();
-        int cloudType = this.defaultCloudComboBox.getSelectedIndex();
-
         // 检查 OSS 配置设定是否修改
-        boolean ossModified = isOssStateModified(state);
-
-        return ossModified
-               && defaultCloudCheck == state.isDefaultCloudCheck()
-               && cloudType == state.getCloudType();
+        return isOssStateModified(state);
     }
 
     /**
@@ -1502,12 +1515,6 @@ public class UploadServicePanel {
      * @param state 状态对象
      */
     public void applyUploadServiceConfigs(@NotNull MikState state) {
-        state.setDefaultCloudCheck(this.setAsDefaultCloudCheckBox.isSelected());
-        state.setCloudType(this.setAsDefaultCloudCheckBox.isSelected()
-                           ? this.defaultCloudComboBox.getSelectedIndex()
-                           : CloudEnum.SM_MS_CLOUD.getIndex());
-        state.setTempCloudType(this.defaultCloudComboBox.getSelectedIndex());
-
         // 保存当前选中的服务商的配置
         applyOssState(state);
     }
@@ -1521,8 +1528,7 @@ public class UploadServicePanel {
      *
      * @param state 当前状态对象
      */
-    public void initOssSettings(MikState state) {
-        int cloudIndex = state.getCloudType();
+    public void initOssSettings(int cloudIndex, MikState state) {
         // 初始化默认选中的图床 Setting 对象
         CloudEnum cloudEnum = CloudEnum.of(cloudIndex);
         switch (cloudEnum) {
@@ -1578,7 +1584,7 @@ public class UploadServicePanel {
                         this.qiniuOssBucketNameTextField, this.qiniuOssAccessKeyTextField,
                         this.qiniuOssAccessSecretTextField, this.qiniuOssDomainTextField,
                         this.qiniuOssEastChinaRadioButton, this.qiniuOssNortChinaRadioButton,
-                        this.qiniuOssSouthChinaRadioButton, this.qiniuOssNorthAmeriaRadioButton,
+                        this.qiniuOssSouthChinaRadioButton, this.qiniuOssNorthAmeriaRadioButton, this.qiniuOssSoutheastAsiaRadioButton,
                         this.qiniuZoneIndexTextField);
                     this.qiniuOssSetting.init(state.getQiniuOssState());
                 }
@@ -1614,7 +1620,11 @@ public class UploadServicePanel {
     }
 
     private void applyOssState(MikState state) {
-        final int cloudType = state.getCloudType();
+        final int cloudType = state.getDefaultCloudType();
+        applyOssState(state, cloudType);
+    }
+
+    private void applyOssState(MikState state, int cloudType) {
 
         final CloudEnum cloudEnum = CloudEnum.of(cloudType);
         switch (cloudEnum) {
@@ -1628,7 +1638,6 @@ public class UploadServicePanel {
             case CUSTOMIZE -> this.customOssSetting.apply(state.getCustomOssState());
             case PICLIST -> this.picListOssSetting.apply(state.getPicListOssState());
         }
-
     }
 
     public void resetOssState(MikState state) {
@@ -1664,38 +1673,35 @@ public class UploadServicePanel {
     }
 
     public boolean isOssStateModified(MikState state) {
-
         // 检查各个 OSS 配置是否修改
-        boolean ossModified = true;
-        if (this.smmsOssSetting != null) {
-            ossModified = this.smmsOssSetting.isModified(state.getSmmsOssState());
-        }
-        if (this.aliyunOssSetting != null) {
-            ossModified = ossModified && this.aliyunOssSetting.isModified(state.getAliyunOssState());
-        }
-        if (this.baiduBosSetting != null) {
-            ossModified = ossModified && this.baiduBosSetting.isModified(state.getBaiduBosState());
-        }
-        if (this.githubSetting != null) {
-            ossModified = ossModified && this.githubSetting.isModified(state.getGithubOssState());
-        }
-        if (this.giteeSetting != null) {
-            ossModified = ossModified && this.giteeSetting.isModified(state.getGiteeOssState());
-        }
-        if (this.qiniuOssSetting != null) {
-            ossModified = ossModified && this.qiniuOssSetting.isModified(state.getQiniuOssState());
-        }
-        if (this.tencentOssSetting != null) {
-            ossModified = ossModified && this.tencentOssSetting.isModified(state.getTencentOssState());
-        }
-        if (this.customOssSetting != null) {
-            ossModified = ossModified && this.customOssSetting.isModified(state.getCustomOssState());
-        }
-        if (this.picListOssSetting != null) {
-            ossModified = ossModified && this.picListOssSetting.isModified(state.getPicListOssState());
-        }
+        // 只要有一个 OSS 配置返回 true（已修改），整个方法就返回 true
+        // 使用短路逻辑，找到第一个已修改的配置就立即返回
 
-        return ossModified;
+        if (this.smmsOssSetting != null && this.smmsOssSetting.isModified(state.getSmmsOssState())) {
+            return true;
+        }
+        if (this.aliyunOssSetting != null && this.aliyunOssSetting.isModified(state.getAliyunOssState())) {
+            return true;
+        }
+        if (this.baiduBosSetting != null && this.baiduBosSetting.isModified(state.getBaiduBosState())) {
+            return true;
+        }
+        if (this.githubSetting != null && this.githubSetting.isModified(state.getGithubOssState())) {
+            return true;
+        }
+        if (this.giteeSetting != null && this.giteeSetting.isModified(state.getGiteeOssState())) {
+            return true;
+        }
+        if (this.qiniuOssSetting != null && this.qiniuOssSetting.isModified(state.getQiniuOssState())) {
+            return true;
+        }
+        if (this.tencentOssSetting != null && this.tencentOssSetting.isModified(state.getTencentOssState())) {
+            return true;
+        }
+        if (this.customOssSetting != null && this.customOssSetting.isModified(state.getCustomOssState())) {
+            return true;
+        }
+        return this.picListOssSetting != null && this.picListOssSetting.isModified(state.getPicListOssState());
     }
 
 
@@ -1717,42 +1723,32 @@ public class UploadServicePanel {
                 String url;
                 MikState state = MikPersistenComponent.getInstance().getState();
                 // 主动保存当前配置, 后续测试逻辑可以从 state 获取最新配置
-                this.applyOssState(state);
+                this.applyOssState(state, index);
                 try {
                     url = client.upload(inputStream, TEST_FILE_NAME, state);
                     log.info("测试按钮上传的图片返回结果: {}", url);
+
+                    if (StringUtils.isNotBlank(url)) {
+                        if (log.isTraceEnabled()) {
+                            BrowserUtil.browse(url);
+                        }
+                    } else {
+                        Messages.showMessageDialog(this.content,
+                                                   MikBundle.message("settings.upload.failed", cloudEnum.getTitle()),
+                                                   "Error",
+                                                   Messages.getErrorIcon());
+                    }
+
                 } catch (Exception exception) {
                     Messages.showMessageDialog(this.content,
                                                exception.getMessage(),
                                                "Error",
                                                Messages.getErrorIcon());
+                } finally {
                     // 重置提示状态
                     resetAvailableStatus(index);
-                    return;
                 }
-                if (StringUtils.isNotBlank(url)) {
-                    // 测试通过了, 移除红点指示器
-                    this.testUploadButton.setText("<html><span style='color:green'>●</span> 验证图片上传</html>");
 
-                    // 测试通过了, 则判断是否勾选设置默认图床, 若勾选则刷新可用状态
-                    boolean isDefaultCheckBox = this.setAsDefaultCloudCheckBox.isSelected();
-                    if (isDefaultCheckBox) {
-                        int cloudTypeIndex = this.defaultCloudComboBox.getSelectedIndex();
-                        if (index == cloudTypeIndex) {
-                            this.cloudServerAvailableMessage.setText(MikBundle.message("oss.available"));
-                        }
-                    }
-                    // 主动保存
-                    // this.apply(MikPersistenComponent.getInstance().getState());
-                    if (log.isTraceEnabled()) {
-                        BrowserUtil.browse(url);
-                    }
-                } else {
-                    Messages.showMessageDialog(this.content,
-                                               MikBundle.message("settings.upload.failed", cloudEnum.getTitle()),
-                                               "Error",
-                                               Messages.getErrorIcon());
-                }
             } else {
                 Messages.showMessageDialog(this.content,
                                            MikBundle.message("settings.upload.not.available", cloudEnum.getTitle()),

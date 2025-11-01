@@ -129,7 +129,7 @@ public final class MoveToOtherStorageAction extends AnAction {
         DialogBuilder builder = new DialogBuilder();
         MoveToOtherOssSettingsDialog dialog = new MoveToOtherOssSettingsDialog();
         // 获取设置的默认图床索引, 如果在设置页面中关闭了默认图床, 那就是 CloudEnum.SM_MS_CLOUD (0)
-        int index = MikPersistenComponent.getInstance().getState().getCloudType();
+        int index = MikPersistenComponent.getInstance().getState().getDefaultCloudType();
         // 设置选中默认的图床
         dialog.getCloudComboBox().setSelectedIndex(index);
         showMessage(builder, dialog, index);

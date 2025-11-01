@@ -1,5 +1,7 @@
 package info.dong4j.idea.plugin.client;
 
+import com.intellij.credentialStore.CredentialAttributes;
+
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
@@ -122,6 +124,11 @@ public class AliyunOssClient extends AbstractOssClient {
     @Override
     protected AbstractExtendOssState getState(MikState state) {
         return state.getAliyunOssState();
+    }
+
+    @Override
+    protected CredentialAttributes credentialAttributes() {
+        return AliyunOssSetting.CREDENTIAL_ATTRIBUTES;
     }
 
     /**

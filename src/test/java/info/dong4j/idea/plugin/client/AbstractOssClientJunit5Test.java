@@ -1,5 +1,7 @@
 package info.dong4j.idea.plugin.client;
 
+import com.intellij.credentialStore.CredentialAttributes;
+
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.oss.AbstractExtendOssState;
@@ -80,6 +82,11 @@ public class AbstractOssClientJunit5Test {
             return null;
         }
 
+        @Override
+        protected CredentialAttributes credentialAttributes() {
+            return null;
+        }
+
         /**
          * 获取云平台类型
          * <p>
@@ -134,6 +141,11 @@ public class AbstractOssClientJunit5Test {
 
         @Override
         protected AbstractExtendOssState getState(MikState state) {
+            return null;
+        }
+
+        @Override
+        protected CredentialAttributes credentialAttributes() {
             return null;
         }
 

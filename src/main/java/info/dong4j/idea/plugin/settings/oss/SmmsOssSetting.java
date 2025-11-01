@@ -5,6 +5,7 @@ import com.intellij.credentialStore.CredentialAttributes;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.util.PasswordManager;
+import info.dong4j.idea.plugin.util.StringUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -29,6 +30,7 @@ public class SmmsOssSetting implements OssSetting<SmmsOssState> {
 
     /** 图床类型文本输入框 */
     private final JPasswordField smmsTokenTextField;
+    private final JTextField smmsUrlTextField;
 
     /**
      * 初始化 PicList 图床设置
@@ -38,6 +40,7 @@ public class SmmsOssSetting implements OssSetting<SmmsOssState> {
      */
     public SmmsOssSetting(JTextField smmsUrlTextField,
                           JPasswordField smmsTokenTextField) {
+        this.smmsUrlTextField = smmsUrlTextField;
         this.smmsTokenTextField = smmsTokenTextField;
     }
 
@@ -60,8 +63,10 @@ public class SmmsOssSetting implements OssSetting<SmmsOssState> {
     @Override
     public boolean isModified(@NotNull SmmsOssState state) {
         String token = new String(this.smmsTokenTextField.getPassword());
+        String url = smmsUrlTextField.getText();
 
-        return token.equals(state.getToken());
+        return !(url.equals(state.getUrl())
+                 && token.equals(PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES)));
     }
 
     /**
@@ -85,6 +90,7 @@ public class SmmsOssSetting implements OssSetting<SmmsOssState> {
      */
     @Override
     public void reset(SmmsOssState state) {
+        this.smmsUrlTextField.setText(StringUtils.isBlank(state.getUrl()) ? SmmsOssState.API : state.getUrl());
         this.smmsTokenTextField.setText(PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES));
     }
 }

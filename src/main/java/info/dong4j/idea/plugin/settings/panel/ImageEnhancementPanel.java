@@ -413,16 +413,16 @@ public class ImageEnhancementPanel {
         boolean watermark = this.watermarkCheckBox.isSelected();
         String watermarkText = this.watermarkTextTextField.getText().trim();
 
-        return changeToHtmlTag == state.isChangeToHtmlTag()
-               && tagType.equals(state.getTagType())
-               && tagTypeCode.equals(state.getTagTypeCode())
-               && compress == state.isCompress()
-               && compressPercent == state.getCompressBeforeUploadOfPercent()
-               && convertToWebp == state.isConvertToWebp()
-               && rename == state.isRename()
-               // && renamePattern.equals(state.getRenamePattern()) // TODO
-               && watermark == state.isWatermark()
-               && watermarkText.equals(state.getWatermarkText());
+        return !(changeToHtmlTag == state.isChangeToHtmlTag()
+                 && tagType.equals(state.getTagType())
+                 && tagTypeCode.equals(state.getTagTypeCode())
+                 && compress == state.isCompress()
+                 && compressPercent == state.getCompressBeforeUploadOfPercent()
+                 && convertToWebp == state.isConvertToWebp()
+                 && rename == state.isRename()
+                 // && renamePattern.equals(state.getRenamePattern()) // TODO
+                 && watermark == state.isWatermark()
+                 && watermarkText.equals(state.getWatermarkText()));
     }
 
     /**

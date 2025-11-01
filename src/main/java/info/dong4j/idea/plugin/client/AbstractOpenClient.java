@@ -1,10 +1,13 @@
 package info.dong4j.idea.plugin.client;
 
+import com.intellij.credentialStore.CredentialAttributes;
+
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.settings.oss.AbstractOpenOssSetting;
 import info.dong4j.idea.plugin.settings.oss.AbstractOpenOssState;
+import info.dong4j.idea.plugin.util.PasswordManager;
 import info.dong4j.idea.plugin.util.StringUtils;
 
 import org.apache.http.util.Asserts;
@@ -93,7 +96,7 @@ public abstract class AbstractOpenClient implements OssClient {
         String repos = ossState.getRepos();
         repos = AbstractOpenOssSetting.REPOS_HINT.equals(repos) ? "" : repos;
         String branch = ossState.getBranch();
-        String token = ossState.getToken();
+        String token = PasswordManager.getPassword(credentialAttributes());
         String filedir = ossState.getFiledir();
         String customEndpoint = ossState.getCustomEndpoint();
         boolean isCustomEndpoint = Boolean.TRUE.equals(ossState.getIsCustomEndpoint());
@@ -289,5 +292,16 @@ public abstract class AbstractOpenClient implements OssClient {
      */
     @NotNull
     protected abstract String buildImageUrl(String key);
+
+    /**
+     * 获取凭证属性
+     * <p>
+     * 返回当前凭证的属性信息，具体实现由子类提供
+     *
+     * @return 凭证属性
+     * @since 1.6.0
+     */
+    protected abstract CredentialAttributes credentialAttributes();
+
 
 }

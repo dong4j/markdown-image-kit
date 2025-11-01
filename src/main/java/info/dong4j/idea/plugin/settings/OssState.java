@@ -89,7 +89,7 @@ public abstract class OssState {
      */
     public static CloudEnum getDefaultCloud() {
         Optional<CloudEnum> cloudType = EnumsUtils.getEnumObject(CloudEnum.class,
-                                                                 e -> e.getIndex() == MikPersistenComponent.getInstance().getState().getCloudType());
+                                                                 e -> e.getIndex() == MikPersistenComponent.getInstance().getState().getDefaultCloudType());
         return cloudType.orElse(null);
     }
 

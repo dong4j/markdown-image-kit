@@ -1,9 +1,12 @@
 package info.dong4j.idea.plugin.client;
 
+import com.intellij.credentialStore.CredentialAttributes;
+
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.settings.oss.AbstractExtendOssState;
+import info.dong4j.idea.plugin.util.PasswordManager;
 import info.dong4j.idea.plugin.util.StringUtils;
 
 import org.apache.http.util.Asserts;
@@ -67,7 +70,7 @@ public abstract class AbstractOssClient implements OssClient {
 
         String bucketName = ossState.getBucketName();
         String accessKey = ossState.getAccessKey();
-        String secretKey = ossState.getAccessSecretKey();
+        String secretKey = PasswordManager.getPassword(credentialAttributes());
         String endpoint = ossState.getEndpoint();
         String filedir = ossState.getFiledir();
         String customEndpoint = ossState.getCustomEndpoint();
@@ -256,4 +259,15 @@ public abstract class AbstractOssClient implements OssClient {
      * @since 2.0.0
      */
     protected abstract AbstractExtendOssState getState(MikState state);
+
+    /**
+     * 获取凭证属性
+     * <p>
+     * 返回当前凭证的属性信息，具体实现由子类提供
+     *
+     * @return 凭证属性
+     * @since 1.6.0
+     */
+    protected abstract CredentialAttributes credentialAttributes();
+
 }

@@ -184,8 +184,17 @@ public class ImageProcessingPanel {
     }
 
     // TODO: 检查图片处理设置是否修改（需要在 MikState 中添加对应字段）
+
+    /**
+     * 判断图片处理设置是否被修改
+     * <p>
+     * 检查传入的MikState对象中图片处理相关设置是否发生改变
+     *
+     * @param state MikState对象，用于获取图片处理设置状态
+     * @return 如果图片处理设置被修改，返回true；否则返回false
+     */
     public boolean isImageProcessingModified(@NotNull MikState state) {
-        return true;
+        return false;
     }
 
     // TODO: 应用图片处理设置（需要在 MikState 中添加对应字段）

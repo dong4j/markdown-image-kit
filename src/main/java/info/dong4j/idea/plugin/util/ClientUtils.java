@@ -99,7 +99,7 @@ public final class ClientUtils {
      */
     @Nullable
     public static OssClient getDeafultClient() {
-        return getClient(MikPersistenComponent.getInstance().getState().getCloudType());
+        return getClient(MikPersistenComponent.getInstance().getState().getDefaultCloudType());
     }
 
     /**

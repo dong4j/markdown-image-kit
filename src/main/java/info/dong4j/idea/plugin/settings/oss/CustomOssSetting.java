@@ -92,10 +92,10 @@ public class CustomOssSetting implements OssSetting<CustomOssState> {
 
         String api = this.customApiTextField.getText().trim();
 
-        return requestKey.equals(state.getRequestKey())
-               && responseUrlPath.equals(state.getResponseUrlPath())
-               && api.equals(state.getApi())
-               && httpMethod.equals(state.getHttpMethod());
+        return !(requestKey.equals(state.getRequestKey())
+                 && responseUrlPath.equals(state.getResponseUrlPath())
+                 && api.equals(state.getApi())
+                 && httpMethod.equals(state.getHttpMethod()));
     }
 
     /**

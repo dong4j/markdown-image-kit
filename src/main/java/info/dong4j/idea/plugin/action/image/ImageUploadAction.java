@@ -73,7 +73,7 @@ public final class ImageUploadAction extends ImageActionBase {
     @Override
     protected void buildChain(AnActionEvent event, Map<Document, List<MarkdownImage>> waitingProcessMap) {
         // 使用默认 client
-        CloudEnum cloudEnum = OssState.getCloudType(IntentionActionBase.getState().getCloudType());
+        CloudEnum cloudEnum = OssState.getCloudType(IntentionActionBase.getState().getDefaultCloudType());
         OssClient client = ClientUtils.getClient(cloudEnum);
 
         EventData data = new EventData()

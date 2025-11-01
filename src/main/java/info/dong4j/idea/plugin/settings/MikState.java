@@ -29,6 +29,8 @@ import lombok.Data;
  */
 @Data
 public class MikState {
+    /** 默认云服务类型，表示使用 SM_MS_CLOUD 云服务 */
+    public static final CloudEnum DEFAULT_CLOUD = CloudEnum.SM_MS_CLOUD;
     /** 旧哈希键，用于标识旧的哈希配置 */
     public static final String OLD_HASH_KEY = "old";
     /** 新的哈希键，用于标识特定的哈希配置 */
@@ -74,11 +76,11 @@ public class MikState {
     /** 图片保存路径，默认为 "./imgs" 目录，用于存储上传或生成的图片文件 */
     private String imageSavePath = "./imgs";
     /** 是否启用自定义默认图床功能 */
-    private boolean defaultCloudCheck = false;
+    private boolean defaultCloudCheck = true;
     /** 默认图床类型，取值为 CloudEnum.ALIYUN_CLOUD 的 getIndex(), 注意: 不是枚举的 index */
-    private int cloudType = CloudEnum.SM_MS_CLOUD.getIndex();
+    private int defaultCloudType = DEFAULT_CLOUD.getIndex();
     /** 用于保存未勾选自定义默认图床时需要保存的下拉列表选项，仅在 setting 页面使用 */
-    private int tempCloudType = CloudEnum.SM_MS_CLOUD.getIndex();
+    private int tempCloudType = DEFAULT_CLOUD.getIndex();
     /** 重命名文件标志，用于指示是否需要对文件进行重命名操作 */
     private boolean rename = false;
     /** 文件名后缀索引，用于标识当前文件的后缀类型 */

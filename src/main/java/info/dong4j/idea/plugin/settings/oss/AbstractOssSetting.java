@@ -207,13 +207,13 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
         String customEndpoint = this.customEndpointTextField.getText().trim();
         boolean isCustomEndpoint = this.customEndpointCheckBox.isSelected();
 
-        return bucketName.equals(state.getBucketName())
-               && accessKey.equals(state.getAccessKey())
-               && secretKey.equals(PasswordManager.getPassword(this.credentialAttributes()))
-               && endpoint.equals(state.getEndpoint())
-               && filedir.equals(state.getFiledir())
-               && state.getIsCustomEndpoint() == isCustomEndpoint
-               && customEndpoint.equals(state.getCustomEndpoint());
+        return !(bucketName.equals(state.getBucketName())
+                 && accessKey.equals(state.getAccessKey())
+                 && secretKey.equals(PasswordManager.getPassword(this.credentialAttributes()))
+                 && endpoint.equals(state.getEndpoint())
+                 && filedir.equals(state.getFiledir())
+                 && state.getIsCustomEndpoint() == isCustomEndpoint
+                 && customEndpoint.equals(state.getCustomEndpoint()));
     }
 
     /**

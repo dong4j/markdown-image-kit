@@ -92,10 +92,10 @@ public class TencentOssSetting implements OssSetting<TencentOssState> {
 
         String regionName = this.tencentRegionNameTextField.getText().trim();
 
-        return bucketName.equals(state.getBucketName())
-               && accessKey.equals(state.getAccessKey())
-               && secretKey.equals(PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES))
-               && regionName.equals(state.getRegionName());
+        return !(bucketName.equals(state.getBucketName())
+                 && accessKey.equals(state.getAccessKey())
+                 && secretKey.equals(PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES))
+                 && regionName.equals(state.getRegionName()));
     }
 
     /**

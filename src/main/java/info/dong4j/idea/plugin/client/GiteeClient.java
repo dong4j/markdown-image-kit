@@ -1,5 +1,7 @@
 package info.dong4j.idea.plugin.client;
 
+import com.intellij.credentialStore.CredentialAttributes;
+
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
@@ -159,6 +161,11 @@ public class GiteeClient extends AbstractOpenClient {
     public String buildImageUrl(String key) {
         // https://gitee.com/{owner}/{repos}/raw/{branch}{path};
         return "https://gitee.com/" + repos + "/raw/" + branch + key;
+    }
+
+    @Override
+    protected CredentialAttributes credentialAttributes() {
+        return GiteeSetting.CREDENTIAL_ATTRIBUTES;
     }
 
 }

@@ -39,8 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SmmsClient implements OssClient {
     /** 客户端实例，用于执行网络请求 */
     private static Client client;
-    /** 上传文件的 API 地址 */
-    private static final String API = "https://sm.ms/api/v2/upload";
+    private String api;
     private String token;
 
     /**
@@ -86,6 +85,7 @@ public class SmmsClient implements OssClient {
      */
     private void init() {
         this.token = PasswordManager.getPassword(SmmsOssSetting.CREDENTIAL_ATTRIBUTES);
+        this.api = MikPersistenComponent.getInstance().getState().getSmmsOssState().getUrl();
     }
 
     /**
@@ -119,7 +119,7 @@ public class SmmsClient implements OssClient {
             init();
         }
 
-        return SmmsUtils.putObject(API,
+        return SmmsUtils.putObject(this.api,
                                    this.token,
                                    fileName,
                                    inputStream);
@@ -143,10 +143,12 @@ public class SmmsClient implements OssClient {
     public String upload(InputStream inputStream, String fileName, MikState state) throws Exception {
         SmmsOssState smmsOssState = state.getSmmsOssState();
         String token = PasswordManager.getPassword(SmmsOssSetting.CREDENTIAL_ATTRIBUTES);
+        String api = smmsOssState.getUrl();
 
+        Asserts.notBlank(api, "URL 不能为空");
         Asserts.notBlank(token, "Token 不能为空");
 
-        return this.upload(inputStream, fileName, token);
+        return this.upload(inputStream, fileName, api, token);
     }
 
     /**
@@ -165,10 +167,11 @@ public class SmmsClient implements OssClient {
     public String upload(InputStream inputStream, String fileName, JPanel jPanel) throws Exception {
         Map<String, String> map = this.getTestFieldText(jPanel);
         String token = map.get("token");
+        String api = map.get("api");
 
         Asserts.notBlank(token, "Token 不能为空");
 
-        return this.upload(inputStream, fileName, token);
+        return this.upload(inputStream, fileName, api, token);
     }
 
     /**
@@ -187,8 +190,10 @@ public class SmmsClient implements OssClient {
     @Contract(pure = true)
     public String upload(InputStream inputStream,
                          String fileName,
+                         String api,
                          String token) throws Exception {
 
+        this.api = api;
         this.token = token;
         String url = this.upload(inputStream, fileName);
 

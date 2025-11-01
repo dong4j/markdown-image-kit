@@ -101,11 +101,11 @@ public class PicListOssSetting implements OssSetting<PicListOssState> {
                          ? JTextFieldHintListener.getRealText(this.exePathTextField.getTextField(), EXE_PATH_HINT)
                          : "";
 
-        return !(api.equals(state.getApi()) &&
-                 picbed.equals(state.getPicbed()) &&
-                 configName.equals(state.getConfigName()) &&
-                 key.equals(state.getKey()) &&
-                 exePath.equals(state.getExePath()));
+        return !(api.equals(state.getApi())
+                 && picbed.equals(state.getPicbed())
+                 && configName.equals(state.getConfigName())
+                 && key.equals(state.getKey())
+                 && exePath.equals(state.getExePath()));
     }
 
     /**
