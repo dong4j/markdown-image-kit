@@ -36,10 +36,15 @@ public class MikState {
     private String currentInsertPath = "";
     /** 保存的自定义路径值，用于持久化用户输入的自定义路径，即使当前选择的不是"复制到指定路径"也保留 */
     private String savedCustomInsertPath = "";
+    /** 是否应用到本地图片 */
     private boolean applyToLocalImages = false;
+    /** 是否应用到网络图片 */
     private boolean applyToNetworkImages = false;
+    /** 是否优先使用相对路径: 关闭后会使用绝对路径 */
     private boolean preferRelativePath = false;
+    /** 添加斜杠标志，用于控制是否在路径末尾添加斜杠 */
     private boolean addDotSlash = false;
+    /** 自动转义图片 URL 标志，为 true 时会对图片 URL 进行转义处理 */
     private boolean autoEscapeImageUrl = false;
 
 
