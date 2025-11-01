@@ -29,6 +29,50 @@ import lombok.Data;
  */
 @Data
 public class MikState {
+
+    //region 插入图片时
+    /** 图片备份标志，表示是否启用图片备份功能 */
+    private boolean backup = false;
+    /** 拷贝图片到目录标志，用于指示是否将图片复制到指定目录 */
+    private boolean copyToDir = false;
+    /** 上传图片并替换标志位，用于控制是否执行图片上传及替换操作 */
+    private boolean uploadAndReplace = false;
+    /** 图片保存路径，默认为 "./imgs" 目录，用于存储上传或生成的图片文件 */
+    private String imageSavePath = "./imgs";
+    //endregion
+
+
+    //region 图片处理
+    /** 是否替换标签 */
+    private boolean changeToHtmlTag = false;
+    /** 替换的标签类型 */
+    private String tagType = "";
+    /** 替换的标签类型代码 */
+    private String tagTypeCode = "";
+
+
+    /** 重命名文件标志，用于指示是否需要对文件进行重命名操作 */
+    private boolean rename = false;
+    /** 文件名后缀索引，用于标识当前文件的后缀类型 */
+    private int suffixIndex = SuffixEnum.FILE_NAME.index;
+
+    /** 是否压缩图片 */
+    private boolean compress = false;
+    /** 压缩上传前的百分比，表示图片压缩到原始大小的百分比 */
+    private int compressBeforeUploadOfPercent = 60;
+
+    /** 是否将图片转换为 webp 格式 */
+    private boolean convertToWebp = false;
+    private int webpQuality = 60;
+
+    /** 水印开关，用于控制是否显示水印 */
+    private boolean watermark = false;
+    /** 水印文本，用于在界面中显示的标识信息 */
+    private String watermarkText = "@MIK";
+    //endregion
+
+
+    //region 上传服务设定
     /** 默认云服务类型，表示使用 SM_MS_CLOUD 云服务 */
     public static final CloudEnum DEFAULT_CLOUD = CloudEnum.SM_MS_CLOUD;
     /** 旧哈希键，用于标识旧的哈希配置 */
@@ -53,40 +97,13 @@ public class MikState {
     private CustomOssState customOssState;
     /** PicList 图床状态信息 */
     private PicListOssState picListOssState;
-    /** 是否替换标签 */
-    private boolean changeToHtmlTag = false;
-    /** 替换的标签类型 */
-    private String tagType = "";
-    /** 替换的标签类型代码 */
-    private String tagTypeCode = "";
-    /** 是否压缩图片 */
-    private boolean compress = false;
-    /** 压缩上传前的百分比，表示图片压缩到原始大小的百分比 */
-    private int compressBeforeUploadOfPercent = 60;
-    /** 图片备份标志，表示是否启用图片备份功能 */
-    private boolean backup = false;
-    /** 水印开关，用于控制是否显示水印 */
-    private boolean watermark = false;
-    /** 水印文本，用于在界面中显示的标识信息 */
-    private String watermarkText = "@MIK";
-    /** 拷贝图片到目录标志，用于指示是否将图片复制到指定目录 */
-    private boolean copyToDir = false;
-    /** 上传图片并替换标志位，用于控制是否执行图片上传及替换操作 */
-    private boolean uploadAndReplace = false;
-    /** 图片保存路径，默认为 "./imgs" 目录，用于存储上传或生成的图片文件 */
-    private String imageSavePath = "./imgs";
     /** 是否启用自定义默认图床功能 */
     private boolean defaultCloudCheck = true;
     /** 默认图床类型，取值为 CloudEnum.ALIYUN_CLOUD 的 getIndex(), 注意: 不是枚举的 index */
     private int defaultCloudType = DEFAULT_CLOUD.getIndex();
     /** 用于保存未勾选自定义默认图床时需要保存的下拉列表选项，仅在 setting 页面使用 */
     private int tempCloudType = DEFAULT_CLOUD.getIndex();
-    /** 重命名文件标志，用于指示是否需要对文件进行重命名操作 */
-    private boolean rename = false;
-    /** 文件名后缀索引，用于标识当前文件的后缀类型 */
-    private int suffixIndex = SuffixEnum.FILE_NAME.index;
-    /** 是否将图片转换为 webp 格式 */
-    private boolean convertToWebp = false;
+    //endregion
 
     /**
      * 初始化MikState对象，用于管理各种对象存储服务的状态

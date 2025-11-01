@@ -217,6 +217,8 @@ public class ImageEnhancementPanel {
         compressSpinner = new JSpinner(new SpinnerNumberModel(80, 40, 90, 1));
         compressSpinner.setEnabled(false);
         ((JSpinner.DefaultEditor) compressSpinner.getEditor()).getTextField().setColumns(5);
+        // 禁止直接在文本框中输入，只能通过上下按钮调节
+        ((JSpinner.DefaultEditor) compressSpinner.getEditor()).getTextField().setEditable(false);
         // 设置 JSpinner 的宽度
         compressSpinner.setPreferredSize(new Dimension(100, compressSpinner.getPreferredSize().height));
         compressSpinner.setMaximumSize(new Dimension(100, compressSpinner.getMaximumSize().height));
@@ -246,6 +248,8 @@ public class ImageEnhancementPanel {
         webpQualitySpinner = new JSpinner(new SpinnerNumberModel(80, 40, 90, 1));
         webpQualitySpinner.setEnabled(false);
         ((JSpinner.DefaultEditor) webpQualitySpinner.getEditor()).getTextField().setColumns(5);
+        // 禁止直接在文本框中输入，只能通过上下按钮调节
+        ((JSpinner.DefaultEditor) webpQualitySpinner.getEditor()).getTextField().setEditable(false);
         // 设置 JSpinner 的宽度
         webpQualitySpinner.setPreferredSize(new Dimension(100, webpQualitySpinner.getPreferredSize().height));
         webpQualitySpinner.setMaximumSize(new Dimension(100, webpQualitySpinner.getMaximumSize().height));
@@ -348,13 +352,8 @@ public class ImageEnhancementPanel {
 
         // 转为 WebP
         this.convertToWebpCheckBox.setSelected(state.isConvertToWebp());
-
-        // WebP 质量（新功能，暂时使用压缩比例的值）
-        // TODO: 在 MikState 中添加 webpQuality 字段
-        if (this.webpQualitySpinner != null) {
-            this.webpQualitySpinner.setValue(state.getCompressBeforeUploadOfPercent());
-            this.webpQualitySpinner.setEnabled(state.isCompress() && state.isConvertToWebp());
-        }
+        this.webpQualitySpinner.setValue(state.getWebpQuality());
+        this.webpQualitySpinner.setEnabled(state.isConvertToWebp());
 
         // 图片重命名
         this.renameCheckBox.setSelected(state.isRename());
@@ -405,6 +404,7 @@ public class ImageEnhancementPanel {
         boolean compress = this.compressCheckBox.isSelected();
         int compressPercent = ((Number) this.compressSpinner.getValue()).intValue();
         boolean convertToWebp = this.convertToWebpCheckBox.isSelected();
+        int webpQuality = ((Number) this.webpQualitySpinner.getValue()).intValue();
 
         boolean rename = this.renameCheckBox.isSelected();
         // TODO: 在 MikState 中添加 renamePattern 字段
@@ -412,12 +412,12 @@ public class ImageEnhancementPanel {
 
         boolean watermark = this.watermarkCheckBox.isSelected();
         String watermarkText = this.watermarkTextTextField.getText().trim();
-
         return !(changeToHtmlTag == state.isChangeToHtmlTag()
                  && tagType.equals(state.getTagType())
                  && tagTypeCode.equals(state.getTagTypeCode())
                  && compress == state.isCompress()
                  && compressPercent == state.getCompressBeforeUploadOfPercent()
+                 && webpQuality == state.getWebpQuality()
                  && convertToWebp == state.isConvertToWebp()
                  && rename == state.isRename()
                  // && renamePattern.equals(state.getRenamePattern()) // TODO
@@ -449,12 +449,11 @@ public class ImageEnhancementPanel {
         state.setCompress(this.compressCheckBox.isSelected());
         state.setCompressBeforeUploadOfPercent(((Number) this.compressSpinner.getValue()).intValue());
 
-        // 仅在压缩启用时允许 webp 转换生效
-        state.setConvertToWebp(this.compressCheckBox.isSelected()
-                               && this.convertToWebpCheckBox.isSelected());
+        //
+        state.setConvertToWebp(this.convertToWebpCheckBox.isSelected());
 
         // TODO: 在 MikState 中添加 webpQuality 字段
-        // state.setWebpQuality(((Number) this.webpQualitySpinner.getValue()).intValue());
+        state.setWebpQuality(((Number) this.webpQualitySpinner.getValue()).intValue());
 
         state.setRename(this.renameCheckBox.isSelected());
         // TODO: 在 MikState 中添加 renamePattern 字段
