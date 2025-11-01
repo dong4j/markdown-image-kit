@@ -64,7 +64,7 @@ public class ImageStorageHandler extends ActionHandlerAdapter {
      */
     @Override
     public boolean isEnabled(EventData data) {
-        return IntentionActionBase.getState().isCopyToDir();
+        return !IntentionActionBase.getState().getCurrentInsertPath().isBlank();
     }
 
     /**

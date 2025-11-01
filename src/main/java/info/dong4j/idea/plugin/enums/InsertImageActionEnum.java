@@ -2,6 +2,7 @@ package info.dong4j.idea.plugin.enums;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -96,6 +97,32 @@ public enum InsertImageActionEnum {
             descriptions[actionEnum.getValue()] = actionEnum.getDesc();
         }
         return descriptions;
+    }
+
+    /**
+     * 根据操作枚举获取对应的路径
+     * <p>
+     * 根据不同的操作类型返回对应的路径值，用于复制图片时的路径设置。
+     * 对于自定义路径（COPY_TO_CUSTOM），如果提供了 customPath 参数则使用该值，否则返回空字符串。
+     *
+     * @param action     操作枚举类型
+     * @param customPath 自定义路径（仅在 COPY_TO_CUSTOM 时使用，可为 null）
+     * @return 对应操作的路径字符串，如果操作不需要路径则返回空字符串
+     */
+    @NotNull
+    @Contract(pure = true)
+    public static String getPathByAction(@Nullable InsertImageActionEnum action, @Nullable String customPath) {
+        if (action == null) {
+            return "";
+        }
+
+        return switch (action) {
+            case COPY_TO_CURRENT -> "./";
+            case COPY_TO_ASSETS -> "./assets";
+            case COPY_TO_FILENAME_ASSETS -> "./${filename}.assets";
+            case COPY_TO_CUSTOM -> customPath != null ? customPath : "";
+            default -> "";
+        };
     }
 }
 

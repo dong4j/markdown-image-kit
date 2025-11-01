@@ -9,6 +9,7 @@ import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.editor.actionSystem.EditorTextInsertHandler;
 import com.intellij.openapi.externalSystem.task.TaskCallbackAdapter;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.AbstractVcs;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -32,6 +33,7 @@ import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
+import info.dong4j.idea.plugin.enums.InsertImageActionEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
@@ -120,8 +122,12 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
         try {
             if (virtualFile != null && MarkdownUtils.isMardownFile(virtualFile)) {
                 MikState state = MikPersistenComponent.getInstance().getState();
+                InsertImageActionEnum insertImageAction = state.getInsertImageAction();
 
-                if (state.isUploadAndReplace() || state.isCopyToDir()) {
+                // 判断是否需要处理图片：复制或上传
+                boolean shouldProcess = insertImageAction != null && insertImageAction != InsertImageActionEnum.NONE;
+
+                if (shouldProcess) {
                     Map<DataFlavor, Object> clipboardData = ImageUtils.getDataFromClipboard();
                     if (clipboardData != null) {
                         Iterator<Map.Entry<DataFlavor, Object>> iterator = clipboardData.entrySet().iterator();
@@ -150,11 +156,35 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
                             .addHandler(new ImageCompressionHandler())
                             // 图片重命名
                             .addHandler(new ImageRenameHandler());
-                        if (state.isCopyToDir()) {
+
+                        // 处理复制到指定路径的逻辑（包括4个复制选项）
+                        if (insertImageAction == InsertImageActionEnum.COPY_TO_CURRENT
+                            || insertImageAction == InsertImageActionEnum.COPY_TO_ASSETS
+                            || insertImageAction == InsertImageActionEnum.COPY_TO_FILENAME_ASSETS
+                            || insertImageAction == InsertImageActionEnum.COPY_TO_CUSTOM) {
+
+                            // 获取当前路径，如果为空则根据枚举类型设置默认路径
+                            String currentPath = state.getCurrentInsertPath();
+                            if (currentPath == null || currentPath.isEmpty()) {
+                                String customPath = insertImageAction == InsertImageActionEnum.COPY_TO_CUSTOM
+                                                    ? state.getSavedCustomInsertPath()
+                                                    : null;
+                                currentPath = InsertImageActionEnum.getPathByAction(insertImageAction, customPath);
+                            }
+                            // 处理占位符并设置保存路径
+                            String processedPath = this.processPathPlaceholders(
+                                currentPath,
+                                virtualFile,
+                                editor.getProject()
+                                                                               );
+                            // 设置处理后的路径
+                            state.setImageSavePath(processedPath);
                             // 图片保存
                             manager.addHandler(new ImageStorageHandler());
                         }
-                        if (state.isUploadAndReplace()) {
+
+                        // 处理上传图片的逻辑
+                        if (insertImageAction == InsertImageActionEnum.UPLOAD) {
                             // 处理 client
                             manager.addHandler(new OptionClientHandler())
                                 .addHandler(new ImageUploadHandler());
@@ -379,6 +409,71 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
         if (usedVcs != null && usedVcs.getCheckinEnvironment() != null) {
             usedVcs.getCheckinEnvironment().scheduleUnversionedFilesForAddition(Collections.singletonList(fileByPath));
         }
+    }
+
+    /**
+     * 处理路径中的占位符
+     * <p>
+     * 替换路径中的占位符：
+     * - ${filename}: 当前文件名（不含扩展名）
+     * - ${project}: 当前项目路径
+     * <p>
+     * 处理跨平台路径差异：
+     * - Windows 使用反斜杠 `\`，Unix/Linux/macOS 使用正斜杠 `/`
+     * - 对于相对路径（以 `./` 或 `../` 开头），统一使用正斜杠 `/`（Markdown 标准格式）
+     * - 对于绝对路径，保持系统原生格式，但 File 类也能接受正斜杠
+     * - 最终路径统一规范化为正斜杠，确保跨平台兼容性
+     *
+     * @param path        原始路径
+     * @param virtualFile 当前文件
+     * @param project     项目对象
+     * @return 处理后的路径
+     */
+    @NotNull
+    private String processPathPlaceholders(@NotNull String path, @NotNull VirtualFile virtualFile, @Nullable Project project) {
+        if (path.isEmpty()) {
+            return path;
+        }
+
+        String result = path;
+
+        // 替换 ${filename} 为当前文件名（不含扩展名）
+        String fileName = virtualFile.getNameWithoutExtension();
+        result = result.replace("${filename}", fileName);
+
+        // 替换 ${project} 为项目根路径
+        if (project != null && project.getBasePath() != null) {
+            String projectPath = project.getBasePath();
+            result = result.replace("${project}", projectPath);
+        } else {
+            // 如果项目路径不可用，移除 ${project} 占位符
+            result = result.replace("${project}", "");
+        }
+
+        // 规范化路径分隔符，统一使用正斜杠（跨平台兼容）
+        // File 类可以接受正斜杠，即使在 Windows 上也能正确处理
+        // 同时确保相对路径和绝对路径都能正确工作
+        result = normalizePathSeparator(result);
+
+        return result;
+    }
+
+    /**
+     * 规范化路径分隔符
+     * <p>
+     * 将路径中的反斜杠统一转换为正斜杠，确保跨平台兼容性。
+     * Java 的 File 类可以接受正斜杠，即使在 Windows 上也能正确处理。
+     * 这对于相对路径和绝对路径都适用。
+     *
+     * @param path 原始路径
+     * @return 规范化后的路径（统一使用正斜杠）
+     */
+    @NotNull
+    private static String normalizePathSeparator(@NotNull String path) {
+        // 统一将反斜杠替换为正斜杠
+        // 这样无论在哪个操作系统上，都能正确工作
+        // File 类会自动处理正斜杠，即使在 Windows 上也是如此
+        return path.replace('\\', '/');
     }
 
     /**

@@ -244,18 +244,13 @@ public class ImageProcessingPanel {
         }
 
         // 检查 insertPath（根据操作类型确定期望的路径值）
-        String expectedPath = "";
-        if (currentAction == InsertImageActionEnum.COPY_TO_CURRENT) {
-            expectedPath = "./";
-        } else if (currentAction == InsertImageActionEnum.COPY_TO_ASSETS) {
-            expectedPath = "./assets";
-        } else if (currentAction == InsertImageActionEnum.COPY_TO_FILENAME_ASSETS) {
-            expectedPath = "./${filename}.assets";
-        } else if (currentAction == InsertImageActionEnum.COPY_TO_CUSTOM) {
-            expectedPath = customPathTextField.getText().trim();
-        }
+        String customPath = currentAction == InsertImageActionEnum.COPY_TO_CUSTOM
+                            ? customPathTextField.getText().trim()
+                            : null;
+        String expectedPath = InsertImageActionEnum.getPathByAction(currentAction, customPath);
 
         String statePath = state.getCurrentInsertPath() != null ? state.getCurrentInsertPath() : "";
+
         if (!expectedPath.equals(statePath)) {
             return true;
         }
@@ -290,20 +285,15 @@ public class ImageProcessingPanel {
         state.setInsertImageAction(actionEnum);
 
         // 根据操作类型设置 insertPath
-        if (actionEnum == InsertImageActionEnum.COPY_TO_CURRENT) {
-            state.setCurrentInsertPath("./");
-        } else if (actionEnum == InsertImageActionEnum.COPY_TO_ASSETS) {
-            state.setCurrentInsertPath("./assets");
-        } else if (actionEnum == InsertImageActionEnum.COPY_TO_FILENAME_ASSETS) {
-            state.setCurrentInsertPath("./${filename}.assets");
-        } else if (actionEnum == InsertImageActionEnum.COPY_TO_CUSTOM) {
-            // 自定义路径，使用用户输入的值，同时保存到持久化字段
-            String customPath = customPathTextField.getText().trim();
-            state.setCurrentInsertPath(customPath);
+        String customPath = actionEnum == InsertImageActionEnum.COPY_TO_CUSTOM
+                            ? customPathTextField.getText().trim()
+                            : null;
+        String path = InsertImageActionEnum.getPathByAction(actionEnum, customPath);
+        state.setCurrentInsertPath(path);
+
+        // 如果是自定义路径，同时保存到持久化字段
+        if (actionEnum == InsertImageActionEnum.COPY_TO_CUSTOM) {
             state.setSavedCustomInsertPath(customPath);
-        } else {
-            // 其他情况（NONE、UPLOAD），设置为空字符串
-            state.setCurrentInsertPath("");
         }
 
         // 保存复选框状态
