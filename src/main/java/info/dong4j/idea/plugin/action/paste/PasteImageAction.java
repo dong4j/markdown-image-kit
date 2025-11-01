@@ -148,12 +148,26 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
 
                     // 检查是否包含网络图片
                     boolean hasNetworkImage = this.hasNetworkImage(waitingProcessMap);
+                    final boolean needStoraged = prepareImageStoragePath(editor, insertImageAction, state, virtualFile);
 
-                    final ActionManager manager = createManager(editor, state, waitingProcessMap, hasNetworkImage);
+                    final ActionManager manager = createManager(editor, state, waitingProcessMap);
 
-                    addImageStorageHandler(editor, insertImageAction, state, virtualFile, manager);
-
-                    addPostHanler(insertImageAction, manager);
+                    // 如果包含网络图片，先添加下载处理器
+                    manager.addHandler(hasNetworkImage, new DownloadImageHandler())
+                        // 图片压缩
+                        .addHandler(new ImageCompressionHandler())
+                        // 图片重命名
+                        .addHandler(new ImageRenameHandler())
+                        .addHandler(needStoraged, new ImageStorageHandler())
+                        // 刷新文件系统
+                        .addHandler(needStoraged, new RefreshFileSystemHandler())
+                        .addHandler(insertImageAction == InsertImageActionEnum.UPLOAD, new OptionClientHandler())
+                        .addHandler(insertImageAction == InsertImageActionEnum.UPLOAD, new ImageUploadHandler())
+                        .addHandler(new ImageLabelChangeHandler())
+                        // 写入标签
+                        .addHandler(new InsertToDocumentHandler())
+                        .addHandler(new FinalChainHandler())
+                        .addHandler(new RefreshFileSystemHandler());
 
                     new ActionTask(editor.getProject(), MikBundle.message("mik.action.paste.task"), manager).queue();
                     return;
@@ -167,8 +181,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
 
     private static ActionManager createManager(@NotNull Editor editor,
                                                MikState state,
-                                               Map<Document, List<MarkdownImage>> waitingProcessMap,
-                                               boolean hasNetworkImage) {
+                                               Map<Document, List<MarkdownImage>> waitingProcessMap) {
         // 使用默认 client
         CloudEnum cloudEnum = OssState.getCloudType(state.getDefaultCloudType());
         OssClient client = ClientUtils.getClient(cloudEnum);
@@ -180,62 +193,24 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
             .setClientName(cloudEnum.title)
             .setWaitingProcessMap(waitingProcessMap);
 
-        ActionManager manager = new ActionManager(data);
-
-        // 如果包含网络图片，先添加下载处理器
-        if (hasNetworkImage) {
-            manager.addHandler(new DownloadImageHandler());
-        }
-
-        return manager
-            // 图片压缩
-            .addHandler(new ImageCompressionHandler())
-            // 图片重命名
-            .addHandler(new ImageRenameHandler());
+        return new ActionManager(data);
     }
 
     /**
-     * 添加后置处理器
+     * 根据插入图片的操作类型处理图片的保存路径，并设置到状态对象中。
      * <p>
-     * 根据插入图片的操作类型，向 ActionManager 添加相应的处理器链。
-     * 如果操作类型为 UPLOAD，则添加处理客户端和图片上传的处理器；
-     * 否则添加标签转换、写入标签、最终处理和刷新文件系统等处理器。
-     *
-     * @param insertImageAction 插入图片的操作类型
-     * @param manager           ActionManager 实例，用于添加处理器
-     */
-    private static void addPostHanler(InsertImageActionEnum insertImageAction, ActionManager manager) {
-        // 处理上传图片的逻辑
-        if (insertImageAction == InsertImageActionEnum.UPLOAD) {
-            // 处理 client
-            manager.addHandler(new OptionClientHandler())
-                .addHandler(new ImageUploadHandler());
-        }
-
-        // 标签转换
-        manager.addHandler(new ImageLabelChangeHandler())
-            // 写入标签
-            .addHandler(new InsertToDocumentHandler())
-            .addHandler(new FinalChainHandler())
-            .addHandler(new RefreshFileSystemHandler());
-    }
-
-    /**
-     * 添加图片存储处理逻辑
-     * <p>
-     * 根据插入图片的操作类型，处理图片的保存路径，并设置到状态对象中。如果操作类型为复制到指定路径，则获取当前路径，处理占位符，并设置保存路径。
+     * 如果操作类型为复制到指定路径，则获取当前路径，处理占位符，并设置保存路径。
      *
      * @param editor            编辑器实例
      * @param insertImageAction 插入图片的操作类型
      * @param state             状态对象，用于存储和获取图片保存路径等信息
      * @param virtualFile       虚拟文件对象
-     * @param manager           操作管理器，用于添加处理逻辑
+     * @return 处理成功返回 true，否则返回 false
      */
-    private void addImageStorageHandler(@NotNull Editor editor,
-                                        InsertImageActionEnum insertImageAction,
-                                        MikState state,
-                                        VirtualFile virtualFile,
-                                        ActionManager manager) {
+    private boolean prepareImageStoragePath(@NotNull Editor editor,
+                                            InsertImageActionEnum insertImageAction,
+                                            MikState state,
+                                            VirtualFile virtualFile) {
         // 处理复制到指定路径的逻辑（包括4个复制选项）
         if (insertImageAction == InsertImageActionEnum.COPY_TO_CURRENT
             || insertImageAction == InsertImageActionEnum.COPY_TO_ASSETS
@@ -259,11 +234,10 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
                                                                );
             // 设置处理后的路径, 在 ImageStorageHandler 会使用到
             state.setImageSavePath(processedPath);
-            // 图片保存
-            manager.addHandler(new ImageStorageHandler())
-                // 刷新文件系统
-                .addHandler(new RefreshFileSystemHandler());
+            return true;
         }
+
+        return false;
     }
 
     /**
@@ -293,7 +267,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
 
         // 获取当前文档名
         String fileName = virtualFile != null ? virtualFile.getName() : "";
-        
+
         Map<Document, List<MarkdownImage>> waitingProcessMap = new HashMap<>(8);
         List<MarkdownImage> markdownImages = new ArrayList<>(8);
         for (Map.Entry<String, InputStream> inputStreamMap : this.resolveClipboardData(entry, editor, caret, state).entrySet()) {

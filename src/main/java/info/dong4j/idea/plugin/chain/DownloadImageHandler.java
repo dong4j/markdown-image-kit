@@ -1,5 +1,7 @@
 package info.dong4j.idea.plugin.chain;
 
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.util.io.FileUtil;
 
 import info.dong4j.idea.plugin.MikBundle;
@@ -21,8 +23,15 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,6 +46,7 @@ import lombok.extern.slf4j.Slf4j;
  * @date 2025.11.01
  * @since 1.0.0
  */
+@SuppressWarnings("D")
 @Slf4j
 public class DownloadImageHandler extends ActionHandlerAdapter {
     /**
@@ -51,6 +61,9 @@ public class DownloadImageHandler extends ActionHandlerAdapter {
     public String getName() {
         return MikBundle.message("mik.action.download.title");
     }
+
+    /** 最大线程数 */
+    private static final int MAX_THREAD_POOL_SIZE = 15;
 
     /**
      * 判断当前状态是否启用下载功能
@@ -67,21 +80,132 @@ public class DownloadImageHandler extends ActionHandlerAdapter {
     }
 
     /**
-     * 处理Markdown图片数据，下载网络图片并转换为输入流
+     * 执行多线程下载处理
+     * <p>
+     * 重写 execute 方法，使用线程池并发下载图片，提高下载效率。
+     * 最多使用15个线程进行并发下载。
+     *
+     * @param data 事件数据对象
+     * @return 始终返回 true，表示处理完成
+     * @since 2.0.0
+     */
+    @Override
+    public boolean execute(EventData data) {
+        // 收集所有需要下载的网络图片
+        List<ImageDownloadTask> downloadTasks = new ArrayList<>();
+
+        for (Map.Entry<Document, List<MarkdownImage>> entry : data.getWaitingProcessMap().entrySet()) {
+            List<MarkdownImage> images = entry.getValue();
+            for (MarkdownImage markdownImage : images) {
+                // 只收集网络图片
+                if (ImageLocationEnum.NETWORK.equals(markdownImage.getLocation())) {
+                    downloadTasks.add(new ImageDownloadTask(markdownImage, entry.getKey(), data));
+                }
+            }
+        }
+
+        // 如果没有需要下载的图片，直接返回
+        if (downloadTasks.isEmpty()) {
+            log.trace("没有需要下载的网络图片");
+            return true;
+        }
+
+        // 多线程并行下载图片
+        int totalCount = downloadTasks.size();
+        int threadPoolSize = Math.min(totalCount, MAX_THREAD_POOL_SIZE);
+        ExecutorService executorService = Executors.newFixedThreadPool(threadPoolSize);
+        log.info("开始下载 {} 张图片，使用 {} 个线程", totalCount, threadPoolSize);
+
+        // 获取进度指示器
+        ProgressIndicator indicator = data.getIndicator();
+        AtomicInteger processedCount = new AtomicInteger(0);
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger failCount = new AtomicInteger(0);
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+
+        // 为每个图片创建异步下载任务
+        for (ImageDownloadTask task : downloadTasks) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                try {
+                    int currentProcessed = processedCount.incrementAndGet();
+                    MarkdownImage markdownImage = task.markdownImage;
+
+                    // 更新进度
+                    if (indicator != null) {
+                        String fileName = markdownImage.getImageName();
+                        if (fileName == null || fileName.isEmpty()) {
+                            fileName = markdownImage.getPath();
+                        }
+                        indicator.setText2(String.format("%s: %s (%d/%d)",
+                                                         getName(), fileName, currentProcessed, totalCount));
+                        indicator.setFraction(currentProcessed * 1.0 / totalCount);
+                    }
+
+                    // 下载图片（调用单个图片的下载逻辑）
+                    downloadSingleImage(markdownImage);
+
+                    successCount.incrementAndGet();
+                    log.info("下载图片成功: {}", markdownImage.getPath());
+                } catch (Exception e) {
+                    failCount.incrementAndGet();
+                    log.error("下载图片失败: {}: {}", task.markdownImage.getPath(), e.getMessage());
+                    // 下载失败的图片需要移除
+                    synchronized (data.getWaitingProcessMap()) {
+                        List<MarkdownImage> imageList = data.getWaitingProcessMap().get(task.document);
+                        if (imageList != null) {
+                            imageList.remove(task.markdownImage);
+                        }
+                    }
+                }
+            }, executorService);
+
+            futures.add(future);
+        }
+
+        // 等待所有任务完成
+        try {
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+            log.info("图片下载完成，共处理 {} 张图片，成功 {} 张，失败 {} 张", totalCount, successCount.get(), failCount.get());
+        } finally {
+            executorService.shutdown();
+        }
+
+        return true;
+    }
+
+    /**
+     * 处理Markdown图片数据，下载网络图片并转换为输入流（单线程版本，已废弃）
      * <p>
      * 该方法用于处理Markdown图片数据，首先检查图片的 location 是否为 NETWORK。
      * 如果是网络图片，则下载图片并转换为输入流，同时将 location 设置为 LOCAL。
      * 如果下载失败，则从迭代器中移除该图片。
+     * <p>
+     * 注意：此方法已被 execute 方法的多线程实现替代。
      *
      * @param data          事件数据对象
      * @param imageIterator 图片迭代器，用于遍历和移除图片
      * @param markdownImage Markdown图片对象，包含图片路径和输入流
      * @since 1.0.0
+     * @deprecated 使用多线程的 execute 方法代替
      */
     @Override
+    @Deprecated
     public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
-        String imageName = markdownImage.getImageName();
+        // 此方法已被多线程版本替代，不再使用
+        log.trace("invoke 方法已被多线程 execute 方法替代");
+    }
 
+    /**
+     * 下载单张图片
+     * <p>
+     * 该方法用于下载单张网络图片，处理图片的下载、类型识别、重命名等操作。
+     * 成功下载后将图片数据设置到 MarkdownImage 对象中，并将 location 标记为 LOCAL。
+     *
+     * @param markdownImage Markdown图片对象，包含图片路径和输入流
+     * @throws IOException 当下载失败或处理失败时抛出
+     * @since 2.0.0
+     */
+    private void downloadSingleImage(MarkdownImage markdownImage) throws IOException {
         // 只处理网络图片
         if (!ImageLocationEnum.NETWORK.equals(markdownImage.getLocation())) {
             return;
@@ -89,59 +213,50 @@ public class DownloadImageHandler extends ActionHandlerAdapter {
 
         String imageUrl = markdownImage.getPath();
         if (imageUrl == null || imageUrl.isEmpty()) {
-            log.trace("图片URL为空, remove markdownImage = {}", markdownImage);
-            imageIterator.remove();
-            return;
+            throw new IOException("图片URL为空");
         }
 
-        try {
-            // 下载图片
-            URLConnection connection = getUrlConnection(imageUrl);
+        // 下载图片
+        URLConnection connection = getUrlConnection(imageUrl);
 
-            // 从 HTTP 响应头获取 Content-Type
-            String contentType = connection.getContentType();
-            String extension = getExtensionFromContentType(contentType);
+        // 从 HTTP 响应头获取 Content-Type
+        String contentType = connection.getContentType();
+        String extension = getExtensionFromContentType(contentType);
 
-            byte[] imageBytes;
-            try (InputStream in = connection.getInputStream()) {
-                imageBytes = FileUtil.loadBytes(in);
-            }
-
-            if (imageBytes == null || imageBytes.length == 0) {
-                log.trace("下载图片为空, remove markdownImage = {}", markdownImage);
-                imageIterator.remove();
-                return;
-            }
-
-            // 如果没有从 Content-Type 获取到扩展名，尝试从文件头推断
-            if (extension == null || extension.isEmpty()) {
-                extension = getExtensionFromFileHeader(imageBytes);
-            }
-
-            // 如果仍然无法推断，使用默认扩展名
-            if (extension == null || extension.isEmpty()) {
-                extension = ".png";
-                log.trace("无法推断图片类型，使用默认扩展名: {}", extension);
-            }
-
-            // 使用 UUID 生成文件名（小写无横线）
-            String uuid = UUID.randomUUID().toString().replace("-", "").toLowerCase();
-            String extWithoutDot = extension.startsWith(".") ? extension.substring(1) : extension;
-            String newImageName = uuid + "." + extWithoutDot;
-            
-            markdownImage.setImageName(newImageName);
-            markdownImage.setExtension(extWithoutDot);
-
-            // 设置输入流
-            markdownImage.setInputStream(new ByteArrayInputStream(imageBytes));
-            // 将 location 设置为 LOCAL，以便后续流程可以继续处理
-            markdownImage.setLocation(ImageLocationEnum.LOCAL);
-
-            log.debug("下载图片成功: {} -> {} bytes, extension: {}", imageUrl, imageBytes.length, extension);
-        } catch (IOException e) {
-            log.error("下载图片失败: {}", imageUrl, e);
-            imageIterator.remove();
+        byte[] imageBytes;
+        try (InputStream in = connection.getInputStream()) {
+            imageBytes = FileUtil.loadBytes(in);
         }
+
+        if (imageBytes == null || imageBytes.length == 0) {
+            throw new IOException("下载图片为空");
+        }
+
+        // 如果没有从 Content-Type 获取到扩展名，尝试从文件头推断
+        if (extension == null || extension.isEmpty()) {
+            extension = getExtensionFromFileHeader(imageBytes);
+        }
+
+        // 如果仍然无法推断，使用默认扩展名
+        if (extension == null || extension.isEmpty()) {
+            extension = ".png";
+            log.trace("无法推断图片类型，使用默认扩展名: {}", extension);
+        }
+
+        // 使用 UUID 生成文件名（小写无横线）
+        String uuid = UUID.randomUUID().toString().replace("-", "").toLowerCase();
+        String extWithoutDot = extension.startsWith(".") ? extension.substring(1) : extension;
+        String newImageName = uuid + "." + extWithoutDot;
+
+        markdownImage.setImageName(newImageName);
+        markdownImage.setExtension(extWithoutDot);
+
+        // 设置输入流
+        markdownImage.setInputStream(new ByteArrayInputStream(imageBytes));
+        // 将 location 设置为 LOCAL，以便后续流程可以继续处理
+        markdownImage.setLocation(ImageLocationEnum.LOCAL);
+
+        log.debug("下载图片成功: {} -> {} bytes, extension: {}", imageUrl, imageBytes.length, extension);
     }
 
     /**
@@ -231,6 +346,29 @@ public class DownloadImageHandler extends ActionHandlerAdapter {
 
         return null;
     }
+
+    /**
+     * 图片下载任务
+     * <p>
+     * 用于封装单个图片的下载任务信息，包括图片对象、所属文档和事件数据。
+     *
+     * @param markdownImage Markdown图片对象
+     * @param document      所属文档
+     * @param eventData     事件数据
+     * @since 2.0.0
+     */
+        private record ImageDownloadTask(MarkdownImage markdownImage, Document document, EventData eventData) {
+        /**
+         * 构造函数
+         *
+         * @param markdownImage Markdown图片对象
+         * @param document      所属文档
+         * @param eventData     事件数据
+         * @since 2.0.0
+         */
+        private ImageDownloadTask {
+        }
+        }
 
 }
 

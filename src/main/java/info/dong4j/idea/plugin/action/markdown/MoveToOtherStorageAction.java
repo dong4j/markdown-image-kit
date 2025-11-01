@@ -5,10 +5,6 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogBuilder;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.ui.DocumentAdapter;
-import com.intellij.ui.JBColor;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ActionManager;
@@ -16,19 +12,13 @@ import info.dong4j.idea.plugin.chain.MarkdownFileFilter;
 import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.enums.CloudEnum;
-import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MoveToOtherOssSettingsDialog;
-import info.dong4j.idea.plugin.settings.OssState;
-import info.dong4j.idea.plugin.swing.JTextFieldHintListener;
 import info.dong4j.idea.plugin.task.ActionTask;
 import info.dong4j.idea.plugin.util.ActionUtils;
 import info.dong4j.idea.plugin.util.ClientUtils;
 import info.dong4j.idea.plugin.util.StringUtils;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import javax.swing.event.DocumentEvent;
 
 import icons.MikIcons;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
  * @date 2025.10.24
  * @since 1.0.0
  */
+@SuppressWarnings("D")
 @Slf4j
 public final class MoveToOtherStorageAction extends AnAction {
     /** 默认域名提示信息，用于当域名字段未填写时显示的提示内容 */
@@ -82,27 +73,31 @@ public final class MoveToOtherStorageAction extends AnAction {
 
         Project project = event.getProject();
         if (project != null) {
-            MoveToOtherOssSettingsDialog dialog = showDialog();
-            if (dialog == null) {
-                return;
-            }
-            String domain = dialog.getDomain().getText().trim();
-            if (StringUtils.isBlank(domain)) {
-                return;
-            }
-            if (!OssState.getStatus(dialog.getCloudComboBox().getSelectedIndex())) {
+            MoveToOtherOssSettingsDialog dialog = new MoveToOtherOssSettingsDialog();
+            if (!dialog.showAndGet()) {
                 return;
             }
 
-            int cloudIndex = dialog.getCloudComboBox().getSelectedIndex();
-            CloudEnum cloudEnum = OssState.getCloudType(cloudIndex);
+            // 获取域名输入（不管本地存储还是云存储，都需要输入）
+            String domain = dialog.getDomainText().trim();
+            if (StringUtils.isBlank(domain)) {
+                return;
+            }
+
+            // 检查是否是本地存储
+            boolean isLocalStorage = dialog.isLocalStorage();
+            CloudEnum cloudEnum = dialog.getSelectedCloudEnum();
+
+            // 本地存储时 cloudEnum 为 null
+            String clientName = isLocalStorage
+                                ? MikBundle.message("oss.title.local")
+                                : (cloudEnum != null ? cloudEnum.title : "");
 
             EventData data = new EventData()
                 .setActionEvent(event)
                 .setProject(project)
-                .setClient(ClientUtils.getClient(cloudEnum))
-                // client 有可能为 null, 使用 cloudEnum 安全点
-                .setClientName(cloudEnum.title);
+                .setClient(isLocalStorage || cloudEnum == null ? null : ClientUtils.getClient(cloudEnum))
+                .setClientName(clientName);
 
             // http://www.jetbrains.org/intellij/sdk/docs/basics/persisting_state_of_components.html
             PropertiesComponent propComp = PropertiesComponent.getInstance();
@@ -110,91 +105,11 @@ public final class MoveToOtherStorageAction extends AnAction {
             propComp.setValue(MarkdownFileFilter.FILTER_KEY, domain.equals(MOVE_ALL) ? "" : domain);
 
             new ActionTask(project,
-                           MikBundle.message("mik.action.move.process", cloudEnum.title),
+                           MikBundle.message("mik.action.move.process", clientName),
                            ActionManager.buildMoveImageChain(data)).queue();
         }
     }
 
-    /**
-     * 初始化并显示迁移至其他OSS设置的对话框
-     * <p>
-     * 创建并配置迁移至其他OSS设置的对话框，包括初始化云类型下拉框、绑定输入监听器、设置按钮状态等逻辑。
-     * 组件索引与云类型索引相差1，用于适配显示逻辑。
-     *
-     * @return 迁移至其他OSS设置的对话框实例，若用户取消操作则返回 null
-     * @since 0.0.1
-     */
-    @Nullable
-    private static MoveToOtherOssSettingsDialog showDialog() {
-        DialogBuilder builder = new DialogBuilder();
-        MoveToOtherOssSettingsDialog dialog = new MoveToOtherOssSettingsDialog();
-        // 获取设置的默认图床索引, 如果在设置页面中关闭了默认图床, 那就是 CloudEnum.SM_MS_CLOUD (0)
-        int index = MikPersistenComponent.getInstance().getState().getDefaultCloudType();
-        // 设置选中默认的图床
-        dialog.getCloudComboBox().setSelectedIndex(index);
-        showMessage(builder, dialog, index);
-
-        dialog.getCloudComboBox().addActionListener(e -> {
-            int selectedIndex = dialog.getCloudComboBox().getSelectedIndex();
-            showMessage(builder, dialog, selectedIndex);
-        });
-
-        dialog.getDomain().getDocument().addDocumentListener(new DocumentAdapter() {
-            /**
-             * 处理文本内容变化事件，更新操作按钮的可用状态
-             * <p>
-             * 监听文本变化事件，根据输入内容和云服务状态判断是否启用操作按钮
-             *
-             * @param e 文本变化事件对象
-             */
-            @Override
-            protected void textChanged(@NotNull DocumentEvent e) {
-                boolean isValidInput = StringUtils.isNotBlank(dialog.getDomain().getText()) && !DOMAIN_DEFAULT_MESSAGE.equals(dialog.getDomain().getText());
-                boolean isClientEnable = OssState.getStatus(dialog.getCloudComboBox().getSelectedIndex());
-                builder.setOkActionEnabled(isValidInput && isClientEnable);
-            }
-        });
-
-        dialog.getDomain().addFocusListener(new JTextFieldHintListener(dialog.getDomain(), DOMAIN_DEFAULT_MESSAGE));
-
-        builder.setOkActionEnabled(false);
-        builder.setCenterPanel(dialog.getContentPane());
-        builder.setTitle(MikBundle.message("picture.migration.plan.title"));
-        builder.removeAllActions();
-        builder.addOkAction();
-        builder.addCancelAction();
-        builder.setPreferredFocusComponent(dialog.getCloudComboBox());
-        builder.setOkOperation((() -> {
-            log.trace("自定义 ok 操作");
-            builder.getDialogWrapper().close(DialogWrapper.OK_EXIT_CODE);
-        }));
-
-        if (builder.show() != DialogWrapper.OK_EXIT_CODE) {
-            return null;
-        }
-        return dialog;
-    }
-
-    /**
-     * 初始化 message 监听更新 ok 按钮可用状态
-     * <p>
-     * 根据指定的索引获取 OSS 状态，判断是否启用客户端以及输入是否有效，设置 message 文本和颜色，并更新 ok 按钮的可用状态。
-     *
-     * @param builder DialogBuilder 实例，用于设置 ok 按钮的可用状态
-     * @param dialog  MoveToOtherOssSettingsDialog 实例，用于获取 message 和 domain 输入框
-     * @param index   指定的 OSS 索引，用于获取状态信息
-     */
-    private static void showMessage(@NotNull DialogBuilder builder,
-                                    @NotNull MoveToOtherOssSettingsDialog dialog,
-                                    int index) {
-        boolean isClientEnable = OssState.getStatus(index);
-        boolean isValidInput = StringUtils.isNotBlank(dialog.getDomain().getText())
-                               && !DOMAIN_DEFAULT_MESSAGE.equals(dialog.getDomain().getText());
-
-        dialog.getMessage().setText(isClientEnable ? "" : MikBundle.message("oss.not.available"));
-        dialog.getMessage().setForeground(isClientEnable ? JBColor.WHITE : JBColor.RED);
-        builder.setOkActionEnabled(isClientEnable && isValidInput);
-    }
 
     /**
      * 获取动作更新线程
