@@ -548,6 +548,24 @@ public final class ImageUtils {
     }
 
     /**
+     * 获取不含扩展名的文件名
+     * <p>
+     * 从完整的文件名中提取不含扩展名的部分
+     *
+     * @param fileName 完整的文件名（包含扩展名）
+     * @return 不含扩展名的文件名
+     * @since 2.2.0
+     */
+    @NotNull
+    public static String getFileNameWithoutExtension(@NotNull String fileName) {
+        int lastDotIndex = fileName.lastIndexOf(".");
+        if (lastDotIndex > 0) {
+            return fileName.substring(0, lastDotIndex);
+        }
+        return fileName;
+    }
+
+    /**
      * 根据输入流获取文件类型
      * <p>
      * 通过读取输入流的前28个字节，将其转换为十六进制字符串，并与已知的文件类型值进行匹配，返回对应的文件类型。

@@ -9,9 +9,10 @@ import java.util.Random;
  * <p>
  * 提供生成随机字符串的实用方法，适用于需要随机字符生成的场景，如密码生成、验证码生成等。
  * <p>
- * 该类包含两个生成随机字符串的方法：
+ * 该类包含以下生成随机字符的方法：
  * - getRandomString：生成包含大小写字母和数字的随机字符串
  * - getRandomString2：生成包含大小写字母和数字的随机字符串，但字符分布不同
+ * - getRandomNumber：生成指定长度的随机数字字符串
  *
  * @author dong4j
  * @version 1.0.0
@@ -84,6 +85,25 @@ public final class CharacterUtils {
                     break;
                 default:
             }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * 生成指定长度的随机数字字符串
+     * <p>
+     * 生成由0-9数字组成的随机字符串
+     *
+     * @param length 随机数字字符串的长度
+     * @return 生成的随机数字字符串
+     * @since 2.2.0
+     */
+    @NotNull
+    public static String getRandomNumber(int length) {
+        Random random = new Random();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            sb.append(random.nextInt(10));
         }
         return sb.toString();
     }

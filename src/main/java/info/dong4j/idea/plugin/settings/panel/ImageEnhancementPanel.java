@@ -33,7 +33,7 @@ import lombok.Getter;
  * @date 2025.10.31 22:42
  * @since x.x.x
  */
-@SuppressWarnings("DuplicatedCode")
+@SuppressWarnings("ALL")
 public class ImageEnhancementPanel {
 
     // ========== 图片增强处理区域 ==========
@@ -275,16 +275,24 @@ public class ImageEnhancementPanel {
         gbc.weightx = 1.0;
         renamePatternTextField = new JTextField("${filename}");
         renamePatternTextField.setEnabled(false);
-        renamePatternTextField.setToolTipText("命名模板，例如: ${filename}、${yyyy-MM-dd}-${number}-${filename} 等");
+        renamePatternTextField.setToolTipText("重命名模板，支持占位符");
         content.add(renamePatternTextField, gbc);
 
         // 占位符提示标签
-        gbc.gridx = 0;
+        gbc.gridx = 1;
         gbc.gridy = 7;
         gbc.gridwidth = 3;
         gbc.weightx = 0;
-        renamePlaceholderHintLabel = new JBLabel("<html><small>支持占位符: ${filename}、${project}、${yyyy-MM-dd}、${number} 等</small></html>");
-        renamePlaceholderHintLabel.setEnabled(false);
+        renamePlaceholderHintLabel = new JBLabel("""
+                                                     <html>
+                                                         <b>${datetime:format}</b>: 日期时间，如 ${datetime:yyyyMMdd}<br/>
+                                                         <b>${string:length}</b>: 随机字符串，如 ${string:6}<br/>
+                                                         <b>${number:length}</b>: 随机数字，如 ${number:6}<br/>
+                                                         <b>${filename}</b>: 原文件名<br/>
+                                                         示例: ${datetime:yyyyMMdd}_${string:6}, ${datetime:yyyy-MM-dd}_${filename}
+                                                     </html>
+                                                     """);
+        renamePlaceholderHintLabel.setEnabled(true);
         content.add(renamePlaceholderHintLabel, gbc);
 
         renameCheckBox.addActionListener(e -> {
@@ -357,17 +365,21 @@ public class ImageEnhancementPanel {
 
         // 图片重命名
         this.renameCheckBox.setSelected(state.isRename());
-        // TODO: 在 MikState 中添加 renamePattern 字段，当前使用默认值
         if (this.renamePatternTextField != null) {
             this.renamePatternTextField.setEnabled(state.isRename());
-            // 根据 suffixIndex 设置默认模式
-            // 0: 文件名, 1: 日期-文件名, 2: 随机
-            if (state.getSuffixIndex() == 0) {
-                this.renamePatternTextField.setText("${filename}");
-            } else if (state.getSuffixIndex() == 1) {
-                this.renamePatternTextField.setText("${yyyy-MM-dd}-${filename}");
+            // 使用新的 renameTemplate 字段
+            String template = state.getRenameTemplate();
+            if (template != null && !template.trim().isEmpty()) {
+                this.renamePatternTextField.setText(template);
             } else {
-                this.renamePatternTextField.setText("${random}");
+                // 如果模板为空，根据旧的 suffixIndex 设置默认模式（兼容性处理）
+                if (state.getSuffixIndex() == 0) {
+                    this.renamePatternTextField.setText("${filename}");
+                } else if (state.getSuffixIndex() == 1) {
+                    this.renamePatternTextField.setText("${datetime:yyyy-MM-dd}_${filename}");
+                } else {
+                    this.renamePatternTextField.setText("MIK-${string:6}");
+                }
             }
         }
 
@@ -407,8 +419,7 @@ public class ImageEnhancementPanel {
         int webpQuality = ((Number) this.webpQualitySpinner.getValue()).intValue();
 
         boolean rename = this.renameCheckBox.isSelected();
-        // TODO: 在 MikState 中添加 renamePattern 字段
-        // String renamePattern = this.renamePatternTextField.getText().trim();
+        String renameTemplate = this.renamePatternTextField.getText().trim();
 
         boolean watermark = this.watermarkCheckBox.isSelected();
         String watermarkText = this.watermarkTextTextField.getText().trim();
@@ -420,7 +431,7 @@ public class ImageEnhancementPanel {
                  && webpQuality == state.getWebpQuality()
                  && convertToWebp == state.isConvertToWebp()
                  && rename == state.isRename()
-                 // && renamePattern.equals(state.getRenamePattern()) // TODO
+                 && renameTemplate.equals(state.getRenameTemplate() != null ? state.getRenameTemplate() : "${filename}")
                  && watermark == state.isWatermark()
                  && watermarkText.equals(state.getWatermarkText()));
     }
@@ -456,15 +467,15 @@ public class ImageEnhancementPanel {
         state.setWebpQuality(((Number) this.webpQualitySpinner.getValue()).intValue());
 
         state.setRename(this.renameCheckBox.isSelected());
-        // TODO: 在 MikState 中添加 renamePattern 字段
-        // state.setRenamePattern(this.renamePatternTextField.getText().trim());
+        // 保存重命名模板
+        state.setRenameTemplate(this.renamePatternTextField.getText().trim());
 
-        // 根据重命名模式推断 suffixIndex（临时方案）
+        // 兼容性处理：根据重命名模式推断 suffixIndex，保持旧版本兼容
         if (this.renamePatternTextField != null && this.renameCheckBox.isSelected()) {
             String pattern = this.renamePatternTextField.getText().trim();
-            if (pattern.contains("${yyyy") || pattern.contains("${date")) {
+            if (pattern.contains("${datetime:") || pattern.contains("${yyyy") || pattern.contains("${date")) {
                 state.setSuffixIndex(1); // 日期-文件名
-            } else if (pattern.contains("${random")) {
+            } else if (pattern.contains("${random") || pattern.contains("${string:") || pattern.contains("${number:")) {
                 state.setSuffixIndex(2); // 随机
             } else {
                 state.setSuffixIndex(0); // 文件名

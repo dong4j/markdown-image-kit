@@ -72,8 +72,23 @@ public class MikState {
 
     /** 重命名文件标志，用于指示是否需要对文件进行重命名操作 */
     private boolean rename = false;
-    /** 文件名后缀索引，用于标识当前文件的后缀类型 */
+    /** 文件名后缀索引，用于标识当前文件的后缀类型（已废弃，使用 renameTemplate 代替） */
+    @Deprecated
     private int suffixIndex = SuffixEnum.FILE_NAME.index;
+    /**
+     * 重命名模板，支持占位符格式：
+     * <ul>
+     *   <li>${datetime:format} - 日期时间格式化，如 ${datetime:yyyyMMdd}</li>
+     *   <li>${string:length} - 随机字符串，如 ${string:6}</li>
+     *   <li>${number:length} - 随机数字，如 ${number:6}</li>
+     *   <li>${filename} - 原文件名（不含扩展名）</li>
+     *   <li>${ext} - 文件扩展名</li>
+     * </ul>
+     * 默认值：${filename}（保持原文件名）
+     *
+     * @since 2.2.0
+     */
+    private String renameTemplate = "${filename}";
 
     /** 是否压缩图片 */
     private boolean compress = false;

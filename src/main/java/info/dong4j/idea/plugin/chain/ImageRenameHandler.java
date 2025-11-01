@@ -10,6 +10,7 @@ import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.util.CharacterUtils;
 import info.dong4j.idea.plugin.util.EnumsUtils;
 import info.dong4j.idea.plugin.util.ImageUtils;
+import info.dong4j.idea.plugin.util.PlaceholderParser;
 import info.dong4j.idea.plugin.util.date.DateFormatUtils;
 
 import java.util.Date;
@@ -64,7 +65,8 @@ public class ImageRenameHandler extends ActionHandlerAdapter {
     /**
      * 根据配置重新设置 imageName
      * <p>
-     * 该方法根据当前配置的后缀类型对传入的图片名称进行处理，包括去除空格、添加时间前缀或随机字符串等操作。
+     * 该方法使用占位符模板对传入的图片名称进行处理，支持自定义的重命名规则。
+     * 优先使用新的 renameTemplate 模板，如果模板为空或无效，则回退到旧的 suffixIndex 逻辑。
      *
      * @param data          事件数据对象
      * @param imageIterator 图片迭代器
@@ -73,14 +75,48 @@ public class ImageRenameHandler extends ActionHandlerAdapter {
      */
     @Override
     public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
-
         String imageName = markdownImage.getImageName();
         MikState state = MikPersistenComponent.getInstance().getState();
+
         // 处理文件名有空格导致上传 gif 变为静态图的问题
         imageName = imageName.replaceAll("\\s*", "");
+
+        try {
+            // 优先使用新的占位符模板
+            String template = state.getRenameTemplate();
+            if (template != null && !template.trim().isEmpty() && PlaceholderParser.validateTemplate(template)) {
+                // 使用占位符解析器处理文件名
+                imageName = PlaceholderParser.parse(template, imageName);
+                log.info("使用模板 [{}] 重命名图片: {}", template, imageName);
+            } else {
+                // 回退到旧的逻辑（兼容性处理）
+                imageName = fallbackToLegacyRename(imageName, state);
+                log.warn("重命名模板无效或为空，使用旧的重命名逻辑");
+            }
+        } catch (Exception e) {
+            // 如果解析失败，回退到旧的逻辑
+            log.error("解析重命名模板失败，回退到旧的重命名逻辑: {}", e.getMessage(), e);
+            imageName = fallbackToLegacyRename(imageName, state);
+        }
+
+        markdownImage.setImageName(imageName);
+    }
+
+    /**
+     * 回退到旧的重命名逻辑（兼容性处理）
+     * <p>
+     * 当新的占位符模板无效或解析失败时，使用旧的 suffixIndex 逻辑进行重命名
+     *
+     * @param imageName 原始图片名称
+     * @param state     配置状态
+     * @return 重命名后的图片名称
+     * @since 2.2.0
+     */
+    private String fallbackToLegacyRename(String imageName, MikState state) {
         int sufixIndex = state.getSuffixIndex();
         Optional<SuffixEnum> sufix = EnumsUtils.getEnumObject(SuffixEnum.class, e -> e.getIndex() == sufixIndex);
         SuffixEnum suffixEnum = sufix.orElse(SuffixEnum.FILE_NAME);
+
         switch (suffixEnum) {
             case DATE_FILE_NAME -> {
                 // 删除原来的时间前缀
@@ -97,6 +133,6 @@ public class ImageRenameHandler extends ActionHandlerAdapter {
             }
         }
 
-        markdownImage.setImageName(imageName);
+        return imageName;
     }
 }
