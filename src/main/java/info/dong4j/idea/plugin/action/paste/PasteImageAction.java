@@ -70,7 +70,7 @@ import javax.imageio.ImageIO;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 处理从剪贴板粘贴图片并上传到 OSS 的操作
+ * 复制一张图片(剪切板第一个是图片), 然后在 markdown 文档中执行复制操作, 会触发 {@link PasteImageAction#doExecute(Editor, Caret, DataContext)} 逻辑
  * <p>
  * 该类实现了从剪贴板读取图片数据，根据配置上传到指定的 OSS 服务，并将图片插入到当前光标位置的功能。支持从剪贴板获取图片或文件，并根据设置进行水印处理、压缩、重命名、存储和上传等操作。
  * <p>
@@ -117,75 +117,80 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
         Document document = editor.getDocument();
         VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
 
-        if (virtualFile != null && MarkdownUtils.isMardownFile(virtualFile)) {
-            MikState state = MikPersistenComponent.getInstance().getState();
+        try {
+            if (virtualFile != null && MarkdownUtils.isMardownFile(virtualFile)) {
+                MikState state = MikPersistenComponent.getInstance().getState();
 
-            if (state.isUploadAndReplace() || state.isCopyToDir()) {
-                Map<DataFlavor, Object> clipboardData = ImageUtils.getDataFromClipboard();
-                if (clipboardData != null) {
-                    Iterator<Map.Entry<DataFlavor, Object>> iterator = clipboardData.entrySet().iterator();
-                    Map.Entry<DataFlavor, Object> entry = iterator.next();
+                if (state.isUploadAndReplace() || state.isCopyToDir()) {
+                    Map<DataFlavor, Object> clipboardData = ImageUtils.getDataFromClipboard();
+                    if (clipboardData != null) {
+                        Iterator<Map.Entry<DataFlavor, Object>> iterator = clipboardData.entrySet().iterator();
+                        Map.Entry<DataFlavor, Object> entry = iterator.next();
 
-                    Map<Document, List<MarkdownImage>> waitingProcessMap = this.buildWaitingProcessMap(entry, editor, state);
+                        Map<Document, List<MarkdownImage>> waitingProcessMap = this.buildWaitingProcessMap(entry, editor, state);
 
-                    if (waitingProcessMap.isEmpty()) {
-                        this.defaultAction(editor, caret, dataContext);
+                        if (waitingProcessMap.isEmpty()) {
+                            this.defaultAction(editor, caret, dataContext);
+                            return;
+                        }
+
+                        // 使用默认 client
+                        CloudEnum cloudEnum = OssState.getCloudType(state.getDefaultCloudType());
+                        OssClient client = ClientUtils.getClient(cloudEnum);
+
+                        EventData data = new EventData()
+                            .setProject(editor.getProject())
+                            .setEditor(editor)
+                            .setClient(client)
+                            .setClientName(cloudEnum.title)
+                            .setWaitingProcessMap(waitingProcessMap);
+
+                        ActionManager manager = new ActionManager(data)
+                            // 图片压缩
+                            .addHandler(new ImageCompressionHandler())
+                            // 图片重命名
+                            .addHandler(new ImageRenameHandler());
+                        if (state.isCopyToDir()) {
+                            // 图片保存
+                            manager.addHandler(new ImageStorageHandler());
+                        }
+                        if (state.isUploadAndReplace()) {
+                            // 处理 client
+                            manager.addHandler(new OptionClientHandler())
+                                .addHandler(new ImageUploadHandler());
+                        }
+
+                        // 标签转换
+                        manager.addHandler(new ImageLabelChangeHandler())
+                            // 写入标签
+                            .addHandler(new InsertToDocumentHandler())
+                            .addHandler(new FinalChainHandler())
+                            .addCallback(new TaskCallbackAdapter() {
+                                /**
+                                 * 处理成功回调逻辑
+                                 * <p>
+                                 * 在操作成功时执行回调，记录日志并刷新虚拟文件系统（VFS），确保新增的图片能够及时显示
+                                 *
+                                 * @since 1.0
+                                 */
+                                @Override
+                                public void onSuccess() {
+                                    log.trace("Success callback");
+                                    // 刷新 VFS, 避免新增的图片很久才显示出来
+                                    ApplicationManager.getApplication().runWriteAction(() -> {
+                                        VirtualFileManager.getInstance().syncRefresh();
+                                    });
+                                }
+                            });
+
+                        new ActionTask(editor.getProject(), MikBundle.message("mik.action.paste.task"), manager).queue();
                         return;
                     }
-
-                    // 使用默认 client
-                    CloudEnum cloudEnum = OssState.getCloudType(state.getDefaultCloudType());
-                    OssClient client = ClientUtils.getClient(cloudEnum);
-
-                    EventData data = new EventData()
-                        .setProject(editor.getProject())
-                        .setEditor(editor)
-                        .setClient(client)
-                        .setClientName(cloudEnum.title)
-                        .setWaitingProcessMap(waitingProcessMap);
-
-                    ActionManager manager = new ActionManager(data)
-                        // 图片压缩
-                        .addHandler(new ImageCompressionHandler())
-                        // 图片重命名
-                        .addHandler(new ImageRenameHandler());
-                    if (state.isCopyToDir()) {
-                        // 图片保存
-                        manager.addHandler(new ImageStorageHandler());
-                    }
-                    if (state.isUploadAndReplace()) {
-                        // 处理 client
-                        manager.addHandler(new OptionClientHandler())
-                            .addHandler(new ImageUploadHandler());
-                    }
-
-                    // 标签转换
-                    manager.addHandler(new ImageLabelChangeHandler())
-                        // 写入标签
-                        .addHandler(new InsertToDocumentHandler())
-                        .addHandler(new FinalChainHandler())
-                        .addCallback(new TaskCallbackAdapter() {
-                            /**
-                             * 处理成功回调逻辑
-                             * <p>
-                             * 在操作成功时执行回调，记录日志并刷新虚拟文件系统（VFS），确保新增的图片能够及时显示
-                             *
-                             * @since 1.0
-                             */
-                            @Override
-                            public void onSuccess() {
-                                log.trace("Success callback");
-                                // 刷新 VFS, 避免新增的图片很久才显示出来
-                                ApplicationManager.getApplication().runWriteAction(() -> {
-                                    VirtualFileManager.getInstance().syncRefresh();
-                                });
-                            }
-                        });
-
-                    new ActionTask(editor.getProject(), MikBundle.message("mik.action.paste.task"), manager).queue();
-                    return;
                 }
             }
+        } catch (Exception e) {
+            // 兜底, 回退到默认逻辑
+            this.defaultAction(editor, caret, dataContext);
         }
         this.defaultAction(editor, caret, dataContext);
     }

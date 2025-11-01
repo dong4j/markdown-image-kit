@@ -1,6 +1,7 @@
 package info.dong4j.idea.plugin.settings;
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
+import info.dong4j.idea.plugin.enums.InsertImageActionEnum;
 import info.dong4j.idea.plugin.enums.SuffixEnum;
 import info.dong4j.idea.plugin.settings.oss.AliyunOssState;
 import info.dong4j.idea.plugin.settings.oss.BaiduBosState;
@@ -31,6 +32,19 @@ import lombok.Data;
 public class MikState {
 
     //region 插入图片时
+    private InsertImageActionEnum insertImageAction = InsertImageActionEnum.NONE;
+    private String currentInsertPath = "";
+    /** 保存的自定义路径值，用于持久化用户输入的自定义路径，即使当前选择的不是"复制到指定路径"也保留 */
+    private String savedCustomInsertPath = "";
+    private boolean applyToLocalImages = false;
+    private boolean applyToNetworkImages = false;
+    private boolean preferRelativePath = false;
+    private boolean addDotSlash = false;
+    private boolean autoEscapeImageUrl = false;
+
+
+
+
     /** 图片备份标志，表示是否启用图片备份功能 */
     private boolean backup = false;
     /** 拷贝图片到目录标志，用于指示是否将图片复制到指定目录 */
