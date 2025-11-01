@@ -70,10 +70,7 @@ public class TencentOssSetting implements OssSetting<TencentOssState> {
      */
     @Override
     public void init(TencentOssState state) {
-        this.tencentSecretKeyTextField.setText(PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES));
-        this.tencentAccessKeyTextField.setText(state.getAccessKey());
-        this.tencentRegionNameTextField.setText(state.getRegionName());
-        this.tencentBacketNameTextField.setText(state.getBucketName());
+        reset(state);
     }
 
     /**

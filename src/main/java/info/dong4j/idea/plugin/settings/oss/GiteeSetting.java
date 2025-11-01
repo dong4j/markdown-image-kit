@@ -5,7 +5,6 @@ import com.intellij.credentialStore.CredentialAttributes;
 import info.dong4j.idea.plugin.util.PasswordManager;
 
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
@@ -44,7 +43,6 @@ public class GiteeSetting extends AbstractOpenOssSetting<GiteeOssState> {
      * @param fileDirTextField        文件目录文本字段
      * @param customEndpointCheckBox  自定义端点复选框
      * @param customEndpointTextField 自定义端点文本字段
-     * @param customEndpointHelper    自定义端点帮助标签
      * @param exampleTextField        示例文本字段
      * @since 1.3.0
      */
@@ -54,7 +52,6 @@ public class GiteeSetting extends AbstractOpenOssSetting<GiteeOssState> {
                         JTextField fileDirTextField,
                         JCheckBox customEndpointCheckBox,
                         JTextField customEndpointTextField,
-                        JLabel customEndpointHelper,
                         JTextField exampleTextField) {
 
         super(reposTextField,
@@ -63,7 +60,6 @@ public class GiteeSetting extends AbstractOpenOssSetting<GiteeOssState> {
               fileDirTextField,
               customEndpointCheckBox,
               customEndpointTextField,
-              customEndpointHelper,
               exampleTextField);
 
     }

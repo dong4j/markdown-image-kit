@@ -2,6 +2,7 @@ package info.dong4j.idea.plugin.client;
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
+import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.oss.AbstractExtendOssState;
 import info.dong4j.idea.plugin.settings.oss.AliyunOssSetting;
 import info.dong4j.idea.plugin.settings.oss.AliyunOssState;
@@ -110,16 +111,17 @@ public class AliyunOssClient extends AbstractOssClient {
     }
 
     /**
-     * 获取当前组件的状态信息
+     * 从 MikState 中获取对应的状态
      * <p>
-     * 通过获取MikPersistenComponent单例实例，进而获取其状态对象，并返回Aliyun Oss相关的状态信息。
+     * 该方法用于从传入的 MikState 对象中获取阿里云 OSS 对应的状态信息
      *
-     * @return 当前Aliyun Oss组件的状态对象
-     * @since 1.1.0
+     * @param state MikState 对象，包含所有配置状态信息
+     * @return 阿里云 OSS 对应的状态对象
+     * @since 2.0.0
      */
     @Override
-    protected AbstractExtendOssState getState() {
-        return MikPersistenComponent.getInstance().getState().getAliyunOssState();
+    protected AbstractExtendOssState getState(MikState state) {
+        return state.getAliyunOssState();
     }
 
     /**

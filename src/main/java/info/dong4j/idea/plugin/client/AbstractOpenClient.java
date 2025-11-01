@@ -1,5 +1,6 @@
 package info.dong4j.idea.plugin.client;
 
+import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
 import info.dong4j.idea.plugin.settings.oss.AbstractOpenOssSetting;
@@ -70,6 +71,47 @@ public abstract class AbstractOpenClient implements OssClient {
             return "https://" + customEndpoint + key;
         }
         return this.buildImageUrl(key);
+    }
+
+    /**
+     * "Upload Test" 按钮测试上传（新接口）
+     * <p>
+     * 该方法用于执行"Upload Test"按钮的反射调用，接收输入流、文件名和MikState作为参数，从state中获取最新配置并执行上传。
+     * 这是新的测试接口，优先使用此接口进行测试上传。
+     *
+     * @param inputStream 输入流，用于读取上传文件的数据
+     * @param fileName    文件名，表示上传文件的名称
+     * @param state       MikState对象，包含所有配置状态信息
+     * @return 处理结果字符串
+     * @throws Exception 通用异常，用于封装可能发生的各种错误
+     * @since 2.0.0
+     */
+    @Override
+    public String upload(InputStream inputStream, String fileName, MikState state) throws Exception {
+        AbstractOpenOssState ossState = this.getState(state);
+
+        String repos = ossState.getRepos();
+        repos = AbstractOpenOssSetting.REPOS_HINT.equals(repos) ? "" : repos;
+        String branch = ossState.getBranch();
+        String token = ossState.getToken();
+        String filedir = ossState.getFiledir();
+        String customEndpoint = ossState.getCustomEndpoint();
+        boolean isCustomEndpoint = Boolean.TRUE.equals(ossState.getIsCustomEndpoint());
+
+        Asserts.notBlank(repos, "仓库名");
+        Asserts.notBlank(branch, "分支名");
+        Asserts.notBlank(token, "Token");
+
+        this.check(branch);
+
+        return this.upload(inputStream,
+                           fileName,
+                           repos,
+                           branch,
+                           token,
+                           filedir,
+                           isCustomEndpoint,
+                           customEndpoint);
     }
 
     /**
@@ -192,12 +234,25 @@ public abstract class AbstractOpenClient implements OssClient {
     /**
      * 获取状态
      * <p>
-     * 返回当前对象的状态实例，该状态用于表示对象的运行时状态。
+     * 返回当前对象的状态实例，该状态用于表示对象的运行时状态（从持久化组件中获取）。
      *
      * @return 当前对象的状态
      * @since 1.3.0
      */
-    protected abstract AbstractOpenOssState getState();
+    protected AbstractOpenOssState getState() {
+        return this.getState(MikPersistenComponent.getInstance().getState());
+    }
+
+    /**
+     * 从 MikState 中获取对应的状态
+     * <p>
+     * 该方法用于从传入的 MikState 对象中获取当前客户端对应的状态信息
+     *
+     * @param state MikState 对象，包含所有配置状态信息
+     * @return 当前客户端对应的状态对象
+     * @since 2.0.0
+     */
+    protected abstract AbstractOpenOssState getState(MikState state);
 
     /**
      * 处理分支信息

@@ -141,6 +141,40 @@ public class TencentOssClient implements OssClient {
     }
 
     /**
+     * "Upload Test" 按钮测试上传（新接口）
+     * <p>
+     * 该方法用于执行"Upload Test"按钮的反射调用，接收输入流、文件名和MikState作为参数，从state中获取最新配置并执行上传。
+     * 这是新的测试接口，优先使用此接口进行测试上传。
+     *
+     * @param inputStream 输入流，用于读取上传文件的数据
+     * @param fileName    文件名，表示上传文件的名称
+     * @param state       MikState对象，包含所有配置状态信息
+     * @return 处理结果字符串
+     * @throws Exception 通用异常，用于封装可能发生的各种错误
+     * @since 2.0.0
+     */
+    @Override
+    public String upload(InputStream inputStream, String fileName, MikState state) throws Exception {
+        TencentOssState tencentOssState = state.getTencentOssState();
+        String bucketName = tencentOssState.getBucketName();
+        String accessKey = tencentOssState.getAccessKey();
+        String secretKey = PasswordManager.getPassword(TencentOssSetting.CREDENTIAL_ATTRIBUTES);
+        String regionName = tencentOssState.getRegionName();
+
+        Asserts.notBlank(bucketName, "Bucket");
+        Asserts.notBlank(accessKey, "Access Key");
+        Asserts.notBlank(secretKey, "Secret Key");
+        Asserts.notBlank(regionName, "RegionName");
+
+        return this.upload(inputStream,
+                           fileName,
+                           bucketName,
+                           accessKey,
+                           secretKey,
+                           regionName);
+    }
+
+    /**
      * 在设置界面点击 'Test' 按钮上传时调用，通过 JPanel 获取当前配置
      * <p>
      * 该方法用于处理上传操作，从输入流中读取数据，并根据 JPanel 中的配置信息

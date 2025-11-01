@@ -1,6 +1,7 @@
 package info.dong4j.idea.plugin.client;
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
+import info.dong4j.idea.plugin.settings.MikState;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -73,8 +74,29 @@ public interface OssClient {
      * @return 处理结果字符串
      * @throws Exception 通用异常，用于封装可能发生的各种错误
      * @since 0.0.1
+     * @deprecated 使用 upload(InputStream inputStream, String fileName, MikState state) 方法
      */
+    @Deprecated
     String upload(InputStream inputStream, String fileName, JPanel jPanel) throws Exception;
+
+    /**
+     * "Upload Test" 按钮测试上传（新接口）
+     * <p>
+     * 该方法用于执行"Upload Test"按钮的反射调用，接收输入流、文件名和MikState作为参数，从state中获取最新配置并执行上传。
+     * 这是新的测试接口，优先使用此接口进行测试上传。
+     *
+     * @param inputStream 输入流，用于读取上传文件的数据
+     * @param fileName    文件名，表示上传文件的名称
+     * @param state       MikState对象，包含所有配置状态信息
+     * @return 处理结果字符串
+     * @throws Exception 通用异常，用于封装可能发生的各种错误
+     * @since 2.0.0
+     */
+    default String upload(InputStream inputStream, String fileName, MikState state) throws Exception {
+        // 默认实现：调用原有的 JPanel 方法（向后兼容）
+        // 子类应该重写此方法以使用 state 参数
+        throw new UnsupportedOperationException("该方法需要在具体的 OssClient 实现类中重写");
+    }
 
     /**
      * 遍历指定面板中的组件，提取 JTextField 和 JCheckBox 的 name 属性及其对应值，返回为 Map 结构

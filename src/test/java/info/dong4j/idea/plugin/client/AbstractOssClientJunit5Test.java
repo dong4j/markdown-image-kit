@@ -1,6 +1,7 @@
 package info.dong4j.idea.plugin.client;
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
+import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.oss.AbstractExtendOssState;
 
 import org.junit.jupiter.api.DisplayName;
@@ -74,15 +75,8 @@ public class AbstractOssClientJunit5Test {
             }
         }
 
-        /**
-         * 获取当前对象的状态信息
-         * <p>
-         * 该方法用于返回当前对象的扩展OSS状态对象，具体实现由子类覆盖。
-         *
-         * @return 当前对象的扩展OSS状态对象
-         */
         @Override
-        protected AbstractExtendOssState getState() {
+        protected AbstractExtendOssState getState(MikState state) {
             return null;
         }
 
@@ -138,15 +132,8 @@ public class AbstractOssClientJunit5Test {
             // 空实现
         }
 
-        /**
-         * 获取当前对象的状态信息
-         * <p>
-         * 该方法用于返回当前对象所处的状态对象，通常用于状态管理或状态判断。
-         *
-         * @return 当前对象的状态对象
-         */
         @Override
-        protected AbstractExtendOssState getState() {
+        protected AbstractExtendOssState getState(MikState state) {
             return null;
         }
 

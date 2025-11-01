@@ -2,6 +2,7 @@ package info.dong4j.idea.plugin.client;
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
+import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.oss.AbstractExtendOssState;
 import info.dong4j.idea.plugin.settings.oss.BaiduBosSetting;
 import info.dong4j.idea.plugin.settings.oss.BaiduBosState;
@@ -143,15 +144,16 @@ public class BaiduBosClient extends AbstractOssClient {
     }
 
     /**
-     * 获取状态信息
+     * 从 MikState 中获取对应的状态
      * <p>
-     * 返回当前组件的状态对象，该状态对象用于表示与百度对象存储（BOS）相关的状态信息。
+     * 该方法用于从传入的 MikState 对象中获取百度 BOS 对应的状态信息
      *
-     * @return 当前组件的抽象状态对象
-     * @since 1.1.0
+     * @param state MikState 对象，包含所有配置状态信息
+     * @return 百度 BOS 对应的状态对象
+     * @since 2.0.0
      */
     @Override
-    protected AbstractExtendOssState getState() {
-        return MikPersistenComponent.getInstance().getState().getBaiduBosState();
+    protected AbstractExtendOssState getState(MikState state) {
+        return state.getBaiduBosState();
     }
 }

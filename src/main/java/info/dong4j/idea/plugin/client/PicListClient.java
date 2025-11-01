@@ -436,6 +436,47 @@ public class PicListClient implements OssClient {
     }
 
     /**
+     * "Upload Test" 按钮测试上传（新接口）
+     * <p>
+     * 该方法用于执行"Upload Test"按钮的反射调用，接收输入流、文件名和MikState作为参数，从state中获取最新配置并执行上传。
+     * 这是新的测试接口，优先使用此接口进行测试上传。
+     *
+     * @param inputStream 输入流，用于读取上传文件的数据
+     * @param fileName    文件名，表示上传文件的名称
+     * @param state       MikState对象，包含所有配置状态信息
+     * @return 处理结果字符串
+     * @throws Exception 通用异常，用于封装可能发生的各种错误
+     * @since 2.0.0
+     */
+    @Override
+    public String upload(InputStream inputStream, String fileName, MikState state) throws Exception {
+        PicListOssState picListOssState = state.getPicListOssState();
+        String apiValue = picListOssState.getApi();
+        String picbedValue = picListOssState.getPicbed();
+        String configNameValue = picListOssState.getConfigName();
+        String keyValue = picListOssState.getKey();
+        String exePathValue = picListOssState.getExePath();
+
+        // 移除提示文本
+        picbedValue = PicListOssSetting.PICBED_HINT.equals(picbedValue) ? "" : picbedValue;
+        configNameValue = PicListOssSetting.CONFIG_NAME_HINT.equals(configNameValue) ? "" : configNameValue;
+        keyValue = PicListOssSetting.KEY_HINT.equals(keyValue) ? "" : keyValue;
+        exePathValue = PicListOssSetting.EXE_PATH_HINT.equals(exePathValue) ? "" : exePathValue;
+
+        if (TextUtils.isBlank(apiValue) && TextUtils.isBlank(exePathValue)) {
+            throw new IllegalStateException("API 地址和 可执行文件路径 必须配置一个");
+        }
+
+        return this.upload(inputStream,
+                           fileName,
+                           apiValue,
+                           picbedValue,
+                           configNameValue,
+                           keyValue,
+                           exePathValue);
+    }
+
+    /**
      * 在设置界面点击 'Test' 按钮上传时调用，用于获取当前配置并执行上传操作
      * <p>
      * 该方法通过传入的 JPanel 获取配置信息，然后调用 upload 方法执行上传逻辑。

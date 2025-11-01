@@ -310,7 +310,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                                                                            this.aliyunOssFileDirTextField,
                                                                            this.aliyunOssCustomEndpointCheckBox,
                                                                            this.aliyunOssCustomEndpointTextField,
-                                                                           this.aliyunOssCustomEndpointHelper,
                                                                            this.aliyunOssExampleTextField);
     //endregion
 
@@ -323,7 +322,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                                                                         this.baiduBosFileDirTextField,
                                                                         this.baiduBosCustomEndpointCheckBox,
                                                                         this.baiduBosCustomEndpointTextField,
-                                                                        this.baiduBosCustomEndpointHelper,
                                                                         this.baiduBosExampleTextField);
     //endregion
 
@@ -335,7 +333,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                                                                   this.githubFileDirTextField,
                                                                   this.githubCustomEndpointCheckBox,
                                                                   this.githubCustomEndpointTextField,
-                                                                  this.githubCustomEndpointHelper,
                                                                   this.githubExampleTextField);
     //endregion
 
@@ -347,7 +344,6 @@ public class ProjectSettingsPage implements SearchableConfigurable, Configurable
                                                                this.giteeFileDirTextField,
                                                                this.giteeCustomEndpointCheckBox,
                                                                this.giteeCustomEndpointTextField,
-                                                               this.giteeCustomEndpointHelper,
                                                                this.giteeExampleTextField);
     //endregion
 

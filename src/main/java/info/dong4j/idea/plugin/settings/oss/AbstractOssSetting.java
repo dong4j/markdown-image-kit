@@ -2,25 +2,14 @@ package info.dong4j.idea.plugin.settings.oss;
 
 import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.ui.DocumentAdapter;
-import com.intellij.ui.JBColor;
 
-import info.dong4j.idea.plugin.client.AbstractOssClient;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
-import info.dong4j.idea.plugin.settings.ProjectSettingsPage;
 import info.dong4j.idea.plugin.util.PasswordManager;
-import info.dong4j.idea.plugin.util.StringUtils;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.Cursor;
-import java.awt.Desktop;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.net.URI;
-
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
@@ -52,8 +41,6 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
     private final JCheckBox customEndpointCheckBox;
     /** 自定义域名输入框，用于输入用户配置的自定义域名地址 */
     private final JTextField customEndpointTextField;
-    /** 自定义域名帮助提示标签 */
-    private final JLabel customEndpointHelper;
     /** 示例文本字段 */
     private final JTextField exampleTextField;
 
@@ -69,7 +56,6 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
      * @param fileDirTextField         文件目录输入框
      * @param customEndpointCheckBox   自定义端点复选框
      * @param customEndpointTextField  自定义端点输入框
-     * @param customEndpointHelper     自定义端点帮助标签
      * @param exampleTextField         示例输入框
      * @since 1.1.0
      */
@@ -80,7 +66,6 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
                               JTextField fileDirTextField,
                               JCheckBox customEndpointCheckBox,
                               JTextField customEndpointTextField,
-                              JLabel customEndpointHelper,
                               JTextField exampleTextField) {
 
         this.bucketNameTextField = bucketNameTextField;
@@ -90,7 +75,6 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
         this.fileDirTextField = fileDirTextField;
         this.customEndpointCheckBox = customEndpointCheckBox;
         this.customEndpointTextField = customEndpointTextField;
-        this.customEndpointHelper = customEndpointHelper;
         this.exampleTextField = exampleTextField;
     }
 
@@ -105,7 +89,7 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
      */
     @Override
     public void init(T state) {
-        this.accessSecretKeyTextField.setText(PasswordManager.getPassword(this.credentialAttributes()));
+        reset(state);
 
         // 处理当 aliyunOssFileDirTextField.getText() 为 空字符时, 不拼接 "/
         this.setExampleText(false);
@@ -165,11 +149,9 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
      */
     private void change(DocumentAdapter customDocumentAdapter, boolean isSelected) {
         this.customEndpointTextField.setEnabled(isSelected);
-        this.customEndpointHelper.setEnabled(isSelected);
-        this.endpointTextField.setEnabled(!isSelected);
+        // this.endpointTextField.setEnabled(!isSelected);
         this.bucketNameTextField.setEnabled(!isSelected);
         this.fileDirTextField.setEnabled(!isSelected);
-        this.showCustomEndpointHelper();
 
         if (isSelected) {
             // 开启自定义 endpoint 时, example 修改为自定义 endpoint
@@ -177,7 +159,7 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
         }
 
         // 重置 example
-        this.setExampleText(isSelected);
+        // this.setExampleText(isSelected);
     }
 
     /**
@@ -188,55 +170,22 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
      * @param isCustom 是否为自定义配置
      */
     private void setExampleText(boolean isCustom) {
-        String fileDir;
-        String url;
-        if (isCustom) {
-            fileDir = StringUtils.isBlank(this.fileDirTextField.getText().trim()) ? "" :
-                      "/" + this.fileDirTextField.getText().trim();
-            url = AbstractOssClient.URL_PROTOCOL_HTTPS + "://" + this.customEndpointTextField.getText();
-
-        } else {
-            fileDir = StringUtils.isBlank(this.fileDirTextField.getText().trim()) ? "" :
-                      "/" + this.fileDirTextField.getText().trim();
-            String endpoint = this.endpointTextField.getText().trim();
-            String backetName = this.bucketNameTextField.getText().trim();
-            url = AbstractOssClient.URL_PROTOCOL_HTTPS + "://" + backetName + "." + endpoint;
-            this.exampleTextField.setText(url + fileDir + "/" + ProjectSettingsPage.TEST_FILE_NAME);
-        }
-        this.exampleTextField.setText(url + fileDir + "/" + ProjectSettingsPage.TEST_FILE_NAME);
-    }
-
-    /**
-     * 初始化并显示自定义 Endpoint 帮助文档链接
-     * <p>
-     * 该方法用于设置帮助文档链接的文本、颜色和鼠标样式，并为链接添加点击事件，打开帮助文档页面。
-     *
-     * @since 1.1.0
-     */
-    private void showCustomEndpointHelper() {
-        // 设置帮助文档链接
-        this.customEndpointHelper.setText("<html><a href='" + this.getHelpDoc() + "'>自定义 Endpoint 帮助文档</a></html>");
-        // 设置链接颜色
-        this.customEndpointHelper.setForeground(JBColor.WHITE);
-        // 设置鼠标样式
-        this.customEndpointHelper.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        // 设置提示文字
-        this.customEndpointHelper.addMouseListener(new MouseAdapter() {
-            /**
-             * 处理鼠标点击事件，打开帮助文档链接
-             * <p>
-             * 当用户点击组件时，尝试使用默认浏览器打开帮助文档的链接
-             *
-             * @param e 鼠标事件对象
-             */
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                try {
-                    Desktop.getDesktop().browse(new URI(AbstractOssSetting.this.getHelpDoc()));
-                } catch (Exception ignored) {
-                }
-            }
-        });
+        // String fileDir;
+        // String url;
+        // if (isCustom) {
+        //     fileDir = StringUtils.isBlank(this.fileDirTextField.getText().trim()) ? "" :
+        //               "/" + this.fileDirTextField.getText().trim();
+        //     url = AbstractOssClient.URL_PROTOCOL_HTTPS + "://" + this.customEndpointTextField.getText();
+        //
+        // } else {
+        //     fileDir = StringUtils.isBlank(this.fileDirTextField.getText().trim()) ? "" :
+        //               "/" + this.fileDirTextField.getText().trim();
+        //     String endpoint = this.endpointTextField.getText().trim();
+        //     String backetName = this.bucketNameTextField.getText().trim();
+        //     url = AbstractOssClient.URL_PROTOCOL_HTTPS + "://" + backetName + "." + endpoint;
+        //     this.exampleTextField.setText(url + fileDir + "/" + ProjectSettingsPage.TEST_FILE_NAME);
+        // }
+        // this.exampleTextField.setText(url + fileDir + "/" + ProjectSettingsPage.TEST_FILE_NAME);
     }
 
     /**

@@ -5,7 +5,6 @@ import com.intellij.credentialStore.CredentialAttributes;
 import info.dong4j.idea.plugin.util.PasswordManager;
 
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
@@ -41,7 +40,6 @@ public class BaiduBosSetting extends AbstractOssSetting<BaiduBosState> {
      * @param fileDirTextField         文件目录文本框
      * @param customEndpointCheckBox   自定义终端点复选框
      * @param customEndpointTextField  自定义终端点文本框
-     * @param customEndpointHelper     自定义终端点帮助标签
      * @param exampleTextField         示例文本框
      * @since 1.1.0
      */
@@ -52,7 +50,6 @@ public class BaiduBosSetting extends AbstractOssSetting<BaiduBosState> {
                            JTextField fileDirTextField,
                            JCheckBox customEndpointCheckBox,
                            JTextField customEndpointTextField,
-                           JLabel customEndpointHelper,
                            JTextField exampleTextField) {
 
         super(bucketNameTextField,
@@ -62,7 +59,6 @@ public class BaiduBosSetting extends AbstractOssSetting<BaiduBosState> {
               fileDirTextField,
               customEndpointCheckBox,
               customEndpointTextField,
-              customEndpointHelper,
               exampleTextField);
     }
 

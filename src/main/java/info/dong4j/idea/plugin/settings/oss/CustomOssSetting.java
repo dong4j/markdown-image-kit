@@ -69,6 +69,7 @@ public class CustomOssSetting implements OssSetting<CustomOssState> {
      */
     @Override
     public void init(CustomOssState state) {
+        reset(state);
         this.requestKeyTextField.addFocusListener(new JTextFieldHintListener(this.requestKeyTextField, REQUES_TKEY_HINT));
         this.responseUrlPathTextField.addFocusListener(new JTextFieldHintListener(this.responseUrlPathTextField, RESPONSE_URL_PATH_HINT));
         this.httpMethodTextField.addFocusListener(new JTextFieldHintListener(this.httpMethodTextField, HTTP_METHOD_HINT));

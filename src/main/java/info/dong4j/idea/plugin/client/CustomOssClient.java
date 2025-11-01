@@ -220,6 +220,44 @@ public class CustomOssClient implements OssClient {
     }
 
     /**
+     * 在设置界面点击 'Test' 按钮上传时调用，用于获取当前配置并执行上传操作（新接口）
+     * <p>
+     * 该方法通过传入的 MikState 获取配置信息，包括 API 地址、请求 key、响应 URL 路径和 HTTP 方法，然后调用 upload 方法执行上传逻辑。
+     *
+     * @param inputStream 输入流，用于读取上传文件的内容
+     * @param fileName    文件名，表示上传的文件名称
+     * @param state       MikState 对象，用于获取当前配置状态信息
+     * @return 上传操作的结果字符串
+     * @throws Exception 上传过程中发生异常时抛出
+     * @since 2.0.0
+     */
+    @Override
+    public String upload(InputStream inputStream, String fileName, MikState state) throws Exception {
+        CustomOssState customOssState = state.getCustomOssState();
+
+        this.api = customOssState.getApi();
+        this.requestKey = customOssState.getRequestKey();
+        // 处理提示文本（如果值是 HINT 则视为空字符串）
+        this.requestKey = CustomOssSetting.REQUES_TKEY_HINT.equals(requestKey) ? "" : requestKey;
+        this.responseUrlPath = customOssState.getResponseUrlPath();
+        this.responseUrlPath = CustomOssSetting.RESPONSE_URL_PATH_HINT.equals(responseUrlPath) ? "" : responseUrlPath;
+        this.httpMethod = customOssState.getHttpMethod();
+        this.httpMethod = CustomOssSetting.HTTP_METHOD_HINT.equals(httpMethod) ? "" : httpMethod;
+
+        Asserts.notBlank(api, "api");
+        Asserts.notBlank(requestKey, "发送到服务器的文件 key");
+        Asserts.notBlank(responseUrlPath, "返回结果中的 url 路径");
+        Asserts.notBlank(httpMethod, "请求方式");
+
+        return this.upload(inputStream,
+                           fileName,
+                           api,
+                           requestKey,
+                           responseUrlPath,
+                           httpMethod);
+    }
+
+    /**
      * 在设置界面点击 'Test' 按钮上传时调用，用于获取当前配置并执行上传操作
      * <p>
      * 该方法通过传入的 JPanel 获取配置信息，包括 API 地址、请求 key、响应 URL 路径和 HTTP 方法，然后调用 upload 方法执行上传逻辑。

@@ -2,6 +2,7 @@ package info.dong4j.idea.plugin.client;
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
+import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.oss.AbstractOpenOssState;
 import info.dong4j.idea.plugin.settings.oss.GiteeOssState;
 import info.dong4j.idea.plugin.settings.oss.GiteeSetting;
@@ -84,16 +85,17 @@ public class GiteeClient extends AbstractOpenClient {
     }
 
     /**
-     * 获取当前组件的状态信息
+     * 从 MikState 中获取对应的状态
      * <p>
-     * 通过获取MikPersistenComponent实例的状态，返回GiteeOss相关的状态对象
+     * 该方法用于从传入的 MikState 对象中获取 Gitee 对应的状态信息
      *
-     * @return 当前组件的状态对象
-     * @since 1.3.0
+     * @param state MikState 对象，包含所有配置状态信息
+     * @return Gitee 对应的状态对象
+     * @since 2.0.0
      */
     @Override
-    protected AbstractOpenOssState getState() {
-        return MikPersistenComponent.getInstance().getState().getGiteeOssState();
+    protected AbstractOpenOssState getState(MikState state) {
+        return state.getGiteeOssState();
     }
 
     /**

@@ -90,7 +90,9 @@ public class ProjectSettingsPagePreview implements SearchableConfigurable {
         uploadServicePanel = new UploadServicePanel();
         contentPanel.add(uploadServicePanel.getContent());
 
-        mainPanel.add(contentPanel, BorderLayout.CENTER);
+        // 使用 BorderLayout.NORTH 而不是 CENTER，避免纵向拉伸
+        // 这样内容面板会根据其内容大小决定高度，而不会填满整个可用空间
+        mainPanel.add(contentPanel, BorderLayout.NORTH);
         return mainPanel;
     }
 
@@ -120,53 +122,45 @@ public class ProjectSettingsPagePreview implements SearchableConfigurable {
      */
     private void initFromSettings() {
         MikState state = this.config.getState();
-        uploadServicePanel.initOssSettings(state);
+        imageProcessingPanel.initImageProcessingPanel(state);
         imageEnhancementPanel.initImageEnhancementPanel(state);
         uploadServicePanel.initUploadServicePanel(state);
-        imageProcessingPanel.initImageProcessingPanel(state);
     }
 
     @Override
     public boolean isModified() {
         log.trace("isModified invoke");
         MikState state = this.config.getState();
-
-        // 检查 OSS 配置设定是否修改
-        boolean ossModified = uploadServicePanel.isModified(state);
+        // 检查图片处理设置是否修改
+        boolean imageProcessingModified = imageProcessingPanel.isImageProcessingModified(state);
         // 检查图片增强处理设置是否修改
         boolean imageEnhancementModified = imageEnhancementPanel.isImageEnhancementModified(state);
         // 检查上传服务设定是否修改
         boolean uploadServiceModified = uploadServicePanel.isUploadServiceModified(state);
-        // 检查图片处理设置是否修改
-        boolean imageProcessingModified = imageProcessingPanel.isImageProcessingModified(state);
 
-        return !(ossModified && imageEnhancementModified && uploadServiceModified && imageProcessingModified);
+        return !(imageEnhancementModified && uploadServiceModified && imageProcessingModified);
     }
 
     @Override
     public void apply() {
         MikState state = this.config.getState();
-
-        uploadServicePanel.apply(state);
         // 应用图片增强处理设置
         imageEnhancementPanel.applyImageEnhancementConfigs(state);
-        // 应用上传服务设定
-        uploadServicePanel.applyUploadServiceConfigs(state);
         // 应用图片处理设置
         imageProcessingPanel.applyImageProcessingConfigs(state);
+        // 应用上传服务设定
+        uploadServicePanel.applyUploadServiceConfigs(state);
     }
 
     @Override
     public void reset() {
         MikState state = this.config.getState();
-
-        uploadServicePanel.reset(state);
+        // 重置图片处理设置
+        imageProcessingPanel.initImageProcessingPanel(state);
         // 重置图片增强处理设置
         imageEnhancementPanel.initImageEnhancementPanel(state);
         // 重置上传服务设定
         uploadServicePanel.initUploadServicePanel(state);
-        // 重置图片处理设置
-        imageProcessingPanel.initImageProcessingPanel(state);
     }
 }
 

@@ -163,6 +163,42 @@ public class QiniuOssClient implements OssClient {
     }
 
     /**
+     * "Upload Test" 按钮测试上传（新接口）
+     * <p>
+     * 该方法用于执行"Upload Test"按钮的反射调用，接收输入流、文件名和MikState作为参数，从state中获取最新配置并执行上传。
+     * 这是新的测试接口，优先使用此接口进行测试上传。
+     *
+     * @param inputStream 输入流，用于读取上传文件的数据
+     * @param fileName    文件名，表示上传文件的名称
+     * @param state       MikState对象，包含所有配置状态信息
+     * @return 处理结果字符串
+     * @throws Exception 通用异常，用于封装可能发生的各种错误
+     * @since 2.0.0
+     */
+    @Override
+    public String upload(InputStream inputStream, String fileName, MikState state) throws Exception {
+        QiniuOssState qiniuOssState = state.getQiniuOssState();
+        int zoneIndex = qiniuOssState.getZoneIndex();
+        String bucketName = qiniuOssState.getBucketName();
+        String accessKey = qiniuOssState.getAccessKey();
+        String secretKey = PasswordManager.getPassword(QiniuOssSetting.CREDENTIAL_ATTRIBUTES);
+        String endpoint = qiniuOssState.getEndpoint();
+
+        Asserts.notBlank(bucketName, "Bucket");
+        Asserts.notBlank(accessKey, "Access Key");
+        Asserts.notBlank(secretKey, "Secret Key");
+        Asserts.notBlank(endpoint, "Domain");
+
+        return this.upload(inputStream,
+                           fileName,
+                           bucketName,
+                           accessKey,
+                           secretKey,
+                           endpoint,
+                           zoneIndex);
+    }
+
+    /**
      * 上传文件并返回结果字符串
      * <p>
      * 该方法接收输入流、文件名和JPanel组件，从JPanel中获取配置信息，如存储桶名称、访问密钥、

@@ -72,6 +72,8 @@ public class PicListOssSetting implements OssSetting<PicListOssState> {
      */
     @Override
     public void init(PicListOssState state) {
+        reset(state);
+
         this.picbedTextField.addFocusListener(new JTextFieldHintListener(this.picbedTextField, PICBED_HINT));
         this.configNameTextField.addFocusListener(new JTextFieldHintListener(this.configNameTextField, CONFIG_NAME_HINT));
         this.keyTextField.addFocusListener(new JTextFieldHintListener(this.keyTextField, KEY_HINT));

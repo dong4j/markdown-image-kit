@@ -103,7 +103,7 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
      */
     @Override
     public void init(QiniuOssState state) {
-        this.qiniuOssAccessSecretKeyTextField.setText(PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES));
+        reset(state);
 
         this.qiniuOssUpHostTextField.addFocusListener(new JTextFieldHintListener(this.qiniuOssUpHostTextField, DOMAIN_HINT));
 
@@ -122,6 +122,8 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
         this.qiniuOssNortChinaRadioButton.setSelected(state.getZoneIndex() == this.qiniuOssNortChinaRadioButton.getMnemonic());
         this.qiniuOssSouthChinaRadioButton.setSelected(state.getZoneIndex() == this.qiniuOssSouthChinaRadioButton.getMnemonic());
         this.qiniuOssNorthAmeriaRadioButton.setSelected(state.getZoneIndex() == this.qiniuOssNorthAmeriaRadioButton.getMnemonic());
+
+        this.zoneIndexTextFiled.setText(String.valueOf(state.getZoneIndex()));
     }
 
     /**

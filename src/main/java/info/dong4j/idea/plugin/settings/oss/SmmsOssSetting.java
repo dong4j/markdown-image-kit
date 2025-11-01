@@ -48,7 +48,7 @@ public class SmmsOssSetting implements OssSetting<SmmsOssState> {
      */
     @Override
     public void init(SmmsOssState state) {
-        this.smmsTokenTextField.setText(PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES));
+        reset(state);
     }
 
     /**
