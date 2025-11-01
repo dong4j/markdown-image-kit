@@ -1,24 +1,23 @@
 package info.dong4j.idea.plugin.action.paste;
 
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.editor.actionSystem.EditorTextInsertHandler;
-import com.intellij.openapi.externalSystem.task.TaskCallbackAdapter;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vcs.AbstractVcs;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.Producer;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ActionManager;
+import info.dong4j.idea.plugin.chain.DownloadImageHandler;
 import info.dong4j.idea.plugin.chain.FinalChainHandler;
 import info.dong4j.idea.plugin.chain.ImageCompressionHandler;
 import info.dong4j.idea.plugin.chain.ImageLabelChangeHandler;
@@ -27,7 +26,9 @@ import info.dong4j.idea.plugin.chain.ImageStorageHandler;
 import info.dong4j.idea.plugin.chain.ImageUploadHandler;
 import info.dong4j.idea.plugin.chain.InsertToDocumentHandler;
 import info.dong4j.idea.plugin.chain.OptionClientHandler;
+import info.dong4j.idea.plugin.chain.RefreshFileSystemHandler;
 import info.dong4j.idea.plugin.client.OssClient;
+import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.CloudEnum;
@@ -49,8 +50,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -83,6 +87,7 @@ import lombok.extern.slf4j.Slf4j;
  * @date 2019.03.16
  * @since 0.0.1
  */
+@SuppressWarnings("D")
 @Slf4j
 public class PasteImageAction extends EditorActionHandler implements EditorTextInsertHandler {
     /** 编辑器操作处理器，用于处理编辑器相关的用户操作事件 */
@@ -118,104 +123,51 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
 
         Document document = editor.getDocument();
         VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
+        MikState state = MikPersistenComponent.getInstance().getState();
+        InsertImageActionEnum insertImageAction = state.getInsertImageAction();
+
+        // 如果 caret 为 null，尝试获取当前的 caret
+        Caret currentCaret = caret;
+        if (currentCaret == null) {
+            currentCaret = editor.getCaretModel().getCurrentCaret();
+        }
 
         try {
-            if (virtualFile != null && MarkdownUtils.isMardownFile(virtualFile)) {
-                MikState state = MikPersistenComponent.getInstance().getState();
-                InsertImageActionEnum insertImageAction = state.getInsertImageAction();
 
-                // 判断是否需要处理图片：复制或上传
-                boolean shouldProcess = insertImageAction != null && insertImageAction != InsertImageActionEnum.NONE;
+            if (virtualFile != null
+                && MarkdownUtils.isMardownFile(virtualFile)
+                && insertImageAction != null
+                && insertImageAction != InsertImageActionEnum.NONE) {
 
-                if (shouldProcess) {
-                    Map<DataFlavor, Object> clipboardData = ImageUtils.getDataFromClipboard();
-                    if (clipboardData != null) {
-                        Iterator<Map.Entry<DataFlavor, Object>> iterator = clipboardData.entrySet().iterator();
-                        Map.Entry<DataFlavor, Object> entry = iterator.next();
-
-                        Map<Document, List<MarkdownImage>> waitingProcessMap = this.buildWaitingProcessMap(entry, editor, state);
-
-                        if (waitingProcessMap.isEmpty()) {
-                            this.defaultAction(editor, caret, dataContext);
-                            return;
-                        }
-
-                        // 使用默认 client
-                        CloudEnum cloudEnum = OssState.getCloudType(state.getDefaultCloudType());
-                        OssClient client = ClientUtils.getClient(cloudEnum);
-
-                        EventData data = new EventData()
-                            .setProject(editor.getProject())
-                            .setEditor(editor)
-                            .setClient(client)
-                            .setClientName(cloudEnum.title)
-                            .setWaitingProcessMap(waitingProcessMap);
-
-                        ActionManager manager = new ActionManager(data)
-                            // 图片压缩
-                            .addHandler(new ImageCompressionHandler())
-                            // 图片重命名
-                            .addHandler(new ImageRenameHandler());
-
-                        // 处理复制到指定路径的逻辑（包括4个复制选项）
-                        if (insertImageAction == InsertImageActionEnum.COPY_TO_CURRENT
-                            || insertImageAction == InsertImageActionEnum.COPY_TO_ASSETS
-                            || insertImageAction == InsertImageActionEnum.COPY_TO_FILENAME_ASSETS
-                            || insertImageAction == InsertImageActionEnum.COPY_TO_CUSTOM) {
-
-                            // 获取当前路径，如果为空则根据枚举类型设置默认路径
-                            String currentPath = state.getCurrentInsertPath();
-                            if (currentPath == null || currentPath.isEmpty()) {
-                                String customPath = insertImageAction == InsertImageActionEnum.COPY_TO_CUSTOM
-                                                    ? state.getSavedCustomInsertPath()
-                                                    : null;
-                                currentPath = InsertImageActionEnum.getPathByAction(insertImageAction, customPath);
-                            }
-                            // 处理占位符并设置保存路径
-                            String processedPath = this.processPathPlaceholders(
-                                currentPath,
-                                virtualFile,
-                                editor.getProject()
-                                                                               );
-                            // 设置处理后的路径
-                            state.setImageSavePath(processedPath);
-                            // 图片保存
-                            manager.addHandler(new ImageStorageHandler());
-                        }
-
-                        // 处理上传图片的逻辑
-                        if (insertImageAction == InsertImageActionEnum.UPLOAD) {
-                            // 处理 client
-                            manager.addHandler(new OptionClientHandler())
-                                .addHandler(new ImageUploadHandler());
-                        }
-
-                        // 标签转换
-                        manager.addHandler(new ImageLabelChangeHandler())
-                            // 写入标签
-                            .addHandler(new InsertToDocumentHandler())
-                            .addHandler(new FinalChainHandler())
-                            .addCallback(new TaskCallbackAdapter() {
-                                /**
-                                 * 处理成功回调逻辑
-                                 * <p>
-                                 * 在操作成功时执行回调，记录日志并刷新虚拟文件系统（VFS），确保新增的图片能够及时显示
-                                 *
-                                 * @since 1.0
-                                 */
-                                @Override
-                                public void onSuccess() {
-                                    log.trace("Success callback");
-                                    // 刷新 VFS, 避免新增的图片很久才显示出来
-                                    ApplicationManager.getApplication().runWriteAction(() -> {
-                                        VirtualFileManager.getInstance().syncRefresh();
-                                    });
-                                }
-                            });
-
-                        new ActionTask(editor.getProject(), MikBundle.message("mik.action.paste.task"), manager).queue();
+                // 检测是否是网络图片且光标在图片路径中
+                if (state.isApplyToNetworkImages() && this.isCaretInImagePath(editor, currentCaret)) {
+                    String imageUrl = this.getNetworkImageUrlFromClipboard();
+                    if (imageUrl != null && !imageUrl.isEmpty()) {
+                        this.handleNetworkImageDownload(editor, currentCaret, state, imageUrl);
                         return;
                     }
+                }
+
+                Map<DataFlavor, Object> clipboardData = ImageUtils.getDataFromClipboard();
+                if (clipboardData != null) {
+                    Iterator<Map.Entry<DataFlavor, Object>> iterator = clipboardData.entrySet().iterator();
+                    Map.Entry<DataFlavor, Object> entry = iterator.next();
+
+                    Map<Document, List<MarkdownImage>> waitingProcessMap = this.buildWaitingProcessMap(entry, editor, state);
+
+                    if (waitingProcessMap.isEmpty()) {
+                        this.defaultAction(editor, caret, dataContext);
+                        return;
+                    }
+
+                    final ActionManager manager = createManager(editor, state, waitingProcessMap);
+
+                    addImageStorageHandler(editor, insertImageAction, state, virtualFile, manager);
+
+                    addPostHanler(insertImageAction, manager);
+
+                    new ActionTask(editor.getProject(), MikBundle.message("mik.action.paste.task"), manager).queue();
+                    return;
                 }
             }
         } catch (Exception e) {
@@ -223,6 +175,99 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
             this.defaultAction(editor, caret, dataContext);
         }
         this.defaultAction(editor, caret, dataContext);
+    }
+
+    private static ActionManager createManager(@NotNull Editor editor,
+                                               MikState state,
+                                               Map<Document, List<MarkdownImage>> waitingProcessMap) {
+        // 使用默认 client
+        CloudEnum cloudEnum = OssState.getCloudType(state.getDefaultCloudType());
+        OssClient client = ClientUtils.getClient(cloudEnum);
+
+        EventData data = new EventData()
+            .setProject(editor.getProject())
+            .setEditor(editor)
+            .setClient(client)
+            .setClientName(cloudEnum.title)
+            .setWaitingProcessMap(waitingProcessMap);
+
+        return new ActionManager(data)
+            // 图片压缩
+            .addHandler(new ImageCompressionHandler())
+            // 图片重命名
+            .addHandler(new ImageRenameHandler());
+    }
+
+    /**
+     * 添加后置处理器
+     * <p>
+     * 根据插入图片的操作类型，向 ActionManager 添加相应的处理器链。
+     * 如果操作类型为 UPLOAD，则添加处理客户端和图片上传的处理器；
+     * 否则添加标签转换、写入标签、最终处理和刷新文件系统等处理器。
+     *
+     * @param insertImageAction 插入图片的操作类型
+     * @param manager           ActionManager 实例，用于添加处理器
+     */
+    private static void addPostHanler(InsertImageActionEnum insertImageAction, ActionManager manager) {
+        // 处理上传图片的逻辑
+        if (insertImageAction == InsertImageActionEnum.UPLOAD) {
+            // 处理 client
+            manager.addHandler(new OptionClientHandler())
+                .addHandler(new ImageUploadHandler());
+        }
+
+        // 标签转换
+        manager.addHandler(new ImageLabelChangeHandler())
+            // 写入标签
+            .addHandler(new InsertToDocumentHandler())
+            .addHandler(new FinalChainHandler())
+            .addHandler(new RefreshFileSystemHandler());
+    }
+
+    /**
+     * 添加图片存储处理逻辑
+     * <p>
+     * 根据插入图片的操作类型，处理图片的保存路径，并设置到状态对象中。如果操作类型为复制到指定路径，则获取当前路径，处理占位符，并设置保存路径。
+     *
+     * @param editor            编辑器实例
+     * @param insertImageAction 插入图片的操作类型
+     * @param state             状态对象，用于存储和获取图片保存路径等信息
+     * @param virtualFile       虚拟文件对象
+     * @param manager           操作管理器，用于添加处理逻辑
+     */
+    private void addImageStorageHandler(@NotNull Editor editor,
+                                        InsertImageActionEnum insertImageAction,
+                                        MikState state,
+                                        VirtualFile virtualFile,
+                                        ActionManager manager) {
+        // 处理复制到指定路径的逻辑（包括4个复制选项）
+        if (insertImageAction == InsertImageActionEnum.COPY_TO_CURRENT
+            || insertImageAction == InsertImageActionEnum.COPY_TO_ASSETS
+            || insertImageAction == InsertImageActionEnum.COPY_TO_FILENAME_ASSETS
+            || insertImageAction == InsertImageActionEnum.COPY_TO_CUSTOM) {
+
+            // 获取当前路径，如果为空则根据枚举类型设置默认路径
+            String currentPath = state.getCurrentInsertPath();
+            if (currentPath == null || currentPath.isEmpty()) {
+                String customPath = insertImageAction == InsertImageActionEnum.COPY_TO_CUSTOM
+                                    ? state.getSavedCustomInsertPath()
+                                    : null;
+                currentPath = InsertImageActionEnum.getPathByAction(insertImageAction, customPath);
+            }
+
+            // 处理占位符并设置保存路径
+            String processedPath = this.processPathPlaceholders(
+                currentPath,
+                virtualFile,
+                editor.getProject()
+                                                               );
+            // 设置处理后的路径, 在 ImageStorageHandler 会使用到
+            state.setImageSavePath(processedPath);
+            // 图片保存
+            manager.addHandler(new ImageStorageHandler())
+                // 刷新文件系统
+                .addHandler(new RefreshFileSystemHandler());
+        }
     }
 
     /**
@@ -489,5 +534,236 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
     @Override
     public void execute(Editor editor, DataContext dataContext, @Nullable Producer<? extends Transferable> producer) {
 
+    }
+
+    /**
+     * 检测光标是否在 markdown 图片标签的 path 中
+     * <p>
+     * 该方法用于检测当前光标位置是否在 markdown 图片标签的路径部分，即 `![xxx](光标在这里)` 的情况。
+     * 通过解析光标所在行的文本，查找图片标签，并判断光标是否在路径的括号内。
+     * 如果 caret 为 null，会尝试从编辑器获取当前的 caret。
+     *
+     * @param editor 编辑器实例
+     * @param caret  光标位置，可能为 null
+     * @return 如果光标在图片路径中返回 true，否则返回 false
+     * @since 1.0.0
+     */
+    private boolean isCaretInImagePath(@NotNull Editor editor, @Nullable Caret caret) {
+        // 如果 caret 为 null，尝试获取当前的 caret
+        Caret currentCaret = caret;
+        if (currentCaret == null) {
+            try {
+                currentCaret = editor.getCaretModel().getCurrentCaret();
+            } catch (Exception e) {
+                log.trace("无法获取当前 caret", e);
+                return false;
+            }
+        }
+
+        Document document = editor.getDocument();
+        int caretOffset = currentCaret.getOffset();
+        int documentLine = document.getLineNumber(caretOffset);
+        int lineStartOffset = document.getLineStartOffset(documentLine);
+        int lineEndOffset = document.getLineEndOffset(documentLine);
+        String lineText = document.getText(new TextRange(lineStartOffset, lineEndOffset));
+
+        // 查找图片标签的位置
+        int prefixIndex = lineText.indexOf(ImageContents.IMAGE_MARK_PREFIX);
+        if (prefixIndex == -1) {
+            return false;
+        }
+
+        int middleIndex = lineText.indexOf(ImageContents.IMAGE_MARK_MIDDLE, prefixIndex);
+        if (middleIndex == -1) {
+            return false;
+        }
+
+        int suffixIndex = lineText.indexOf(ImageContents.IMAGE_MARK_SUFFIX, middleIndex);
+        if (suffixIndex == -1) {
+            return false;
+        }
+
+        // 计算路径部分的偏移量（相对于行）
+        int pathStartOffset = middleIndex + ImageContents.IMAGE_MARK_MIDDLE.length();
+
+        // 计算光标在行内的相对位置
+        int caretOffsetInLine = caretOffset - lineStartOffset;
+
+        // 判断光标是否在路径部分
+        return caretOffsetInLine >= pathStartOffset && caretOffsetInLine <= suffixIndex;
+    }
+
+    /**
+     * 从剪贴板获取网络图片 URL
+     * <p>
+     * 该方法用于从系统剪贴板中获取字符串类型的网络图片 URL。
+     *
+     * @return 网络图片 URL，如果获取失败或不是 URL 则返回 null
+     * @since 1.0.0
+     */
+    @Nullable
+    private String getNetworkImageUrlFromClipboard() {
+        try {
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            Transferable transferable = clipboard.getContents(null);
+            if (transferable == null || !transferable.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+                return null;
+            }
+            Object data = transferable.getTransferData(DataFlavor.stringFlavor);
+            if (data instanceof String text) {
+                String trimmed = text.trim();
+                if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+                    return trimmed;
+                }
+            }
+        } catch (UnsupportedFlavorException | IOException e) {
+            log.trace("从剪贴板获取 URL 失败", e);
+        }
+        return null;
+    }
+
+    /**
+     * 处理网络图片下载
+     * <p>
+     * 该方法用于处理网络图片的下载流程，将从剪贴板获取的网络图片 URL 下载到本地，
+     * 然后执行后续的图片处理流程（压缩、重命名、存储、上传等）。
+     *
+     * @param editor   编辑器实例
+     * @param caret    光标位置，可能为 null
+     * @param state    状态信息
+     * @param imageUrl 网络图片 URL
+     * @since 1.0.0
+     */
+    private void handleNetworkImageDownload(@NotNull Editor editor, @Nullable Caret caret, @NotNull MikState state,
+                                            @NotNull String imageUrl) {
+        Document document = editor.getDocument();
+        VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
+
+        // 如果光标在图片路径中，解析现有的图片标签信息
+        Caret currentCaret = caret;
+        if (currentCaret == null) {
+            currentCaret = editor.getCaretModel().getCurrentCaret();
+        }
+
+        boolean shouldReplacePath = false;
+        int pathStartOffset = -1;
+        int pathEndOffset = -1;
+        String originalLineText = "";
+        String originalMark = "";
+        int lineNumber = 0;
+
+        if (this.isCaretInImagePath(editor, currentCaret)) {
+            // 解析图片标签信息
+            Document doc = editor.getDocument();
+            int caretOffset = currentCaret.getOffset();
+            lineNumber = doc.getLineNumber(caretOffset);
+            int lineStartOffset = doc.getLineStartOffset(lineNumber);
+            int lineEndOffset = doc.getLineEndOffset(lineNumber);
+            originalLineText = doc.getText(new TextRange(lineStartOffset, lineEndOffset));
+
+            // 查找图片标签的位置
+            int prefixIndex = originalLineText.indexOf(ImageContents.IMAGE_MARK_PREFIX);
+            if (prefixIndex != -1) {
+                int middleIndex = originalLineText.indexOf(ImageContents.IMAGE_MARK_MIDDLE, prefixIndex);
+                if (middleIndex != -1) {
+                    int suffixIndex = originalLineText.indexOf(ImageContents.IMAGE_MARK_SUFFIX, middleIndex);
+                    if (suffixIndex != -1) {
+                        // 计算路径部分的偏移量（相对于文档）
+                        pathStartOffset = lineStartOffset + middleIndex + ImageContents.IMAGE_MARK_MIDDLE.length();
+                        pathEndOffset = lineStartOffset + suffixIndex;
+                        originalMark = originalLineText.substring(prefixIndex, suffixIndex + 1);
+                        shouldReplacePath = true;
+                    }
+                }
+            }
+        }
+
+        // 解析图片名称
+        // 移除查询参数（如 ?x-oss-process=...）
+        String urlWithoutQuery = imageUrl.split("\\?")[0];
+        String imageName = urlWithoutQuery.substring(urlWithoutQuery.lastIndexOf("/") + 1);
+
+        // 如果没有扩展名，使用随机名称（扩展名会在下载时根据 Content-Type 或文件头确定）
+        if (!imageName.contains(".") || imageName.endsWith(".")) {
+            imageName = CharacterUtils.getRandomString(6);
+        }
+
+        // 创建 MarkdownImage 对象
+        MarkdownImage markdownImage = new MarkdownImage();
+        markdownImage.setFileName(virtualFile != null ? virtualFile.getName() : "");
+        markdownImage.setImageName(imageName);
+        // 扩展名会在下载时根据 Content-Type 或文件头确定，这里先设置为空
+        // 如果 URL 中包含扩展名，则尝试提取
+        String extension = "";
+        int lastDot = imageName.lastIndexOf('.');
+        if (lastDot > 0 && lastDot < imageName.length() - 1) {
+            extension = imageName.substring(lastDot + 1);
+        }
+        markdownImage.setExtension(extension);
+        markdownImage.setOriginalLineText(shouldReplacePath ? originalLineText : "");
+        markdownImage.setLineNumber(lineNumber);
+        markdownImage.setLineStartOffset(shouldReplacePath ? pathStartOffset : 0);
+        markdownImage.setLineEndOffset(shouldReplacePath ? pathEndOffset : 0);
+        markdownImage.setTitle("");
+        markdownImage.setPath(imageUrl);
+        markdownImage.setLocation(ImageLocationEnum.NETWORK);
+        markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
+        markdownImage.setOriginalMark(shouldReplacePath ? originalMark : "");
+        markdownImage.setFinalMark("");
+
+        Map<Document, List<MarkdownImage>> waitingProcessMap = new HashMap<>(8);
+        waitingProcessMap.put(document, Collections.singletonList(markdownImage));
+
+        // 使用默认 client
+        CloudEnum cloudEnum = OssState.getCloudType(state.getDefaultCloudType());
+        OssClient client = ClientUtils.getClient(cloudEnum);
+
+        EventData data = new EventData()
+            .setProject(editor.getProject())
+            .setEditor(editor)
+            .setClient(client)
+            .setClientName(cloudEnum.title)
+            .setWaitingProcessMap(waitingProcessMap);
+
+        ActionManager manager = new ActionManager(data)
+            // 下载图片
+            .addHandler(new DownloadImageHandler())
+            // 图片压缩
+            .addHandler(new ImageCompressionHandler())
+            // 图片重命名
+            .addHandler(new ImageRenameHandler());
+
+        InsertImageActionEnum insertImageAction = state.getInsertImageAction();
+
+        // 处理复制到指定路径的逻辑
+        if (insertImageAction == InsertImageActionEnum.COPY_TO_CURRENT
+            || insertImageAction == InsertImageActionEnum.COPY_TO_ASSETS
+            || insertImageAction == InsertImageActionEnum.COPY_TO_FILENAME_ASSETS
+            || insertImageAction == InsertImageActionEnum.COPY_TO_CUSTOM) {
+
+            // 获取当前路径，如果为空则根据枚举类型设置默认路径
+            String currentPath = state.getCurrentInsertPath();
+            if (currentPath == null || currentPath.isEmpty()) {
+                String customPath = insertImageAction == InsertImageActionEnum.COPY_TO_CUSTOM
+                                    ? state.getSavedCustomInsertPath()
+                                    : null;
+                currentPath = InsertImageActionEnum.getPathByAction(insertImageAction, customPath);
+            }
+            // 处理占位符并设置保存路径
+            String processedPath = this.processPathPlaceholders(
+                currentPath,
+                virtualFile,
+                editor.getProject()
+                                                               );
+            // 设置处理后的路径
+            state.setImageSavePath(processedPath);
+            // 图片保存
+            manager.addHandler(new ImageStorageHandler());
+        }
+
+        // 处理上传图片的逻辑
+        addPostHanler(insertImageAction, manager);
+
+        new ActionTask(editor.getProject(), MikBundle.message("mik.action.paste.task"), manager).queue();
     }
 }

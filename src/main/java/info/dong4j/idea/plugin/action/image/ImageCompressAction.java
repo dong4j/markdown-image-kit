@@ -1,11 +1,8 @@
 package info.dong4j.idea.plugin.action.image;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.externalSystem.task.TaskCallbackAdapter;
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.VirtualFileManager;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ActionHandlerAdapter;
@@ -13,6 +10,7 @@ import info.dong4j.idea.plugin.chain.ActionManager;
 import info.dong4j.idea.plugin.chain.FinalChainHandler;
 import info.dong4j.idea.plugin.chain.ImageCompressionHandler;
 import info.dong4j.idea.plugin.chain.ImageRenameHandler;
+import info.dong4j.idea.plugin.chain.RefreshFileSystemHandler;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.task.ActionTask;
@@ -119,7 +117,7 @@ public final class ImageCompressAction extends ImageActionBase {
                     if (markdownImage.getVirtualFile() != null) {
                         originalPath = markdownImage.getVirtualFile().getPath();
                     }
-                    
+
                     try {
                         // 写入新文件（如果路径已更新为 webp，会写入到新位置）
                         FileUtil.copy(inputStream, new FileOutputStream(newPath));
@@ -142,25 +140,7 @@ public final class ImageCompressAction extends ImageActionBase {
                 }
             })
             .addHandler(new FinalChainHandler())
-            // 处理完成后刷新 VFS
-            .addCallback(new TaskCallbackAdapter() {
-                /**
-                 * 处理成功回调
-                 * <p>
-                 * 在异步操作成功时执行，用于记录日志并刷新 VFS，确保新增的图片能够及时显示
-                 *
-                 * @author [作者姓名]
-                 * @since 1.0
-                 */
-                @Override
-                public void onSuccess() {
-                    log.trace("Success callback");
-                    // 刷新 VFS, 避免新增的图片很久才显示出来
-                    ApplicationManager.getApplication().runWriteAction(() -> {
-                        VirtualFileManager.getInstance().syncRefresh();
-                    });
-                }
-            });
+            .addHandler(new RefreshFileSystemHandler());
 
         // 开启后台任务
         new ActionTask(event.getProject(), MikBundle.message("mik.action.compress.progress"), manager).queue();

@@ -7,6 +7,8 @@ import info.dong4j.idea.plugin.action.intention.IntentionActionBase;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +67,9 @@ public class FinalChainHandler extends ActionHandlerAdapter {
         Map<Document, List<MarkdownImage>> processededData = data.getWaitingProcessMap();
         for (Map.Entry<Document, List<MarkdownImage>> imageEntry : processededData.entrySet()) {
             List<MarkdownImage> markdownImages = imageEntry.getValue();
+            if (CollectionUtils.isEmpty(markdownImages)) {
+                continue;
+            }
             for (MarkdownImage markdownImage : markdownImages) {
 
                 if (markdownImage.getInputStream() != null) {
@@ -74,7 +79,6 @@ public class FinalChainHandler extends ActionHandlerAdapter {
                     }
                 }
             }
-            markdownImages.clear();
         }
         processededData.clear();
         return true;
