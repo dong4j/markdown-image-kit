@@ -57,4 +57,8 @@ public class MarkdownImage implements Serializable {
     private String finalMark;
     /** 保存当前标签对应的虚拟文件对象 */
     private VirtualFile virtualFile;
+    /** 源文件的绝对路径，用于粘贴文件时保存原始文件路径 */
+    private String sourceFilePath;
+    /** 标记图片是否为图片流（true）还是文件（false） */
+    private boolean isImageStream = true;
 }

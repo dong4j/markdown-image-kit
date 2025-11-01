@@ -314,8 +314,30 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
             markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
             markdownImage.setOriginalMark(parts.length > 5 ? parts[5] : "");
             markdownImage.setFinalMark("");
+            markdownImage.setImageStream(true); // 网络图片视为图片流
+        } else if (key.startsWith("file:")) {
+            // 粘贴的文件
+            // 格式：file:原始文件绝对路径|文件名
+            String[] parts = key.substring(5).split("\\|", 2);
+            String sourceFilePath = parts.length > 0 ? parts[0] : "";
+            String imageName = parts.length > 1 ? parts[1] : "";
+
+            markdownImage.setFileName(fileName);
+            markdownImage.setImageName(imageName);
+            markdownImage.setExtension("");
+            markdownImage.setOriginalLineText("");
+            markdownImage.setLineNumber(0);
+            markdownImage.setLineStartOffset(0);
+            markdownImage.setLineEndOffset(0);
+            markdownImage.setTitle("");
+            markdownImage.setPath("");
+            markdownImage.setLocation(ImageLocationEnum.LOCAL);
+            markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
+            markdownImage.setFinalMark("");
+            markdownImage.setSourceFilePath(sourceFilePath);
+            markdownImage.setImageStream(false); // 标记为文件
         } else {
-            // 本地图片
+            // 图片流（从剪贴板直接粘贴的图片）
             markdownImage.setFileName(fileName);
             markdownImage.setImageName(key);
             markdownImage.setExtension("");
@@ -328,6 +350,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
             markdownImage.setLocation(ImageLocationEnum.LOCAL);
             markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
             markdownImage.setFinalMark("");
+            markdownImage.setImageStream(true); // 标记为图片流
         }
 
         markdownImage.setInputStream(inputStreamMap.getValue());
@@ -378,9 +401,12 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
      * <p>
      * 该方法用于处理剪贴板中包含的文件列表数据，首先过滤非图片文件，然后将符合条件的图片文件
      * 加载到 imageMap 中，供后续使用。若处理过程中出现异常或不符合条件的文件，将提前终止处理。
+     * <p>
+     * key 格式：file:原始文件绝对路径|文件名
+     * 这样可以在后续处理中区分是文件还是图片流，并保留原始文件路径信息
      *
      * @param entry    包含数据类型的条目，用于获取文件列表
-     * @param imageMap 用于存储图片文件的映射表，键为文件名，值为文件输入流
+     * @param imageMap 用于存储图片文件的映射表，键为文件元数据，值为文件输入流
      * @param state    状态对象，用于控制是否添加水印等操作
      */
     private void resolveFromFile(@NotNull Map.Entry<DataFlavor, Object> entry,
@@ -398,7 +424,9 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
                     finalFile = ImageUtils.watermarkFromText(file, state.getWatermarkText());
                 }
                 try {
-                    imageMap.put(file.getName(), new FileInputStream(finalFile));
+                    // 构建元数据 key，格式：file:原始文件绝对路径|文件名
+                    String metadataKey = String.format("file:%s|%s", file.getAbsolutePath(), file.getName());
+                    imageMap.put(metadataKey, new FileInputStream(finalFile));
                 } catch (FileNotFoundException e) {
                     break;
                 }
