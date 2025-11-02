@@ -53,6 +53,8 @@ public class ImageProcessingPanel {
     private JCheckBox addDotSlashCheckBox;
     /** 插入时自动转义图片 URL 的复选框 */
     private JCheckBox autoEscapeImageUrlCheckBox;
+    /** 启用控制台日志的复选框 */
+    private JCheckBox enableConsoleLogCheckBox;
     /** 当前状态对象的引用，用于在 ActionListener 中访问保存的自定义路径值 */
     private MikState currentState;
 
@@ -184,6 +186,11 @@ public class ImageProcessingPanel {
         autoEscapeImageUrlCheckBox = new JCheckBox(MikBundle.message("panel.image.processing.auto.escape"));
         autoEscapeImageUrlCheckBox.setToolTipText(MikBundle.message("panel.image.processing.auto.escape.tooltip"));
         content.add(autoEscapeImageUrlCheckBox, gbc);
+
+        gbc.gridy = 10;
+        enableConsoleLogCheckBox = new JCheckBox("启用 MIK Console 日志输出");
+        enableConsoleLogCheckBox.setToolTipText("勾选后在 MIK Console 窗口中显示任务处理的详细日志，包括图片上传、下载、存储等关键操作信息");
+        content.add(enableConsoleLogCheckBox, gbc);
     }
 
     /**
@@ -234,7 +241,10 @@ public class ImageProcessingPanel {
         if (addDotSlashCheckBox.isSelected() != state.isAddDotSlash()) {
             return true;
         }
-        return autoEscapeImageUrlCheckBox.isSelected() != state.isAutoEscapeImageUrl();
+        if (autoEscapeImageUrlCheckBox.isSelected() != state.isAutoEscapeImageUrl()) {
+            return true;
+        }
+        return enableConsoleLogCheckBox.isSelected() != state.isEnableConsoleLog();
     }
 
     /**
@@ -268,6 +278,7 @@ public class ImageProcessingPanel {
         state.setPreferRelativePath(preferRelativePathCheckBox.isSelected());
         state.setAddDotSlash(addDotSlashCheckBox.isSelected());
         state.setAutoEscapeImageUrl(autoEscapeImageUrlCheckBox.isSelected());
+        state.setEnableConsoleLog(enableConsoleLogCheckBox.isSelected());
     }
 
     /**
@@ -332,6 +343,7 @@ public class ImageProcessingPanel {
         addDotSlashCheckBox.setSelected(state.isAddDotSlash());
         addDotSlashCheckBox.setEnabled(state.isPreferRelativePath());
         autoEscapeImageUrlCheckBox.setSelected(state.isAutoEscapeImageUrl());
+        enableConsoleLogCheckBox.setSelected(state.isEnableConsoleLog());
     }
 
 }

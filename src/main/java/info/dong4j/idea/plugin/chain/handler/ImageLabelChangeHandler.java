@@ -2,6 +2,7 @@ package info.dong4j.idea.plugin.chain.handler;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.action.intention.IntentionActionBase;
+import info.dong4j.idea.plugin.console.MikConsoleView;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
@@ -105,6 +106,14 @@ public class ImageLabelChangeHandler extends ActionHandlerAdapter {
                       currentMarkType != null ? currentMarkType.getText() : "null",
                       targetMarkType.getText(),
                       markdownImage.getImageName());
+
+            // 输出标签转换日志到控制台
+            String currentTypeName = currentMarkType != null ? currentMarkType.getText() : "原始";
+            String targetTypeName = targetMarkType.getText();
+            MikConsoleView.printMessage(data.getProject(),
+                                        String.format("  [标签转换] %s -> %s | 图片: %s", currentTypeName, targetTypeName,
+                                                      markdownImage.getImageName()));
+            
             changeMarkType(markdownImage, targetMarkType);
         } else {
             log.trace("标签类型一致，跳过转换: {}, 图片: {}",

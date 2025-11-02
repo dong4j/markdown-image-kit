@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.progress.ProgressIndicator;
 
 import info.dong4j.idea.plugin.MikBundle;
+import info.dong4j.idea.plugin.console.MikConsoleView;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.util.StringUtils;
@@ -52,9 +53,15 @@ public class WriteToDocumentHandler extends ActionHandlerAdapter {
         int size = data.getSize();
         int totalProcessed = 0;
 
+        // 输出写入文档的开始日志
+        int totalImages = data.getWaitingProcessMap().values().stream().mapToInt(List::size).sum();
+        MikConsoleView.printMessage(data.getProject(), String.format("  [写入文档] 共 %d 张图片需要写入", totalImages));
+        
         for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
             Document document = imageEntry.getKey();
             int totalCount = imageEntry.getValue().size();
+            int currentFileProcessed = 0;
+            
             for (MarkdownImage markdownImage : imageEntry.getValue()) {
                 String imageName = markdownImage.getImageName();
                 indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
@@ -71,9 +78,15 @@ public class WriteToDocumentHandler extends ActionHandlerAdapter {
                                    document.getLineEndOffset(markdownImage.getLineNumber()),
                                    newLineText));
 
-
+                currentFileProcessed++;
+                // 输出每张图片的写入日志
+                MikConsoleView.printMessage(data.getProject(),
+                                            String.format("         [%d/%d] 图片: %s | 行号: %d",
+                                                          currentFileProcessed, totalCount, imageName, markdownImage.getLineNumber() + 1));
             }
         }
+
+        MikConsoleView.printSuccessMessage(data.getProject(), "  [✓] 所有图片标签已写入文档");
         return true;
     }
 }

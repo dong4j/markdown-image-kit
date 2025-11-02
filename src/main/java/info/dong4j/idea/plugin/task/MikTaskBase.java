@@ -46,6 +46,8 @@ public abstract class MikTaskBase extends Task.Backgroundable {
                 ActionManager manager) {
         super(project, title);
         this.manager = manager;
+        // 将任务标题传递给 ActionManager
+        this.manager.setMainTaskTitle(title);
     }
 
     /**

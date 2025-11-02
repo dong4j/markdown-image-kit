@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.Document;
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ProgressTracker;
 import info.dong4j.idea.plugin.client.OssClient;
+import info.dong4j.idea.plugin.console.MikConsoleView;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
@@ -112,6 +113,7 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
         // 如果没有需要处理的图片，直接返回
         if (uploadTasks.isEmpty()) {
             log.info("数据被清洗后没有添加任何可处理任务");
+            MikConsoleView.printMessage(data.getProject(), "  没有需要上传的图片");
             return false;
         }
 
@@ -124,6 +126,9 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
         int threadPoolSize = Math.min(finalTotalCount, 15);
         ExecutorService executorService = Executors.newFixedThreadPool(threadPoolSize);
         log.info("开始上传 {} 张图片，使用 {} 个线程", finalTotalCount, threadPoolSize);
+
+        // 输出到控制台
+        MikConsoleView.printMessage(data.getProject(), String.format("  开始上传 %d 张图片，使用 %d 个线程", finalTotalCount, threadPoolSize));
         List<CompletableFuture<?>> futures = new ArrayList<>();
 
         // 为每个图片创建异步任务
@@ -152,6 +157,7 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
         try {
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[] {})).join();
             log.info("图片上传完成，共处理 {} 张图片", finalTotalCount);
+            MikConsoleView.printSmart(data.getProject(), String.format("  上传完成，共处理 %d 张图片", finalTotalCount));
         } finally {
             executorService.shutdown();
         }
@@ -198,14 +204,32 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
         }
 
         String imageUrl = null;
+        final OssClient client = data.getClient();
+        String clientName = client.getName();
+
+        // 获取原始路径信息
+        String originalPath = markdownImage.getSourceFilePath();
+        if (originalPath == null || originalPath.isEmpty()) {
+            originalPath = markdownImage.getPath();
+        }
 
         try {
-            log.debug("开始上传图片: {}", imageName);
-            final OssClient client = data.getClient();
+            log.debug("开始上传图片: {} 到 {}", imageName, clientName);
+            // 输出详细日志到控制台
+            MikConsoleView.printMessage(data.getProject(), String.format("  [上传] 图床: %s | 图片: %s", clientName, imageName));
+            if (originalPath != null && !originalPath.isEmpty()) {
+                MikConsoleView.printMessage(data.getProject(), String.format("         原始路径: %s", originalPath));
+            }
+            
             imageUrl = client.upload(markdownImage.getInputStream(), markdownImage.getImageName());
-            log.info("图片上传成功: {} {} -> {}", client.getName(), imageName, imageUrl);
+            log.info("图片上传成功: {} {} -> {}", clientName, imageName, imageUrl);
+
+            // 输出成功日志到控制台
+            MikConsoleView.printSuccessMessage(data.getProject(), String.format("  [✓] 上传成功: %s", imageName));
+            MikConsoleView.printMessage(data.getProject(), String.format("         上传后URL: %s", imageUrl));
         } catch (Exception e) {
             log.error("上传图片失败: {}, 错误信息: {}", imageName, e.getMessage(), e);
+            MikConsoleView.printSmart(data.getProject(), String.format("  [✗] 上传失败: %s - %s", imageName, e.getMessage()));
         }
 
         // 更新图片信息
@@ -260,4 +284,5 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
         // 此方法已被多线程版本替代，不再使用
         log.trace("invoke 方法已被多线程 execute 方法替代");
     }
+
 }

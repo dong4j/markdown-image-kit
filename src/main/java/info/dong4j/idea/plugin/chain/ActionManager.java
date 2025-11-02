@@ -18,6 +18,7 @@ import info.dong4j.idea.plugin.chain.handler.ParseMarkdownFileHandler;
 import info.dong4j.idea.plugin.chain.handler.RefreshFileSystemHandler;
 import info.dong4j.idea.plugin.chain.handler.WriteToDocumentHandler;
 import info.dong4j.idea.plugin.client.OssClient;
+import info.dong4j.idea.plugin.console.MikConsoleView;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
@@ -54,6 +55,8 @@ public class ActionManager {
     private final List<TaskCallback> callbacks = new ArrayList<>();
     /** 事件数据对象，用于封装事件相关的信息 */
     private final EventData data;
+    /** 主任务标题 */
+    private String mainTaskTitle;
 
     /**
      * 初始化一个新的 ActionManager 实例。
@@ -112,6 +115,19 @@ public class ActionManager {
     }
 
     /**
+     * 设置主任务标题
+     * <p>
+     * 设置主任务标题，用于进度展示
+     *
+     * @param title 主任务标题
+     * @return 当前 ActionManager 实例，支持方法链式调用
+     */
+    public ActionManager setMainTaskTitle(String title) {
+        this.mainTaskTitle = title;
+        return this;
+    }
+
+    /**
      * 执行处理链中的各个处理器
      * <p>
      * 遍历处理器链，依次调用每个启用的处理器，并更新进度指示器的状态
@@ -142,7 +158,9 @@ public class ActionManager {
         // 第二步：创建 ProgressTracker（仅在 indicator 不为 null 时创建，预览模式下可能为 null）
         ProgressTracker progressTracker = null;
         if (indicator != null) {
-            progressTracker = new ProgressTracker(indicator, enabledHandlerNames);
+            // 使用主任务标题，如果没有设置则使用默认标题
+            String taskTitle = this.mainTaskTitle != null ? this.mainTaskTitle : "处理任务";
+            progressTracker = new ProgressTracker(indicator, this.data.getProject(), taskTitle, enabledHandlerNames);
         }
         this.data.setProgressTracker(progressTracker);
         this.data.setSize(enabledHandlers.size());
@@ -160,10 +178,23 @@ public class ActionManager {
                 
                 log.trace("invoke {}", handler.getName());
 
+                // 记录处理器开始执行时间
+                long handlerStartTime = System.currentTimeMillis();
+
                 // 执行处理器
-                if (!handler.execute(this.data)) {
+                boolean success = handler.execute(this.data);
+
+                // 计算处理器执行耗时
+                long handlerDuration = System.currentTimeMillis() - handlerStartTime;
+
+                if (!success) {
                     log.warn("处理器 {} 执行失败，中断处理链", handler.getName());
+                    MikConsoleView.printErrorMessage(this.data.getProject(),
+                                                     "[✗] 处理器执行失败: " + handler.getName() + " (耗时: " + formatDuration(handlerDuration) +
+                                                     ")");
                     break;
+                } else {
+                    log.trace("处理器 {} 执行成功，耗时: {}ms", handler.getName(), handlerDuration);
                 }
 
                 // 步骤完成
@@ -174,6 +205,25 @@ public class ActionManager {
         // 完成所有步骤（仅在 progressTracker 不为 null 时）
         if (progressTracker != null) {
             progressTracker.finish();
+        }
+    }
+
+    /**
+     * 格式化时长
+     *
+     * @param millis 毫秒数
+     * @return 格式化后的时长字符串
+     */
+    private String formatDuration(long millis) {
+        if (millis < 1000) {
+            return millis + "ms";
+        } else if (millis < 60000) {
+            return String.format("%.2fs", millis / 1000.0);
+        } else {
+            long seconds = millis / 1000;
+            long minutes = seconds / 60;
+            seconds = seconds % 60;
+            return String.format("%dm %ds", minutes, seconds);
         }
     }
 

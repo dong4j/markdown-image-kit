@@ -8,6 +8,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.action.intention.IntentionActionBase;
+import info.dong4j.idea.plugin.console.MikConsoleView;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
@@ -113,15 +114,30 @@ public class ImageStorageHandler extends ActionHandlerAdapter {
                 indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
 
                 // 根据不同情况处理图片
+                String storageType;
                 if (markdownImage.getLocation() == ImageLocationEnum.NETWORK) {
+                    storageType = "网络图片";
                     // 网络图片：始终拷贝到 currentInsertPath（已经由 DownloadImageHandler 处理）
                     processNetworkImage(markdownImage, currentFile, savepath, state);
                 } else if (markdownImage.isImageStream()) {
+                    storageType = "图片流";
                     // 图片流：从剪贴板粘贴的图片
                     processImageStream(markdownImage, currentFile, savepath, state);
                 } else {
+                    storageType = "本地文件";
                     // 文件：从剪贴板粘贴的文件
                     processImageFile(markdownImage, currentFile, savepath, state);
+                }
+
+                // 输出存储日志
+                MikConsoleView.printMessage(data.getProject(),
+                                            String.format("  [存储] 类型: %s | 图片: %s", storageType, imageName));
+
+                // 输出最终的Markdown路径
+                String finalPath = markdownImage.getPath();
+                if (finalPath != null && !finalPath.isEmpty()) {
+                    MikConsoleView.printMessage(data.getProject(),
+                                                String.format("         Markdown路径: %s", finalPath));
                 }
             }
         }
@@ -304,12 +320,14 @@ public class ImageStorageHandler extends ActionHandlerAdapter {
 
         boolean checkDir = imageDir.exists() && imageDir.isDirectory();
         if (!checkDir && !imageDir.mkdirs()) {
+            log.warn("无法创建目录: {}", imageDir.getAbsolutePath());
             return null;
         }
 
         File saveFile = new File(imageDir, markdownImage.getImageName());
         try {
             FileUtil.copy(markdownImage.getInputStream(), new FileOutputStream(saveFile));
+            log.debug("图片已保存到: {}", saveFile.getAbsolutePath());
             return saveFile;
         } catch (IOException e) {
             log.trace("Failed to save image file", e);
@@ -375,5 +393,7 @@ public class ImageStorageHandler extends ActionHandlerAdapter {
         markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
         markdownImage.setLocation(ImageLocationEnum.LOCAL);
         markdownImage.setFinalMark(mark);
+
+        log.debug("图片路径已更新: {}", finalPath);
     }
 }

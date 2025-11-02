@@ -50,6 +50,11 @@ public class MikState {
     private boolean autoEscapeImageUrl = false;
     //endregion
 
+    //region 控制台设置
+    /** 启用控制台日志输出，用于控制是否在 MIK Console 中显示详细的任务处理日志 */
+    private boolean enableConsoleLog = true;
+    //endregion
+
     //region 图片处理
     /** 重命名文件标志，用于指示是否需要对文件进行重命名操作 */
     private boolean rename = false;

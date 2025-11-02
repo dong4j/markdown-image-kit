@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.Document;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.MarkdownFileFilter;
+import info.dong4j.idea.plugin.console.MikConsoleView;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.util.MarkdownUtils;
@@ -68,7 +69,17 @@ public class ParseMarkdownFileHandler extends ActionHandlerAdapter {
             this.fileFilter.filter(waitingProcessMap, propComp.getValue(MarkdownFileFilter.FILTER_KEY));
         }
 
+        // 统计解析结果并输出到控制台
+        if (!waitingProcessMap.isEmpty()) {
+            int totalFiles = waitingProcessMap.size();
+            int totalImages = waitingProcessMap.values().stream().mapToInt(List::size).sum();
+            MikConsoleView.printMessage(data.getProject(), String.format("  解析完成: 共 %d 个文件，找到 %d 张图片", totalFiles, totalImages));
+        } else {
+            MikConsoleView.printMessage(data.getProject(), "  未找到需要处理的图片");
+        }
+
         // 有数据才执行后面的 handler
         return !waitingProcessMap.isEmpty();
     }
+
 }

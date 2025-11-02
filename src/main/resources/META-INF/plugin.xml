@@ -50,6 +50,16 @@
 
         <!-- 持久化 -->
         <applicationService serviceImplementation="info.dong4j.idea.plugin.settings.MikPersistenComponent"/>
+
+        <!-- MIK Console View 服务 -->
+        <projectService serviceImplementation="info.dong4j.idea.plugin.console.MikConsoleView"/>
+
+        <!-- MIK Console 工具窗口 -->
+        <toolWindow id="MIK Console"
+                    factoryClass="info.dong4j.idea.plugin.console.MikConsoleToolWindowFactory"
+                    anchor="bottom"
+                    icon="icons.MikIcons.MIK"/>
+
         <!-- alt + enter -->
         <!--suppress PluginXmlExtensionRegistration -->
         <intentionAction>

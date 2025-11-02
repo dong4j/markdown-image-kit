@@ -76,7 +76,7 @@ public class ImageRenameHandler extends ActionHandlerAdapter {
             if (template != null && !template.trim().isEmpty() && PlaceholderParser.validateTemplate(template)) {
                 // 使用占位符解析器处理文件名
                 imageName = PlaceholderParser.parse(template, imageName);
-                log.info("使用模板 [{}] 重命名图片: {}", template, imageName);
+                log.trace("使用模板 [{}] 重命名图片: {}", template, imageName);
             } else {
                 // 如果模板为空或无效，保持原文件名不变
                 log.warn("重命名模板无效或为空，保持原文件名: {}", imageName);
@@ -88,4 +88,5 @@ public class ImageRenameHandler extends ActionHandlerAdapter {
 
         markdownImage.setImageName(imageName);
     }
+
 }

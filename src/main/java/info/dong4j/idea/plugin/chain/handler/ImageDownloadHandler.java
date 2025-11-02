@@ -6,6 +6,7 @@ import com.intellij.openapi.util.io.FileUtil;
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.action.intention.IntentionActionBase;
 import info.dong4j.idea.plugin.chain.ProgressTracker;
+import info.dong4j.idea.plugin.console.MikConsoleView;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.FileType;
@@ -126,6 +127,7 @@ public class ImageDownloadHandler extends ActionHandlerAdapter {
         // 如果没有需要下载的图片，直接返回
         if (downloadTasks.isEmpty()) {
             log.trace("没有需要下载的网络图片");
+            MikConsoleView.printMessage(data.getProject(), "  没有需要下载的网络图片");
             return true;
         }
 
@@ -134,6 +136,9 @@ public class ImageDownloadHandler extends ActionHandlerAdapter {
         int threadPoolSize = Math.min(totalCount, MAX_THREAD_POOL_SIZE);
         ExecutorService executorService = Executors.newFixedThreadPool(threadPoolSize);
         log.info("开始下载 {} 张图片，使用 {} 个线程", totalCount, threadPoolSize);
+
+        // 输出到控制台
+        MikConsoleView.printMessage(data.getProject(), String.format("  开始下载 %d 张网络图片，使用 %d 个线程", totalCount, threadPoolSize));
 
         // 获取进度跟踪器
         ProgressTracker progressTracker = data.getProgressTracker();
@@ -159,14 +164,25 @@ public class ImageDownloadHandler extends ActionHandlerAdapter {
                         progressTracker.updateItemProgress(stepIndex, filename, currentProcessed, totalCount);
                     }
 
+                    // 输出详细下载日志到控制台
+                    String imageUrl = markdownImage.getPath();
+                    MikConsoleView.printMessage(task.eventData.getProject(), String.format("  [下载] 网络图片URL: %s", imageUrl));
+                    
                     // 下载图片（调用单个图片的下载逻辑）
                     downloadSingleImage(markdownImage);
 
                     successCount.incrementAndGet();
-                    log.info("下载图片成功: {}", markdownImage.getPath());
+                    String newImageName = markdownImage.getImageName();
+                    log.trace("下载图片成功: {} -> {}", imageUrl, newImageName);
+
+                    // 输出成功日志和本地保存信息
+                    MikConsoleView.printSuccessMessage(task.eventData.getProject(), String.format("  [✓] 下载成功: %s", newImageName));
+                    MikConsoleView.printMessage(task.eventData.getProject(), String.format("         本地文件名: %s", newImageName));
                 } catch (Exception e) {
                     failCount.incrementAndGet();
                     log.error("下载图片失败: {}: {}", task.markdownImage.getPath(), e.getMessage());
+                    MikConsoleView.printSmart(task.eventData.getProject(), String.format("  [✗] 下载失败: %s - %s",
+                                                                                         task.markdownImage.getPath(), e.getMessage()));
                     // 下载失败的图片需要移除
                     synchronized (data.getWaitingProcessMap()) {
                         List<MarkdownImage> imageList = data.getWaitingProcessMap().get(task.document);
@@ -184,6 +200,7 @@ public class ImageDownloadHandler extends ActionHandlerAdapter {
         try {
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
             log.info("图片下载完成，共处理 {} 张图片，成功 {} 张，失败 {} 张", totalCount, successCount.get(), failCount.get());
+            MikConsoleView.printSmart(data.getProject(), String.format("  下载完成: 成功 %d 张，失败 %d 张", successCount.get(), failCount.get()));
         } finally {
             executorService.shutdown();
         }
@@ -267,6 +284,9 @@ public class ImageDownloadHandler extends ActionHandlerAdapter {
         markdownImage.setLocation(ImageLocationEnum.LOCAL);
 
         log.debug("下载图片成功: {} -> {} bytes, extension: {}", imageUrl, imageBytes.length, extension);
+
+        // 输出详细日志到控制台（注意：这里没有 Project 对象，需要从调用处传入）
+        // 详细日志在调用处输出
     }
 
     /**

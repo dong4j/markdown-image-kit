@@ -2,6 +2,7 @@ package info.dong4j.idea.plugin.chain.handler;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.action.intention.IntentionActionBase;
+import info.dong4j.idea.plugin.console.MikConsoleView;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageMediaType;
@@ -77,6 +78,7 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
     @SuppressWarnings("D")
     @Override
     public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
+        final EventData finalData = data;
         String imageName = markdownImage.getImageName();
         if (markdownImage.getInputStream() == null) {
             log.trace("inputstream 为 null, remove markdownImage = {}", markdownImage);
@@ -105,6 +107,8 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
             String ext = markdownImage.getExtension();
             boolean alreadyWebp = ImageMediaType.WEBP.getExtensionWithoutDot().equalsIgnoreCase(ext);
 
+            long originalSize = originalBytes.length;
+            
             // 情况1：如果都开启了，先尝试转webp，失败就回退到普通压缩
             if (isCompressEnabled && isWebpEnabled) {
                 if (!alreadyWebp) {
@@ -114,15 +118,22 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
                         // webp转换失败，回退到普通压缩
                         log.trace("webp转换失败，回退到普通压缩: {}", imageName);
                         compressImage(markdownImage, originalBytes, compressPercent);
+                    } else {
+                        long newSize = markdownImage.getInputStream().available();
+                        printCompressionInfo(imageName, "转换为WebP", originalSize, newSize, finalData);
                     }
                 } else {
                     // 已经是webp，直接压缩
                     compressImage(markdownImage, originalBytes, compressPercent);
+                    long newSize = markdownImage.getInputStream().available();
+                    printCompressionInfo(imageName, "压缩WebP", originalSize, newSize, finalData);
                 }
             }
             // 情况2：如果只开启了图片压缩，直接压缩
             else if (isCompressEnabled) {
                 compressImage(markdownImage, originalBytes, compressPercent);
+                long newSize = markdownImage.getInputStream().available();
+                printCompressionInfo(imageName, "压缩", originalSize, newSize, finalData);
             }
             // 情况3：如果只开启了转换成webp，尝试转webp，失败就不压缩
             else if (isWebpEnabled) {
@@ -132,6 +143,9 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
                         // webp转换失败，不压缩，保持原样
                         log.trace("WebP 转换失败，保持原样: {}", imageName);
                         markdownImage.setInputStream(new ByteArrayInputStream(originalBytes));
+                    } else {
+                        long newSize = markdownImage.getInputStream().available();
+                        printCompressionInfo(imageName, "转换为WebP", originalSize, newSize, finalData);
                     }
                 } else {
                     // 如果已经是webp，不需要转换，但需要重新设置输入流（因为原始流已被读取）
@@ -270,4 +284,27 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
         returnValue = filesize.divide(kilobyte, 2, RoundingMode.UP).floatValue();
         return (returnValue + "KB");
     }
+
+    /**
+     * 输出压缩信息到控制台
+     *
+     * @param imageName    图片名称
+     * @param operation    操作类型
+     * @param originalSize 原始大小
+     * @param newSize      新大小
+     * @param data         事件数据
+     */
+    private void printCompressionInfo(String imageName, String operation, long originalSize, long newSize, EventData data) {
+        try {
+            String oldSizeStr = bytesToKb(originalSize);
+            String newSizeStr = bytesToKb(newSize);
+            double percent = (1 - (newSize * 1.0 / originalSize)) * 100;
+            String message = String.format("  [压缩] %s: %s → %s (减少 %.1f%%)",
+                                           imageName, oldSizeStr, newSizeStr, percent);
+            MikConsoleView.printMessage(data.getProject(), message);
+        } catch (Exception e) {
+            log.trace("输出压缩信息失败", e);
+        }
+    }
+
 }

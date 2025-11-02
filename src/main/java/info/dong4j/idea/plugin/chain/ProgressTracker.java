@@ -1,8 +1,10 @@
 package info.dong4j.idea.plugin.chain;
 
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.project.Project;
 
 import info.dong4j.idea.plugin.MikBundle;
+import info.dong4j.idea.plugin.console.MikConsoleView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +44,8 @@ public class ProgressTracker {
 
     /** 进度指示器 */
     private final ProgressIndicator indicator;
+    /** 主任务标题 */
+    private final String mainTaskTitle;
     /** 所有步骤信息 */
     private final List<StepInfo> steps;
     /** 总权重，用于计算进度 */
@@ -50,27 +54,56 @@ public class ProgressTracker {
     private int currentStepIndex = -1;
     /** 已完成步骤的累计权重 */
     private int completedWeight = 0;
+    /** 是否启用控制台输出 */
+    private final boolean enableConsoleOutput;
+    /** 任务开始时间 */
+    private final long startTime;
+    /** 项目实例 */
+    private final Project project;
 
     /**
      * 创建进度跟踪器
      *
-     * @param indicator 进度指示器
-     * @param steps     步骤名称列表
+     * @param indicator     进度指示器
+     * @param project       项目实例
+     * @param mainTaskTitle 主任务标题
+     * @param steps         步骤名称列表
      */
-    public ProgressTracker(ProgressIndicator indicator, List<String> steps) {
-        this(indicator, steps, null);
+    public ProgressTracker(ProgressIndicator indicator, Project project, String mainTaskTitle, List<String> steps) {
+        this(indicator, project, mainTaskTitle, steps, null, true);
     }
 
     /**
      * 创建进度跟踪器（支持自定义权重）
      *
-     * @param indicator 进度指示器
-     * @param steps     步骤名称列表
-     * @param weights   步骤权重列表（如果为 null，则使用默认权重）
+     * @param indicator     进度指示器
+     * @param project       项目实例
+     * @param mainTaskTitle 主任务标题
+     * @param steps         步骤名称列表
+     * @param weights       步骤权重列表（如果为 null，则使用默认权重）
      */
-    public ProgressTracker(ProgressIndicator indicator, List<String> steps, List<Integer> weights) {
+    public ProgressTracker(ProgressIndicator indicator, Project project, String mainTaskTitle, List<String> steps, List<Integer> weights) {
+        this(indicator, project, mainTaskTitle, steps, weights, true);
+    }
+
+    /**
+     * 创建进度跟踪器（支持自定义权重和控制台输出）
+     *
+     * @param indicator           进度指示器
+     * @param project             项目实例
+     * @param mainTaskTitle       主任务标题
+     * @param steps               步骤名称列表
+     * @param weights             步骤权重列表（如果为 null，则使用默认权重）
+     * @param enableConsoleOutput 是否启用控制台输出
+     */
+    public ProgressTracker(ProgressIndicator indicator, Project project, String mainTaskTitle, List<String> steps, List<Integer> weights,
+                           boolean enableConsoleOutput) {
         this.indicator = indicator;
+        this.project = project;
+        this.mainTaskTitle = mainTaskTitle;
         this.steps = new ArrayList<>();
+        this.enableConsoleOutput = enableConsoleOutput;
+        this.startTime = System.currentTimeMillis();
 
         int total = 0;
         for (int i = 0; i < steps.size(); i++) {
@@ -79,6 +112,14 @@ public class ProgressTracker {
             total += weight;
         }
         this.totalWeight = total;
+
+        // 输出任务开始信息到控制台
+        if (enableConsoleOutput) {
+            MikConsoleView.printSmart(project, "========================================");
+            MikConsoleView.printSmart(project, "【任务开始】" + mainTaskTitle);
+            MikConsoleView.printSmart(project, "【子流程】共 " + steps.size() + " 个步骤: " + String.join(" → ", steps));
+            MikConsoleView.printSmart(project, "========================================");
+        }
     }
 
     /**
@@ -123,10 +164,22 @@ public class ProgressTracker {
         // 如果切换步骤，标记上一个步骤完成
         if (currentStepIndex >= 0 && currentStepIndex != stepIndex) {
             completedWeight += steps.get(currentStepIndex).weight;
+
+            // 输出上一步骤完成信息
+            if (enableConsoleOutput) {
+                StepInfo prevStep = steps.get(currentStepIndex);
+                MikConsoleView.printSmart(project, "[✓] 步骤 " + (currentStepIndex + 1) + "/" + steps.size() + " 完成: " + prevStep.name);
+            }
         }
 
         currentStepIndex = stepIndex;
         StepInfo step = steps.get(stepIndex);
+
+        // 输出步骤开始信息到控制台
+        if (enableConsoleOutput) {
+            MikConsoleView.printSmart(project, "");
+            MikConsoleView.printSmart(project, "[▶] 步骤 " + (stepIndex + 1) + "/" + steps.size() + " 开始: " + step.name);
+        }
 
         // 检查 indicator 是否可用（预览模式下可能为 null）
         if (indicator == null) {
@@ -134,10 +187,12 @@ public class ProgressTracker {
         }
 
         try {
-            // 更新主文本：显示当前步骤和总步骤数
-            String mainText = String.format("%s (%d/%d)", step.name, stepIndex + 1, steps.size());
-            indicator.setText(mainText);
-            indicator.setText2("");
+            // 更新主文本：保持主任务标题不变
+            indicator.setText(mainTaskTitle);
+
+            // 更新副文本：显示当前子流程和进度
+            String subText = String.format("%s (%d/%d)", step.name, stepIndex + 1, steps.size());
+            indicator.setText2(subText);
 
             // 更新进度（步骤开始时的进度）
             updateProgress(0.0);
@@ -161,6 +216,19 @@ public class ProgressTracker {
             return;
         }
 
+        // 输出进度到控制台（每 10% 或关键节点输出一次，避免刷屏）
+        if (enableConsoleOutput && total > 0) {
+            int percentage = (current * 100) / total;
+            int prevPercentage = ((current - 1) * 100) / total;
+
+            // 在每 10% 的进度点输出，或者是第一个和最后一个
+            if (current == 1 || current == total || (percentage / 10 > prevPercentage / 10)) {
+                String progressInfo = String.format("  [%3d%%] 处理: %s (%d/%d)", percentage, itemName != null ? itemName : "项目", current,
+                                                    total);
+                MikConsoleView.printSmart(project, progressInfo);
+            }
+        }
+
         // 检查 indicator 是否可用（预览模式下可能为 null）
         if (indicator == null) {
             return;
@@ -172,17 +240,27 @@ public class ProgressTracker {
         double stepProgress = total > 0 ? (current * 1.0) / total : 0.0;
 
         try {
-            // 更新副文本：显示详细信息
-            String detailText;
+            // 更新主文本：保持主任务标题不变
+            indicator.setText(mainTaskTitle);
+
+            // 更新副文本：组合显示子流程信息和文件处理进度
+            StringBuilder subText = new StringBuilder();
+
+            // 子流程信息：步骤名称 (当前步骤/总步骤)
+            subText.append(String.format("%s (%d/%d)", step.name, stepIndex + 1, steps.size()));
+
+            // 添加详细的文件处理进度
             if (itemName != null && !itemName.isEmpty()) {
-                detailText = MikBundle.message("mik.action.processing.title", itemName);
+                subText.append(" - ");
+                subText.append(MikBundle.message("mik.action.processing.title", itemName));
                 if (total > 1) {
-                    detailText += String.format(" (%d/%d)", current, total);
+                    subText.append(String.format(" (%d/%d)", current, total));
                 }
-            } else {
-                detailText = total > 1 ? String.format("(%d/%d)", current, total) : "";
+            } else if (total > 1) {
+                subText.append(String.format(" - (%d/%d)", current, total));
             }
-            indicator.setText2(detailText);
+
+            indicator.setText2(subText.toString());
 
             // 计算总体进度
             // 已完成步骤的进度 + 当前步骤的进度
@@ -222,17 +300,34 @@ public class ProgressTracker {
         currentStepIndex = steps.size() - 1;
         completedWeight = totalWeight;
 
+        // 输出任务完成信息到控制台
+        if (enableConsoleOutput) {
+            long duration = System.currentTimeMillis() - startTime;
+            MikConsoleView.printSmart(project, "");
+            MikConsoleView.printSmart(project, "========================================");
+            MikConsoleView.printSmart(project, "【任务完成】" + mainTaskTitle);
+            MikConsoleView.printSmart(project, "【耗时】" + formatDuration(duration));
+            MikConsoleView.printSmart(project, "【状态】所有步骤执行完成");
+            MikConsoleView.printSmart(project, "========================================\n\n");
+        }
+
         // 检查 indicator 是否可用（预览模式下可能为 null）
         if (indicator == null) {
             return;
         }
 
         try {
+            // 更新主文本：保持主任务标题不变
+            indicator.setText(mainTaskTitle);
+
+            // 更新副文本：显示最后一个子流程完成
             if (!steps.isEmpty()) {
                 StepInfo lastStep = steps.get(steps.size() - 1);
-                indicator.setText(String.format("%s (%d/%d)", lastStep.name, steps.size(), steps.size()));
+                indicator.setText2(String.format("%s (%d/%d)", lastStep.name, steps.size(), steps.size()));
+            } else {
+                indicator.setText2("");
             }
-            indicator.setText2("");
+            
             updateProgress(1.0);
         } catch (Exception e) {
             // 在预览模式下可能会抛出 SideEffectNotAllowedException，忽略这些异常
@@ -247,6 +342,25 @@ public class ProgressTracker {
      */
     public int getTotalSteps() {
         return steps.size();
+    }
+
+    /**
+     * 格式化时长
+     *
+     * @param millis 毫秒数
+     * @return 格式化后的时长字符串
+     */
+    private String formatDuration(long millis) {
+        if (millis < 1000) {
+            return millis + "ms";
+        } else if (millis < 60000) {
+            return String.format("%.2fs", millis / 1000.0);
+        } else {
+            long seconds = millis / 1000;
+            long minutes = seconds / 60;
+            seconds = seconds % 60;
+            return String.format("%dm %ds", minutes, seconds);
+        }
     }
 }
 

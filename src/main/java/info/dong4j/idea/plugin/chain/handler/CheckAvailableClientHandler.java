@@ -2,6 +2,7 @@ package info.dong4j.idea.plugin.chain.handler;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.client.OssClient;
+import info.dong4j.idea.plugin.console.MikConsoleView;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.notify.UploadNotification;
 import info.dong4j.idea.plugin.util.ClientUtils;
@@ -48,8 +49,11 @@ public class CheckAvailableClientHandler extends ActionHandlerAdapter {
         OssClient ossClient = data.getClient();
         if (ClientUtils.isNotEnable(ossClient)) {
             UploadNotification.notifyConfigurableError(data.getProject(), data.getClientName());
+            MikConsoleView.printSmart(data.getProject(), "  [✗] 客户端配置错误: " + data.getClientName());
             return false;
         }
+        MikConsoleView.printSmart(data.getProject(), "  客户端检查通过: " + data.getClientName());
         return true;
     }
+
 }
