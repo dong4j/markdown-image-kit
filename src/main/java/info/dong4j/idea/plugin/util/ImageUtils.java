@@ -631,25 +631,25 @@ public final class ImageUtils {
          * @param iterator the iterator     处理方式
          * @return the boolean
          */
-        VfsUtilCore.iterateChildrenRecursively(virtualFile,
-                                               file -> {
-                                                   // todo-dong4j : (2019年03月15日 13:02) [从 .gitignore 中获取忽略的文件]
-                                                   boolean allowAccept =
-                                                       file.isDirectory() && !file.getName().equals(MikContents.NODE_MODULES_FILE);
-                                                   if (allowAccept || ImageContents.IMAGE_TYPE_NAME.equals(file.getFileType().getName())) {
-                                                       log.trace("accept = {}", file.getPath());
-                                                       return true;
-                                                   }
-                                                   return false;
-                                               },
-                                               fileOrDir -> {
-                                                   // todo-dong4j : (2019年03月15日 13:04) [处理 markdown 逻辑实现]
-                                                   if (!fileOrDir.isDirectory()) {
-                                                       log.trace("processFile = {}", fileOrDir.getName());
-                                                       imageFiles.add(fileOrDir);
-                                                   }
-                                                   return true;
-                                               });
+        VfsUtilCore.iterateChildrenRecursively(
+            virtualFile,
+            file -> {
+                // todo-dong4j : (2019年03月15日 13:02) [从 .gitignore 中获取忽略的文件]
+                boolean allowAccept = file.isDirectory() && !file.getName().equals(MikContents.NODE_MODULES_FILE);
+                if (allowAccept || ImageUtils.isImageFile(file)) {
+                    log.trace("accept = {}", file.getPath());
+                    return true;
+                }
+                return false;
+            },
+            fileOrDir -> {
+                // todo-dong4j : (2019年03月15日 13:04) [处理 markdown 逻辑实现]
+                if (!fileOrDir.isDirectory()) {
+                    log.trace("processFile = {}", fileOrDir.getName());
+                    imageFiles.add(fileOrDir);
+                }
+                return true;
+            });
         return imageFiles;
     }
 
@@ -739,11 +739,13 @@ public final class ImageUtils {
             return false;
         }
 
-        String lowerFileName = fileName.toLowerCase();
-        return lowerFileName.endsWith(".jpg") || lowerFileName.endsWith(".jpeg")
-               || lowerFileName.endsWith(".png") || lowerFileName.endsWith(".gif")
-               || lowerFileName.endsWith(".bmp") || lowerFileName.endsWith(".webp")
-               || lowerFileName.endsWith(".svg") || lowerFileName.endsWith(".ico");
+        int dotIndex = fileName.lastIndexOf('.');
+        if (dotIndex < 0) {
+            return false;
+        }
+
+        String extension = fileName.substring(dotIndex);
+        return ImageMediaType.fromExtension(extension) != null;
     }
 
     /**
@@ -764,8 +766,8 @@ public final class ImageUtils {
             int srcImgHeight = srcImg.getHeight(null);
             // 加水印
             bufImg = ImageUtil.createImage(srcImgWidth,
-                                       srcImgHeight,
-                                       BufferedImage.TYPE_INT_RGB);
+                                           srcImgHeight,
+                                           BufferedImage.TYPE_INT_RGB);
             // 获取 Graphics2D 对象
             Graphics2D g = bufImg.createGraphics();
             // 设置绘图区域

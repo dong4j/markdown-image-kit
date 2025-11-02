@@ -18,11 +18,11 @@ import lombok.Getter;
 @Getter
 public enum FileType {
     /** JPEG 格式标识符 */
-    JPEG("FFD8FF", "jpg"),
+    JPEG("FFD8FF", ImageMediaType.JPEG.getExtensionWithoutDot()),
     /** PNG 格式标识符 */
-    PNG("89504E47", "png"),
+    PNG("89504E47", ImageMediaType.PNG.getExtensionWithoutDot()),
     /** GIF 图片格式标识符 */
-    GIF("47494638", "gif"),
+    GIF("47494638", ImageMediaType.GIF.getExtensionWithoutDot()),
     /** TIFF 格式标识符 */
     TIFF("49492A00"),
     /** Windows bitmap 格式标识符 */

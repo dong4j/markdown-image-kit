@@ -264,7 +264,7 @@ public final class MarkdownUtils {
         }
 
         // 文件不是图片
-        return !ImageContents.IMAGE_TYPE_NAME.equals(virtualFiles.getFileType().getName());
+        return !ImageUtils.isImageFile(virtualFiles);
     }
 
     /**

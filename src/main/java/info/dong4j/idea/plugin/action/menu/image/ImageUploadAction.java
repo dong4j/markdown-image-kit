@@ -52,10 +52,8 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public final class ImageUploadAction extends ImageActionBase {
-    /** 最小文件大小限制：1KB */
-    private static final long MIN_FILE_SIZE = 1024;
     /** 最大文件大小限制：5MB */
-    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
+    private static final long MAX_FILE_SIZE = 20 * 1024 * 1024;
 
     /**
      * 获取图标
@@ -104,8 +102,7 @@ public final class ImageUploadAction extends ImageActionBase {
      * <p>
      * 图片上传时过滤掉不符合大小要求的文件：
      * <ul>
-     *   <li>小于 1KB 的文件：可能是损坏或无效的图片</li>
-     *   <li>大于 5MB 的文件：文件过大，上传可能失败或耗时过长</li>
+     *   <li>大于 20MB 的文件：文件过大，上传可能失败或耗时过长</li>
      * </ul>
      *
      * @param virtualFile 虚拟文件对象
@@ -116,15 +113,9 @@ public final class ImageUploadAction extends ImageActionBase {
     protected boolean shouldProcessFile(@NotNull VirtualFile virtualFile) {
         long fileSize = virtualFile.getLength();
 
-        // 过滤掉小于 1KB 的文件
-        if (fileSize < MIN_FILE_SIZE) {
-            log.debug("图片上传跳过小文件 ({}字节 < 1KB): {}", fileSize, virtualFile.getName());
-            return false;
-        }
-
-        // 过滤掉大于 5MB 的文件
+        // 过滤掉大于 20MB 的文件
         if (fileSize > MAX_FILE_SIZE) {
-            log.debug("图片上传跳过大文件 ({}字节 > 10MB): {}", fileSize, virtualFile.getName());
+            log.debug("图片上传跳过大文件 ({}字节 > 20MB): {}", fileSize, virtualFile.getName());
             return false;
         }
 

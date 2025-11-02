@@ -34,6 +34,7 @@ import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
+import info.dong4j.idea.plugin.enums.ImageMediaType;
 import info.dong4j.idea.plugin.enums.InsertImageActionEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
@@ -453,7 +454,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
     private void resolveFromImage(@NotNull Map.Entry<DataFlavor, Object> entry,
                                   Map<String, InputStream> imageMap, MikState state) {
         // image 类型统一重命名, 后缀为 png, 因为获取不到文件名
-        String filename = CharacterUtils.getRandomString(6) + ".png";
+        String filename = CharacterUtils.getRandomString(6) + ImageMediaType.PNG.getExtension();
         // 如果是 image 类型, 转换成 inputstream
         Image image = (Image) entry.getValue();
 
@@ -470,7 +471,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             assert bufferedImage != null;
             try {
-                ImageIO.write(bufferedImage, "png", os);
+                ImageIO.write(bufferedImage, ImageMediaType.PNG.getExtensionWithoutDot(), os);
                 is = new ByteArrayInputStream(os.toByteArray());
             } catch (IOException ignored) {
             }

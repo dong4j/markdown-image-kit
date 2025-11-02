@@ -131,7 +131,7 @@ public abstract class ImageActionBase extends AnAction {
             List<VirtualFile> directories = new ArrayList<>();
 
             for (VirtualFile rootFile : virtualFiles) {
-                if (ImageContents.IMAGE_TYPE_NAME.equals(rootFile.getFileType().getName())) {
+                if (ImageUtils.isImageFile(rootFile)) {
                     singleFiles.add(rootFile);
                 } else if (rootFile.isDirectory()) {
                     directories.add(rootFile);

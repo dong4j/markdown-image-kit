@@ -4,6 +4,7 @@ import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.action.intention.IntentionActionBase;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
+import info.dong4j.idea.plugin.enums.ImageMediaType;
 import info.dong4j.idea.plugin.util.ImageUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -83,7 +84,7 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
             return;
         }
 
-        if (imageName.endsWith("gif")) {
+        if (imageName.endsWith(ImageMediaType.GIF.getExtensionWithoutDot()) || imageName.endsWith(ImageMediaType.SVG_XML.getExtensionWithoutDot())) {
             return;
         }
 
@@ -102,7 +103,7 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
 
             // 判断是否已经是webp格式
             String ext = markdownImage.getExtension();
-            boolean alreadyWebp = "webp".equalsIgnoreCase(ext);
+            boolean alreadyWebp = ImageMediaType.WEBP.getExtensionWithoutDot().equalsIgnoreCase(ext);
 
             // 情况1：如果都开启了，先尝试转webp，失败就回退到普通压缩
             if (isCompressEnabled && isWebpEnabled) {
@@ -129,7 +130,7 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
                     boolean webpSuccess = tryConvertToWebp(markdownImage, originalBytes, webpQuality, imageName);
                     if (!webpSuccess) {
                         // webp转换失败，不压缩，保持原样
-                        log.trace("webp转换失败，保持原样: {}", imageName);
+                        log.trace("WebP 转换失败，保持原样: {}", imageName);
                         markdownImage.setInputStream(new ByteArrayInputStream(originalBytes));
                     }
                 } else {
@@ -178,10 +179,10 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
                 if (dot > 0) {
                     baseName = baseName.substring(0, dot);
                 }
-                String newName = baseName + ".webp";
+                String newName = baseName + ImageMediaType.WEBP.getExtension();
                 markdownImage.setImageName(newName);
                 markdownImage.setFilename(newName);
-                markdownImage.setExtension("webp");
+                markdownImage.setExtension(ImageMediaType.WEBP.getExtensionWithoutDot());
 
                 // 更新文件路径，将后缀改为.webp
                 String originalPath = markdownImage.getPath();
@@ -189,10 +190,10 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
                     int pathDot = originalPath.lastIndexOf('.');
                     int pathSeparator = Math.max(originalPath.lastIndexOf('/'), originalPath.lastIndexOf('\\'));
                     if (pathDot > pathSeparator) {
-                        String newPath = originalPath.substring(0, pathDot) + ".webp";
+                        String newPath = originalPath.substring(0, pathDot) + ImageMediaType.WEBP.getExtension();
                         markdownImage.setPath(newPath);
                     } else {
-                        markdownImage.setPath(originalPath + ".webp");
+                        markdownImage.setPath(originalPath + ImageMediaType.WEBP.getExtension());
                     }
                 }
                 return true;

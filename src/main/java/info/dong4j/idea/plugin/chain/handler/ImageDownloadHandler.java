@@ -10,6 +10,7 @@ import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.FileType;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
+import info.dong4j.idea.plugin.enums.ImageMediaType;
 import info.dong4j.idea.plugin.util.ImageUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -248,7 +249,7 @@ public class ImageDownloadHandler extends ActionHandlerAdapter {
 
         // 如果仍然无法推断，使用默认扩展名
         if (extension == null || extension.isEmpty()) {
-            extension = ".png";
+            extension = ImageMediaType.PNG.getExtension();
             log.trace("无法推断图片类型，使用默认扩展名: {}", extension);
         }
 
@@ -297,35 +298,15 @@ public class ImageDownloadHandler extends ActionHandlerAdapter {
      * 从 Content-Type 获取文件扩展名
      * <p>
      * 根据 HTTP 响应头的 Content-Type 推断图片文件扩展名。
-     * 支持的常见图片类型：image/jpeg, image/png, image/gif, image/webp 等。
+     * 使用 {@link ImageMediaType#getExtensionByContentType(String)} 统一处理。
      *
      * @param contentType HTTP 响应头的 Content-Type，可能包含 charset 等信息
      * @return 文件扩展名（带点号，如 ".jpg"），如果无法推断则返回 null
-     * @since 1.0.0
+     * @since 2.0.0
      */
     @Nullable
     private String getExtensionFromContentType(@Nullable String contentType) {
-        if (contentType == null || contentType.isEmpty()) {
-            return null;
-        }
-
-        // Content-Type 可能包含 charset 等信息，例如 "image/jpeg; charset=utf-8"
-        String mimeType = contentType.split(";")[0].trim().toLowerCase();
-
-        return switch (mimeType) {
-            case "image/jpeg", "image/jpg" -> ".jpg";
-            case "image/png" -> ".png";
-            case "image/gif" -> ".gif";
-            case "image/webp" -> ".webp";
-            case "image/bmp" -> ".bmp";
-            case "image/svg+xml" -> ".svg";
-            case "image/tiff" -> ".tiff";
-            case "image/x-icon", "image/vnd.microsoft.icon" -> ".ico";
-            case "image/avif" -> ".avif";
-            case "image/heic" -> ".heic";
-            case "image/heif" -> ".heif";
-            default -> null;
-        };
+        return ImageMediaType.getExtensionByContentType(contentType);
     }
 
     /**

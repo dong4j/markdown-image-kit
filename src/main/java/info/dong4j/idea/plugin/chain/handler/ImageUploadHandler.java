@@ -192,13 +192,6 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
                 fileSize = markdownImage.getInputStream().available();
             }
 
-            // 如果文件小于 1KB，跳过上传
-            if (fileSize < 1024) {
-                log.warn("图片 {} 文件大小 {} 字节小于 1KB，跳过上传", imageName, fileSize);
-                buildMarkdownImage("![upload skipped: file too small](", markdownImage);
-                return;
-            }
-
             log.debug("图片 {} 文件大小: {} 字节", imageName, fileSize);
         } catch (Exception e) {
             log.warn("无法获取图片 {} 的文件大小，继续上传: {}", imageName, e.getMessage());
