@@ -4,6 +4,8 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.externalSystem.task.TaskCallback;
 import com.intellij.openapi.progress.ProgressIndicator;
 
+import info.dong4j.idea.plugin.action.intention.ImageMigrationIntentionAction;
+import info.dong4j.idea.plugin.action.menu.ImageMigrationAction;
 import info.dong4j.idea.plugin.chain.handler.CheckAvailableClientHandler;
 import info.dong4j.idea.plugin.chain.handler.FinalChainHandler;
 import info.dong4j.idea.plugin.chain.handler.ImageCompressionHandler;
@@ -186,13 +188,13 @@ public class ActionManager {
      */
     public static ActionManager buildUploadChain(EventData data) {
         return new ActionManager(data)
-            // 解析 menu 文件
+            // 解析 markdown 文件
             .addHandler(new ParseMarkdownFileHandler())
             // 图片压缩
             .addHandler(new ImageCompressionHandler())
             // 图片重命名
             .addHandler(new ImageRenameHandler())
-            // 处理 client
+            // 检查 client
             .addHandler(new CheckAvailableClientHandler())
             // 图片上传
             .addHandler(new ImageUploadHandler())
@@ -216,9 +218,11 @@ public class ActionManager {
      * @param data 用于迁移操作的事件数据
      * @return 构建完成的ActionManager实例
      * @since 0.0.1
+     * @see ImageMigrationIntentionAction
+     * @see ImageMigrationAction
      */
     @SuppressWarnings("D")
-    public static ActionManager buildMoveImageChain(EventData data) {
+    public static ActionManager buildImageMigrationChain(EventData data) {
         // 过滤掉 LOCAL 和用户输入不匹配的标签
         ParseMarkdownFileHandler parseMarkdownFileHandler = new ParseMarkdownFileHandler();
         parseMarkdownFileHandler.setFileFilter((waitingProcessMap, filterString) -> {
@@ -238,7 +242,7 @@ public class ActionManager {
                 // 过滤图片：排除 LOCAL 和用户输入不匹配的标签，以及已在目标图床的图片
                 for (MarkdownImage markdownImage : images) {
                     // 排除 LOCAL 和用户输入不匹配的标签
-                    if (markdownImage.getLocation().name().equals(ImageLocationEnum.LOCAL.name())
+                    if (markdownImage.getLocation() == ImageLocationEnum.LOCAL
                         || !markdownImage.getPath().contains(filterString)
                         || (client != null && markdownImage.getPath().contains(client.getCloudType().feature))) {
 

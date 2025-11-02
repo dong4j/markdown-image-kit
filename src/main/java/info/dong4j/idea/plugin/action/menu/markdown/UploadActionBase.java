@@ -49,11 +49,12 @@ public abstract class UploadActionBase extends AnAction {
      * 判断当前图床是否可用
      * <p>
      * 返回一个布尔值，表示图床是否已经完成初始化或准备就绪。
+     * 子类应该重写此方法来检查具体的图床配置是否正确。
      *
      * @return true 表示图床可用，false 表示不可用
      * @since 0.0.1
      */
-    boolean available() {
+    protected boolean available() {
         return true;
     }
 
@@ -70,17 +71,27 @@ public abstract class UploadActionBase extends AnAction {
     /**
      * 检查 "上传到XXX OSS" 按钮是否可用
      * <p>
-     * 根据条件判断按钮是否可启用：
-     * 1. 相关测试通过后
-     * 2. 如果所有内容均为目录则可用
-     * 3. 如果文件类型为Markdown则可用
+     * 根据条件判断按钮是否可启用和可见：
+     * 1. 如果图床未配置或配置不正确，则隐藏此菜单项
+     * 2. 如果文件类型为Markdown或目录，则显示并启用
+     * 3. 其他文件类型则禁用
      *
      * @param event 事件对象
      * @since 0.0.1
      */
     @Override
     public void update(@NotNull AnActionEvent event) {
-        ActionUtils.isAvailable(this.available(), event, this.getIcon(), MarkdownContents.MARKDOWN_TYPE_NAME);
+        boolean isAvailable = this.available();
+
+        // 如果图床不可用，直接隐藏菜单项
+        if (!isAvailable) {
+            event.getPresentation().setVisible(false);
+            event.getPresentation().setEnabled(false);
+            return;
+        }
+
+        // 图床可用，根据文件类型判断是否启用
+        ActionUtils.isAvailable(true, event, this.getIcon(), MarkdownContents.MARKDOWN_TYPE_NAME);
     }
 
     /**
@@ -99,7 +110,7 @@ public abstract class UploadActionBase extends AnAction {
         Project project = event.getProject();
         if (project != null) {
             EventData data = new EventData()
-                .setAction("UploadActionBase")
+                .setAction(this.getClass().getSimpleName())
                 .setActionEvent(event)
                 .setProject(project)
                 // 使用子类的具体 client

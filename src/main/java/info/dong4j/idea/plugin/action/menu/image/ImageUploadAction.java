@@ -1,6 +1,7 @@
 package info.dong4j.idea.plugin.action.menu.image;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.vfs.VirtualFile;
 
@@ -59,7 +60,7 @@ public final class ImageUploadAction extends ImageActionBase {
     /**
      * 获取图标
      * <p>
-     * 返回一个预定义的图标对象，用于表示调试器的悬停状态。
+     * 返回图片上传的图标
      *
      * @return 图标对象
      * @since 0.0.1
@@ -67,7 +68,37 @@ public final class ImageUploadAction extends ImageActionBase {
     @Contract(pure = true)
     @Override
     public Icon getIcon() {
-        return MikIcons.MIK;
+        return MikIcons.UPLOAD;
+    }
+
+    /**
+     * 更新 Action 的展示状态
+     * <p>
+     * 动态设置菜单标题，根据当前配置的默认图床类型显示对应的标题。
+     * 例如：如果默认图床是阿里云，菜单标题会显示为 "图片上传: 阿里云"
+     *
+     * @param event Action事件对象
+     * @since 2.2.0
+     */
+    @Override
+    public void update(@NotNull AnActionEvent event) {
+        // 调用父类的 update 方法，处理基础的可用性检查
+        super.update(event);
+
+        // 获取默认图床类型
+        int defaultCloudType = IntentionActionBase.getState().getDefaultCloudType();
+        CloudEnum cloudEnum = OssState.getCloudType(defaultCloudType);
+
+        // 动态设置菜单标题
+        Presentation presentation = event.getPresentation();
+        if (cloudEnum != null) {
+            presentation.setText("图片上传: " + cloudEnum.getTitle());
+            // 可选：设置描述信息
+            presentation.setDescription("上传图片到 " + cloudEnum.getTitle() + " 图床");
+        } else {
+            // 如果无法获取图床信息，使用默认标题
+            presentation.setText("图片上传: 默认图床");
+        }
     }
 
     /**

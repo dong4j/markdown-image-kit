@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Iconable;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
@@ -28,6 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.Icon;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -43,7 +46,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 0.0.1
  */
 @Slf4j
-public abstract class IntentionActionBase extends PsiElementBaseIntentionAction {
+public abstract class IntentionActionBase extends PsiElementBaseIntentionAction implements Iconable {
     /**
      * 获取当前组件的状态信息
      * <p>
@@ -65,6 +68,21 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
      * @since 0.0.1
      */
     abstract String getMessage(String clientName);
+
+    /**
+     * 获取图标
+     * <p>
+     * 子类可以重写此方法来提供自定义图标
+     *
+     * @param flags 图标标志
+     * @return 图标对象，默认返回 null
+     * @since 2.2.0
+     */
+    @Nullable
+    @Override
+    public Icon getIcon(@IconFlags int flags) {
+        return null;
+    }
 
     /**
      * 使用设置的默认 client

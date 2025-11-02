@@ -1,11 +1,13 @@
 package info.dong4j.idea.plugin.action.menu.image;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 
 import info.dong4j.idea.plugin.MikBundle;
+import info.dong4j.idea.plugin.action.intention.IntentionActionBase;
 import info.dong4j.idea.plugin.chain.ActionManager;
 import info.dong4j.idea.plugin.chain.handler.ActionHandlerAdapter;
 import info.dong4j.idea.plugin.chain.handler.FinalChainHandler;
@@ -52,7 +54,7 @@ public final class ImageCompressAction extends ImageActionBase {
     /**
      * 获取图标
      * <p>
-     * 返回当前类所使用的图标
+     * 返回图片压缩的图标
      *
      * @return 图标对象
      * @since 0.0.1
@@ -60,7 +62,51 @@ public final class ImageCompressAction extends ImageActionBase {
     @Contract(pure = true)
     @Override
     public Icon getIcon() {
-        return MikIcons.MIK;
+        return MikIcons.COMPRESS;
+    }
+
+    /**
+     * 更新 Action 的展示状态
+     * <p>
+     * 动态设置菜单标题，根据是否启用压缩功能显示对应的状态。
+     * 如果启用了普通压缩或 WebP 转换任意一个，显示"图片压缩: 已启用"，否则显示"图片压缩: 未启用"
+     *
+     * @param event Action事件对象
+     * @since 2.2.0
+     */
+    @Override
+    public void update(@NotNull AnActionEvent event) {
+        // 调用父类的 update 方法，处理基础的可用性检查
+        super.update(event);
+
+        // 检查是否启用了压缩功能（普通压缩或 WebP 转换）
+        boolean compressEnabled = IntentionActionBase.getState().isCompress();
+        boolean webpEnabled = IntentionActionBase.getState().isConvertToWebp();
+        boolean anyCompressEnabled = compressEnabled || webpEnabled;
+
+        // 动态设置菜单标题
+        Presentation presentation = event.getPresentation();
+        if (anyCompressEnabled) {
+            presentation.setText("图片压缩: 已启用");
+
+            // 构建详细的描述信息
+            StringBuilder description = new StringBuilder("已启用: ");
+            if (compressEnabled) {
+                int compressPercent = IntentionActionBase.getState().getCompressBeforeUploadOfPercent();
+                description.append("压缩至 ").append(compressPercent).append("%");
+            }
+            if (webpEnabled) {
+                if (compressEnabled) {
+                    description.append(", ");
+                }
+                int webpQuality = IntentionActionBase.getState().getWebpQuality();
+                description.append("WebP 转换 (质量: ").append(webpQuality).append("%)");
+            }
+            presentation.setDescription(description.toString());
+        } else {
+            presentation.setText("图片压缩: 未启用");
+            presentation.setDescription("请在设置中启用图片压缩或 WebP 转换功能");
+        }
     }
 
     /**

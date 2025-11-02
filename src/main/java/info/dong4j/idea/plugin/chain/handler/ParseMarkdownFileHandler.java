@@ -55,7 +55,7 @@ public class ParseMarkdownFileHandler extends ActionHandlerAdapter {
      */
     @Override
     public boolean execute(EventData data) {
-        // 优先处理设置的数据, 用于 ImageMoveIntentionAction 和 ImageUploadIntentionAction
+        // 优先处理设置的数据, 用于 ImageMigrationIntentionAction 和 ImageUploadIntentionAction
         Map<Document, List<MarkdownImage>> waitingProcessMap = data.getWaitingProcessMap();
         if (waitingProcessMap == null || waitingProcessMap.isEmpty()) {
             // 解析当前文档或者选择的文件树中的所有 markdown 文件.

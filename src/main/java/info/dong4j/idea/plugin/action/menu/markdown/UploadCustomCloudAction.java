@@ -3,6 +3,7 @@ package info.dong4j.idea.plugin.action.menu.markdown;
 import info.dong4j.idea.plugin.client.CustomOssClient;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.enums.CloudEnum;
+import info.dong4j.idea.plugin.settings.OssState;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -36,6 +37,19 @@ public final class UploadCustomCloudAction extends UploadActionBase {
     @Override
     protected Icon getIcon() {
         return MikIcons.CUSTOM;
+    }
+
+    /**
+     * 判断自定义图床是否可用
+     * <p>
+     * 检查自定义图床是否已正确配置且通过测试
+     *
+     * @return true 表示图床可用，false 表示不可用
+     * @since 2.2.0
+     */
+    @Override
+    protected boolean available() {
+        return OssState.getStatus(CloudEnum.CUSTOMIZE);
     }
 
     /**

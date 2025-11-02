@@ -21,6 +21,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.Icon;
+
+import icons.MikIcons;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -38,6 +41,20 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public final class ImageMigrationIntentionAction extends IntentionActionBase {
+    /**
+     * 获取图标
+     * <p>
+     * 返回图床迁移的图标
+     *
+     * @param flags 图标标志
+     * @return 图标对象
+     * @since 2.2.0
+     */
+    @Override
+    public Icon getIcon(@IconFlags int flags) {
+        return MikIcons.MIGRATION;
+    }
+
     /**
      * 获取移动意图提示信息
      * <p>
@@ -66,6 +83,12 @@ public final class ImageMigrationIntentionAction extends IntentionActionBase {
     @Override
     public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element)
         throws IncorrectOperationException {
+
+        // 如果处于预览模式，则直接返回，不执行任何会产生副作用的操作, 只有在真实执行意图操作时才执行完整的处理流程
+        if (com.intellij.codeInsight.intention.preview.IntentionPreviewUtils.isPreviewElement(element)) {
+            return;
+        }
+
         MarkdownImage markdownImage = this.getMarkdownImage(editor);
         OssClient client = this.getClient();
 
@@ -92,7 +115,7 @@ public final class ImageMigrationIntentionAction extends IntentionActionBase {
         try {
             new ActionTask(project,
                            MikBundle.message("mik.action.move.process", this.getName()),
-                           ActionManager.buildMoveImageChain(data))
+                           ActionManager.buildImageMigrationChain(data))
                 .queue();
         } catch (Exception ignored) {
         }

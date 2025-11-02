@@ -1,0 +1,15 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+    <!-- 外框 -->
+    <path d="M810.667 128H213.333A85.333 85.333 0 0 0 128 213.333v597.334A85.333 85.333 0 0 0 213.333 896h597.334A85.333 85.333 0 0 0 896 810.667V213.333A85.333 85.333 0 0 0 810.667 128z"
+          fill="#7CB342"/>
+    <!-- 内部压缩箭头 -->
+    <path d="M362.667 362.667L256 469.333v-85.333H170.667v-85.334H256v-85.333z" fill="#FFFFFF"/>
+    <path d="M661.333 362.667L768 469.333v-85.333h85.333v-85.334H768v-85.333z" fill="#FFFFFF"/>
+    <path d="M362.667 661.333L256 554.667v85.333H170.667v85.333H256v85.334z" fill="#FFFFFF"/>
+    <path d="M661.333 661.333L768 554.667v85.333h85.333v85.333H768v85.334z" fill="#FFFFFF"/>
+    <!-- 中心区域 -->
+    <rect x="384" y="384" width="256" height="256" fill="#FFFFFF" opacity="0.3"/>
+</svg>
+

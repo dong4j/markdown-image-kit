@@ -102,11 +102,11 @@
         </action>
 
         <action id="ImageCompressAction" class="info.dong4j.idea.plugin.action.menu.image.ImageCompressAction"
-                popup="true" text="图片压缩" description="按照设置压缩图片, 如果启用 webp 将转换成 WebP 格式">
+                popup="true" text="图片压缩">
         </action>
         <!-- 仅上传图片, 上传成功后会将 menu 图片标签回写到剪切板 -->
         <action id="ImageUploadAction" class="info.dong4j.idea.plugin.action.menu.image.ImageUploadAction"
-                popup="true" text="图片上传:默认图床">
+                popup="true" text="图片上传">
         </action>
         <action id="MoveToOtherStorageAction" class="info.dong4j.idea.plugin.action.menu.ImageMigrationAction"
                 popup="true" text="图床迁移">

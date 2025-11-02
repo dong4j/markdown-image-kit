@@ -14,12 +14,17 @@ import info.dong4j.idea.plugin.chain.handler.WriteToDocumentHandler;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
+import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.task.ActionTask;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.Icon;
+
+import icons.MikIcons;
 
 /**
  * 替换标签意图操作类
@@ -39,6 +44,20 @@ import java.util.Map;
  */
 public class ImageLabelChangeIntetionAction extends IntentionActionBase {
     /**
+     * 获取图标
+     * <p>
+     * 返回标签替换的图标
+     *
+     * @param flags 图标标志
+     * @return 图标对象
+     * @since 2.2.0
+     */
+    @Override
+    public Icon getIcon(@IconFlags int flags) {
+        return MikIcons.LABEL;
+    }
+
+    /**
      * 获取指定客户端名称的消息内容
      * <p>
      * 根据传入的客户端名称返回对应的消息内容
@@ -50,7 +69,8 @@ public class ImageLabelChangeIntetionAction extends IntentionActionBase {
     @NotNull
     @Override
     String getMessage(String clientName) {
-        return MikBundle.message("mik.intention.change.message");
+        return MikBundle.message("mik.intention.change.message",
+                                 MikPersistenComponent.getInstance().getState().getImageMarkEnum().getText());
     }
 
     /**
@@ -89,7 +109,7 @@ public class ImageLabelChangeIntetionAction extends IntentionActionBase {
         }
 
         MarkdownImage markdownImage = this.getMarkdownImage(editor);
-        if (markdownImage == null || markdownImage.getLocation().name().equals(ImageLocationEnum.LOCAL.name())) {
+        if (markdownImage == null || markdownImage.getLocation() == ImageLocationEnum.LOCAL) {
             return;
         }
 

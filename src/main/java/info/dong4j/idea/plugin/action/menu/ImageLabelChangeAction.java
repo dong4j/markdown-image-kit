@@ -38,14 +38,14 @@ public final class ImageLabelChangeAction extends AnAction {
     /**
      * 更新操作
      * <p>
-     * 处理更新事件，设置操作可用状态，并显示相关图标和提示信息
+     * 处理更新事件，设置操作可用状态，并显示标签替换图标和提示信息
      *
      * @param event 事件对象，包含操作上下文信息
      * @since 0.0.1
      */
     @Override
     public void update(@NotNull AnActionEvent event) {
-        ActionUtils.isAvailable(true, event, MikIcons.MIK, MarkdownContents.MARKDOWN_TYPE_NAME);
+        ActionUtils.isAvailable(true, event, MikIcons.LABEL, MarkdownContents.MARKDOWN_TYPE_NAME);
     }
 
     /**

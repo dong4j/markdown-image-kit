@@ -20,6 +20,15 @@ public class MikIcons {
 
     /** MIK ICON */
     public static final Icon MIK = load("mikIcon.svg");
+
+    /** 图片上传 */
+    public static final Icon UPLOAD = load("upload.svg");
+    /** 图片压缩 */
+    public static final Icon COMPRESS = load("compress.svg");
+    /** 图床迁移 */
+    public static final Icon MIGRATION = load("migration.svg");
+    /** 标签替换 */
+    public static final Icon LABEL = load("label.svg");
     
     /** ALIYUN_OSS */
     public static final Icon ALIYUN_OSS = load("aliyun.svg");

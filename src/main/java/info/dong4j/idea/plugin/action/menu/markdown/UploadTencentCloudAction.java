@@ -3,6 +3,7 @@ package info.dong4j.idea.plugin.action.menu.markdown;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.client.TencentOssClient;
 import info.dong4j.idea.plugin.enums.CloudEnum;
+import info.dong4j.idea.plugin.settings.OssState;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -39,6 +40,19 @@ public final class UploadTencentCloudAction extends UploadActionBase {
     @Override
     protected Icon getIcon() {
         return MikIcons.TENCENT;
+    }
+
+    /**
+     * 判断腾讯云图床是否可用
+     * <p>
+     * 检查腾讯云 COS 是否已正确配置且通过测试
+     *
+     * @return true 表示图床可用，false 表示不可用
+     * @since 2.2.0
+     */
+    @Override
+    protected boolean available() {
+        return OssState.getStatus(CloudEnum.TENCENT_CLOUD);
     }
 
     /**

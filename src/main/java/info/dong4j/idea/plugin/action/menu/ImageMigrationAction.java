@@ -50,14 +50,14 @@ public final class ImageMigrationAction extends AnAction {
     /**
      * 更新操作
      * <p>
-     * 执行更新操作，设置动作可用状态，并显示指定图标和类型名称
+     * 执行更新操作，设置动作可用状态，并显示图床迁移图标和类型名称
      *
      * @param event 事件对象，包含操作上下文信息
      * @since 0.0.1
      */
     @Override
     public void update(@NotNull AnActionEvent event) {
-        ActionUtils.isAvailable(true, event, MikIcons.MIK, MarkdownContents.MARKDOWN_TYPE_NAME);
+        ActionUtils.isAvailable(true, event, MikIcons.MIGRATION, MarkdownContents.MARKDOWN_TYPE_NAME);
     }
 
     /**
@@ -107,7 +107,7 @@ public final class ImageMigrationAction extends AnAction {
 
             new ActionTask(project,
                            MikBundle.message("mik.action.move.process", clientName),
-                           ActionManager.buildMoveImageChain(data)).queue();
+                           ActionManager.buildImageMigrationChain(data)).queue();
         }
     }
 

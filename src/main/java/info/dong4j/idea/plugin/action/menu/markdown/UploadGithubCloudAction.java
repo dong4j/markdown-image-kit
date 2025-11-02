@@ -3,6 +3,7 @@ package info.dong4j.idea.plugin.action.menu.markdown;
 import info.dong4j.idea.plugin.client.GithubClient;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.enums.CloudEnum;
+import info.dong4j.idea.plugin.settings.OssState;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -39,6 +40,19 @@ public final class UploadGithubCloudAction extends UploadActionBase {
     @Override
     protected Icon getIcon() {
         return MikIcons.GITHUB;
+    }
+
+    /**
+     * 判断 GitHub 图床是否可用
+     * <p>
+     * 检查 GitHub 是否已正确配置且通过测试
+     *
+     * @return true 表示图床可用，false 表示不可用
+     * @since 2.2.0
+     */
+    @Override
+    protected boolean available() {
+        return OssState.getStatus(CloudEnum.GITHUB);
     }
 
     /**
