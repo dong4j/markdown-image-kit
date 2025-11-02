@@ -92,12 +92,10 @@ public final class ImageUploadAction extends ImageActionBase {
         // 动态设置菜单标题
         Presentation presentation = event.getPresentation();
         if (cloudEnum != null) {
-            presentation.setText("图片上传: " + cloudEnum.getTitle());
-            // 可选：设置描述信息
-            presentation.setDescription("上传图片到 " + cloudEnum.getTitle() + " 图床");
+            presentation.setText(MikBundle.message("mik.action.menu.upload.title", cloudEnum.getTitle()));
+            presentation.setDescription(MikBundle.message("mik.action.menu.upload.description", cloudEnum.getTitle()));
         } else {
-            // 如果无法获取图床信息，使用默认标题
-            presentation.setText("图片上传: 默认图床");
+            presentation.setText(MikBundle.message("mik.action.menu.upload.default"));
         }
     }
 

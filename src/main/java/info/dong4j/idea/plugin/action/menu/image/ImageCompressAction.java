@@ -87,25 +87,25 @@ public final class ImageCompressAction extends ImageActionBase {
         // 动态设置菜单标题
         Presentation presentation = event.getPresentation();
         if (anyCompressEnabled) {
-            presentation.setText("图片压缩: 已启用");
-
+            presentation.setText(MikBundle.message("mik.action.menu.compress.enabled"));
+            
             // 构建详细的描述信息
-            StringBuilder description = new StringBuilder("已启用: ");
+            StringBuilder description = new StringBuilder();
             if (compressEnabled) {
                 int compressPercent = IntentionActionBase.getState().getCompressBeforeUploadOfPercent();
-                description.append("压缩至 ").append(compressPercent).append("%");
+                description.append(MikBundle.message("mik.action.menu.compress.to", compressPercent));
             }
             if (webpEnabled) {
                 if (compressEnabled) {
                     description.append(", ");
                 }
                 int webpQuality = IntentionActionBase.getState().getWebpQuality();
-                description.append("WebP 转换 (质量: ").append(webpQuality).append("%)");
+                description.append(MikBundle.message("mik.action.menu.compress.webp", webpQuality));
             }
-            presentation.setDescription(description.toString());
+            presentation.setDescription(MikBundle.message("mik.action.menu.compress.description.enabled", description.toString()));
         } else {
-            presentation.setText("图片压缩: 未启用");
-            presentation.setDescription("请在设置中启用图片压缩或 WebP 转换功能");
+            presentation.setText(MikBundle.message("mik.action.menu.compress.disabled"));
+            presentation.setDescription(MikBundle.message("mik.action.menu.compress.description.disabled"));
         }
     }
 

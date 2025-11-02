@@ -50,14 +50,20 @@ public final class ImageMigrationAction extends AnAction {
     /**
      * 更新操作
      * <p>
-     * 执行更新操作，设置动作可用状态，并显示图床迁移图标和类型名称
+     * 执行更新操作，设置动作可用状态，并显示图床迁移图标和标题
+     * 标题固定为"迁移到其他图床"
      *
      * @param event 事件对象，包含操作上下文信息
      * @since 0.0.1
      */
     @Override
     public void update(@NotNull AnActionEvent event) {
+        // 调用基础的可用性检查
         ActionUtils.isAvailable(true, event, MikIcons.MIGRATION, MarkdownContents.MARKDOWN_TYPE_NAME);
+
+        // 设置固定的菜单标题
+        event.getPresentation().setText(MikBundle.message("mik.action.menu.migration.title"));
+        event.getPresentation().setDescription(MikBundle.message("mik.action.menu.migration.description"));
     }
 
     /**

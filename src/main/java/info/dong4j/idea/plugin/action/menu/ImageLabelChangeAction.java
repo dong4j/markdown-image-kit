@@ -3,9 +3,11 @@ package info.dong4j.idea.plugin.action.menu;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 
 import info.dong4j.idea.plugin.MikBundle;
+import info.dong4j.idea.plugin.action.intention.IntentionActionBase;
 import info.dong4j.idea.plugin.chain.ActionManager;
 import info.dong4j.idea.plugin.chain.handler.FinalChainHandler;
 import info.dong4j.idea.plugin.chain.handler.ImageLabelChangeHandler;
@@ -13,6 +15,7 @@ import info.dong4j.idea.plugin.chain.handler.ParseMarkdownFileHandler;
 import info.dong4j.idea.plugin.chain.handler.WriteToDocumentHandler;
 import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.entity.EventData;
+import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.task.ActionTask;
 import info.dong4j.idea.plugin.util.ActionUtils;
 
@@ -39,13 +42,26 @@ public final class ImageLabelChangeAction extends AnAction {
      * 更新操作
      * <p>
      * 处理更新事件，设置操作可用状态，并显示标签替换图标和提示信息
+     * 动态显示当前配置的替换标签类型
      *
      * @param event 事件对象，包含操作上下文信息
      * @since 0.0.1
      */
     @Override
     public void update(@NotNull AnActionEvent event) {
+        // 调用基础的可用性检查
         ActionUtils.isAvailable(true, event, MikIcons.LABEL, MarkdownContents.MARKDOWN_TYPE_NAME);
+
+        // 动态设置菜单标题
+        Presentation presentation = event.getPresentation();
+        ImageMarkEnum markEnum = IntentionActionBase.getState().getImageMarkEnum();
+        if (markEnum != null) {
+            presentation.setText(MikBundle.message("mik.action.menu.label.title", markEnum.getText()));
+            presentation.setDescription(MikBundle.message("mik.action.menu.label.description", markEnum.getText()));
+        } else {
+            presentation.setText(MikBundle.message("mik.action.menu.label.default"));
+            presentation.setDescription(MikBundle.message("mik.action.menu.label.description.default"));
+        }
     }
 
     /**
