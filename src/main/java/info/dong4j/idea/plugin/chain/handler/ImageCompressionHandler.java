@@ -132,8 +132,11 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
                         log.trace("webp转换失败，保持原样: {}", imageName);
                         markdownImage.setInputStream(new ByteArrayInputStream(originalBytes));
                     }
+                } else {
+                    // 如果已经是webp，不需要转换，但需要重新设置输入流（因为原始流已被读取）
+                    log.trace("图片已经是webp格式，不需要转换: {}", imageName);
+                    markdownImage.setInputStream(new ByteArrayInputStream(originalBytes));
                 }
-                // 如果已经是webp，不需要处理
             }
 
             // 关闭原始输入流
