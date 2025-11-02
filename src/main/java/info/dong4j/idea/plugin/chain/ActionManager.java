@@ -175,26 +175,33 @@ public class ActionManager {
                 if (progressTracker != null) {
                     progressTracker.startStep(stepIndex);
                 }
-                
+
                 log.trace("invoke {}", handler.getName());
 
                 // 记录处理器开始执行时间
                 long handlerStartTime = System.currentTimeMillis();
 
-                // 执行处理器
-                boolean success = handler.execute(this.data);
+                try {
+                    // 执行处理器
+                    boolean success = handler.execute(this.data);
 
-                // 计算处理器执行耗时
-                long handlerDuration = System.currentTimeMillis() - handlerStartTime;
+                    // 计算处理器执行耗时
+                    long handlerDuration = System.currentTimeMillis() - handlerStartTime;
 
-                if (!success) {
-                    log.trace("处理器 {} 执行失败，中断处理链", handler.getName());
+                    if (!success) {
+                        log.trace("处理器 {} 执行失败，中断处理链", handler.getName());
+                        MikConsoleView.printErrorMessage(this.data.getProject(),
+                                                         "[✗] 处理器执行失败: " + handler.getName() + " (耗时: " + formatDuration(handlerDuration) +
+                                                         ")");
+                        break;
+                    } else {
+                        log.trace("处理器 {} 执行成功，耗时: {}ms", handler.getName(), handlerDuration);
+                    }
+                } catch (Exception e) {
+                    log.error("处理器 {} 执行失败", handler.getName(), e);
                     MikConsoleView.printErrorMessage(this.data.getProject(),
-                                                     "[✗] 处理器执行失败: " + handler.getName() + " (耗时: " + formatDuration(handlerDuration) +
-                                                     ")");
+                                                     "[✗] 处理器执行失败: " + handler.getName() + " (" + e.getMessage() + ")");
                     break;
-                } else {
-                    log.trace("处理器 {} 执行成功，耗时: {}ms", handler.getName(), handlerDuration);
                 }
 
                 // 步骤完成
@@ -267,9 +274,9 @@ public class ActionManager {
      *
      * @param data 用于迁移操作的事件数据
      * @return 构建完成的ActionManager实例
-     * @since 0.0.1
      * @see ImageMigrationIntentionAction
      * @see ImageMigrationAction
+     * @since 0.0.1
      */
     @SuppressWarnings("D")
     public static ActionManager buildImageMigrationChain(EventData data) {

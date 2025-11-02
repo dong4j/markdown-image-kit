@@ -78,7 +78,6 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
     @SuppressWarnings("D")
     @Override
     public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
-        final EventData finalData = data;
         String imageName = markdownImage.getImageName();
         if (markdownImage.getInputStream() == null) {
             log.trace("inputstream 为 null, remove markdownImage = {}", markdownImage);
@@ -120,20 +119,20 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
                         compressImage(markdownImage, originalBytes, compressPercent);
                     } else {
                         long newSize = markdownImage.getInputStream().available();
-                        printCompressionInfo(imageName, "转换为WebP", originalSize, newSize, finalData);
+                        printCompressionInfo(imageName, "转换为WebP", originalSize, newSize, data);
                     }
                 } else {
                     // 已经是webp，直接压缩
                     compressImage(markdownImage, originalBytes, compressPercent);
                     long newSize = markdownImage.getInputStream().available();
-                    printCompressionInfo(imageName, "压缩WebP", originalSize, newSize, finalData);
+                    printCompressionInfo(imageName, "压缩WebP", originalSize, newSize, data);
                 }
             }
             // 情况2：如果只开启了图片压缩，直接压缩
             else if (isCompressEnabled) {
                 compressImage(markdownImage, originalBytes, compressPercent);
                 long newSize = markdownImage.getInputStream().available();
-                printCompressionInfo(imageName, "压缩", originalSize, newSize, finalData);
+                printCompressionInfo(imageName, "压缩", originalSize, newSize, data);
             }
             // 情况3：如果只开启了转换成webp，尝试转webp，失败就不压缩
             else if (isWebpEnabled) {
@@ -145,7 +144,7 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
                         markdownImage.setInputStream(new ByteArrayInputStream(originalBytes));
                     } else {
                         long newSize = markdownImage.getInputStream().available();
-                        printCompressionInfo(imageName, "转换为WebP", originalSize, newSize, finalData);
+                        printCompressionInfo(imageName, "转换为WebP", originalSize, newSize, data);
                     }
                 } else {
                     // 如果已经是webp，不需要转换，但需要重新设置输入流（因为原始流已被读取）

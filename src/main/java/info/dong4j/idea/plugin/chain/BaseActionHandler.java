@@ -27,20 +27,21 @@ public abstract class BaseActionHandler implements IActionHandler {
      * @return 如果符合处理范围则返回 true，否则返回 false
      */
     @Override
-    public boolean isEnabled(EventData data){
+    public boolean isEnabled(EventData data) {
         return true;
     }
 
     /**
      * 执行具体的处理逻辑
      * <p>
-     * 该方法用于执行事件处理的核心逻辑，返回是否阻止系统的事件传递。
+     * 该方法用于处理传入的事件数据，返回值表示是否阻止系统的事件传递。若返回 false，则后续的 handler 不会执行，整个链式处理中断。
      *
-     * @param data 事件数据对象，包含事件相关的信息
-     * @return 是否阻止系统的事件传递，返回 true 表示阻止，false 表示允许传递
+     * @param data 事件数据
+     * @return 是否阻止系统的事件传递。若为 false，后续 handler 不执行，整个 chain 中断
+     * @since 0.0.1
      */
     @Override
-    public boolean execute(EventData data){
+    public boolean execute(EventData data) {
         return true;
     }
 

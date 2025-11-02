@@ -4,6 +4,7 @@ import com.intellij.openapi.editor.Document;
 
 import info.dong4j.idea.plugin.chain.BaseActionHandler;
 import info.dong4j.idea.plugin.chain.ProgressTracker;
+import info.dong4j.idea.plugin.console.MikConsoleView;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 
@@ -105,7 +106,13 @@ public class ActionHandlerAdapter extends BaseActionHandler {
                     continue;
                 }
 
-                this.invoke(data, imageIterator, markdownImage);
+                try {
+                    this.invoke(data, imageIterator, markdownImage);
+                } catch (Exception e) {
+                    log.error("处理图片失败: {}", markdownImage.getImageName(), e);
+                    MikConsoleView.printErrorMessage(data.getProject(),
+                                                     "[✗] 处理图片失败: " + markdownImage.getImageName() + " (" + e.getMessage() + ")");
+                }
             }
         }
 

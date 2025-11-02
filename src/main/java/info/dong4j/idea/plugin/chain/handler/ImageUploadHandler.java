@@ -86,7 +86,9 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
 
         if (totalCount == 0) {
             log.trace("没有待处理的数据");
-            return false;
+            // 返回 true 而不是 false：没有数据不是错误，应该让后续处理器继续执行
+            // 例如：FinalChainHandler 需要执行资源清理，RefreshFileSystemHandler 可能需要刷新文件系统
+            return true;
         }
 
         // 收集所有需要处理的图片
@@ -114,7 +116,10 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
         if (uploadTasks.isEmpty()) {
             log.trace("数据被清洗后没有添加任何可处理任务");
             MikConsoleView.printMessage(data.getProject(), "  没有需要上传的图片");
-            return false;
+            // 返回 true 而不是 false：没有需要上传的图片不是错误（可能都是 NETWORK 类型或数据为空）
+            // 应该让后续处理器继续执行：ImageLabelChangeHandler 可能需要转换标签格式，
+            // WriteToDocumentHandler 需要更新文档，FinalChainHandler 需要清理资源
+            return true;
         }
 
         // 重设任务数，使用 final 变量以便在 lambda 中使用
