@@ -52,7 +52,7 @@ public class SmmsClientTest {
      */
     @Test
     public void test1() throws IOException {
-        log.info("{}", this.start("https://sm.ms/api/v2/upload", "/Users/dong4j/Downloads/mik.webp"));
+        log.trace("{}", this.start("https://sm.ms/api/v2/upload", "/Users/dong4j/Downloads/mik.webp"));
     }
 
     /**
@@ -92,7 +92,7 @@ public class SmmsClientTest {
             res = EntityUtils.toByteArray(response.getEntity());
             String result = IOUtils.toString(res, StandardCharsets.UTF_8.name());
             SmmsResult smmsResult = new Gson().fromJson(result, SmmsResult.class);
-            log.info("{}", smmsResult);
+            log.trace("{}", smmsResult);
         }
 
         return "";
@@ -101,7 +101,7 @@ public class SmmsClientTest {
 
     @Test
     public void test_2() throws FileNotFoundException {
-        log.info("{}", this.upload(new FileInputStream("/Users/dong4j/Downloads/mik.webp"),
+        log.trace("{}", this.upload(new FileInputStream("/Users/dong4j/Downloads/mik.webp"),
                                    "mik.webp"));
     }
 

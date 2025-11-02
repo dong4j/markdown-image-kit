@@ -15,9 +15,9 @@ import info.dong4j.idea.plugin.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ItemEvent;
 
 import javax.swing.DefaultListCellRenderer;
@@ -42,12 +42,7 @@ import lombok.Getter;
  * @since 2.0.0
  */
 public class MoveToOtherOssSettingsDialog extends DialogWrapper {
-    /** 移动所有图片的标识 */
-    public static final String MOVE_ALL = "ALL";
 
-    /** 默认域名提示信息 */
-    private static final String DOMAIN_DEFAULT_MESSAGE = MikBundle.message("mik.panel.message.domain-field");
-    
     /** 域名输入框 */
     @Getter
     private final JBTextField domainTextField;
@@ -57,6 +52,19 @@ public class MoveToOtherOssSettingsDialog extends DialogWrapper {
 
     /** 消息标签 */
     private final JBLabel messageLabel;
+
+    /** 存储路径输入框（仅本地存储且无配置时显示） */
+    @Getter
+    private final JBTextField storagePathTextField;
+
+    /** 存储路径标签 */
+    private final JBLabel storagePathLabel;
+
+    /** 存储路径提示标签 */
+    private final JBLabel storagePathHintLabel;
+
+    /** 当前配置路径显示标签 */
+    private final JBLabel currentConfigPathLabel;
     
     /**
      * 云服务选项包装类
@@ -92,6 +100,10 @@ public class MoveToOtherOssSettingsDialog extends DialogWrapper {
         domainTextField = new JBTextField();
         cloudComboBox = new ComboBox<>();
         messageLabel = new JBLabel();
+        storagePathTextField = new JBTextField("./imgs");
+        storagePathLabel = new JBLabel(MikBundle.message("panel.image.processing.custom.path"));
+        storagePathHintLabel = new JBLabel(MikBundle.message("panel.image.processing.custom.path.hint"));
+        currentConfigPathLabel = new JBLabel();
 
         setTitle(MikBundle.message("picture.migration.plan.title"));
 
@@ -164,8 +176,27 @@ public class MoveToOtherOssSettingsDialog extends DialogWrapper {
         // 云服务下拉框监听
         cloudComboBox.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
+                updateStoragePathVisibility();
                 updateOkButton();
                 updateMessage();
+            }
+        });
+
+        // 存储路径输入框监听
+        storagePathTextField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                updateOkButton();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                updateOkButton();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                updateOkButton();
             }
         });
     }
@@ -183,6 +214,9 @@ public class MoveToOtherOssSettingsDialog extends DialogWrapper {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = JBUI.insets(5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        // 设置面板首选尺寸，增加宽度
+        panel.setPreferredSize(new Dimension(600, -1));
 
         // 第一行：域名标签和输入框
         gbc.gridx = 0;
@@ -217,15 +251,99 @@ public class MoveToOtherOssSettingsDialog extends DialogWrapper {
         messageLabel.setForeground(JBColor.RED);
         panel.add(messageLabel, gbc);
 
+        // 第五行：当前配置路径显示（初始隐藏）
+        gbc.gridx = 1;
+        gbc.gridy = 4;
+        currentConfigPathLabel.setForeground(new JBColor(0x0066CC, 0x5394EC)); // 蓝色
+        currentConfigPathLabel.setVisible(false);
+        panel.add(currentConfigPathLabel, gbc);
+
+        // 第六行：存储路径标签和输入框（初始隐藏）
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.weightx = 0.0;
+        storagePathLabel.setVisible(false);
+        panel.add(storagePathLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.weightx = 1.0;
+        storagePathTextField.setVisible(false);
+        panel.add(storagePathTextField, gbc);
+
+        // 第七行：存储路径提示信息
+        gbc.gridx = 1;
+        gbc.gridy = 6;
+        storagePathHintLabel.setForeground(JBColor.GRAY);
+        storagePathHintLabel.setVisible(false);
+        panel.add(storagePathHintLabel, gbc);
+
         return panel;
     }
 
+    /**
+     * 更新存储路径输入框的可见性
+     * <p>
+     * 当选择本地存储时：
+     * - 如果已配置存储路径，显示当前配置
+     * - 如果未配置存储路径，显示路径输入框
+     *
+     * @since 2.0.0
+     */
+    private void updateStoragePathVisibility() {
+        if (!isLocalStorage()) {
+            // 非本地存储，隐藏所有相关组件
+            currentConfigPathLabel.setVisible(false);
+            storagePathLabel.setVisible(false);
+            storagePathTextField.setVisible(false);
+            storagePathHintLabel.setVisible(false);
+            return;
+        }
+
+        // 获取当前配置的存储路径
+        String currentPath = info.dong4j.idea.plugin.action.intention.IntentionActionBase.getState().getCurrentInsertPath();
+        boolean hasConfiguredPath = StringUtils.isNotBlank(currentPath);
+
+        if (hasConfiguredPath) {
+            // 已配置路径，显示当前配置
+            currentConfigPathLabel.setText(String.format("<html>当前配置的存储路径: <b>%s</b></html>", currentPath));
+            currentConfigPathLabel.setVisible(true);
+            storagePathLabel.setVisible(false);
+            storagePathTextField.setVisible(false);
+            storagePathHintLabel.setVisible(false);
+        } else {
+            // 未配置路径，显示输入框
+            currentConfigPathLabel.setVisible(false);
+            storagePathLabel.setVisible(true);
+            storagePathTextField.setVisible(true);
+            storagePathHintLabel.setVisible(true);
+        }
+    }
+
+    /**
+     * 判断是否需要输入存储路径
+     * <p>
+     * 只有选择本地存储且当前没有有效的存储路径配置时才需要
+     *
+     * @return 是否需要输入存储路径
+     * @since 2.0.0
+     */
+    private boolean needsStoragePath() {
+        if (!isLocalStorage()) {
+            return false;
+        }
+
+        // 检查当前是否有有效的存储路径配置
+        String currentPath = info.dong4j.idea.plugin.action.intention.IntentionActionBase.getState().getCurrentInsertPath();
+        return StringUtils.isBlank(currentPath);
+    }
+    
     /**
      * 更新 OK 按钮状态
      * <p>
      * 根据输入有效性和云服务可用性来控制 OK 按钮的启用状态。
      * 不管本地存储还是云存储，都需要输入域名或 "ALL"；
-     * 对于云存储，还需要额外检查图床是否可用。
+     * 对于云存储，还需要额外检查图床是否可用；
+     * 对于本地存储且需要输入路径时，还要检查路径是否有效。
      *
      * @since 2.0.0
      */
@@ -233,8 +351,9 @@ public class MoveToOtherOssSettingsDialog extends DialogWrapper {
         boolean hasValidInput = isValidInput();
 
         if (isLocalStorage()) {
-            // 本地存储：只需要域名有效
-            setOKActionEnabled(hasValidInput);
+            // 本地存储：域名有效 + （不需要路径 或 路径有效）
+            boolean storagePathValid = !needsStoragePath() || isValidStoragePath();
+            setOKActionEnabled(hasValidInput && storagePathValid);
         } else {
             // 云存储：域名有效 + 图床可用
             setOKActionEnabled(hasValidInput && isCloudAvailable());
@@ -275,7 +394,20 @@ public class MoveToOtherOssSettingsDialog extends DialogWrapper {
      */
     private boolean isValidInput() {
         String text = domainTextField.getText().trim();
-        return StringUtils.isNotBlank(text) && !text.equals(DOMAIN_DEFAULT_MESSAGE);
+        return StringUtils.isNotBlank(text);
+    }
+
+    /**
+     * 检查存储路径是否有效
+     * <p>
+     * 验证存储路径输入是否非空
+     *
+     * @return 存储路径是否有效
+     * @since 2.0.0
+     */
+    private boolean isValidStoragePath() {
+        String path = storagePathTextField.getText().trim();
+        return StringUtils.isNotBlank(path);
     }
 
     /**
@@ -343,10 +475,28 @@ public class MoveToOtherOssSettingsDialog extends DialogWrapper {
     }
 
     /**
+     * 获取存储路径
+     * <p>
+     * 当需要临时存储路径时（本地存储且无全局配置），返回用户输入的路径；
+     * 否则返回 null。
+     *
+     * @return 存储路径，如果不需要则返回 null
+     * @since 2.0.0
+     */
+    @Nullable
+    public String getStoragePath() {
+        if (needsStoragePath() && isValidStoragePath()) {
+            return storagePathTextField.getText().trim();
+        }
+        return null;
+    }
+
+    /**
      * OK 按钮点击处理
      * <p>
      * 验证输入有效性和云服务可用性后执行关闭操作。
-     * 不管本地存储还是云存储，都需要输入域名或 "ALL"。
+     * 不管本地存储还是云存储，都需要输入域名或 "ALL"；
+     * 本地存储且需要输入路径时，还要检查路径有效性。
      *
      * @since 2.0.0
      */
@@ -355,8 +505,9 @@ public class MoveToOtherOssSettingsDialog extends DialogWrapper {
         boolean hasValidInput = isValidInput();
 
         if (isLocalStorage()) {
-            // 本地存储：只需要域名有效
-            if (hasValidInput) {
+            // 本地存储：域名有效 + （不需要路径 或 路径有效）
+            boolean storagePathValid = !needsStoragePath() || isValidStoragePath();
+            if (hasValidInput && storagePathValid) {
                 super.doOKAction();
             }
         } else {

@@ -115,7 +115,7 @@ public final class ImageUploadAction extends ImageActionBase {
 
         // 过滤掉大于 20MB 的文件
         if (fileSize > MAX_FILE_SIZE) {
-            log.debug("图片上传跳过大文件 ({}字节 > 20MB): {}", fileSize, virtualFile.getName());
+            log.trace("图片上传跳过大文件 ({}字节 > 20MB): {}", fileSize, virtualFile.getName());
             return false;
         }
 

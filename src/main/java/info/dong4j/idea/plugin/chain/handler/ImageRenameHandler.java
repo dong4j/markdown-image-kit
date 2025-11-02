@@ -79,11 +79,11 @@ public class ImageRenameHandler extends ActionHandlerAdapter {
                 log.trace("使用模板 [{}] 重命名图片: {}", template, imageName);
             } else {
                 // 如果模板为空或无效，保持原文件名不变
-                log.warn("重命名模板无效或为空，保持原文件名: {}", imageName);
+                log.trace("重命名模板无效或为空，保持原文件名: {}", imageName);
             }
         } catch (Exception e) {
             // 如果解析失败，保持原文件名
-            log.error("解析重命名模板失败，保持原文件名: {}", e.getMessage(), e);
+            log.trace("解析重命名模板失败，保持原文件名: {}", e.getMessage(), e);
         }
 
         markdownImage.setImageName(imageName);

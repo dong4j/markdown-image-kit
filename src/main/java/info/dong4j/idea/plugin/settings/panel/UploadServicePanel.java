@@ -1635,7 +1635,7 @@ public class UploadServicePanel {
                 this.applyOssState(state, index);
                 try {
                     url = client.upload(inputStream, TEST_FILE_NAME, state);
-                    log.info("测试按钮上传的图片返回结果: {}", url);
+                    log.trace("测试按钮上传的图片返回结果: {}", url);
 
                     if (StringUtils.isNotBlank(url)) {
                         if (log.isTraceEnabled()) {

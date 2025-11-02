@@ -85,7 +85,7 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
             .sum();
 
         if (totalCount == 0) {
-            log.info("没有待处理的数据");
+            log.trace("没有待处理的数据");
             return false;
         }
 
@@ -97,13 +97,13 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
 
                 // 已上传过的不处理
                 if (ImageLocationEnum.NETWORK.equals(markdownImage.getLocation())) {
-                    log.debug("图片 {} 已经上传过，跳过", imageName);
+                    log.trace("图片 {} 已经上传过，跳过", imageName);
                     continue;
                 }
 
                 // 验证图片数据
                 if (StringUtils.isBlank(imageName) || markdownImage.getInputStream() == null) {
-                    log.warn("图片名称或输入流为空，移除该图片: {}", markdownImage);
+                    log.trace("图片名称或输入流为空，移除该图片: {}", markdownImage);
                     continue;
                 }
                 uploadTasks.add(new ImageUploadTask(markdownImage));
@@ -112,7 +112,7 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
 
         // 如果没有需要处理的图片，直接返回
         if (uploadTasks.isEmpty()) {
-            log.info("数据被清洗后没有添加任何可处理任务");
+            log.trace("数据被清洗后没有添加任何可处理任务");
             MikConsoleView.printMessage(data.getProject(), "  没有需要上传的图片");
             return false;
         }
@@ -125,7 +125,7 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
         // 动态计算线程池大小，最多使用15个线程，但要考虑图片数量
         int threadPoolSize = Math.min(finalTotalCount, 15);
         ExecutorService executorService = Executors.newFixedThreadPool(threadPoolSize);
-        log.info("开始上传 {} 张图片，使用 {} 个线程", finalTotalCount, threadPoolSize);
+        log.trace("开始上传 {} 张图片，使用 {} 个线程", finalTotalCount, threadPoolSize);
 
         // 输出到控制台
         MikConsoleView.printMessage(data.getProject(), String.format("  开始上传 %d 张图片，使用 %d 个线程", finalTotalCount, threadPoolSize));
@@ -146,7 +146,7 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
                     // 执行上传逻辑
                     uploadImage(data, markdownImage);
                 } catch (Exception e) {
-                    log.error("上传图片时发生异常: {}", task.markdownImage.getImageName(), e);
+                    log.trace("上传图片时发生异常: {}", task.markdownImage.getImageName(), e);
                 }
             }, executorService);
 
@@ -156,7 +156,7 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
         // 等待所有任务完成
         try {
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[] {})).join();
-            log.info("图片上传完成，共处理 {} 张图片", finalTotalCount);
+            log.trace("图片上传完成，共处理 {} 张图片", finalTotalCount);
             MikConsoleView.printSmart(data.getProject(), String.format("  上传完成，共处理 %d 张图片", finalTotalCount));
         } finally {
             executorService.shutdown();
@@ -182,7 +182,7 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
 
         // 检查输入流是否为空
         if (markdownImage.getInputStream() == null) {
-            log.warn("图片 {} 的输入流为空，跳过上传", imageName);
+            log.trace("图片 {} 的输入流为空，跳过上传", imageName);
             buildMarkdownImage("![upload error: empty stream](", markdownImage);
             return;
         }
@@ -198,9 +198,9 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
                 fileSize = markdownImage.getInputStream().available();
             }
 
-            log.debug("图片 {} 文件大小: {} 字节", imageName, fileSize);
+            log.trace("图片 {} 文件大小: {} 字节", imageName, fileSize);
         } catch (Exception e) {
-            log.warn("无法获取图片 {} 的文件大小，继续上传: {}", imageName, e.getMessage());
+            log.trace("无法获取图片 {} 的文件大小，继续上传: {}", imageName, e.getMessage());
         }
 
         String imageUrl = null;
@@ -214,7 +214,7 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
         }
 
         try {
-            log.debug("开始上传图片: {} 到 {}", imageName, clientName);
+            log.trace("开始上传图片: {} 到 {}", imageName, clientName);
             // 输出详细日志到控制台
             MikConsoleView.printMessage(data.getProject(), String.format("  [上传] 图床: %s | 图片: %s", clientName, imageName));
             if (originalPath != null && !originalPath.isEmpty()) {
@@ -222,13 +222,13 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
             }
             
             imageUrl = client.upload(markdownImage.getInputStream(), markdownImage.getImageName());
-            log.info("图片上传成功: {} {} -> {}", clientName, imageName, imageUrl);
+            log.trace("图片上传成功: {} {} -> {}", clientName, imageName, imageUrl);
 
             // 输出成功日志到控制台
             MikConsoleView.printSuccessMessage(data.getProject(), String.format("  [✓] 上传成功: %s", imageName));
             MikConsoleView.printMessage(data.getProject(), String.format("         上传后URL: %s", imageUrl));
         } catch (Exception e) {
-            log.error("上传图片失败: {}, 错误信息: {}", imageName, e.getMessage(), e);
+            log.trace("上传图片失败: {}, 错误信息: {}", imageName, e.getMessage(), e);
             MikConsoleView.printSmart(data.getProject(), String.format("  [✗] 上传失败: %s - %s", imageName, e.getMessage()));
         }
 
@@ -237,7 +237,7 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
         if (StringUtils.isBlank(imageUrl)) {
             mark = "![upload error](" + markdownImage.getPath() + ")";
             markdownImage.setLocation(ImageLocationEnum.LOCAL);
-            log.warn("图片 {} 上传失败，保留为本地路径", imageName);
+            log.trace("图片 {} 上传失败，保留为本地路径", imageName);
         } else {
             mark = "![](" + imageUrl + ")";
             markdownImage.setPath(imageUrl);

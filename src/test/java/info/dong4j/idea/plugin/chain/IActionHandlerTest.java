@@ -32,6 +32,6 @@ public class IActionHandlerTest {
         // manager.addHandler(new UploadAndInsertHandler());
         // manager.addHandler(new FinalActionHandler());
         // manager.invoke();
-        log.info("xxxxxxxxxx");
+        log.trace("xxxxxxxxxx");
     }
 }

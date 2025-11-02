@@ -157,7 +157,7 @@ public class ProgressTracker {
      */
     public void startStep(int stepIndex) {
         if (stepIndex < 0 || stepIndex >= steps.size()) {
-            log.warn("无效的步骤索引: {}", stepIndex);
+            log.trace("无效的步骤索引: {}", stepIndex);
             return;
         }
 
@@ -212,7 +212,7 @@ public class ProgressTracker {
      */
     public void updateItemProgress(int stepIndex, String itemName, int current, int total) {
         if (stepIndex < 0 || stepIndex >= steps.size()) {
-            log.warn("无效的步骤索引: {}", stepIndex);
+            log.trace("无效的步骤索引: {}", stepIndex);
             return;
         }
 

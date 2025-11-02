@@ -117,9 +117,9 @@ public class TencentOssClientTest {
      */
     private void upload() throws Exception {
         OssClient uploader = OssClient.INSTANCES.get(CloudEnum.TENCENT_CLOUD);
-        log.info("{}", uploader.getName());
+        log.trace("{}", uploader.getName());
         String url = uploader.upload(new FileInputStream("/Users/dong4j/Downloads/mik.webp"), "x2.png");
-        log.info("url = {}", url);
+        log.trace("url = {}", url);
     }
 
     /**

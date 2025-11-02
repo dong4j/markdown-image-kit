@@ -150,7 +150,7 @@ public class QiniuOssUtils {
         while ((line = br.readLine()) != null) {
             buffer.append(line);
         }
-        log.info("{}", buffer);
+        log.trace("{}", buffer);
     }
 
     /**

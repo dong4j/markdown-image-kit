@@ -114,7 +114,7 @@ public class ImageUtilsTest {
         try {//把粘贴过来的图片转为为二进制(字节数组)
             ImageIO.write(Objects.requireNonNull(bufferedimage), "png", baos);
             byte[] a = baos.toByteArray();
-            log.info("粘贴的二维码大小:\t{}", a.length);
+            log.trace("粘贴的二维码大小:\t{}", a.length);
         } catch (IOException ignored) {
         }
     }
@@ -211,7 +211,7 @@ public class ImageUtilsTest {
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(imgSel, null);
 
         Image aaa = getImageClipboard();
-        log.info("{}", aaa);
+        log.trace("{}", aaa);
     }
 
     /**
@@ -379,7 +379,7 @@ public class ImageUtilsTest {
      */
     @Test
     public void test11() {
-        log.info("{}", ImageUtils.getFileExtension("aaa.png"));
+        log.trace("{}", ImageUtils.getFileExtension("aaa.png"));
     }
 
     /**

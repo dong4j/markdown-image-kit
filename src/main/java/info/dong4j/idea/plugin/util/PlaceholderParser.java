@@ -60,7 +60,7 @@ public class PlaceholderParser {
      */
     public static String parse(@NotNull String template, @NotNull String originalName) {
         if (template.trim().isEmpty()) {
-            log.warn("重命名模板为空，使用原文件名");
+            log.trace("重命名模板为空，使用原文件名");
             return originalName;
         }
 
@@ -93,7 +93,7 @@ public class PlaceholderParser {
             result = result.replaceAll("\\s+", "");
 
         } catch (Exception e) {
-            log.error("解析重命名模板时发生错误: {}", e.getMessage(), e);
+            log.trace("解析重命名模板时发生错误: {}", e.getMessage(), e);
             return originalName;
         }
 
@@ -119,7 +119,7 @@ public class PlaceholderParser {
             try {
                 dateTime = DateFormatUtils.format(new Date(), format);
             } catch (Exception e) {
-                log.warn("日期格式 [{}] 不正确，使用默认格式", format);
+                log.trace("日期格式 [{}] 不正确，使用默认格式", format);
                 dateTime = DateFormatUtils.format(new Date(), "yyyyMMdd");
             }
             matcher.appendReplacement(sb, Matcher.quoteReplacement(dateTime));
@@ -213,7 +213,7 @@ public class PlaceholderParser {
 
             return openBraces == 0;
         } catch (Exception e) {
-            log.error("验证模板时发生错误: {}", e.getMessage());
+            log.trace("验证模板时发生错误: {}", e.getMessage());
             return false;
         }
     }

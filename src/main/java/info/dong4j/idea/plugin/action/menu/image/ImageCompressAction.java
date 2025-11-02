@@ -127,7 +127,7 @@ public final class ImageCompressAction extends ImageActionBase {
         String fileName = virtualFile.getName().toLowerCase();
         // 过滤掉 svg 和 gif 格式
         if (fileName.endsWith(".svg") || fileName.endsWith(".gif")) {
-            log.debug("图片压缩跳过 SVG/GIF 格式: {}", virtualFile.getName());
+            log.trace("图片压缩跳过 SVG/GIF 格式: {}", virtualFile.getName());
             return false;
         }
         return true;
@@ -223,9 +223,9 @@ public final class ImageCompressAction extends ImageActionBase {
                     if (originalFile.exists() && originalFile.isFile()) {
                         boolean deleted = originalFile.delete();
                         if (deleted) {
-                            log.debug("已删除原始文件: {}", originalPath);
+                            log.trace("已删除原始文件: {}", originalPath);
                         } else {
-                            log.warn("删除原始文件失败: {}", originalPath);
+                            log.trace("删除原始文件失败: {}", originalPath);
                         }
                     }
                 }

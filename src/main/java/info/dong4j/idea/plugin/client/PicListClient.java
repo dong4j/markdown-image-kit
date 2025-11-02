@@ -206,7 +206,7 @@ public class PicListClient implements OssClient {
         // 构建包含查询参数的 URL
         String uploadUrl = buildUrl(api, picbed, configName, key);
 
-        log.debug("开始上传文件到 PicList API: {}", uploadUrl);
+        log.trace("开始上传文件到 PicList API: {}", uploadUrl);
 
         // 使用 CustomOssUtils 发送 multipart/form-data 请求
         // PicList 接受任意字段名的文件，这里使用 "image" 作为字段名
@@ -219,7 +219,7 @@ public class PicListClient implements OssClient {
                                                               null);
 
         String jsonResponse = result.get("json");
-        log.debug("PicList 响应: {}", jsonResponse);
+        log.trace("PicList 响应: {}", jsonResponse);
 
         // 解析 JSON 响应
         JsonElement jsonElement = JsonParser.parseString(jsonResponse);
@@ -239,7 +239,7 @@ public class PicListClient implements OssClient {
         }
 
         String url = resultArray.get(0).getAsString();
-        log.info("上传成功: {} -> {}", filename, url);
+        log.trace("上传成功: {} -> {}", filename, url);
         return url;
     }
 
@@ -254,7 +254,7 @@ public class PicListClient implements OssClient {
      * @throws Exception 上传失败时抛出
      */
     private String uploadViaCommandLine(InputStream inputStream, String filename) throws Exception {
-        log.debug("使用命令行上传文件: {}", filename);
+        log.trace("使用命令行上传文件: {}", filename);
 
         // 保存输入流到临时文件
         File tempFile = File.createTempFile("piclist-upload-", filename);
@@ -268,13 +268,13 @@ public class PicListClient implements OssClient {
                 }
             }
 
-            log.debug("临时文件创建成功: {}", tempFile.getAbsolutePath());
+            log.trace("临时文件创建成功: {}", tempFile.getAbsolutePath());
 
             // 构建命令，处理 macOS 的 .app 目录结构
             String actualExePath = resolveExecutablePath(exePath);
             String[] command = {actualExePath, "upload", tempFile.getAbsolutePath()};
 
-            log.debug("执行命令: {}", String.join(" ", command));
+            log.trace("执行命令: {}", String.join(" ", command));
 
             // 执行命令
             ProcessBuilder processBuilder = new ProcessBuilder(command);
@@ -293,7 +293,7 @@ public class PicListClient implements OssClient {
                 throw new RuntimeException("命令行执行失败，退出码: " + exitCode);
             }
 
-            log.debug("命令执行成功");
+            log.trace("命令执行成功");
 
             // 从剪贴板获取 URL（带重试机制）
             String url = getUrlFromClipboardWithRetry();
@@ -302,7 +302,7 @@ public class PicListClient implements OssClient {
                                            "\n提示：请确保 PicList 已正确上传图片并将 URL 复制到剪贴板。");
             }
 
-            log.info("上传成功: {} -> {}", filename, url);
+            log.trace("上传成功: {} -> {}", filename, url);
             return url;
 
         } finally {
@@ -310,7 +310,7 @@ public class PicListClient implements OssClient {
             if (tempFile.exists()) {
                 boolean deleted = tempFile.delete();
                 if (!deleted) {
-                    log.warn("临时文件删除失败: {}", tempFile.getAbsolutePath());
+                    log.trace("临时文件删除失败: {}", tempFile.getAbsolutePath());
                 }
             }
         }
@@ -332,24 +332,24 @@ public class PicListClient implements OssClient {
         for (int i = 0; i < maxRetries; i++) {
             String url = getUrlFromClipboard();
             if (StringUtils.isNotBlank(url)) {
-                log.debug("第 {} 次尝试，成功获取 URL: {}", i + 1, url);
+                log.trace("第 {} 次尝试，成功获取 URL: {}", i + 1, url);
                 return url;
             }
 
             // 如果不是最后一次尝试，等待后重试
             if (i < maxRetries - 1) {
                 try {
-                    log.debug("第 {} 次尝试，剪贴板中尚未有 URL，等待 {}ms 后重试...", i + 1, delayMs);
+                    log.trace("第 {} 次尝试，剪贴板中尚未有 URL，等待 {}ms 后重试...", i + 1, delayMs);
                     Thread.sleep(delayMs);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    log.error("等待被中断", e);
+                    log.trace("等待被中断", e);
                     return "";
                 }
             }
         }
 
-        log.warn("尝试 {} 次后仍未从剪贴板获取到 URL", maxRetries);
+        log.trace("尝试 {} 次后仍未从剪贴板获取到 URL", maxRetries);
         return "";
     }
 
@@ -371,9 +371,9 @@ public class PicListClient implements OssClient {
                 }
             }
         } catch (UnsupportedFlavorException e) {
-            log.error("不支持的剪贴板数据格式", e);
+            log.trace("不支持的剪贴板数据格式", e);
         } catch (Exception e) {
-            log.error("获取剪贴板内容失败", e);
+            log.trace("获取剪贴板内容失败", e);
         }
         return "";
     }
@@ -398,7 +398,7 @@ public class PicListClient implements OssClient {
                 // 首先尝试查找 PicList 可执行文件
                 File executableFile = new File(file, "Contents/MacOS/PicList");
                 if (executableFile.exists() && executableFile.canExecute()) {
-                    log.debug("macOS 检测到 .app 目录，使用可执行文件: {}", executableFile.getAbsolutePath());
+                    log.trace("macOS 检测到 .app 目录，使用可执行文件: {}", executableFile.getAbsolutePath());
                     return executableFile.getAbsolutePath();
                 }
 
@@ -409,7 +409,7 @@ public class PicListClient implements OssClient {
                     if (files != null) {
                         for (File f : files) {
                             if (f.isFile() && f.canExecute()) {
-                                log.debug("macOS 在 MacOS 目录中找到可执行文件: {}", f.getAbsolutePath());
+                                log.trace("macOS 在 MacOS 目录中找到可执行文件: {}", f.getAbsolutePath());
                                 return f.getAbsolutePath();
                             }
                         }

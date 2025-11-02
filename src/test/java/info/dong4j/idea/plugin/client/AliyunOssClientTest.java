@@ -30,6 +30,6 @@ public class AliyunOssClientTest extends LightPlatformTestCase {
     public void test() throws Exception {
         AliyunOssClient aliyunOssClient = AliyunOssClient.getInstance();
         String url = aliyunOssClient.upload(Objects.requireNonNull(this.getClass().getResourceAsStream("/mik.webp")), "mik.webp");
-        log.info(url);
+        log.trace(url);
     }
 }

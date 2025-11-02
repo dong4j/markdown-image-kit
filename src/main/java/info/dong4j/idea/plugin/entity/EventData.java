@@ -52,4 +52,27 @@ public class EventData {
     private int index;
     /** 进度跟踪器，用于统一管理进度展示 */
     private ProgressTracker progressTracker;
+
+    /**
+     * 临时存储路径
+     * <p>
+     * 用于图床迁移场景下的临时路径配置。当用户选择"本地存储"进行图床迁移，
+     * 但全局设置中未配置有效的图片存储路径时，通过此字段传递用户在迁移对话框中
+     * 输入的临时路径，供 {@link info.dong4j.idea.plugin.chain.handler.ImageStorageHandler} 使用。
+     * <p>
+     * 该字段优先级高于全局配置，仅在当前任务执行期间有效，不会影响用户的持久化配置。
+     * 任务结束后应在 {@link info.dong4j.idea.plugin.chain.handler.FinalChainHandler} 中清理。
+     * <p>
+     * 使用场景：
+     * <ul>
+     *   <li>图床迁移到本地存储 ({@link info.dong4j.idea.plugin.action.menu.ImageMigrationAction})</li>
+     *   <li>图床迁移意图操作 ({@link info.dong4j.idea.plugin.action.intention.ImageMigrationIntentionAction})</li>
+     * </ul>
+     *
+     * @see info.dong4j.idea.plugin.settings.MoveToOtherOssSettingsDialog#getStoragePath()
+     * @see info.dong4j.idea.plugin.chain.handler.ImageStorageHandler#execute(EventData)
+     * @see info.dong4j.idea.plugin.chain.handler.FinalChainHandler#execute(EventData)
+     * @since 2.0.0
+     */
+    private String temporaryStoragePath;
 }

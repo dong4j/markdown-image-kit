@@ -3,6 +3,7 @@ package info.dong4j.idea.plugin.chain.handler;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 
@@ -17,6 +18,9 @@ import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.util.PathUtils;
 import info.dong4j.idea.plugin.util.StringUtils;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -62,15 +66,22 @@ public class ImageStorageHandler extends ActionHandlerAdapter {
     /**
      * 判断是否启用功能
      * <p>
-     * 根据传入的事件数据判断当前功能是否启用，实际通过检查STATE对象的copyToDir属性值来确定。
+     * 根据传入的事件数据判断当前功能是否启用。
+     * 当以下任一条件满足时启用：
+     * 1. 全局配置了图片保存路径（getCurrentInsertPath 不为空）
+     * 2. 存在临时存储路径（temporaryStoragePath 不为空）
      *
      * @param data 事件数据
      * @return 是否启用功能
      * @since 0.0.1
+     * @see EventData#temporaryStoragePath
      */
     @Override
     public boolean isEnabled(EventData data) {
-        return !IntentionActionBase.getState().getCurrentInsertPath().isBlank();
+        // 检查全局配置路径或临时存储路径
+        boolean hasGlobalPath = !IntentionActionBase.getState().getCurrentInsertPath().isBlank();
+        boolean hasTemporaryPath = StringUtils.isNotBlank(data.getTemporaryStoragePath());
+        return hasGlobalPath || hasTemporaryPath;
     }
 
     /**
@@ -106,7 +117,15 @@ public class ImageStorageHandler extends ActionHandlerAdapter {
                 continue;
             }
 
-            String savepath = IntentionActionBase.getState().getImageSavePath();
+            // 优先使用临时存储路径，如果没有则使用全局配置
+            String savepath = StringUtils.isNotBlank(data.getTemporaryStoragePath())
+                              ? data.getTemporaryStoragePath()
+                              : IntentionActionBase.getState().getImageSavePath();
+
+            // 处理临时存储路径中的占位符
+            if (StringUtils.isNotBlank(data.getTemporaryStoragePath())) {
+                savepath = processPathPlaceholders(savepath, currentFile, data.getProject());
+            }
 
             for (MarkdownImage markdownImage : imageEntry.getValue()) {
                 String imageName = markdownImage.getImageName();
@@ -320,14 +339,14 @@ public class ImageStorageHandler extends ActionHandlerAdapter {
 
         boolean checkDir = imageDir.exists() && imageDir.isDirectory();
         if (!checkDir && !imageDir.mkdirs()) {
-            log.warn("无法创建目录: {}", imageDir.getAbsolutePath());
+            log.trace("无法创建目录: {}", imageDir.getAbsolutePath());
             return null;
         }
 
         File saveFile = new File(imageDir, markdownImage.getImageName());
         try {
             FileUtil.copy(markdownImage.getInputStream(), new FileOutputStream(saveFile));
-            log.debug("图片已保存到: {}", saveFile.getAbsolutePath());
+            log.trace("图片已保存到: {}", saveFile.getAbsolutePath());
             return saveFile;
         } catch (IOException e) {
             log.trace("Failed to save image file", e);
@@ -394,6 +413,65 @@ public class ImageStorageHandler extends ActionHandlerAdapter {
         markdownImage.setLocation(ImageLocationEnum.LOCAL);
         markdownImage.setFinalMark(mark);
 
-        log.debug("图片路径已更新: {}", finalPath);
+        log.trace("图片路径已更新: {}", finalPath);
+    }
+
+    /**
+     * 处理路径中的占位符
+     * <p>
+     * 替换路径中的占位符：
+     * - ${filename}: 当前文件名（不含扩展名）
+     * - ${project}: 当前项目路径
+     * <p>
+     * 处理跨平台路径差异：
+     * - 统一规范化为正斜杠，确保跨平台兼容性
+     *
+     * @param path        原始路径
+     * @param virtualFile 当前文件
+     * @param project     项目对象
+     * @return 处理后的路径
+     * @see info.dong4j.idea.plugin.action.paste.PasteImageAction#processPathPlaceholders(String, VirtualFile, Project)
+     * @see info.dong4j.idea.plugin.entity.EventData#temporaryStoragePath
+     */
+    @NotNull
+    private String processPathPlaceholders(@NotNull String path, @NotNull VirtualFile virtualFile, @Nullable Project project) {
+        if (path.isEmpty()) {
+            return path;
+        }
+
+        String result = path;
+
+        // 替换 ${filename} 为当前文件名（不含扩展名）
+        String filename = virtualFile.getNameWithoutExtension();
+        result = result.replace("${filename}", filename);
+
+        // 替换 ${project} 为项目根路径
+        if (project != null && project.getBasePath() != null) {
+            String projectPath = project.getBasePath();
+            result = result.replace("${project}", projectPath);
+        } else {
+            // 如果项目路径不可用，移除 ${project} 占位符
+            result = result.replace("${project}", "");
+        }
+
+        // 规范化路径分隔符，统一使用正斜杠（跨平台兼容）
+        result = normalizePathSeparator(result);
+
+        return result;
+    }
+
+    /**
+     * 规范化路径分隔符
+     * <p>
+     * 将路径中的反斜杠统一转换为正斜杠，确保跨平台兼容性。
+     * Java 的 File 类可以接受正斜杠，即使在 Windows 上也能正确处理。
+     *
+     * @param path 原始路径
+     * @return 规范化后的路径（统一使用正斜杠）
+     * @see info.dong4j.idea.plugin.action.paste.PasteImageAction#normalizePathSeparator(String)
+     */
+    @NotNull
+    private static String normalizePathSeparator(@NotNull String path) {
+        return path.replace('\\', '/');
     }
 }

@@ -34,11 +34,11 @@ public class EnumsUtilsTest {
 
         Optional<SuffixSelectType> m = EnumsUtils.getEnumObject(SuffixSelectType.class, e -> e.getName().equals("文件名"));
 
-        log.info(Objects.requireNonNull(m).isPresent() ? m.get().getName() : null);
+        log.trace(Objects.requireNonNull(m).isPresent() ? m.get().getName() : null);
 
         Optional<SuffixSelectType> m1 = EnumsUtils.getEnumObject(SuffixSelectType.class, e -> e.getIndex() == 1);
 
-        log.info(Objects.requireNonNull(m1).isPresent() ? m1.get().getIndex() + "" : null);
+        log.trace(Objects.requireNonNull(m1).isPresent() ? m1.get().getIndex() + "" : null);
 
     }
 

@@ -151,7 +151,7 @@ public class ActionManager {
 
         // 如果没有启用的 handler，直接返回
         if (enabledHandlers.isEmpty()) {
-            log.warn("没有启用的处理器");
+            log.trace("没有启用的处理器");
             return;
         }
 
@@ -188,7 +188,7 @@ public class ActionManager {
                 long handlerDuration = System.currentTimeMillis() - handlerStartTime;
 
                 if (!success) {
-                    log.warn("处理器 {} 执行失败，中断处理链", handler.getName());
+                    log.trace("处理器 {} 执行失败，中断处理链", handler.getName());
                     MikConsoleView.printErrorMessage(this.data.getProject(),
                                                      "[✗] 处理器执行失败: " + handler.getName() + " (耗时: " + formatDuration(handlerDuration) +
                                                      ")");

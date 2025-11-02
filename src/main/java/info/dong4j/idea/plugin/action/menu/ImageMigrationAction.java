@@ -38,12 +38,6 @@ import lombok.extern.slf4j.Slf4j;
 @SuppressWarnings("D")
 @Slf4j
 public final class ImageMigrationAction extends AnAction {
-    /** 默认域名提示信息，用于当域名字段未填写时显示的提示内容 */
-    private static final String DOMAIN_DEFAULT_MESSAGE = MikBundle.message("mik.panel.message.domain-field");
-    /** 连接超时时间，单位为毫秒，默认设置为 5 秒 */
-    private static final int CONNECTION_TIMEOUT = 5 * 1000;
-    /** 读取超时时间，单位为毫秒，默认设置为 10 秒 */
-    private static final int READ_TIMEOUT = 10 * 1000;
     /** 移动所有 */
     private static final String MOVE_ALL = "ALL";
 
@@ -99,12 +93,16 @@ public final class ImageMigrationAction extends AnAction {
                                 ? MikBundle.message("oss.title.local")
                                 : (cloudEnum != null ? cloudEnum.title : "");
 
+            // 获取临时存储路径（仅本地存储且无全局配置时）
+            String temporaryStoragePath = dialog.getStoragePath();
+
             EventData data = new EventData()
                 .setAction("ImageMigrationAction")
                 .setActionEvent(event)
                 .setProject(project)
                 .setClient(isLocalStorage || cloudEnum == null ? null : ClientUtils.getClient(cloudEnum))
-                .setClientName(clientName);
+                .setClientName(clientName)
+                .setTemporaryStoragePath(temporaryStoragePath);
 
             // http://www.jetbrains.org/intellij/sdk/docs/basics/persisting_state_of_components.html
             PropertiesComponent propComp = PropertiesComponent.getInstance();

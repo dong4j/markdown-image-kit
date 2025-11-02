@@ -57,6 +57,7 @@ public class FinalChainHandler extends ActionHandlerAdapter {
      * 根据配置重新设置 imageName
      * <p>
      * 清理事件数据中的 Markdown 图片资源，关闭输入流并清空相关数据结构。
+     * 同时清理临时存储路径等临时资源。
      *
      * @param data 事件数据，包含待处理的图片信息
      * @return 始终返回 true，表示操作成功
@@ -64,6 +65,7 @@ public class FinalChainHandler extends ActionHandlerAdapter {
      */
     @Override
     public boolean execute(EventData data) {
+        // 清理图片资源
         Map<Document, List<MarkdownImage>> processededData = data.getWaitingProcessMap();
         for (Map.Entry<Document, List<MarkdownImage>> imageEntry : processededData.entrySet()) {
             List<MarkdownImage> markdownImages = imageEntry.getValue();
@@ -81,6 +83,12 @@ public class FinalChainHandler extends ActionHandlerAdapter {
             }
         }
         processededData.clear();
+
+        // 清理临时存储路径
+        if (data.getTemporaryStoragePath() != null) {
+            data.setTemporaryStoragePath(null);
+        }
+        
         return true;
     }
 }
