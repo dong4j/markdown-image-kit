@@ -132,12 +132,12 @@ public class DownloadImageHandler extends ActionHandlerAdapter {
 
                     // 更新进度
                     if (indicator != null) {
-                        String fileName = markdownImage.getImageName();
-                        if (fileName == null || fileName.isEmpty()) {
-                            fileName = markdownImage.getPath();
+                        String filename = markdownImage.getImageName();
+                        if (filename == null || filename.isEmpty()) {
+                            filename = markdownImage.getPath();
                         }
                         indicator.setText2(String.format("%s: %s (%d/%d)",
-                                                         getName(), fileName, currentProcessed, totalCount));
+                                                         getName(), filename, currentProcessed, totalCount));
                         indicator.setFraction(currentProcessed * 1.0 / totalCount);
                     }
 

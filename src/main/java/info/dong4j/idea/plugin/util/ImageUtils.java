@@ -526,11 +526,11 @@ public final class ImageUtils {
      * <p>
      * 根据文件名后缀判断对应的图片类型，并返回对应的MIME类型字符串
      *
-     * @param fileName 文件名
+     * @param filename 文件名
      * @return 返回对应的图片MIME类型字符串，若无法识别则返回空字符串
      */
-    public static String getImageType(String fileName) {
-        return ImageMediaType.fromFileName(fileName);
+    public static String getImageType(String filename) {
+        return ImageMediaType.fromFileName(filename);
     }
 
     /**
@@ -538,13 +538,13 @@ public final class ImageUtils {
      * <p>
      * 通过文件名获取文件的后缀部分，例如对于文件名"example.txt"，返回"txt"
      *
-     * @param fileName 文件名
+     * @param filename 文件名
      * @return 文件后缀字符串
      * @since 0.0.1
      */
     @NotNull
-    public static String getFileExtension(@NotNull String fileName) {
-        return fileName.substring(fileName.lastIndexOf("."));
+    public static String getFileExtension(@NotNull String filename) {
+        return filename.substring(filename.lastIndexOf("."));
     }
 
     /**
@@ -552,17 +552,17 @@ public final class ImageUtils {
      * <p>
      * 从完整的文件名中提取不含扩展名的部分
      *
-     * @param fileName 完整的文件名（包含扩展名）
+     * @param filename 完整的文件名（包含扩展名）
      * @return 不含扩展名的文件名
      * @since 2.2.0
      */
     @NotNull
-    public static String getFileNameWithoutExtension(@NotNull String fileName) {
-        int lastDotIndex = fileName.lastIndexOf(".");
+    public static String getFileNameWithoutExtension(@NotNull String filename) {
+        int lastDotIndex = filename.lastIndexOf(".");
         if (lastDotIndex > 0) {
-            return fileName.substring(0, lastDotIndex);
+            return filename.substring(0, lastDotIndex);
         }
-        return fileName;
+        return filename;
     }
 
     /**
@@ -601,14 +601,14 @@ public final class ImageUtils {
      * <p>
      * 根据给定的文件名在系统默认的临时目录下创建一个新的临时文件。
      *
-     * @param fileName 文件名
+     * @param filename 文件名
      * @return 新创建的临时文件对象
      * @since 0.0.1
      */
     @NotNull
     @Contract("_ -> new")
-    public static File buildTempFile(String fileName) {
-        return new File(System.getProperty("java.io.tmpdir") + fileName);
+    public static File buildTempFile(String filename) {
+        return new File(System.getProperty("java.io.tmpdir") + filename);
     }
 
     /**
@@ -704,12 +704,12 @@ public final class ImageUtils {
      * 该方法接收一张图片、文件名和水印文本，为图片添加水印后，生成临时文件并返回。
      *
      * @param srcImg   原始图片对象
-     * @param fileName 生成的文件名
+     * @param filename 生成的文件名
      * @param text     水印文本内容
      * @return 生成的临时文件对象
      * @since y.y.y
      */
-    public static File watermarkFromText(Image srcImg, String fileName, String text) {
+    public static File watermarkFromText(Image srcImg, String filename, String text) {
         BufferedImage bufImg = null;
         if (srcImg != null) {
             int srcImgWidth = srcImg.getWidth(null);
@@ -738,7 +738,7 @@ public final class ImageUtils {
             g.dispose();
         }
 
-        File tempFile = buildTempFile(fileName);
+        File tempFile = buildTempFile(filename);
         try (FileOutputStream outImgStream = new FileOutputStream(tempFile)) {
             if (bufImg != null) {
                 // 输出图片

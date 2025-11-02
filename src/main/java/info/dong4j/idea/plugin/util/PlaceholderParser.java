@@ -59,7 +59,7 @@ public class PlaceholderParser {
      * @since 2.2.0
      */
     public static String parse(@NotNull String template, @NotNull String originalName) {
-        if (template == null || template.trim().isEmpty()) {
+        if (template.trim().isEmpty()) {
             log.warn("重命名模板为空，使用原文件名");
             return originalName;
         }
@@ -111,7 +111,7 @@ public class PlaceholderParser {
      */
     private static String parseDatetime(@NotNull String text) {
         Matcher matcher = DATETIME_PATTERN.matcher(text);
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         while (matcher.find()) {
             String format = matcher.group(1);
@@ -139,19 +139,7 @@ public class PlaceholderParser {
      * @since 2.2.0
      */
     private static String parseRandomString(@NotNull String text) {
-        Matcher matcher = STRING_PATTERN.matcher(text);
-        StringBuffer sb = new StringBuffer();
-
-        while (matcher.find()) {
-            int length = Integer.parseInt(matcher.group(1));
-            // 限制长度范围
-            length = Math.max(1, Math.min(length, 32));
-            String randomStr = CharacterUtils.getRandomString(length);
-            matcher.appendReplacement(sb, Matcher.quoteReplacement(randomStr));
-        }
-        matcher.appendTail(sb);
-
-        return sb.toString();
+        return parseRandomPattern(text, STRING_PATTERN, 32, CharacterUtils::getRandomString);
     }
 
     /**
@@ -164,15 +152,31 @@ public class PlaceholderParser {
      * @since 2.2.0
      */
     private static String parseRandomNumber(@NotNull String text) {
-        Matcher matcher = NUMBER_PATTERN.matcher(text);
-        StringBuffer sb = new StringBuffer();
+        return parseRandomPattern(text, NUMBER_PATTERN, 16, CharacterUtils::getRandomNumber);
+    }
+
+    /**
+     * 通用随机模式解析方法
+     *
+     * @param text          待处理的文本
+     * @param pattern       正则表达式模式
+     * @param maxLength     最大长度限制
+     * @param generatorFunc 随机字符生成函数
+     * @return 替换后的文本
+     */
+    private static String parseRandomPattern(@NotNull String text,
+                                             @NotNull Pattern pattern,
+                                             int maxLength,
+                                             @NotNull java.util.function.Function<Integer, String> generatorFunc) {
+        Matcher matcher = pattern.matcher(text);
+        StringBuilder sb = new StringBuilder();
 
         while (matcher.find()) {
             int length = Integer.parseInt(matcher.group(1));
             // 限制长度范围
-            length = Math.max(1, Math.min(length, 16));
-            String randomNum = CharacterUtils.getRandomNumber(length);
-            matcher.appendReplacement(sb, Matcher.quoteReplacement(randomNum));
+            length = Math.max(1, Math.min(length, maxLength));
+            String randomStr = generatorFunc.apply(length);
+            matcher.appendReplacement(sb, Matcher.quoteReplacement(randomStr));
         }
         matcher.appendTail(sb);
 
@@ -189,7 +193,7 @@ public class PlaceholderParser {
      * @since 2.2.0
      */
     public static boolean validateTemplate(@NotNull String template) {
-        if (template == null || template.trim().isEmpty()) {
+        if (template.trim().isEmpty()) {
             return false;
         }
 

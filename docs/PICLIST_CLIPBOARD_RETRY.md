@@ -120,7 +120,7 @@ long delayMs = 1000;     // 增加等待间隔到 1 秒
 
 ```java
 // 根据文件大小动态调整等待时间
-long estimatedWaitMs = calculateUploadTime(fileName);
+long estimatedWaitMs = calculateUploadTime(filename);
 long delayMs = Math.max(500, estimatedWaitMs / maxRetries);
 ```
 

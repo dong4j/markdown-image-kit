@@ -60,7 +60,6 @@ public class MikState {
      *   <li>${string:length} - 随机字符串，如 ${string:6}</li>
      *   <li>${number:length} - 随机数字，如 ${number:6}</li>
      *   <li>${filename} - 原文件名（不含扩展名）</li>
-     *   <li>${ext} - 文件扩展名</li>
      * </ul>
      * 默认值：${filename}（保持原文件名）
      *

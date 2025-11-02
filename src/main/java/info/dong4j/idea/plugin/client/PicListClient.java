@@ -178,31 +178,31 @@ public class PicListClient implements OssClient {
      * 如果配置了可执行文件路径，则使用命令行方式上传；否则使用 API 方式上传。
      *
      * @param inputStream 文件输入流，用于读取上传文件的内容
-     * @param fileName    文件名，用于标识上传的文件
+     * @param filename    文件名，用于标识上传的文件
      * @return 上传成功后返回的文件访问 URL
      * @throws Exception 上传过程中发生异常时抛出
      * @since 1.0.0
      */
     @Override
-    public String upload(InputStream inputStream, String fileName) throws Exception {
+    public String upload(InputStream inputStream, String filename) throws Exception {
         // 如果配置了可执行文件路径，使用命令行方式上传
         if (StringUtils.isNotEmpty(exePath)) {
-            return uploadViaCommandLine(inputStream, fileName);
+            return uploadViaCommandLine(inputStream, filename);
         }
 
         // 否则使用 API 方式上传
-        return uploadViaApi(inputStream, fileName);
+        return uploadViaApi(inputStream, filename);
     }
 
     /**
      * 通过 API 方式上传文件
      *
      * @param inputStream 文件输入流
-     * @param fileName    文件名
+     * @param filename    文件名
      * @return 上传后的 URL
      * @throws Exception 上传失败时抛出
      */
-    private String uploadViaApi(InputStream inputStream, String fileName) throws Exception {
+    private String uploadViaApi(InputStream inputStream, String filename) throws Exception {
         // 构建包含查询参数的 URL
         String uploadUrl = buildUrl(api, picbed, configName, key);
 
@@ -213,7 +213,7 @@ public class PicListClient implements OssClient {
         Map<String, String> result = CustomOssUtils.putObject(uploadUrl,
                                                               "image",
                                                               "POST",
-                                                              fileName,
+                                                              filename,
                                                               inputStream,
                                                               null,
                                                               null);
@@ -239,7 +239,7 @@ public class PicListClient implements OssClient {
         }
 
         String url = resultArray.get(0).getAsString();
-        log.info("上传成功: {} -> {}", fileName, url);
+        log.info("上传成功: {} -> {}", filename, url);
         return url;
     }
 
@@ -249,15 +249,15 @@ public class PicListClient implements OssClient {
      * 使用 PicList 命令行工具上传文件，上传成功后从系统剪贴板获取 URL。
      *
      * @param inputStream 文件输入流
-     * @param fileName    文件名
+     * @param filename    文件名
      * @return 上传后的 URL
      * @throws Exception 上传失败时抛出
      */
-    private String uploadViaCommandLine(InputStream inputStream, String fileName) throws Exception {
-        log.debug("使用命令行上传文件: {}", fileName);
+    private String uploadViaCommandLine(InputStream inputStream, String filename) throws Exception {
+        log.debug("使用命令行上传文件: {}", filename);
 
         // 保存输入流到临时文件
-        File tempFile = File.createTempFile("piclist-upload-", fileName);
+        File tempFile = File.createTempFile("piclist-upload-", filename);
         try {
             // 将输入流内容写入临时文件
             try (FileOutputStream fos = new FileOutputStream(tempFile)) {
@@ -302,7 +302,7 @@ public class PicListClient implements OssClient {
                                            "\n提示：请确保 PicList 已正确上传图片并将 URL 复制到剪贴板。");
             }
 
-            log.info("上传成功: {} -> {}", fileName, url);
+            log.info("上传成功: {} -> {}", filename, url);
             return url;
 
         } finally {
@@ -442,14 +442,14 @@ public class PicListClient implements OssClient {
      * 这是新的测试接口，优先使用此接口进行测试上传。
      *
      * @param inputStream 输入流，用于读取上传文件的数据
-     * @param fileName    文件名，表示上传文件的名称
+     * @param filename    文件名，表示上传文件的名称
      * @param state       MikState对象，包含所有配置状态信息
      * @return 处理结果字符串
      * @throws Exception 通用异常，用于封装可能发生的各种错误
      * @since 2.0.0
      */
     @Override
-    public String upload(InputStream inputStream, String fileName, MikState state) throws Exception {
+    public String upload(InputStream inputStream, String filename, MikState state) throws Exception {
         PicListOssState picListOssState = state.getPicListOssState();
         String apiValue = picListOssState.getApi();
         String picbedValue = picListOssState.getPicbed();
@@ -468,7 +468,7 @@ public class PicListClient implements OssClient {
         }
 
         return this.upload(inputStream,
-                           fileName,
+                           filename,
                            apiValue,
                            picbedValue,
                            configNameValue,
@@ -482,14 +482,14 @@ public class PicListClient implements OssClient {
      * 该方法通过传入的 JPanel 获取配置信息，然后调用 upload 方法执行上传逻辑。
      *
      * @param inputStream 输入流，用于读取上传文件的内容
-     * @param fileName    文件名，表示上传的文件名称
+     * @param filename    文件名，表示上传的文件名称
      * @param jPanel      JPanel 对象，用于获取当前界面配置信息
      * @return 上传操作的结果字符串
      * @throws Exception 上传过程中发生异常时抛出
      * @since 1.0.0
      */
     @Override
-    public String upload(InputStream inputStream, String fileName, JPanel jPanel) throws Exception {
+    public String upload(InputStream inputStream, String filename, JPanel jPanel) throws Exception {
         Map<String, String> map = this.getTestFieldTextWithPicListSupport(jPanel);
         String apiValue = map.get("picListApiTextField");
         String picbedValue = map.get("picListPicbedTextField");
@@ -508,7 +508,7 @@ public class PicListClient implements OssClient {
         }
 
         return this.upload(inputStream,
-                           fileName,
+                           filename,
                            apiValue,
                            picbedValue,
                            configNameValue,
@@ -523,7 +523,7 @@ public class PicListClient implements OssClient {
      * 若上传成功，则根据传入的参数计算哈希值，并更新 OSS 状态。
      *
      * @param inputStream     上传的输入流
-     * @param fileName        文件名
+     * @param filename        文件名
      * @param apiValue        API 地址
      * @param picbedValue     图床类型
      * @param configNameValue 配置名称
@@ -535,7 +535,7 @@ public class PicListClient implements OssClient {
     @NotNull
     @Contract(pure = true)
     public String upload(InputStream inputStream,
-                         String fileName,
+                         String filename,
                          String apiValue,
                          String picbedValue,
                          String configNameValue,
@@ -550,7 +550,7 @@ public class PicListClient implements OssClient {
 
         PicListClient client = PicListClient.getInstance();
 
-        String url = client.upload(inputStream, fileName);
+        String url = client.upload(inputStream, filename);
 
         if (StringUtils.isNotBlank(url)) {
             int hashcode = apiValue.hashCode() +

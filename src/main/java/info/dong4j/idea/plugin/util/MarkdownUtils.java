@@ -158,7 +158,7 @@ public final class MarkdownUtils {
             return null;
         }
         MarkdownImage markdownImage = new MarkdownImage();
-        markdownImage.setFileName(virtualFile.getName());
+        markdownImage.setFilename(virtualFile.getName());
         markdownImage.setOriginalLineText(lineText);
         markdownImage.setLineNumber(line);
         markdownImage.setLineStartOffset(offset[0]);

@@ -88,12 +88,12 @@ public class TencentOssClient implements OssClient {
      * 将输入流中的文件内容上传，并返回上传结果字符串
      *
      * @param inputStream 输入流，用于读取文件内容
-     * @param fileName    文件名，用于标识上传的文件
+     * @param filename    文件名，用于标识上传的文件
      * @return 上传结果字符串
      * @since 1.1.0
      */
     @Override
-    public String upload(InputStream inputStream, String fileName) {
+    public String upload(InputStream inputStream, String filename) {
 
         return "";
     }
@@ -104,14 +104,14 @@ public class TencentOssClient implements OssClient {
      * 该方法用于处理文件上传操作，接收输入流、文件名和面板参数，执行上传逻辑并返回结果
      *
      * @param inputStream 输入流，用于读取上传的数据
-     * @param fileName    文件名，表示上传的文件名称
+     * @param filename    文件名，表示上传的文件名称
      * @param jPanel      面板对象，可能用于界面交互或显示上传状态
      * @return 上传操作的结果字符串
      * @throws Exception 上传过程中发生异常时抛出
      * @since 1.1.0
      */
     @Override
-    public String upload(InputStream inputStream, String fileName, JPanel jPanel) throws Exception {
+    public String upload(InputStream inputStream, String filename, JPanel jPanel) throws Exception {
         return null;
     }
 

@@ -52,10 +52,10 @@
 // 自动选择上传方式
 if (StringUtils.isNotEmpty(exePath)) {
     // 命令行上传
-    return uploadViaCommandLine(inputStream, fileName);
+    return uploadViaCommandLine(inputStream, filename);
 } else {
     // API 上传
-    return uploadViaApi(inputStream, fileName);
+    return uploadViaApi(inputStream, filename);
 }
 ```
 

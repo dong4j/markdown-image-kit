@@ -58,14 +58,14 @@ public abstract class AbstractOssClient implements OssClient {
      * 这是新的测试接口，优先使用此接口进行测试上传。
      *
      * @param inputStream 输入流，用于读取上传文件的数据
-     * @param fileName    文件名，表示上传文件的名称
+     * @param filename    文件名，表示上传文件的名称
      * @param state       MikState对象，包含所有配置状态信息
      * @return 处理结果字符串
      * @throws Exception 通用异常，用于封装可能发生的各种错误
      * @since 2.0.0
      */
     @Override
-    public String upload(InputStream inputStream, String fileName, MikState state) throws Exception {
+    public String upload(InputStream inputStream, String filename, MikState state) throws Exception {
         AbstractExtendOssState ossState = this.getState(state);
 
         String bucketName = ossState.getBucketName();
@@ -82,7 +82,7 @@ public abstract class AbstractOssClient implements OssClient {
         Asserts.notBlank(endpoint, "Endpoint");
 
         return this.upload(inputStream,
-                           fileName,
+                           filename,
                            bucketName,
                            accessKey,
                            secretKey,
@@ -98,13 +98,13 @@ public abstract class AbstractOssClient implements OssClient {
      * 该方法通过面板组件获取配置参数，并进行必要的校验，最后调用 upload 方法上传文件
      *
      * @param inputStream 输入流
-     * @param fileName    文件名
+     * @param filename    文件名
      * @param jPanel      面板组件
      * @return 上传结果字符串
      * @throws Exception 上传过程中发生异常时抛出
      */
     @Override
-    public String upload(InputStream inputStream, String fileName, JPanel jPanel) throws Exception {
+    public String upload(InputStream inputStream, String filename, JPanel jPanel) throws Exception {
         Map<String, String> map = this.getTestFieldText(jPanel);
 
         String bucketName = map.get("bucketName");
@@ -121,7 +121,7 @@ public abstract class AbstractOssClient implements OssClient {
         Asserts.notBlank(endpoint, "Endpoint");
 
         return this.upload(inputStream,
-                           fileName,
+                           filename,
                            bucketName,
                            accessKey,
                            secretKey,
@@ -138,7 +138,7 @@ public abstract class AbstractOssClient implements OssClient {
      * 上传成功后，若URL不为空，会根据相关参数生成哈希值并保存状态。
      *
      * @param inputStream      上传文件的输入流
-     * @param fileName         上传文件的文件名
+     * @param filename         上传文件的文件名
      * @param bucketName       存储桶名称
      * @param accessKey        访问密钥
      * @param accessSecretKey  访问密钥的密文
@@ -151,7 +151,7 @@ public abstract class AbstractOssClient implements OssClient {
      * @since 0.0.1
      */
     private String upload(InputStream inputStream,
-                          String fileName,
+                          String filename,
                           String bucketName,
                           String accessKey,
                           String accessSecretKey,
@@ -172,7 +172,7 @@ public abstract class AbstractOssClient implements OssClient {
 
         AbstractOssClient client = this.getClient();
 
-        String url = client.upload(inputStream, fileName);
+        String url = client.upload(inputStream, filename);
 
         if (StringUtils.isNotBlank(url)) {
             int hashcode = bucketName.hashCode() +
@@ -194,15 +194,15 @@ public abstract class AbstractOssClient implements OssClient {
      * 将输入流中的文件内容上传至指定路径，并返回文件的访问URL
      *
      * @param instream 文件的输入流
-     * @param fileName 文件名
+     * @param filename 文件名
      * @return 若上传过程中发生错误则返回空字符串，否则返回文件的唯一MD5数字签名
      * @throws Exception 上传过程中发生异常时抛出
      * @since 0.0.1
      */
     @Override
     public String upload(@NotNull InputStream instream,
-                         @NotNull String fileName) throws Exception {
-        String key = filedir + fileName;
+                         @NotNull String filename) throws Exception {
+        String key = filedir + filename;
         if (!key.startsWith("/")) {
             key = "/" + key;
         }

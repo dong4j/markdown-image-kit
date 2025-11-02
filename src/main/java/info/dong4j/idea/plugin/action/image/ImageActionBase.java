@@ -179,12 +179,12 @@ public abstract class ImageActionBase extends AnAction {
             log.warn("读取文件输入流失败: {}", virtualFile.getPath(), e);
             return;
         }
-        markdownImage.setFileName(virtualFile.getName());
+        markdownImage.setFilename(virtualFile.getName());
         markdownImage.setExtension(virtualFile.getExtension());
         markdownImage.setLocation(ImageLocationEnum.LOCAL);
         markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
 
-        log.info("添加图片到等待处理列表: {}", markdownImage.getFileName());
+        log.info("添加图片到等待处理列表: {}", markdownImage.getFilename());
         // 使用线程安全的方式添加到映射中
         Document document = new DocumentImpl("");
         waitingProcessMap.computeIfAbsent(document, k -> Collections.synchronizedList(new ArrayList<>())).add(markdownImage);
@@ -290,11 +290,11 @@ public abstract class ImageActionBase extends AnAction {
                             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                                 try {
                                     int currentProcessed = processedCount.incrementAndGet();
-                                    String fileName = imageFile.getName();
+                                    String filename = imageFile.getName();
 
                                     // 更新进度（ProgressIndicator 是线程安全的）
                                     indicator.setText2(String.format("收集文件: %s (%d/%d)",
-                                                                     fileName, currentProcessed, totalCount));
+                                                                     filename, currentProcessed, totalCount));
                                     indicator.setFraction(currentProcessed * 1.0 / totalCount);
 
                                     // 处理文件

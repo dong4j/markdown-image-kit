@@ -139,13 +139,13 @@ public class QiniuOssClient implements OssClient {
      * 该方法通过七牛云OSS工具将输入流中的内容上传至指定文件名的路径，并构建文件的访问URL返回。
      *
      * @param inputStream 输入流，包含要上传的数据内容
-     * @param fileName    文件名，用于标识上传的文件
+     * @param filename    文件名，用于标识上传的文件
      * @return 文件的访问路径
      * @throws Exception 上传过程中发生异常时抛出
      */
     @Override
-    public String upload(InputStream inputStream, String fileName) throws Exception {
-        QiniuOssUtils.putObject(fileName, inputStream, bucketName, host, accessKey, secretKey);
+    public String upload(InputStream inputStream, String filename) throws Exception {
+        QiniuOssUtils.putObject(filename, inputStream, bucketName, host, accessKey, secretKey);
 
         URL url;
         try {
@@ -159,7 +159,7 @@ public class QiniuOssClient implements OssClient {
         } else {
             endpoint = endpoint.endsWith("/") ? endpoint : endpoint + "/";
         }
-        return endpoint + fileName;
+        return endpoint + filename;
     }
 
     /**
@@ -169,14 +169,14 @@ public class QiniuOssClient implements OssClient {
      * 这是新的测试接口，优先使用此接口进行测试上传。
      *
      * @param inputStream 输入流，用于读取上传文件的数据
-     * @param fileName    文件名，表示上传文件的名称
+     * @param filename    文件名，表示上传文件的名称
      * @param state       MikState对象，包含所有配置状态信息
      * @return 处理结果字符串
      * @throws Exception 通用异常，用于封装可能发生的各种错误
      * @since 2.0.0
      */
     @Override
-    public String upload(InputStream inputStream, String fileName, MikState state) throws Exception {
+    public String upload(InputStream inputStream, String filename, MikState state) throws Exception {
         QiniuOssState qiniuOssState = state.getQiniuOssState();
         int zoneIndex = qiniuOssState.getZoneIndex();
         String bucketName = qiniuOssState.getBucketName();
@@ -190,7 +190,7 @@ public class QiniuOssClient implements OssClient {
         Asserts.notBlank(endpoint, "Domain");
 
         return this.upload(inputStream,
-                           fileName,
+                           filename,
                            bucketName,
                            accessKey,
                            secretKey,
@@ -205,13 +205,13 @@ public class QiniuOssClient implements OssClient {
      * 秘密密钥、端点和区域索引，然后调用上传方法完成文件上传操作。
      *
      * @param inputStream 输入流，用于读取上传的文件内容
-     * @param fileName    文件名，表示上传的文件名称
+     * @param filename    文件名，表示上传的文件名称
      * @param jPanel      JPanel组件，用于获取上传所需的配置信息
      * @return 上传操作的结果字符串
      * @throws Exception 上传过程中发生异常时抛出
      */
     @Override
-    public String upload(InputStream inputStream, String fileName, JPanel jPanel) throws Exception {
+    public String upload(InputStream inputStream, String filename, JPanel jPanel) throws Exception {
         Map<String, String> map = this.getTestFieldText(jPanel);
         int zoneIndex = Integer.parseInt(map.get("zoneIndex"));
         String bucketName = map.get("bucketName");
@@ -225,7 +225,7 @@ public class QiniuOssClient implements OssClient {
         Asserts.notBlank(endpoint, "Domain");
 
         return this.upload(inputStream,
-                           fileName,
+                           filename,
                            bucketName,
                            accessKey,
                            secretKey,
@@ -241,7 +241,7 @@ public class QiniuOssClient implements OssClient {
      * 上传完成后，若返回的URL不为空，则根据相关参数计算哈希值，并更新存储状态。
      *
      * @param inputStream 文件的输入流
-     * @param fileName    文件名
+     * @param filename    文件名
      * @param bucketName  七牛云存储桶名称
      * @param accessKey   七牛云访问密钥
      * @param secretKey   七牛云密钥
@@ -253,7 +253,7 @@ public class QiniuOssClient implements OssClient {
     @NotNull
     @Contract(pure = true)
     public String upload(InputStream inputStream,
-                         String fileName,
+                         String filename,
                          String bucketName,
                          String accessKey,
                          String secretKey,
@@ -269,7 +269,7 @@ public class QiniuOssClient implements OssClient {
 
         QiniuOssClient client = QiniuOssClient.getInstance();
 
-        String url = client.upload(inputStream, fileName);
+        String url = client.upload(inputStream, filename);
 
         if (StringUtils.isNotBlank(url)) {
             int hashcode = bucketName.hashCode() +

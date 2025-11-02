@@ -49,7 +49,7 @@ public class QiniuOssUtils {
      * 该方法用于将指定的文件内容上传到七牛云OSS服务。需要提供文件名、文件内容、OSS存储桶名称、主机地址、Access Key ID和Secret Access Key等参数。
      * 上传过程中会构建相应的HTTP请求，并处理上传结果。如果上传失败，会记录相关信息并抛出运行时异常。
      *
-     * @param fileName        要上传的文件名
+     * @param filename        要上传的文件名
      * @param content         要上传的文件内容流
      * @param ossBucket       OSS存储桶名称
      * @param host            上传服务的主机地址
@@ -58,13 +58,13 @@ public class QiniuOssUtils {
      * @throws Exception 上传过程中发生异常时抛出
      * @since 1.6.1
      */
-    public static void putObject(String fileName,
+    public static void putObject(String filename,
                                  InputStream content,
                                  String ossBucket,
                                  String host,
                                  String accessKeyId,
                                  String secretAccessKey) throws Exception {
-        String token = uploadToken(ossBucket, fileName, 3600L * 1000 * 24 * 365 * 10, null, accessKeyId, secretAccessKey);
+        String token = uploadToken(ossBucket, filename, 3600L * 1000 * 24 * 365 * 10, null, accessKeyId, secretAccessKey);
 
         HttpURLConnection connection = OssUtils.connect("http://upload.qiniu.com", "POST");
 
@@ -82,13 +82,13 @@ public class QiniuOssUtils {
         try (OutputStream os = new DataOutputStream(connection.getOutputStream())) {
 
             Map<String, String> requestText = new HashMap<>();
-            requestText.put("key", fileName);
+            requestText.put("key", filename);
             requestText.put("token", token);
 
             // 请求参数部分
             params = writeParams(requestText, os);
             // 请求上传文件部分
-            filePart = writeFile("file", fileName, content, os);
+            filePart = writeFile("file", filename, content, os);
             // 请求结束标志
             String endTarget = PREFIX + BOUNDARY + PREFIX + LINE_END;
             os.write(endTarget.getBytes());
@@ -159,20 +159,20 @@ public class QiniuOssUtils {
      * 该方法用于处理文件上传请求，将指定的输入流内容写入输出流，并构建包含请求参数的字符串消息，用于后续的HTTP请求体构造。
      *
      * @param requestKey  请求键，用于标识请求参数的名称
-     * @param fileName    文件名，用于构造Content-Disposition头信息
+     * @param filename    文件名，用于构造Content-Disposition头信息
      * @param inputStream 文件内容的输入流
      * @param os          输出流，用于写入文件内容和请求参数
      * @return 构建的包含请求参数的字符串消息
      * @throws Exception 如果在写入过程中发生异常
      * @since 1.6.1
      */
-    private static String writeFile(String requestKey, String fileName, InputStream inputStream, OutputStream os) throws Exception {
+    private static String writeFile(String requestKey, String filename, InputStream inputStream, OutputStream os) throws Exception {
         StringBuilder msg = new StringBuilder("请求上传文件部分:\n");
         StringBuilder requestParams = new StringBuilder();
         requestParams.append(PREFIX).append(BOUNDARY).append(LINE_END);
         requestParams.append("Content-Disposition: form-data; name=\"")
             .append(requestKey).append("\"; filename=\"")
-            .append(fileName).append("\"")
+            .append(filename).append("\"")
             .append(LINE_END);
         requestParams.append("Content-Type: ")
             .append("application/octet-stream")

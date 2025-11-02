@@ -177,15 +177,15 @@ public class BaiduBosUtils {
      * <p>
      * 根据文件扩展名返回对应的MIME类型，如果无法识别则返回application/octet-stream
      *
-     * @param fileName 文件名或文件路径
+     * @param filename 文件名或文件路径
      * @return Content-Type字符串
      * @since 0.0.1
      */
-    private static String getContentType(String fileName) {
-        if (fileName == null || fileName.isEmpty()) {
+    private static String getContentType(String filename) {
+        if (filename == null || filename.isEmpty()) {
             return "application/octet-stream";
         }
-        return ImageMediaType.fromFileName(fileName, "application/octet-stream");
+        return ImageMediaType.fromFileName(filename, "application/octet-stream");
     }
 
     /**

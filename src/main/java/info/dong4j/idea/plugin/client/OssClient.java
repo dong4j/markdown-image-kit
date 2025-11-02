@@ -57,11 +57,11 @@ public interface OssClient {
      * 该方法接收一个输入流和文件名，用于上传文件到指定位置
      *
      * @param inputStream 输入流，用于读取上传的文件内容
-     * @param fileName    文件名，表示上传文件的名称
+     * @param filename    文件名，表示上传文件的名称
      * @return 返回上传结果的字符串信息
      * @throws Exception 上传过程中发生异常时抛出
      */
-    String upload(InputStream inputStream, String fileName) throws Exception;
+    String upload(InputStream inputStream, String filename) throws Exception;
 
     /**
      * "Upload Test" 按钮反射调用
@@ -69,15 +69,15 @@ public interface OssClient {
      * 该方法用于执行"Upload Test"按钮的反射调用，接收输入流、文件名和JPanel作为参数，返回处理结果字符串。
      *
      * @param inputStream 输入流，用于读取上传文件的数据
-     * @param fileName    文件名，表示上传文件的名称
+     * @param filename    文件名，表示上传文件的名称
      * @param jPanel      JPanel组件，可能用于界面交互或显示上传状态
      * @return 处理结果字符串
      * @throws Exception 通用异常，用于封装可能发生的各种错误
      * @since 0.0.1
-     * @deprecated 使用 upload(InputStream inputStream, String fileName, MikState state) 方法
+     * @deprecated 使用 upload(InputStream inputStream, String filename, MikState state) 方法
      */
     @Deprecated
-    String upload(InputStream inputStream, String fileName, JPanel jPanel) throws Exception;
+    String upload(InputStream inputStream, String filename, JPanel jPanel) throws Exception;
 
     /**
      * "Upload Test" 按钮测试上传（新接口）
@@ -86,13 +86,13 @@ public interface OssClient {
      * 这是新的测试接口，优先使用此接口进行测试上传。
      *
      * @param inputStream 输入流，用于读取上传文件的数据
-     * @param fileName    文件名，表示上传文件的名称
+     * @param filename    文件名，表示上传文件的名称
      * @param state       MikState对象，包含所有配置状态信息
      * @return 处理结果字符串
      * @throws Exception 通用异常，用于封装可能发生的各种错误
      * @since 2.0.0
      */
-    default String upload(InputStream inputStream, String fileName, MikState state) throws Exception {
+    default String upload(InputStream inputStream, String filename, MikState state) throws Exception {
         // 默认实现：调用原有的 JPanel 方法（向后兼容）
         // 子类应该重写此方法以使用 state 参数
         throw new UnsupportedOperationException("该方法需要在具体的 OssClient 实现类中重写");

@@ -56,14 +56,14 @@ public abstract class AbstractOpenClient implements OssClient {
      * 通过输入流上传文件到指定路径，并根据配置返回对应的文件访问URL。
      *
      * @param inputStream 输入流，用于读取上传的文件内容
-     * @param fileName    文件名，用于生成存储路径和访问地址
+     * @param filename    文件名，用于生成存储路径和访问地址
      * @return 文件的访问地址
      * @throws Exception 上传过程中发生异常时抛出
      * @since 1.6.0
      */
     @Override
-    public String upload(InputStream inputStream, String fileName) throws Exception {
-        String key = filedir + fileName;
+    public String upload(InputStream inputStream, String filename) throws Exception {
+        String key = filedir + filename;
         if (!key.startsWith("/")) {
             key = "/" + key;
         }
@@ -83,14 +83,14 @@ public abstract class AbstractOpenClient implements OssClient {
      * 这是新的测试接口，优先使用此接口进行测试上传。
      *
      * @param inputStream 输入流，用于读取上传文件的数据
-     * @param fileName    文件名，表示上传文件的名称
+     * @param filename    文件名，表示上传文件的名称
      * @param state       MikState对象，包含所有配置状态信息
      * @return 处理结果字符串
      * @throws Exception 通用异常，用于封装可能发生的各种错误
      * @since 2.0.0
      */
     @Override
-    public String upload(InputStream inputStream, String fileName, MikState state) throws Exception {
+    public String upload(InputStream inputStream, String filename, MikState state) throws Exception {
         AbstractOpenOssState ossState = this.getState(state);
 
         String repos = ossState.getRepos();
@@ -108,7 +108,7 @@ public abstract class AbstractOpenClient implements OssClient {
         this.check(branch);
 
         return this.upload(inputStream,
-                           fileName,
+                           filename,
                            repos,
                            branch,
                            token,
@@ -123,14 +123,14 @@ public abstract class AbstractOpenClient implements OssClient {
      * 该方法通过传入的 JPanel 获取用户输入的配置信息，包括仓库名、分支名、Token、文件目录等，并进行校验后调用上传方法。
      *
      * @param inputStream 输入流，用于读取上传文件的内容
-     * @param fileName    文件名，表示要上传的文件名称
+     * @param filename    文件名，表示要上传的文件名称
      * @param jPanel      用于获取配置信息的 JPanel 对象
      * @return 上传结果字符串
      * @throws Exception 上传过程中发生异常时抛出
      * @since 1.3.0
      */
     @Override
-    public String upload(InputStream inputStream, String fileName, JPanel jPanel) throws Exception {
+    public String upload(InputStream inputStream, String filename, JPanel jPanel) throws Exception {
         Map<String, String> map = this.getTestFieldText(jPanel);
         String repos = map.get("repos");
         repos = AbstractOpenOssSetting.REPOS_HINT.equals(repos) ? "" : repos;
@@ -148,7 +148,7 @@ public abstract class AbstractOpenClient implements OssClient {
         this.check(branch);
 
         return this.upload(inputStream,
-                           fileName,
+                           filename,
                            repos,
                            branch,
                            token,
@@ -175,7 +175,7 @@ public abstract class AbstractOpenClient implements OssClient {
      * 上传成功后，若返回URL不为空，会根据相关参数计算哈希值并更新OSS状态。
      *
      * @param inputStream      文件输入流
-     * @param fileName         文件名
+     * @param filename         文件名
      * @param repos            仓库名称
      * @param branch           分支名称
      * @param token            访问令牌
@@ -189,7 +189,7 @@ public abstract class AbstractOpenClient implements OssClient {
     @NotNull
     @Contract(pure = true)
     public String upload(InputStream inputStream,
-                         String fileName,
+                         String filename,
                          String repos,
                          String branch,
                          String token,
@@ -209,7 +209,7 @@ public abstract class AbstractOpenClient implements OssClient {
 
         AbstractOpenClient client = this.getClient();
 
-        String url = client.upload(inputStream, fileName);
+        String url = client.upload(inputStream, filename);
 
         if (StringUtils.isNotBlank(url)) {
             int hashcode = repos.hashCode() +

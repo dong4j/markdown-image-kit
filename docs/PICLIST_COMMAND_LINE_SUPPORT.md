@@ -13,14 +13,14 @@ PicList 图床客户端现在支持两种上传方式：
 
 ```java
 @Override
-public String upload(InputStream inputStream, String fileName) throws Exception {
+public String upload(InputStream inputStream, String filename) throws Exception {
     // 如果配置了可执行文件路径，使用命令行方式上传
     if (StringUtils.isNotEmpty(exePath)) {
-        return uploadViaCommandLine(inputStream, fileName);
+        return uploadViaCommandLine(inputStream, filename);
     }
     
     // 否则使用 API 方式上传
-    return uploadViaApi(inputStream, fileName);
+    return uploadViaApi(inputStream, filename);
 }
 ```
 

@@ -266,12 +266,12 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
         }
 
         // 获取当前文档名
-        String fileName = virtualFile != null ? virtualFile.getName() : "";
+        String filename = virtualFile != null ? virtualFile.getName() : "";
 
         Map<Document, List<MarkdownImage>> waitingProcessMap = new HashMap<>(8);
         List<MarkdownImage> markdownImages = new ArrayList<>(8);
         for (Map.Entry<String, InputStream> inputStreamMap : this.resolveClipboardData(entry, editor, caret, state).entrySet()) {
-            final MarkdownImage markdownImage = getMarkdownImage(inputStreamMap, fileName);
+            final MarkdownImage markdownImage = getMarkdownImage(inputStreamMap, filename);
 
             markdownImages.add(markdownImage);
         }
@@ -287,11 +287,11 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
      * 该方法根据传入的输入流映射条目，初始化一个 MarkdownImage 对象，设置其文件名、图片名、扩展名、原始行文本、行号等信息。
      *
      * @param inputStreamMap 输入流映射条目，包含图片的键值对（key可能是文件名或包含元数据的字符串）
-     * @param fileName       当前 markdown 文档的文件名
+     * @param filename       当前 markdown 文档的文件名
      * @return 初始化后的 MarkdownImage 实例
      */
     @NotNull
-    private static MarkdownImage getMarkdownImage(Map.Entry<String, InputStream> inputStreamMap, String fileName) {
+    private static MarkdownImage getMarkdownImage(Map.Entry<String, InputStream> inputStreamMap, String filename) {
         String key = inputStreamMap.getKey();
         MarkdownImage markdownImage = new MarkdownImage();
 
@@ -301,7 +301,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
             // 格式：network:originalLineText|lineNumber|pathStartOffset|pathEndOffset|imageUrl|originalMark
             String[] parts = key.substring(8).split("\\|", -1);
 
-            markdownImage.setFileName(fileName);
+            markdownImage.setFilename(filename);
             markdownImage.setImageName(""); // 图片名称由 DownloadImageHandler 解析
             markdownImage.setExtension(""); // 扩展名由 DownloadImageHandler 解析
             markdownImage.setOriginalLineText(parts.length > 0 ? parts[0] : "");
@@ -322,7 +322,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
             String sourceFilePath = parts.length > 0 ? parts[0] : "";
             String imageName = parts.length > 1 ? parts[1] : "";
 
-            markdownImage.setFileName(fileName);
+            markdownImage.setFilename(filename);
             markdownImage.setImageName(imageName);
             markdownImage.setExtension("");
             markdownImage.setOriginalLineText("");
@@ -338,7 +338,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
             markdownImage.setImageStream(false); // 标记为文件
         } else {
             // 图片流（从剪贴板直接粘贴的图片）
-            markdownImage.setFileName(fileName);
+            markdownImage.setFilename(filename);
             markdownImage.setImageName(key);
             markdownImage.setExtension("");
             markdownImage.setOriginalLineText("");
@@ -450,14 +450,14 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
     private void resolveFromImage(@NotNull Map.Entry<DataFlavor, Object> entry,
                                   Map<String, InputStream> imageMap, MikState state) {
         // image 类型统一重命名, 后缀为 png, 因为获取不到文件名
-        String fileName = CharacterUtils.getRandomString(6) + ".png";
+        String filename = CharacterUtils.getRandomString(6) + ".png";
         // 如果是 image 类型, 转换成 inputstream
         Image image = (Image) entry.getValue();
 
         InputStream is = null;
 
         if (state.isWatermark()) {
-            File watermarkFile = ImageUtils.watermarkFromText(image, fileName, state.getWatermarkText());
+            File watermarkFile = ImageUtils.watermarkFromText(image, filename, state.getWatermarkText());
             try {
                 is = new FileInputStream(watermarkFile);
             } catch (FileNotFoundException ignored) {
@@ -474,7 +474,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
         }
 
         if (is != null) {
-            imageMap.put(fileName, is);
+            imageMap.put(filename, is);
         }
     }
 
@@ -614,8 +614,8 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
         String result = path;
 
         // 替换 ${filename} 为当前文件名（不含扩展名）
-        String fileName = virtualFile.getNameWithoutExtension();
-        result = result.replace("${filename}", fileName);
+        String filename = virtualFile.getNameWithoutExtension();
+        result = result.replace("${filename}", filename);
 
         // 替换 ${project} 为项目根路径
         if (project != null && project.getBasePath() != null) {

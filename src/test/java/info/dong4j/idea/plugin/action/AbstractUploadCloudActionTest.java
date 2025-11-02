@@ -136,7 +136,7 @@ public class AbstractUploadCloudActionTest {
                 PsiFile psiFileFromDocument = PsiDocumentManager.getInstance(project).getPsiFile(documentFromEditor);
 
                 // 在 project 范围内查找特定 PsiFile
-                FilenameIndex.getFilesByName(project, "fileName", GlobalSearchScope.projectScope(project));
+                FilenameIndex.getFilesByName(project, "filename", GlobalSearchScope.projectScope(project));
             }
         }
 

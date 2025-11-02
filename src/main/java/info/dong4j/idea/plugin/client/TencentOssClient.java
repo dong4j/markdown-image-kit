@@ -124,15 +124,15 @@ public class TencentOssClient implements OssClient {
      * 使用给定的文件流和文件名，将文件上传至腾讯云 COS 服务。内部调用 TencentCosUtils.putObject 方法完成上传操作。
      *
      * @param inputStream 文件流，用于读取上传的文件内容
-     * @param fileName    文件名，用于指定上传文件的存储路径和名称
+     * @param filename    文件名，用于指定上传文件的存储路径和名称
      * @return 上传结果的字符串表示（如成功或错误信息）
      * @throws Exception 上传过程中发生异常时抛出
      * @since 0.0.1
      */
     @Override
-    public String upload(InputStream inputStream, String fileName) throws Exception {
+    public String upload(InputStream inputStream, String filename) throws Exception {
         // 拼接 url = <BucketName-APPID>.cos.region_name.myqcloud.com/key
-        return TencentCosUtils.putObject("/" + fileName,
+        return TencentCosUtils.putObject("/" + filename,
                                          inputStream,
                                          bucketName,
                                          regionName,
@@ -147,14 +147,14 @@ public class TencentOssClient implements OssClient {
      * 这是新的测试接口，优先使用此接口进行测试上传。
      *
      * @param inputStream 输入流，用于读取上传文件的数据
-     * @param fileName    文件名，表示上传文件的名称
+     * @param filename    文件名，表示上传文件的名称
      * @param state       MikState对象，包含所有配置状态信息
      * @return 处理结果字符串
      * @throws Exception 通用异常，用于封装可能发生的各种错误
      * @since 2.0.0
      */
     @Override
-    public String upload(InputStream inputStream, String fileName, MikState state) throws Exception {
+    public String upload(InputStream inputStream, String filename, MikState state) throws Exception {
         TencentOssState tencentOssState = state.getTencentOssState();
         String bucketName = tencentOssState.getBucketName();
         String accessKey = tencentOssState.getAccessKey();
@@ -167,7 +167,7 @@ public class TencentOssClient implements OssClient {
         Asserts.notBlank(regionName, "RegionName");
 
         return this.upload(inputStream,
-                           fileName,
+                           filename,
                            bucketName,
                            accessKey,
                            secretKey,
@@ -181,13 +181,13 @@ public class TencentOssClient implements OssClient {
      * 获取存储桶名称、访问密钥、秘密密钥和区域名称，最后调用上传方法执行上传操作。
      *
      * @param inputStream 输入流，用于读取上传数据
-     * @param fileName    文件名，表示上传的文件名称
+     * @param filename    文件名，表示上传的文件名称
      * @param jPanel      JPanel 对象，用于获取当前配置信息
      * @return 返回上传结果字符串
      * @throws Exception 如果上传过程中发生异常
      */
     @Override
-    public String upload(InputStream inputStream, String fileName, JPanel jPanel) throws Exception {
+    public String upload(InputStream inputStream, String filename, JPanel jPanel) throws Exception {
         Map<String, String> map = this.getTestFieldText(jPanel);
         String bucketName = map.get("bucketName");
         String accessKey = map.get("accessKey");
@@ -200,7 +200,7 @@ public class TencentOssClient implements OssClient {
         Asserts.notBlank(regionName, "RegionName");
 
         return this.upload(inputStream,
-                           fileName,
+                           filename,
                            bucketName,
                            accessKey,
                            secretKey,
@@ -213,7 +213,7 @@ public class TencentOssClient implements OssClient {
      * 该方法在用户点击上传按钮后调用，用于将文件上传至指定的OSS存储桶，并在上传成功后保存相关状态信息。
      *
      * @param inputStream 文件输入流，用于读取上传的文件内容
-     * @param fileName    上传文件的名称
+     * @param filename    上传文件的名称
      * @param bucketName  上传文件的目标存储桶名称
      * @param accessKey   访问OSS服务的密钥
      * @param secretKey   访问OSS服务的密钥
@@ -224,7 +224,7 @@ public class TencentOssClient implements OssClient {
     @NotNull
     @Contract(pure = true)
     public String upload(InputStream inputStream,
-                         String fileName,
+                         String filename,
                          String bucketName,
                          String accessKey,
                          String secretKey,
@@ -237,7 +237,7 @@ public class TencentOssClient implements OssClient {
 
         TencentOssClient tencentOssClient = TencentOssClient.getInstance();
 
-        String url = tencentOssClient.upload(inputStream, fileName);
+        String url = tencentOssClient.upload(inputStream, filename);
 
         if (StringUtils.isNotBlank(url)) {
             int hashcode = bucketName.hashCode() +

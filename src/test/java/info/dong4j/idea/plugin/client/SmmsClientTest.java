@@ -111,11 +111,11 @@ public class SmmsClientTest {
      * 该方法通过 HTTP POST 请求将文件上传至 sm.ms 的 API 接口，若上传成功则返回图片的 URL，否则返回错误信息。
      *
      * @param inputStream 文件输入流，用于读取要上传的文件内容
-     * @param fileName    文件名，用于标识上传的文件
+     * @param filename    文件名，用于标识上传的文件
      * @return 如果上传成功，返回图片的 URL；如果失败，返回错误信息
      * @since 1.1.0
      */
-    public String upload(InputStream inputStream, String fileName) {
+    public String upload(InputStream inputStream, String filename) {
         try {
             HttpClientBuilder builder = HttpClients.custom();
             // 必须设置 UA, 不然会报 403
@@ -124,7 +124,7 @@ public class SmmsClientTest {
 
 
             HttpEntity reqEntity = MultipartEntityBuilder.create()
-                .addBinaryBody("smfile", inputStream, ContentType.DEFAULT_BINARY, fileName)
+                .addBinaryBody("smfile", inputStream, ContentType.DEFAULT_BINARY, filename)
                 .build();
 
             HttpPost post = new HttpPost("https://sm.ms/api/v2/upload");

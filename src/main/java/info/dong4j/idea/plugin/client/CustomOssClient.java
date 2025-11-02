@@ -119,13 +119,13 @@ public class CustomOssClient implements OssClient {
      * 使用输入流将文件上传至对象存储服务，并解析返回结果获取文件访问URL。
      *
      * @param inputStream 文件输入流，用于读取上传文件的内容
-     * @param fileName    文件名，用于标识上传的文件
+     * @param filename    文件名，用于标识上传的文件
      * @return 上传成功后返回的文件访问URL
      * @throws Exception 上传过程中发生异常时抛出
      * @since 1.5.0
      */
     @Override
-    public String upload(InputStream inputStream, String fileName) throws Exception {
+    public String upload(InputStream inputStream, String filename) throws Exception {
         // 确保配置已初始化
         if (StringUtils.isBlank(this.api)) {
             init();
@@ -134,7 +134,7 @@ public class CustomOssClient implements OssClient {
         Map<String, String> result = CustomOssUtils.putObject(this.api,
                                                               this.requestKey,
                                                               this.httpMethod.toUpperCase(),
-                                                              fileName,
+                                                              filename,
                                                               inputStream,
                                                               null,
                                                               null);
@@ -225,14 +225,14 @@ public class CustomOssClient implements OssClient {
      * 该方法通过传入的 MikState 获取配置信息，包括 API 地址、请求 key、响应 URL 路径和 HTTP 方法，然后调用 upload 方法执行上传逻辑。
      *
      * @param inputStream 输入流，用于读取上传文件的内容
-     * @param fileName    文件名，表示上传的文件名称
+     * @param filename    文件名，表示上传的文件名称
      * @param state       MikState 对象，用于获取当前配置状态信息
      * @return 上传操作的结果字符串
      * @throws Exception 上传过程中发生异常时抛出
      * @since 2.0.0
      */
     @Override
-    public String upload(InputStream inputStream, String fileName, MikState state) throws Exception {
+    public String upload(InputStream inputStream, String filename, MikState state) throws Exception {
         CustomOssState customOssState = state.getCustomOssState();
 
         this.api = customOssState.getApi();
@@ -250,7 +250,7 @@ public class CustomOssClient implements OssClient {
         Asserts.notBlank(httpMethod, "请求方式");
 
         return this.upload(inputStream,
-                           fileName,
+                           filename,
                            api,
                            requestKey,
                            responseUrlPath,
@@ -263,14 +263,14 @@ public class CustomOssClient implements OssClient {
      * 该方法通过传入的 JPanel 获取配置信息，包括 API 地址、请求 key、响应 URL 路径和 HTTP 方法，然后调用 upload 方法执行上传逻辑。
      *
      * @param inputStream 输入流，用于读取上传文件的内容
-     * @param fileName    文件名，表示上传的文件名称
+     * @param filename    文件名，表示上传的文件名称
      * @param jPanel      JPanel 对象，用于获取当前界面配置信息
      * @return 上传操作的结果字符串
      * @throws Exception 上传过程中发生异常时抛出
      * @since 1.5.0
      */
     @Override
-    public String upload(InputStream inputStream, String fileName, JPanel jPanel) throws Exception {
+    public String upload(InputStream inputStream, String filename, JPanel jPanel) throws Exception {
         Map<String, String> map = this.getTestFieldText(jPanel);
         String api = map.get("api");
         String requestKey = map.get("requestKey");
@@ -286,7 +286,7 @@ public class CustomOssClient implements OssClient {
         Asserts.notBlank(httpMethod, "请求方式");
 
         return this.upload(inputStream,
-                           fileName,
+                           filename,
                            api,
                            requestKey,
                            responseUrlPath,
@@ -300,7 +300,7 @@ public class CustomOssClient implements OssClient {
      * 若上传成功且返回的URL不为空，则根据传入的API、请求键、响应URL路径和HTTP方法计算哈希值，并更新OSS状态。
      *
      * @param inputStream     上传的输入流
-     * @param fileName        文件名
+     * @param filename        文件名
      * @param api             使用的API名称
      * @param requestKey      请求键
      * @param responseUrlPath 响应URL路径
@@ -312,7 +312,7 @@ public class CustomOssClient implements OssClient {
     @NotNull
     @Contract(pure = true)
     public String upload(InputStream inputStream,
-                         String fileName,
+                         String filename,
                          String api,
                          String requestKey,
                          String responseUrlPath,
@@ -324,7 +324,7 @@ public class CustomOssClient implements OssClient {
         this.responseUrlPath = responseUrlPath;
         this.httpMethod = httpMethod;
 
-        String url = this.upload(inputStream, fileName);
+        String url = this.upload(inputStream, filename);
 
         if (StringUtils.isNotBlank(url)) {
             int hashcode = api.hashCode() +

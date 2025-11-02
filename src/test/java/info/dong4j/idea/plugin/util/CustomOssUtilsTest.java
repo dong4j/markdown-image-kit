@@ -101,7 +101,7 @@ public class CustomOssUtilsTest {
         String api = "https://example.com/upload";
         String requestKey = "file";
         String httpMethod = "POST";
-        String fileName = "test.jpg";
+        String filename = "test.jpg";
         InputStream inputStream = new ByteArrayInputStream("test image data".getBytes());
         Map<String, String> requestText = new HashMap<>();
         requestText.put("param1", "value1");
@@ -109,7 +109,7 @@ public class CustomOssUtilsTest {
         header.put("Authorization", "Bearer token");
 
         // 执行测试
-        Map<String, String> result = CustomOssUtils.putObject(api, requestKey, httpMethod, fileName, inputStream, requestText, header);
+        Map<String, String> result = CustomOssUtils.putObject(api, requestKey, httpMethod, filename, inputStream, requestText, header);
 
         // 验证结果
         assertNotNull(result);
@@ -150,13 +150,13 @@ public class CustomOssUtilsTest {
         String api = "https://example.com/upload";
         String requestKey = "file";
         String httpMethod = "POST";
-        String fileName = "test.jpg";
+        String filename = "test.jpg";
         InputStream inputStream = new ByteArrayInputStream("test image data".getBytes());
         Map<String, String> requestText = null; // null 参数
         Map<String, String> header = null; // null 头部
 
         // 执行测试
-        Map<String, String> result = CustomOssUtils.putObject(api, requestKey, httpMethod, fileName, inputStream, requestText, header);
+        Map<String, String> result = CustomOssUtils.putObject(api, requestKey, httpMethod, filename, inputStream, requestText, header);
 
         // 验证结果
         assertNotNull(result);
@@ -190,13 +190,13 @@ public class CustomOssUtilsTest {
         String api = "https://example.com/upload";
         String requestKey = "file";
         String httpMethod = "POST";
-        String fileName = "test.jpg";
+        String filename = "test.jpg";
         InputStream inputStream = new ByteArrayInputStream("test image data".getBytes());
         Map<String, String> requestText = new HashMap<>(); // 空参数
         Map<String, String> header = new HashMap<>(); // 空头部
 
         // 执行测试
-        Map<String, String> result = CustomOssUtils.putObject(api, requestKey, httpMethod, fileName, inputStream, requestText, header);
+        Map<String, String> result = CustomOssUtils.putObject(api, requestKey, httpMethod, filename, inputStream, requestText, header);
 
         // 验证结果
         assertNotNull(result);
@@ -224,13 +224,13 @@ public class CustomOssUtilsTest {
         String api = "invalid-url";
         String requestKey = "file";
         String httpMethod = "POST";
-        String fileName = "test.jpg";
+        String filename = "test.jpg";
         InputStream inputStream = new ByteArrayInputStream("test image data".getBytes());
         Map<String, String> requestText = new HashMap<>();
         Map<String, String> header = new HashMap<>();
 
         // 执行测试并验证异常
-        assertThrows(Exception.class, () -> CustomOssUtils.putObject(api, requestKey, httpMethod, fileName, inputStream, requestText,
+        assertThrows(Exception.class, () -> CustomOssUtils.putObject(api, requestKey, httpMethod, filename, inputStream, requestText,
                                                                      header));
     }
 
@@ -258,13 +258,13 @@ public class CustomOssUtilsTest {
         String api = "https://example.com/upload";
         String requestKey = "file";
         String httpMethod = "POST";
-        String fileName = "test.jpg";
+        String filename = "test.jpg";
         InputStream inputStream = null; // null 输入流
         Map<String, String> requestText = new HashMap<>();
         Map<String, String> header = new HashMap<>();
 
         // 执行测试并验证异常
-        assertThrows(Exception.class, () -> CustomOssUtils.putObject(api, requestKey, httpMethod, fileName, inputStream, requestText,
+        assertThrows(Exception.class, () -> CustomOssUtils.putObject(api, requestKey, httpMethod, filename, inputStream, requestText,
                                                                      header));
     }
 
@@ -290,13 +290,13 @@ public class CustomOssUtilsTest {
         String api = "https://example.com/upload";
         String requestKey = "file";
         String httpMethod = "POST";
-        String fileName = ""; // 空文件名
+        String filename = ""; // 空文件名
         InputStream inputStream = new ByteArrayInputStream("test image data".getBytes());
         Map<String, String> requestText = new HashMap<>();
         Map<String, String> header = new HashMap<>();
 
         // 执行测试
-        Map<String, String> result = CustomOssUtils.putObject(api, requestKey, httpMethod, fileName, inputStream, requestText, header);
+        Map<String, String> result = CustomOssUtils.putObject(api, requestKey, httpMethod, filename, inputStream, requestText, header);
 
         // 验证结果
         assertNotNull(result);
@@ -326,13 +326,13 @@ public class CustomOssUtilsTest {
         String api = "https://example.com/upload";
         String requestKey = "file";
         String httpMethod = "POST";
-        String fileName = "test.jpg";
+        String filename = "test.jpg";
         InputStream inputStream = new ByteArrayInputStream("test image data".getBytes());
         Map<String, String> requestText = new HashMap<>();
         Map<String, String> header = new HashMap<>();
 
         // 执行测试
-        Map<String, String> result = CustomOssUtils.putObject(api, requestKey, httpMethod, fileName, inputStream, requestText, header);
+        Map<String, String> result = CustomOssUtils.putObject(api, requestKey, httpMethod, filename, inputStream, requestText, header);
 
         // 验证结果
         assertNotNull(result);
@@ -358,12 +358,12 @@ public class CustomOssUtilsTest {
 
         // 准备测试数据
         String requestKey = "file";
-        String fileName = "test.jpg";
+        String filename = "test.jpg";
         InputStream inputStream = new ByteArrayInputStream("test image data".getBytes());
         java.io.OutputStream outputStream = new java.io.ByteArrayOutputStream();
 
         // 执行测试
-        String result = (String) writeFileMethod.invoke(null, requestKey, fileName, inputStream, outputStream);
+        String result = (String) writeFileMethod.invoke(null, requestKey, filename, inputStream, outputStream);
 
         // 验证结果
         assertNotNull(result);
@@ -496,13 +496,13 @@ public class CustomOssUtilsTest {
         String api = "https://example.com/upload";
         String requestKey = "file";
         String httpMethod = "POST";
-        String fileName = "test.jpg";
+        String filename = "test.jpg";
         InputStream inputStream = new ByteArrayInputStream("test image data".getBytes());
         Map<String, String> requestText = new HashMap<>();
         Map<String, String> header = new HashMap<>();
 
         // 执行测试
-        CustomOssUtils.putObject(api, requestKey, httpMethod, fileName, inputStream, requestText, header);
+        CustomOssUtils.putObject(api, requestKey, httpMethod, filename, inputStream, requestText, header);
 
         // 验证 disconnect 方法被调用
         verify(mockConnection, times(1)).disconnect();

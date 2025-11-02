@@ -159,7 +159,7 @@ public class UploadNotification extends MikNotification {
      */
     private static void buildContent(Map<VirtualFile, List<String>> listMap, StringBuilder content, String s) {
         for (Map.Entry<VirtualFile, List<String>> entry : listMap.entrySet()) {
-            String fileName = entry.getKey().getName();
+            String filename = entry.getKey().getName();
             List<String> images = entry.getValue();
 
             // 使用占位符构建链接行
@@ -168,7 +168,7 @@ public class UploadNotification extends MikNotification {
                                                s,  // {0} - 提示文本（如 "Image Not Found:"）
                                                entry.getKey().getUrl(),  // {1} - 文件URL
                                                MikBundle.message("notification.open.file"),  // {2} - "Open File"
-                                               fileName);  // {3} - 文件名
+                                               filename);  // {3} - 文件名
             content.append(linkContent);
 
             // 使用占位符构建列表项

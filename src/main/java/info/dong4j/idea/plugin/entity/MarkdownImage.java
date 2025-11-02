@@ -28,7 +28,7 @@ public class MarkdownImage implements Serializable {
     @Serial
     private static final long serialVersionUID = -533088989259774894L;
     /** 对应的文档名称 */
-    private String fileName;
+    private String filename;
     /** 图片名称 */
     private String imageName;
     /** 图片文件扩展名 */

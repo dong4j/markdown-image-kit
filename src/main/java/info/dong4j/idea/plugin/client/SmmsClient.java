@@ -107,13 +107,13 @@ public class SmmsClient implements OssClient {
      * 使用输入流将文件上传至对象存储服务，并解析返回结果获取文件访问URL。
      *
      * @param inputStream 文件输入流，用于读取上传文件的内容
-     * @param fileName    文件名，用于标识上传的文件
+     * @param filename    文件名，用于标识上传的文件
      * @return 上传成功后返回的文件访问URL
      * @throws Exception 上传过程中发生异常时抛出
      * @since 1.5.0
      */
     @Override
-    public String upload(InputStream inputStream, String fileName) throws Exception {
+    public String upload(InputStream inputStream, String filename) throws Exception {
         // 确保配置已初始化
         if (StringUtils.isBlank(token)) {
             init();
@@ -121,7 +121,7 @@ public class SmmsClient implements OssClient {
 
         return SmmsUtils.putObject(this.api,
                                    this.token,
-                                   fileName,
+                                   filename,
                                    inputStream);
 
     }
@@ -133,14 +133,14 @@ public class SmmsClient implements OssClient {
      * 这是新的测试接口，优先使用此接口进行测试上传。
      *
      * @param inputStream 输入流，用于读取上传文件的数据
-     * @param fileName    文件名，表示上传文件的名称
+     * @param filename    文件名，表示上传文件的名称
      * @param state       MikState对象，包含所有配置状态信息
      * @return 处理结果字符串
      * @throws Exception 通用异常，用于封装可能发生的各种错误
      * @since 2.0.0
      */
     @Override
-    public String upload(InputStream inputStream, String fileName, MikState state) throws Exception {
+    public String upload(InputStream inputStream, String filename, MikState state) throws Exception {
         SmmsOssState smmsOssState = state.getSmmsOssState();
         String token = PasswordManager.getPassword(SmmsOssSetting.CREDENTIAL_ATTRIBUTES);
         String api = smmsOssState.getUrl();
@@ -148,7 +148,7 @@ public class SmmsClient implements OssClient {
         Asserts.notBlank(api, "URL 不能为空");
         Asserts.notBlank(token, "Token 不能为空");
 
-        return this.upload(inputStream, fileName, api, token);
+        return this.upload(inputStream, filename, api, token);
     }
 
     /**
@@ -157,21 +157,21 @@ public class SmmsClient implements OssClient {
      * 该方法通过传入的 JPanel 获取配置信息，包括 API 地址、请求 key、响应 URL 路径和 HTTP 方法，然后调用 upload 方法执行上传逻辑。
      *
      * @param inputStream 输入流，用于读取上传文件的内容
-     * @param fileName    文件名，表示上传的文件名称
+     * @param filename    文件名，表示上传的文件名称
      * @param jPanel      JPanel 对象，用于获取当前界面配置信息
      * @return 上传操作的结果字符串
      * @throws Exception 上传过程中发生异常时抛出
      * @since 1.5.0
      */
     @Override
-    public String upload(InputStream inputStream, String fileName, JPanel jPanel) throws Exception {
+    public String upload(InputStream inputStream, String filename, JPanel jPanel) throws Exception {
         Map<String, String> map = this.getTestFieldText(jPanel);
         String token = map.get("token");
         String api = map.get("api");
 
         Asserts.notBlank(token, "Token 不能为空");
 
-        return this.upload(inputStream, fileName, api, token);
+        return this.upload(inputStream, filename, api, token);
     }
 
     /**
@@ -181,7 +181,7 @@ public class SmmsClient implements OssClient {
      * 若上传成功且返回的URL不为空，则根据传入的API、请求键、响应URL路径和HTTP方法计算哈希值，并更新OSS状态。
      *
      * @param inputStream 上传的输入流
-     * @param fileName    文件名
+     * @param filename    文件名
      * @return 上传成功后的URL字符串，若上传失败或无返回则可能为空
      * @throws Exception 上传过程中发生异常时抛出
      * @since 1.5.0
@@ -189,13 +189,13 @@ public class SmmsClient implements OssClient {
     @NotNull
     @Contract(pure = true)
     public String upload(InputStream inputStream,
-                         String fileName,
+                         String filename,
                          String api,
                          String token) throws Exception {
 
         this.api = api;
         this.token = token;
-        String url = this.upload(inputStream, fileName);
+        String url = this.upload(inputStream, filename);
 
         if (StringUtils.isNotBlank(url)) {
             int hashcode = token.hashCode();

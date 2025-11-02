@@ -177,7 +177,7 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
                 }
                 String newName = baseName + ".webp";
                 markdownImage.setImageName(newName);
-                markdownImage.setFileName(newName);
+                markdownImage.setFilename(newName);
                 markdownImage.setExtension("webp");
 
                 // 更新文件路径，将后缀改为.webp

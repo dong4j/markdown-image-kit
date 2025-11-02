@@ -28,14 +28,14 @@
 
 ```java
 @Override
-public String upload(InputStream inputStream, String fileName) throws Exception {
+public String upload(InputStream inputStream, String filename) throws Exception {
     // 如果配置了可执行文件路径，使用命令行方式上传
     if (StringUtils.isNotEmpty(exePath)) {
-        return uploadViaCommandLine(inputStream, fileName);
+        return uploadViaCommandLine(inputStream, filename);
     }
     
     // 否则使用 API 方式上传
-    return uploadViaApi(inputStream, fileName);
+    return uploadViaApi(inputStream, filename);
 }
 ```
 
@@ -178,10 +178,10 @@ C:\Users\YourName\AppData\Local\PicList\PicList.exe
 // 根据配置自动选择最佳上传方式
 if (StringUtils.isNotEmpty(exePath)) {
     // 使用命令行上传（更快，更适合本地）
-    return uploadViaCommandLine(inputStream, fileName);
+    return uploadViaCommandLine(inputStream, filename);
 } else {
     // 使用 API 上传（更灵活，支持远程配置）
-    return uploadViaApi(inputStream, fileName);
+    return uploadViaApi(inputStream, filename);
 }
 ```
 

@@ -192,7 +192,7 @@ public class ImageUploadFlowIntegrationTest {
      */
     private Map<Document, List<MarkdownImage>> createMockMarkdownImages() {
         MarkdownImage image = new MarkdownImage();
-        image.setFileName("test.md");
+        image.setFilename("test.md");
         image.setImageName("test.png");
         image.setExtension(".png");
         image.setOriginalLineText("![测试](./imgs/test.png)");
@@ -260,22 +260,22 @@ public class ImageUploadFlowIntegrationTest {
          * 如果配置为模拟上传失败，则返回 null；否则返回一个模拟的文件访问 URL。
          *
          * @param inputStream 上传的输入流
-         * @param fileName    文件名
+         * @param filename    文件名
          * @return 文件的访问 URL，若上传失败则返回 null
          * @throws Exception 上传过程中发生异常时抛出
          */
         @Override
-        public String upload(InputStream inputStream, String fileName) throws Exception {
+        public String upload(InputStream inputStream, String filename) throws Exception {
             uploadCalled = true;
             assertNotNull(inputStream, "输入流不应该为 null");
-            assertNotNull(fileName, "文件名不应该为 null");
+            assertNotNull(filename, "文件名不应该为 null");
 
             if (shouldFail) {
                 return null; // 模拟上传失败
             }
 
             // 返回模拟的 URL
-            return "https://example.com/uploads/" + fileName;
+            return "https://example.com/uploads/" + filename;
         }
 
         /**
@@ -284,14 +284,14 @@ public class ImageUploadFlowIntegrationTest {
          * 该方法通过调用内部的 upload 方法实现文件上传功能，忽略传入的 jPanel 参数。
          *
          * @param inputStream 文件输入流，用于读取上传的文件内容
-         * @param fileName    文件名，表示上传文件的名称
+         * @param filename    文件名，表示上传文件的名称
          * @param jPanel      用于上传操作的面板（未使用）
          * @return 上传结果的字符串表示
          * @throws Exception 上传过程中发生异常时抛出
          */
         @Override
-        public String upload(InputStream inputStream, String fileName, javax.swing.JPanel jPanel) throws Exception {
-            return upload(inputStream, fileName);
+        public String upload(InputStream inputStream, String filename, javax.swing.JPanel jPanel) throws Exception {
+            return upload(inputStream, filename);
         }
     }
 

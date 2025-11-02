@@ -43,7 +43,7 @@ public class CustomOssUtils {
      * @param api         目标API地址
      * @param requestKey  请求参数的键
      * @param httpMethod  HTTP请求方法（如GET、POST等）
-     * @param fileName    上传文件的文件名
+     * @param filename    上传文件的文件名
      * @param inputStream 上传文件的输入流
      * @param requestText 请求参数的键值对Map
      * @param header      请求头信息的键值对Map
@@ -53,7 +53,7 @@ public class CustomOssUtils {
     public static Map<String, String> putObject(String api,
                                                 String requestKey,
                                                 String httpMethod,
-                                                String fileName,
+                                                String filename,
                                                 InputStream inputStream,
                                                 Map<String, String> requestText,
                                                 Map<String, String> header) throws Exception {
@@ -84,7 +84,7 @@ public class CustomOssUtils {
             // 写入请求参数
             params = writeParams(requestText, os);
             // 写入文件数据
-            filePart = writeFile(requestKey, fileName, inputStream, os);
+            filePart = writeFile(requestKey, filename, inputStream, os);
             // 写入结束标志
             String endTarget = PREFIX + BOUNDARY + PREFIX + LINE_END;
             os.write(endTarget.getBytes());
@@ -134,18 +134,18 @@ public class CustomOssUtils {
      * 该方法用于构建并写入包含文件上传信息的请求体，包括文件名、内容类型等参数头信息，以及文件内容本身。
      *
      * @param requestKey  请求参数的键名
-     * @param fileName    文件名
+     * @param filename    文件名
      * @param inputStream 文件输入流，用于读取文件内容
      * @param os          输出流，用于写入构建好的请求数据
      * @return 构建好的请求数据字符串
      * @throws Exception 如果在写入过程中发生异常
      */
-    private static String writeFile(String requestKey, String fileName, InputStream inputStream, OutputStream os) throws Exception {
+    private static String writeFile(String requestKey, String filename, InputStream inputStream, OutputStream os) throws Exception {
         StringBuilder requestParams = new StringBuilder();
         requestParams.append(PREFIX).append(BOUNDARY).append(LINE_END);
         requestParams.append("Content-Disposition: form-data; name=\"")
             .append(requestKey).append("\"; filename=\"")
-            .append(fileName).append("\"")
+            .append(filename).append("\"")
             .append(LINE_END);
         requestParams.append("Content-Type: application/octet-stream").append(LINE_END);
         requestParams.append(LINE_END); // 参数头和内容之间的空行

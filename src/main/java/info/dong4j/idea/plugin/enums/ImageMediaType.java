@@ -171,25 +171,25 @@ public enum ImageMediaType {
         };
     }
 
-    public static String fromFileName(String fileName) {
-        return fromExtension(fileName, "");
+    public static String fromFileName(String filename) {
+        return fromExtension(filename, "");
     }
 
     /**
      * 根据文件名获取 Content-Type
      *
-     * @param fileName 文件名
+     * @param filename 文件名
      * @return 对应的 Content-Type，无法识别时返回空字符串
      */
-    public static String fromFileName(String fileName, String defaultContentType) {
-        if (fileName == null || fileName.isEmpty()) {
+    public static String fromFileName(String filename, String defaultContentType) {
+        if (filename == null || filename.isEmpty()) {
             return "";
         }
-        int dot = fileName.lastIndexOf('.');
-        if (dot < 0 || dot == fileName.length() - 1) {
+        int dot = filename.lastIndexOf('.');
+        if (dot < 0 || dot == filename.length() - 1) {
             return "";
         }
-        String ext = fileName.substring(dot).toLowerCase();
+        String ext = filename.substring(dot).toLowerCase();
         return fromExtension(ext, defaultContentType);
     }
 }
