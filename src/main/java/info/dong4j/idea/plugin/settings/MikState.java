@@ -2,7 +2,6 @@ package info.dong4j.idea.plugin.settings;
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.InsertImageActionEnum;
-import info.dong4j.idea.plugin.enums.SuffixEnum;
 import info.dong4j.idea.plugin.settings.oss.AliyunOssState;
 import info.dong4j.idea.plugin.settings.oss.BaiduBosState;
 import info.dong4j.idea.plugin.settings.oss.CustomOssState;
@@ -53,9 +52,6 @@ public class MikState {
     //region 图片处理
     /** 重命名文件标志，用于指示是否需要对文件进行重命名操作 */
     private boolean rename = false;
-    /** 文件名后缀索引，用于标识当前文件的后缀类型（已废弃，使用 renameTemplate 代替） */
-    @Deprecated
-    private int suffixIndex = SuffixEnum.FILE_NAME.index;
 
     /**
      * 重命名模板，支持占位符格式：

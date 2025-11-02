@@ -315,14 +315,8 @@ public class ImageEnhancementPanel {
             if (template != null && !template.trim().isEmpty()) {
                 this.renamePatternTextField.setText(template);
             } else {
-                // 如果模板为空，根据旧的 suffixIndex 设置默认模式（兼容性处理）
-                if (state.getSuffixIndex() == 0) {
-                    this.renamePatternTextField.setText("${filename}");
-                } else if (state.getSuffixIndex() == 1) {
-                    this.renamePatternTextField.setText("${datetime:yyyy-MM-dd}_${filename}");
-                } else {
-                    this.renamePatternTextField.setText("MIK-${string:6}");
-                }
+                // 如果模板为空，使用默认模板
+                this.renamePatternTextField.setText("${filename}");
             }
         }
 
@@ -417,18 +411,6 @@ public class ImageEnhancementPanel {
         state.setRename(this.renameCheckBox.isSelected());
         // 保存重命名模板
         state.setRenameTemplate(this.renamePatternTextField.getText().trim());
-
-        // 兼容性处理：根据重命名模式推断 suffixIndex，保持旧版本兼容
-        if (this.renamePatternTextField != null && this.renameCheckBox.isSelected()) {
-            String pattern = this.renamePatternTextField.getText().trim();
-            if (pattern.contains("${datetime:") || pattern.contains("${yyyy") || pattern.contains("${date")) {
-                state.setSuffixIndex(1); // 日期-文件名
-            } else if (pattern.contains("${random") || pattern.contains("${string:") || pattern.contains("${number:")) {
-                state.setSuffixIndex(2); // 随机
-            } else {
-                state.setSuffixIndex(0); // 文件名
-            }
-        }
 
         state.setWatermark(this.watermarkCheckBox.isSelected());
         state.setWatermarkText(this.watermarkTextTextField.getText().trim());
