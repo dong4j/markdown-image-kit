@@ -13,7 +13,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.exception.UploadException;
-import info.dong4j.idea.plugin.settings.ProjectSettingsPagePreview;
+import info.dong4j.idea.plugin.settings.NewProjectSettingsPage;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -92,7 +92,7 @@ public class UploadNotification extends MikNotification {
         notification.addAction(new NotificationAction(MikBundle.message("notification.configure.oss")) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
-                ProjectSettingsPagePreview configurable = new ProjectSettingsPagePreview();
+                NewProjectSettingsPage configurable = new NewProjectSettingsPage();
                 // 打开设置面板
                 ShowSettingsUtil.getInstance().editConfigurable(project, configurable);
                 notification.expire();
@@ -221,7 +221,7 @@ public class UploadNotification extends MikNotification {
         notification.addAction(new NotificationAction(MikBundle.message("notification.configure.oss")) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
-                ProjectSettingsPagePreview configurable = new ProjectSettingsPagePreview();
+                NewProjectSettingsPage configurable = new NewProjectSettingsPage();
                 // 打开设置面板
                 ShowSettingsUtil.getInstance().editConfigurable(project, configurable);
                 notification.expire();

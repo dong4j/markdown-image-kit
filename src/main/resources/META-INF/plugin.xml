@@ -44,7 +44,7 @@
 
         <applicationConfigurable
                 parentId="tools"
-                instance="info.dong4j.idea.plugin.settings.ProjectSettingsPagePreview"
+                instance="info.dong4j.idea.plugin.settings.NewProjectSettingsPage"
                 id="markdown.image.kit.preview"
                 displayName="Markdown Image Kit (Preview)"/>
 

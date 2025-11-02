@@ -3,6 +3,7 @@ package info.dong4j.idea.plugin.settings.panel;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ui.JBUI;
 
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.settings.MikState;
 
@@ -25,58 +26,32 @@ import javax.swing.SpinnerNumberModel;
 import lombok.Getter;
 
 /**
- *
+ * 图片增强处理面板类
+ * <p>
+ * 该类用于构建和管理图片增强处理的图形界面面板，包含图片格式转换、压缩设置、重命名模板、水印添加等功能组件。支持与状态对象的初始化、修改检测和配置应用操作，便于在图像处理流程中进行配置管理和界面交互。
  *
  * @author dong4j
  * @version 1.0.0
- * @email "mailto:dong4j@gmail.com"
- * @date 2025.10.31 22:42
- * @since x.x.x
+ * @date 2025.10.31
+ * @since 1.0.0
  */
-@SuppressWarnings("ALL")
 public class ImageEnhancementPanel {
 
     // ========== 图片增强处理区域 ==========
-    /**
-     * 图片增强处理面板
-     */
+    /** 图片增强处理面板 */
     @Getter
     private JPanel content;
-    /**
-     * 替换为 <a> 标签复选框
-     * <p>
-     * 【字段映射】对应老页面的 changeToHtmlTagCheckBox
-     */
+    /** 替换为 <a> 标签的复选框，用于控制是否将选项转换为 HTML 标签 */
     private JCheckBox replaceToHtmlTagCheckBox;
-    /**
-     * 正常 HTML 标签单选按钮
-     * <p>
-     * 【字段映射】对应老页面的 commonRadioButton
-     */
+    /** 正常 HTML 标签单选按钮，对应老页面的 commonRadioButton */
     private JRadioButton normalHtmlTagRadioButton;
-    /**
-     * 点击放大 HTML 标签单选按钮
-     * <p>
-     * 【字段映射】对应老页面的 largePictureRadioButton
-     */
+    /** 点击放大 HTML 标签单选按钮，用于表示是否启用点击放大 HTML 标签的功能 */
     private JRadioButton clickToZoomHtmlTagRadioButton;
-    /**
-     * 自定义 HTML 标签单选按钮
-     * <p>
-     * 【字段映射】对应老页面的 customRadioButton
-     */
+    /** 自定义 HTML 标签单选按钮 【字段映射】对应老页面的 customRadioButton */
     private JRadioButton customHtmlTagRadioButton;
-    /**
-     * 自定义 HTML 标签输入框
-     * <p>
-     * 【字段映射】对应老页面的 customHtmlTypeTextField
-     */
+    /** 自定义 HTML 标签输入框，用于输入自定义的 HTML 标签内容 */
     private JTextField customHtmlTagTextField;
-    /**
-     * 图片压缩复选框
-     * <p>
-     * 【字段映射】对应老页面的 compressCheckBox
-     */
+    /** 图片压缩复选框 【字段映射】对应老页面的 compressCheckBox */
     private JCheckBox compressCheckBox;
     /**
      * 压缩比例微调器
@@ -84,17 +59,9 @@ public class ImageEnhancementPanel {
      * 【字段映射】对应老页面的 compressSlider (JSlider)，新页面改为 JSpinner 以便更精确控制
      */
     private JSpinner compressSpinner;
-    /**
-     * 转为 WebP 复选框
-     * <p>
-     * 【字段映射】对应老页面的 convertToWebpCheckBox
-     */
+    /** 转为 WebP 复选框 【字段映射】对应老页面的 convertToWebpCheckBox */
     private JCheckBox convertToWebpCheckBox;
-    /**
-     * WebP 质量微调器
-     * <p>
-     * 【新功能】老页面没有单独的质量控制，新页面增加了 WebP 质量设置
-     */
+    /** WebP 质量微调器，用于调整 WebP 图像的压缩质量，新页面新增功能，老页面未包含此设置 */
     private JSpinner webpQualitySpinner;
     /**
      * 图片重命名复选框
@@ -102,79 +69,177 @@ public class ImageEnhancementPanel {
      * 【字段映射】对应老页面的 renameCheckBox
      */
     private JCheckBox renameCheckBox;
-    /**
-     * 重命名模式输入框（支持占位符）
-     * <p>
-     * 【字段映射】对应老页面的 fileNameSuffixBoxField，但新页面改为文本输入框，支持更灵活的占位符格式
-     * <p>
-     * 注意：老页面使用 ComboBox 选择固定模式（文件名、日期-文件名、随机），新页面改为文本输入框支持自定义占位符
-     */
+    /** 重命名模式输入框，支持占位符格式，用于新页面中自定义文件重命名模式 */
     private JTextField renamePatternTextField;
-    /**
-     * 重命名占位符提示标签
-     * <p>
-     * 【新功能】
-     */
+    /** 重命名占位符提示标签 */
     private JLabel renamePlaceholderHintLabel;
-    /**
-     * 添加水印复选框
-     * <p>
-     * 【字段映射】对应老页面的 watermarkCheckBox
-     */
+    /** 添加水印的复选框，用于控制是否显示水印功能 */
     private JCheckBox watermarkCheckBox;
-    /**
-     * 水印文本输入框
-     * <p>
-     * 【字段映射】对应老页面的 watermarkTextField
-     */
+    /** 水印文本输入框，用于输入水印内容，【字段映射】对应老页面的 watermarkTextField */
     private JTextField watermarkTextTextField;
 
+    /**
+     * 构造函数，初始化图像增强面板
+     * <p>
+     * 调用 createImageEnhancementPanel 方法创建图像增强面板
+     */
     public ImageEnhancementPanel() {
         createImageEnhancementPanel();
     }
 
     /**
      * 创建图片增强处理区域面板
+     * <p>
+     * 初始化并构建图片增强处理相关的 UI 控件，包括重命名、图片压缩、转为 WebP、添加水印、替换为 HTML 标签等功能的控件布局。
+     * 该面板使用 GridBagLayout 布局管理器进行布局，并通过 GridBagConstraints 控制各组件的位置和大小。
+     * 所有控件的启用状态根据对应的复选框状态动态切换。
      */
     private void createImageEnhancementPanel() {
         content = new JPanel();
         content.setLayout(new GridBagLayout());
-        content.setBorder(BorderFactory.createTitledBorder("图片处理"));
+        content.setBorder(BorderFactory.createTitledBorder(MikBundle.message("panel.image.enhancement.title")));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = JBUI.insets(5, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // 替换为 <a> 标签
+        // 图片重命名 - 放在最前面
         gbc.gridx = 0;
         gbc.gridy = 0;
+        gbc.gridwidth = 1;
+        gbc.weightx = 0;
+        gbc.insets = JBUI.insets(5, 10); // 确保复选框使用统一的间距设置
+        renameCheckBox = new JCheckBox(MikBundle.message("panel.image.enhancement.rename"));
+        content.add(renameCheckBox, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridwidth = 2;
+        gbc.weightx = 1.0;
+        renamePatternTextField = new JTextField("${filename}");
+        renamePatternTextField.setEnabled(false);
+        renamePatternTextField.setToolTipText("重命名模板，支持占位符");
+        content.add(renamePatternTextField, gbc);
+
+        // 占位符提示标签
+        gbc.gridx = 1;
+        gbc.gridy = 1;
         gbc.gridwidth = 3;
-        replaceToHtmlTagCheckBox = new JCheckBox("替换为 <a> 标签");
+        gbc.weightx = 0;
+        renamePlaceholderHintLabel = new JBLabel(MikBundle.message("panel.image.enhancement.rename.hint"));
+        renamePlaceholderHintLabel.setEnabled(true);
+        content.add(renamePlaceholderHintLabel, gbc);
+
+        renameCheckBox.addActionListener(e -> {
+            boolean enabled = renameCheckBox.isSelected();
+            renamePatternTextField.setEnabled(enabled);
+            renamePlaceholderHintLabel.setEnabled(enabled);
+        });
+
+        // 图片压缩
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 1;
+        gbc.weightx = 0;
+        gbc.insets = JBUI.insets(5, 10); // 确保复选框使用统一的间距设置
+        compressCheckBox = new JCheckBox(MikBundle.message("panel.image.enhancement.compress"));
+        content.add(compressCheckBox, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridwidth = 1; // 改为只占一列
+        gbc.weightx = 0; // 不拉伸
+        gbc.fill = GridBagConstraints.NONE; // 不填充，保持固定大小
+        compressSpinner = new JSpinner(new SpinnerNumberModel(80, 40, 90, 1));
+        compressSpinner.setEnabled(false);
+        ((JSpinner.DefaultEditor) compressSpinner.getEditor()).getTextField().setColumns(5);
+        // 禁止直接在文本框中输入，只能通过上下按钮调节
+        ((JSpinner.DefaultEditor) compressSpinner.getEditor()).getTextField().setEditable(false);
+        // 设置 JSpinner 的宽度
+        compressSpinner.setPreferredSize(new Dimension(100, compressSpinner.getPreferredSize().height));
+        compressSpinner.setMaximumSize(new Dimension(100, compressSpinner.getMaximumSize().height));
+        content.add(compressSpinner, gbc);
+        // 恢复 fill 设置
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        compressCheckBox.addActionListener(e -> compressSpinner.setEnabled(compressCheckBox.isSelected()));
+
+        // 转为 WebP
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 1;
+        gbc.weightx = 0;
+        gbc.insets = JBUI.insets(5, 10); // 确保复选框使用统一的间距设置
+        convertToWebpCheckBox = new JCheckBox(MikBundle.message("panel.image.enhancement.webp"));
+        content.add(convertToWebpCheckBox, gbc);
+
+
+        gbc.gridx = 1;
+        gbc.gridwidth = 1; // 改为只占一列
+        gbc.weightx = 0; // 不拉伸
+        gbc.fill = GridBagConstraints.NONE; // 不填充，保持固定大小
+        webpQualitySpinner = new JSpinner(new SpinnerNumberModel(80, 40, 90, 1));
+        webpQualitySpinner.setEnabled(false);
+        ((JSpinner.DefaultEditor) webpQualitySpinner.getEditor()).getTextField().setColumns(5);
+        // 禁止直接在文本框中输入，只能通过上下按钮调节
+        ((JSpinner.DefaultEditor) webpQualitySpinner.getEditor()).getTextField().setEditable(false);
+        // 设置 JSpinner 的宽度
+        webpQualitySpinner.setPreferredSize(new Dimension(100, webpQualitySpinner.getPreferredSize().height));
+        webpQualitySpinner.setMaximumSize(new Dimension(100, webpQualitySpinner.getMaximumSize().height));
+        content.add(webpQualitySpinner, gbc);
+        // 恢复 fill 设置
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        convertToWebpCheckBox.addActionListener(e -> webpQualitySpinner.setEnabled(convertToWebpCheckBox.isSelected()));
+
+        // 添加水印
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.gridwidth = 1;
+        gbc.weightx = 0;
+        gbc.insets = JBUI.insets(5, 10); // 确保复选框使用统一的间距设置
+        watermarkCheckBox = new JCheckBox(MikBundle.message("panel.image.enhancement.watermark"));
+        content.add(watermarkCheckBox, gbc);
+
+        gbc.gridy = 4;
+        gbc.gridx = 1;
+        gbc.gridwidth = 2;
+        gbc.weightx = 1.0;
+        watermarkTextTextField = new JTextField();
+        watermarkTextTextField.setEnabled(false);
+        watermarkTextTextField.setToolTipText("请输入水印文本");
+        content.add(watermarkTextTextField, gbc);
+
+        watermarkCheckBox.addActionListener(e -> watermarkTextTextField.setEnabled(watermarkCheckBox.isSelected()));
+
+        // 替换为 <a> 标签 - 放在水印下面
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.gridwidth = 3;
+        replaceToHtmlTagCheckBox = new JCheckBox(MikBundle.message("panel.image.enhancement.replace.html.tag"));
         content.add(replaceToHtmlTagCheckBox, gbc);
 
         ButtonGroup htmlTagGroup = new ButtonGroup();
 
         // 正常 - 相对复选框缩进2个空格宽度
-        gbc.gridy = 1;
+        gbc.gridy = 6;
         gbc.gridwidth = 1;
         gbc.gridx = 0;
         gbc.insets = JBUI.insets(5, 30, 5, 10); // 左边距30像素（约2个空格）
-        normalHtmlTagRadioButton = new JRadioButton("正常");
+        normalHtmlTagRadioButton = new JRadioButton(MikBundle.message("panel.image.enhancement.html.normal"));
         normalHtmlTagRadioButton.setEnabled(false);
         htmlTagGroup.add(normalHtmlTagRadioButton);
         content.add(normalHtmlTagRadioButton, gbc);
 
         // 点击放大
-        gbc.gridy = 2;
-        clickToZoomHtmlTagRadioButton = new JRadioButton("点击放大");
+        gbc.gridy = 7;
+        clickToZoomHtmlTagRadioButton = new JRadioButton(MikBundle.message("panel.image.enhancement.html.zoom"));
         clickToZoomHtmlTagRadioButton.setEnabled(false);
         htmlTagGroup.add(clickToZoomHtmlTagRadioButton);
         content.add(clickToZoomHtmlTagRadioButton, gbc);
 
         // 自定义
-        gbc.gridy = 3;
-        customHtmlTagRadioButton = new JRadioButton("自定义:");
+        gbc.gridy = 8;
+        customHtmlTagRadioButton = new JRadioButton(MikBundle.message("panel.image.enhancement.html.custom"));
         customHtmlTagRadioButton.setEnabled(false);
         htmlTagGroup.add(customHtmlTagRadioButton);
         content.add(customHtmlTagRadioButton, gbc);
@@ -197,138 +262,16 @@ public class ImageEnhancementPanel {
             customHtmlTagRadioButton.setEnabled(enabled);
             customHtmlTagTextField.setEnabled(enabled && customHtmlTagRadioButton.isSelected());
         });
-        customHtmlTagRadioButton.addActionListener(e -> {
-            customHtmlTagTextField.setEnabled(replaceToHtmlTagCheckBox.isSelected() && customHtmlTagRadioButton.isSelected());
-        });
-
-        // 图片压缩
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        gbc.gridwidth = 1;
-        gbc.weightx = 0;
-        gbc.insets = JBUI.insets(5, 10); // 确保复选框使用统一的间距设置
-        compressCheckBox = new JCheckBox("图片压缩");
-        content.add(compressCheckBox, gbc);
-
-        gbc.gridx = 1;
-        gbc.gridwidth = 1; // 改为只占一列
-        gbc.weightx = 0; // 不拉伸
-        gbc.fill = GridBagConstraints.NONE; // 不填充，保持固定大小
-        compressSpinner = new JSpinner(new SpinnerNumberModel(80, 40, 90, 1));
-        compressSpinner.setEnabled(false);
-        ((JSpinner.DefaultEditor) compressSpinner.getEditor()).getTextField().setColumns(5);
-        // 禁止直接在文本框中输入，只能通过上下按钮调节
-        ((JSpinner.DefaultEditor) compressSpinner.getEditor()).getTextField().setEditable(false);
-        // 设置 JSpinner 的宽度
-        compressSpinner.setPreferredSize(new Dimension(100, compressSpinner.getPreferredSize().height));
-        compressSpinner.setMaximumSize(new Dimension(100, compressSpinner.getMaximumSize().height));
-        content.add(compressSpinner, gbc);
-        // 恢复 fill 设置
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-
-        compressCheckBox.addActionListener(e -> {
-            compressSpinner.setEnabled(compressCheckBox.isSelected());
-        });
-
-        // 转为 WebP
-        gbc.gridx = 0;
-        gbc.gridy = 5;
-        gbc.gridwidth = 1;
-        gbc.weightx = 0;
-        gbc.insets = JBUI.insets(5, 10); // 确保复选框使用统一的间距设置
-        convertToWebpCheckBox = new JCheckBox("转为 WebP");
-        convertToWebpCheckBox.setToolTipText("将图片转换为 WebP 格式以减小文件大小");
-        content.add(convertToWebpCheckBox, gbc);
-
-
-        gbc.gridx = 1;
-        gbc.gridwidth = 1; // 改为只占一列
-        gbc.weightx = 0; // 不拉伸
-        gbc.fill = GridBagConstraints.NONE; // 不填充，保持固定大小
-        webpQualitySpinner = new JSpinner(new SpinnerNumberModel(80, 40, 90, 1));
-        webpQualitySpinner.setEnabled(false);
-        ((JSpinner.DefaultEditor) webpQualitySpinner.getEditor()).getTextField().setColumns(5);
-        // 禁止直接在文本框中输入，只能通过上下按钮调节
-        ((JSpinner.DefaultEditor) webpQualitySpinner.getEditor()).getTextField().setEditable(false);
-        // 设置 JSpinner 的宽度
-        webpQualitySpinner.setPreferredSize(new Dimension(100, webpQualitySpinner.getPreferredSize().height));
-        webpQualitySpinner.setMaximumSize(new Dimension(100, webpQualitySpinner.getMaximumSize().height));
-        content.add(webpQualitySpinner, gbc);
-        // 恢复 fill 设置
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-
-        convertToWebpCheckBox.addActionListener(e -> {
-            webpQualitySpinner.setEnabled(convertToWebpCheckBox.isSelected());
-        });
-
-        // 图片重命名 - 复选框和输入框同一行
-        gbc.gridx = 0;
-        gbc.gridy = 6;
-        gbc.gridwidth = 1;
-        gbc.weightx = 0;
-        gbc.insets = JBUI.insets(5, 10); // 确保复选框使用统一的间距设置
-        renameCheckBox = new JCheckBox("图片重命名");
-        content.add(renameCheckBox, gbc);
-
-        gbc.gridx = 1;
-        gbc.gridwidth = 2;
-        gbc.weightx = 1.0;
-        renamePatternTextField = new JTextField("${filename}");
-        renamePatternTextField.setEnabled(false);
-        renamePatternTextField.setToolTipText("重命名模板，支持占位符");
-        content.add(renamePatternTextField, gbc);
-
-        // 占位符提示标签
-        gbc.gridx = 1;
-        gbc.gridy = 7;
-        gbc.gridwidth = 3;
-        gbc.weightx = 0;
-        renamePlaceholderHintLabel = new JBLabel("""
-                                                     <html>
-                                                         <b>${datetime:format}</b>: 日期时间，如 ${datetime:yyyyMMdd}<br/>
-                                                         <b>${string:length}</b>: 随机字符串，如 ${string:6}<br/>
-                                                         <b>${number:length}</b>: 随机数字，如 ${number:6}<br/>
-                                                         <b>${filename}</b>: 原文件名<br/>
-                                                         示例: ${datetime:yyyyMMdd}_${string:6}, ${datetime:yyyy-MM-dd}_${filename}
-                                                     </html>
-                                                     """);
-        renamePlaceholderHintLabel.setEnabled(true);
-        content.add(renamePlaceholderHintLabel, gbc);
-
-        renameCheckBox.addActionListener(e -> {
-            boolean enabled = renameCheckBox.isSelected();
-            renamePatternTextField.setEnabled(enabled);
-            renamePlaceholderHintLabel.setEnabled(enabled);
-        });
-
-        // 添加水印
-        gbc.gridx = 0;
-        gbc.gridy = 10;
-        gbc.gridwidth = 1;
-        gbc.weightx = 0;
-        gbc.insets = JBUI.insets(5, 10); // 确保复选框使用统一的间距设置
-        watermarkCheckBox = new JCheckBox("添加水印");
-        content.add(watermarkCheckBox, gbc);
-
-        gbc.gridy = 10;
-        gbc.gridx = 1;
-        gbc.gridwidth = 2;
-        gbc.weightx = 1.0;
-        watermarkTextTextField = new JTextField();
-        watermarkTextTextField.setEnabled(false);
-        watermarkTextTextField.setToolTipText("请输入水印文本");
-        content.add(watermarkTextTextField, gbc);
-
-        watermarkCheckBox.addActionListener(e -> {
-            watermarkTextTextField.setEnabled(watermarkCheckBox.isSelected());
-        });
+        customHtmlTagRadioButton.addActionListener(e -> customHtmlTagTextField.setEnabled(replaceToHtmlTagCheckBox.isSelected() && customHtmlTagRadioButton.isSelected()));
 
     }
 
     /**
      * 初始化图片增强处理面板
+     * <p>
+     * 根据传入的状态对象初始化图片增强相关的 UI 组件，包括 HTML 标签类型、图片压缩、转为 WebP、图片重命名和水印设置。
      *
-     * @param state 当前状态对象
+     * @param state 当前状态对象，包含图片增强处理的各种配置信息
      */
     public void initImageEnhancementPanel(@NotNull MikState state) {
         // 替换为 HTML 标签
@@ -391,10 +334,14 @@ public class ImageEnhancementPanel {
 
     /**
      * 判断图片增强处理设置是否已修改
+     * <p>
+     * 比较当前图片增强处理配置与给定状态对象的配置，判断是否发生改变。
+     * 如果所有配置项均一致，则返回 false；否则返回 true。
      *
      * @param state 要比较的状态对象
-     * @return 如果当前状态与给定状态一致，返回 true；否则返回 false
+     * @return 如果当前状态与给定状态一致，返回 false；否则返回 true
      */
+    @SuppressWarnings("D")
     public boolean isImageEnhancementModified(@NotNull MikState state) {
         boolean changeToHtmlTag = this.replaceToHtmlTagCheckBox.isSelected();
 
@@ -438,9 +385,12 @@ public class ImageEnhancementPanel {
 
     /**
      * 应用图片增强处理配置到状态对象
+     * <p>
+     * 将界面中的图片增强相关配置（如HTML标签类型、压缩设置、WebP转换、重命名模板等）应用到指定的状态对象中。
      *
-     * @param state 状态对象
+     * @param state 状态对象，用于存储图片增强配置信息
      */
+    @SuppressWarnings("D")
     public void applyImageEnhancementConfigs(@NotNull MikState state) {
         state.setChangeToHtmlTag(this.replaceToHtmlTagCheckBox.isSelected());
 
@@ -460,10 +410,8 @@ public class ImageEnhancementPanel {
         state.setCompress(this.compressCheckBox.isSelected());
         state.setCompressBeforeUploadOfPercent(((Number) this.compressSpinner.getValue()).intValue());
 
-        //
         state.setConvertToWebp(this.convertToWebpCheckBox.isSelected());
 
-        // TODO: 在 MikState 中添加 webpQuality 字段
         state.setWebpQuality(((Number) this.webpQualitySpinner.getValue()).intValue());
 
         state.setRename(this.renameCheckBox.isSelected());

@@ -51,24 +51,24 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- *
+ * 上传服务设定面板
+ * <p>
+ * 该类用于构建和管理上传服务的配置界面，支持多种云服务商（如 Sm.ms、阿里云 OSS、百度云 BOS、GitHub、Gitee、七牛云、腾讯云 COS、自定义 OSS 和 PicList）的配置面板。
+ * 用户可以通过下拉框选择不同的云服务商，并动态切换对应的配置面板，实现灵活的上传服务配置。
  *
  * @author dong4j
  * @version 1.0.0
- * @email "mailto:dong4j@gmail.com"
- * @date 2025.10.31 22:48
- * @since x.x.x
+ * @date 2025.10.31
+ * @since 1.0.0
  */
 @Slf4j
-@SuppressWarnings( {"D", "DuplicatedCode", "DialogTitleCapitalization"})
+@SuppressWarnings( {"D", "DuplicatedCode"})
 public class UploadServicePanel {
     /** 测试文件名，用于测试场景中的文件标识 */
     public static final String TEST_FILE_NAME = "mik.webp";
 
     // ========== 上传服务设定区域 ==========
-    /**
-     * 上传服务设定面板
-     */
+    /** 上传服务的配置面板，用于展示和修改上传服务相关设置 */
     @Getter
     private JPanel content;
     /**
@@ -77,31 +77,14 @@ public class UploadServicePanel {
      * 【字段映射】对应老页面的 authorizationTabbedPanel (JTabbedPane)，新页面改为下拉框切换配置面板
      */
     private JComboBox<String> cloudServiceComboBox;
-    /**
-     * 云服务商配置容器
-     * <p>
-     * 【新功能】用于动态切换不同服务商的配置面板
-     */
+    /** 云服务商配置容器 <br> 用于动态切换不同服务商的配置面板 */
     private JPanel cloudServiceConfigContainer;
-    /**
-     * 设为默认图床复选框
-     * <p>
-     * 【字段映射】对应老页面的 defaultCloudCheckBox
-     */
+    /** 设为默认图床复选框，用于标识是否将当前图床设为默认图床 */
     private JCheckBox setAsDefaultCloudCheckBox;
-    /**
-     * 默认图床下拉框
-     * <p>
-     * 【字段映射】对应老页面的 defaultCloudComboBox
-     */
-    // private JComboBox<String> defaultCloudComboBox;
+
     /** 自定义消息标签，用于显示用户自定义的提示信息 */
     private JLabel cloudServerAvailableMessage;
-    /**
-     * 验证图片上传按钮
-     * <p>
-     * 【字段映射】对应老页面的 testButton
-     */
+    /** 验证图片上传按钮，【字段映射】对应老页面的 testButton */
     private JButton testUploadButton;
     /**
      * 帮助按钮
@@ -112,9 +95,7 @@ public class UploadServicePanel {
 
     // ========== 各个云服务商的配置面板 ==========
     //region Sm.ms
-    /**
-     * Sm.ms 配置面板
-     */
+    /** Sm.ms 配置面板，用于展示和设置 Sm.ms 相关的配置信息 */
     private JPanel smmsConfigPanel;
     /**
      * Sm.ms API URL 输入框
@@ -122,30 +103,16 @@ public class UploadServicePanel {
      * 【字段映射】对应老页面的 smmsUrlTextField
      */
     private JTextField smmsUrlTextField;
-    /**
-     * Sm.ms Token 输入框
-     * <p>
-     * 【字段映射】对应老页面的 smmsTokenTextField
-     */
+    /** Sm.ms Token 输入框，用于输入用户Token值，【字段映射】对应老页面的 smmsTokenTextField */
     private JPasswordField smmsTokenTextField;
     //endregion
 
     // region 阿里云 OSS
-    /**
-     * 阿里云 OSS 配置面板
-     */
+    /** 阿里云 OSS 配置面板，用于展示和管理 OSS 相关配置项 */
     private JPanel aliyunOssConfigPanel;
-    /**
-     * 阿里云 Bucket 名称输入框
-     * <p>
-     * 【字段映射】对应老页面的 aliyunOssBucketNameTextField
-     */
+    /** 阿里云 Bucket 名称输入框，对应老页面的 aliyunOssBucketNameTextField 字段 */
     private JTextField aliyunBucketNameTextField;
-    /**
-     * 阿里云 Access Key 输入框
-     * <p>
-     * 【字段映射】对应老页面的 aliyunOssAccessKeyTextField
-     */
+    /** 阿里云 Access Key 输入框 【字段映射】对应老页面的 aliyunOssAccessKeyTextField */
     private JTextField aliyunAccessKeyTextField;
     /**
      * 阿里云 Access Secret 输入框
@@ -153,11 +120,7 @@ public class UploadServicePanel {
      * 【字段映射】对应老页面的 aliyunOssAccessSecretKeyTextField
      */
     private JPasswordField aliyunAccessSecretTextField;
-    /**
-     * 阿里云 Endpoint 输入框
-     * <p>
-     * 【字段映射】对应老页面的 aliyunOssEndpointTextField
-     */
+    /** 阿里云 Endpoint 输入框，对应老页面的 aliyunOssEndpointTextField 字段 */
     private JTextField aliyunEndpointTextField;
     /**
      * 阿里云文件目录输入框
@@ -171,48 +134,22 @@ public class UploadServicePanel {
      * 【字段映射】对应老页面的 aliyunOssCustomEndpointCheckBox
      */
     private JCheckBox aliyunCustomEndpointCheckBox;
-    /**
-     * 阿里云自定义域名输入框
-     * <p>
-     * 【字段映射】对应老页面的 aliyunOssCustomEndpointTextField
-     */
+    /** 阿里云自定义域名输入框，用于输入自定义的 OSS 域名地址 */
     private JTextField aliyunCustomEndpointTextField;
     //endregion
 
     //region 百度云BOS
-    /**
-     * 百度云 BOS 配置面板
-     */
+    /** 百度云 BOS 配置面板，用于展示和管理百度云对象存储服务的相关配置信息 */
     private JPanel baiduBosConfigPanel;
-    /**
-     * 百度云 Bucket 名称输入框
-     * <p>
-     * 【字段映射】对应老页面的 baiduBosBucketNameTextField
-     */
+    /** 百度云 Bucket 名称输入框，对应老页面的 baiduBosBucketNameTextField 字段 */
     private JTextField baiduBosBucketNameTextField;
-    /**
-     * 百度云 Access Key 输入框
-     * <p>
-     * 【字段映射】对应老页面的 baiduBosAccessKeyTextField
-     */
+    /** 百度云 Access Key 输入框 【字段映射】对应老页面的 baiduBosAccessKeyTextField */
     private JTextField baiduBosAccessKeyTextField;
-    /**
-     * 百度云 Access Secret 输入框
-     * <p>
-     * 【字段映射】对应老页面的 baiduBosAccessSecretKeyTextField
-     */
+    /** 百度云 Access Secret 输入框，对应老页面的 baiduBosAccessSecretKeyTextField 字段 */
     private JPasswordField baiduBosAccessSecretTextField;
-    /**
-     * 百度云 Endpoint 输入框
-     * <p>
-     * 【字段映射】对应老页面的 baiduBosEndpointTextField
-     */
+    /** 百度云 Endpoint 输入框，对应老页面的 baiduBosEndpointTextField 字段 */
     private JTextField baiduBosEndpointTextField;
-    /**
-     * 百度云文件目录输入框
-     * <p>
-     * 【字段映射】对应老页面的 baiduBosFileDirTextField
-     */
+    /** 百度云文件目录输入框，用于输入百度云文件存储目录路径 */
     private JTextField baiduBosFileDirTextField;
     /**
      * 百度云自定义域名复选框
@@ -220,18 +157,12 @@ public class UploadServicePanel {
      * 【字段映射】对应老页面的 baiduBosCustomEndpointCheckBox
      */
     private JCheckBox baiduBosCustomEndpointCheckBox;
-    /**
-     * 百度云自定义域名输入框
-     * <p>
-     * 【字段映射】对应老页面的 baiduBosCustomEndpointTextField
-     */
+    /** 百度云自定义域名输入框 【字段映射】对应老页面的 baiduBosCustomEndpointTextField */
     private JTextField baiduBosCustomEndpointTextField;
     //endregion
 
     //region GitHub
-    /**
-     * GitHub 配置面板
-     */
+    /** GitHub 配置面板，用于展示和管理 GitHub 相关的配置信息 */
     private JPanel githubConfigPanel;
     /**
      * GitHub 仓库输入框
@@ -239,11 +170,7 @@ public class UploadServicePanel {
      * 【字段映射】对应老页面的 githubReposTextField
      */
     private JTextField githubReposTextField;
-    /**
-     * GitHub 分支输入框
-     * <p>
-     * 【字段映射】对应老页面的 githubBranchTextField
-     */
+    /** GitHub 分支输入框 */
     private JTextField githubBranchTextField;
     /**
      * GitHub Token 输入框
@@ -272,9 +199,7 @@ public class UploadServicePanel {
     //endregion
 
     //region Gitee
-    /**
-     * Gitee 配置面板
-     */
+    /** Gitee 配置面板，用于展示和管理 Gitee 相关的配置项 */
     private JPanel giteeConfigPanel;
     /**
      * Gitee 仓库输入框
@@ -282,48 +207,22 @@ public class UploadServicePanel {
      * 【字段映射】对应老页面的 giteeReposTextField
      */
     private JTextField giteeReposTextField;
-    /**
-     * Gitee 分支输入框
-     * <p>
-     * 【字段映射】对应老页面的 giteeBranchTextField
-     */
+    /** Gitee 分支输入框 */
     private JTextField giteeBranchTextField;
-    /**
-     * Gitee Token 输入框
-     * <p>
-     * 【字段映射】对应老页面的 giteeTokenTextField
-     */
+    /** Gitee Token 输入框，用于输入用户的 Gitee Token，对应老页面的 giteeTokenTextField 字段 */
     private JPasswordField giteeTokenTextField;
-    /**
-     * Gitee 文件目录输入框
-     * <p>
-     * 【字段映射】对应老页面的 giteeFileDirTextField
-     */
+    /** Gitee 文件目录输入框，用于接收用户输入的文件目录路径，【字段映射】对应老页面的 giteeFileDirTextField */
     private JTextField giteeFileDirTextField;
-    /**
-     * Gitee 自定义域名复选框
-     * <p>
-     * 【字段映射】对应老页面的 giteeCustomEndpointCheckBox
-     */
+    /** Gitee 自定义域名复选框，用于标识是否启用自定义域名配置 */
     private JCheckBox giteeCustomEndpointCheckBox;
-    /**
-     * Gitee 自定义域名输入框
-     * <p>
-     * 【字段映射】对应老页面的 giteeCustomEndpointTextField
-     */
+    /** Gitee 自定义域名输入框，用于输入自定义的 Gitee 域名地址，【字段映射】对应老页面的 giteeCustomEndpointTextField */
     private JTextField giteeCustomEndpointTextField;
     //endregion
 
     //region 七牛云
-    /**
-     * 七牛云配置面板
-     */
+    /** 七牛云配置面板，用于展示和管理七牛云对象存储的相关配置项 */
     private JPanel qiniuOssConfigPanel;
-    /**
-     * 七牛云 Bucket 名称输入框
-     * <p>
-     * 【字段映射】对应老页面的 qiniuOssBucketNameTextField
-     */
+    /** 七牛云 Bucket 名称输入框，对应老页面的 qiniuOssBucketNameTextField 字段 */
     private JTextField qiniuOssBucketNameTextField;
     /**
      * 七牛云 Access Key 输入框
@@ -337,117 +236,52 @@ public class UploadServicePanel {
      * 【字段映射】对应老页面的 qiniuOssAccessSecretKeyTextField
      */
     private JPasswordField qiniuOssAccessSecretTextField;
-    /**
-     * 七牛云 Domain 输入框
-     * <p>
-     * 【字段映射】对应老页面的 qiniuOssUpHostTextField
-     */
+    /** 七牛云 Domain 输入框，对应老页面的 qiniuOssUpHostTextField 字段 */
     private JTextField qiniuOssDomainTextField;
-    /**
-     * 七牛云区域 - 华东单选按钮
-     * <p>
-     * 【字段映射】对应老页面的 qiniuOssEastChinaRadioButton
-     */
+    /** 七牛云区域 - 华东单选按钮，对应老页面的 qiniuOssEastChinaRadioButton 字段映射 */
     private JRadioButton qiniuOssEastChinaRadioButton;
-    /**
-     * 七牛云区域 - 华北单选按钮
-     * <p>
-     * 【字段映射】对应老页面的 qiniuOssNortChinaRadioButton
-     */
+    /** 七牛云区域 - 华北单选按钮，对应老页面的 qiniuOssNortChinaRadioButton */
     private JRadioButton qiniuOssNortChinaRadioButton;
-    /**
-     * 七牛云区域 - 华南单选按钮
-     * <p>
-     * 【字段映射】对应老页面的 qiniuOssSouthChinaRadioButton
-     */
+    /** 七牛云区域 - 华南单选按钮，对应老页面的 qiniuOssSouthChinaRadioButton 字段映射 */
     private JRadioButton qiniuOssSouthChinaRadioButton;
-    /**
-     * 七牛云区域 - 北美单选按钮
-     * <p>
-     * 【字段映射】对应老页面的 qiniuOssNorthAmeriaRadioButton
-     */
+    /** 七牛云区域 - 北美单选按钮，对应老页面的 qiniuOssNorthAmeriaRadioButton 字段 */
     private JRadioButton qiniuOssNorthAmeriaRadioButton;
+    /** 七牛云 OSS 东南亚区域选择单选按钮 */
     private JRadioButton qiniuOssSoutheastAsiaRadioButton;
-    /**
-     * 七牛云区域索引隐藏字段
-     * <p>
-     * 【字段映射】对应老页面的 zoneIndexTextFiled
-     */
+    /** 七牛云区域索引隐藏字段，对应老页面的 zoneIndexTextFiled */
     private JTextField qiniuZoneIndexTextField;
     //endregion
 
     //region 腾讯云 COS
-    /**
-     * 腾讯云 COS 配置面板
-     */
+    /** 腾讯云 COS 配置面板，用于展示和管理腾讯云对象存储服务的相关配置信息 */
     private JPanel tencentOssConfigPanel;
-    /**
-     * 腾讯云 Bucket 名称输入框
-     * <p>
-     * 【字段映射】对应老页面的 tencentBacketNameTextField
-     */
+    /** 腾讯云 Bucket 名称输入框，对应老页面的 tencentBacketNameTextField 字段 */
     private JTextField tencentBucketNameTextField;
-    /**
-     * 腾讯云 Access Key 输入框
-     * <p>
-     * 【字段映射】对应老页面的 tencentAccessKeyTextField
-     */
+    /** 腾讯云 Access Key 输入框，对应老页面的 tencentAccessKeyTextField 字段 */
     private JTextField tencentAccessKeyTextField;
-    /**
-     * 腾讯云 Secret Key 输入框
-     * <p>
-     * 【字段映射】对应老页面的 tencentSecretKeyTextField
-     */
+    /** 腾讯云 Secret Key 输入框，用于输入腾讯云的密钥信息，对应老页面的 tencentSecretKeyTextField 字段 */
     private JPasswordField tencentSecretKeyTextField;
-    /**
-     * 腾讯云 Region Name 输入框
-     * <p>
-     * 【字段映射】对应老页面的 tencentRegionNameTextField
-     */
+    /** 腾讯云 Region Name 输入框，对应老页面的 tencentRegionNameTextField 字段 */
     private JTextField tencentRegionNameTextField;
     //endregion
 
     //region 自定义 OSS
-    /**
-     * 自定义 OSS 配置面板
-     */
+    /** 自定义 OSS 配置面板，用于展示和修改 OSS 相关配置项 */
     private JPanel customOssConfigPanel;
-    /**
-     * 自定义 OSS API 输入框
-     * <p>
-     * 【字段映射】对应老页面的 customApiTextField
-     */
+    /** 自定义 OSS API 输入框，用于输入自定义 API 地址 */
     private JTextField customApiTextField;
-    /**
-     * 自定义 OSS 请求 Key 输入框
-     * <p>
-     * 【字段映射】对应老页面的 requestKeyTextField
-     */
+    /** 自定义 OSS 请求 Key 输入框，用于输入用户自定义的请求 Key 值 */
     private JTextField customRequestKeyTextField;
-    /**
-     * 自定义 OSS 响应 URL 路径输入框
-     * <p>
-     * 【字段映射】对应老页面的 responseUrlPathTextField
-     */
+    /** 自定义 OSS 响应 URL 路径输入框，用于输入自定义的 URL 路径 */
     private JTextField customResponseUrlPathTextField;
-    /**
-     * 自定义 OSS HTTP 方法输入框
-     * <p>
-     * 【字段映射】对应老页面的 httpMethodTextField
-     */
+    /** 自定义 OSS HTTP 方法输入框，用于输入自定义的 HTTP 方法，对应老页面的 httpMethodTextField */
     private JTextField customHttpMethodTextField;
     //endregion
 
     //region PicList
-    /**
-     * PicList 配置面板
-     */
+    /** PicList 配置面板，用于展示和设置图片列表相关配置项 */
     private JPanel picListConfigPanel;
-    /**
-     * PicList API 输入框
-     * <p>
-     * 【字段映射】对应老页面的 picListApiTextField
-     */
+    /** PicList API 输入框，对应老页面的 picListApiTextField 字段 */
     private JTextField picListApiTextField;
     /**
      * PicList 图床类型输入框
@@ -455,17 +289,9 @@ public class UploadServicePanel {
      * 【字段映射】对应老页面的 picListPicbedTextField
      */
     private JTextField picListPicbedTextField;
-    /**
-     * PicList 配置名称输入框
-     * <p>
-     * 【字段映射】对应老页面的 picListConfigNameTextField
-     */
+    /** PicList 配置名称输入框，用于输入配置名称，对应老页面的 picListConfigNameTextField */
     private JTextField picListConfigNameTextField;
-    /**
-     * PicList 密钥输入框
-     * <p>
-     * 【字段映射】对应老页面的 picListKeyTextField
-     */
+    /** PicList 密钥输入框，用于输入 PicList 的密钥值，对应老页面的 picListKeyTextField 字段 */
     private JTextField picListKeyTextField;
     /**
      * PicList 命令行路径输入框（带浏览按钮）
@@ -488,25 +314,32 @@ public class UploadServicePanel {
     private GiteeSetting giteeSetting;
     /** 七牛云 OSS 配置信息 */
     private QiniuOssSetting qiniuOssSetting;
-    /** TencentOssSetting 对象 */
+    /** TencentOssSetting 对象，用于存储腾讯云对象存储服务相关配置信息 */
     private TencentOssSetting tencentOssSetting;
     /** 自定义 OSS 配置信息实例 */
     private CustomOssSetting customOssSetting;
     /** PicList 图床配置信息实例 */
     private PicListOssSetting picListOssSetting;
 
+    /**
+     * 构造函数，初始化上传服务面板
+     * <p>
+     * 调用 createUploadServicePanel 方法创建上传服务面板组件
+     */
     public UploadServicePanel() {
         createUploadServicePanel();
     }
 
-
     /**
      * 创建上传服务设定区域面板
+     * <p>
+     * 初始化并构建上传服务配置面板，包含云服务商选择、默认图床设置、配置容器以及测试和帮助按钮。
+     * 面板使用网格布局进行组件排列，支持响应式布局调整。
      */
     private void createUploadServicePanel() {
         content = new JPanel();
         content.setLayout(new GridBagLayout());
-        content.setBorder(BorderFactory.createTitledBorder("上传服务设定"));
+        content.setBorder(BorderFactory.createTitledBorder(MikBundle.message("panel.upload.service.title")));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.WEST;
@@ -518,7 +351,7 @@ public class UploadServicePanel {
         gbc.gridy = 0;
         gbc.gridwidth = 1;
         gbc.weightx = 0;
-        content.add(new JBLabel("图床服务商:"), gbc);
+        content.add(new JBLabel(MikBundle.message("panel.upload.service.cloud.provider")), gbc);
 
         gbc.gridx = 1;
         gbc.gridwidth = 1;
@@ -530,7 +363,7 @@ public class UploadServicePanel {
         gbc.gridx = 2;
         gbc.gridwidth = 1;
         gbc.weightx = 0;
-        setAsDefaultCloudCheckBox = new JCheckBox("设为默认");
+        setAsDefaultCloudCheckBox = new JCheckBox(MikBundle.message("panel.upload.service.set.as.default"));
         content.add(setAsDefaultCloudCheckBox, gbc);
 
         // gbc.gridx = 3;
@@ -576,13 +409,15 @@ public class UploadServicePanel {
         // 第1列 - 帮助按钮
         buttonGbc.gridx = 1;
         buttonGbc.weightx = 0;
-        helpButton = new JButton("Help & " + OssState.getCloudType(cloudServiceComboBox.getSelectedIndex()).getTitle());
+        CloudEnum currentCloudType = OssState.getCloudType(cloudServiceComboBox.getSelectedIndex());
+        helpButton = new JButton(MikBundle.message("panel.upload.service.help.button", currentCloudType.getTitle()));
         buttonPanel.add(helpButton, buttonGbc);
 
         // 第2列 - 测试按钮
         buttonGbc.gridx = 2;
-        testUploadButton = new JButton("<html><span style='color:red'>●</span> 验证图片上传</html>");
-        testUploadButton.setToolTipText("发起上传测试请求: 切换服务商后需要验证配置是否有误");
+        String testButtonText = MikBundle.message("panel.upload.service.test.button.text");
+        testUploadButton = new JButton("<html><span style='color:red'>●</span> " + testButtonText + "</html>");
+        testUploadButton.setToolTipText(MikBundle.message("panel.upload.service.test.button.tooltip"));
         buttonPanel.add(testUploadButton, buttonGbc);
 
         // 第3列 - 空白（占位）
@@ -625,6 +460,15 @@ public class UploadServicePanel {
         return options;
     }
 
+    /**
+     * 为“设置为默认图床”复选框添加监听器
+     * <p>
+     * 当复选框状态发生变化时，根据其选中状态更新默认图床配置。
+     * 若勾选，则将当前选中的图床服务设置为默认图床；
+     * 若取消勾选，则恢复默认图床配置。
+     *
+     * @since 1.0
+     */
     private void setAsDefaultCloudCheckBoxListener() {
         // 勾选后将 cloudServiceComboBox 选择的图床设置为默认图床
         setAsDefaultCloudCheckBox.addActionListener(e -> {
@@ -638,6 +482,11 @@ public class UploadServicePanel {
         });
     }
 
+    /**
+     * 监听云服务下拉框的选项变化事件
+     * <p>
+     * 当用户选择不同的云服务时，动态更新图床配置面板和帮助按钮的文字内容
+     */
     private void cloudServiceConboBoxListener() {
         this.cloudServiceComboBox.addActionListener(e -> {
             // 动态设置图床配置面板
@@ -646,7 +495,7 @@ public class UploadServicePanel {
             // 动态设置帮助按钮的文字
             int selectedIndex = this.cloudServiceComboBox.getSelectedIndex();
             CloudEnum cloudType = OssState.getCloudType(selectedIndex);
-            this.helpButton.setText("Help & " + cloudType.getTitle());
+            this.helpButton.setText(MikBundle.message("panel.upload.service.help.button", cloudType.getTitle()));
         });
     }
 
@@ -654,6 +503,10 @@ public class UploadServicePanel {
 
     /**
      * 创建 Sm.ms 配置面板
+     * <p>
+     * 初始化并返回一个用于配置 Sm.ms 服务的面板，包含 API 地址和 Token 输入框。
+     *
+     * @return 配置面板对象
      */
     @NotNull
     private JPanel createSmmsConfigPanel() {
@@ -667,7 +520,7 @@ public class UploadServicePanel {
 
         gbc.gridx = 0;
         gbc.gridy = 0;
-        smmsConfigPanel.add(new JBLabel("API URL:"), gbc);
+        smmsConfigPanel.add(new JBLabel(MikBundle.message("oss.field.api.url")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
@@ -677,7 +530,7 @@ public class UploadServicePanel {
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.weightx = 0;
-        smmsConfigPanel.add(new JBLabel("Token:"), gbc);
+        smmsConfigPanel.add(new JBLabel(MikBundle.message("oss.field.token")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
@@ -689,6 +542,10 @@ public class UploadServicePanel {
 
     /**
      * 创建阿里云 OSS 配置面板
+     * <p>
+     * 用于构建阿里云 OSS 的配置界面，包含存储桶名称、访问密钥、访问密钥密文、端点、文件目录等配置项。
+     *
+     * @return 阿里云 OSS 配置面板对象
      */
     @NotNull
     private JPanel createAliyunOssConfigPanel() {
@@ -702,7 +559,7 @@ public class UploadServicePanel {
 
         gbc.gridx = 0;
         gbc.gridy = 0;
-        aliyunOssConfigPanel.add(new JBLabel("Bucket 名称:"), gbc);
+        aliyunOssConfigPanel.add(new JBLabel(MikBundle.message("oss.field.bucket.name")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
@@ -712,7 +569,7 @@ public class UploadServicePanel {
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.weightx = 0;
-        aliyunOssConfigPanel.add(new JBLabel("Access Key:"), gbc);
+        aliyunOssConfigPanel.add(new JBLabel(MikBundle.message("oss.field.access.key")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
@@ -722,7 +579,7 @@ public class UploadServicePanel {
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.weightx = 0;
-        aliyunOssConfigPanel.add(new JBLabel("Access Secret:"), gbc);
+        aliyunOssConfigPanel.add(new JBLabel(MikBundle.message("oss.field.access.secret")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
@@ -732,7 +589,7 @@ public class UploadServicePanel {
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.weightx = 0;
-        aliyunOssConfigPanel.add(new JBLabel("Endpoint:"), gbc);
+        aliyunOssConfigPanel.add(new JBLabel(MikBundle.message("oss.field.endpoint")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
@@ -742,7 +599,7 @@ public class UploadServicePanel {
         gbc.gridx = 0;
         gbc.gridy = 4;
         gbc.weightx = 0;
-        aliyunOssConfigPanel.add(new JBLabel("文件目录:"), gbc);
+        aliyunOssConfigPanel.add(new JBLabel(MikBundle.message("oss.field.file.dir")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
@@ -752,7 +609,7 @@ public class UploadServicePanel {
         gbc.gridx = 0;
         gbc.gridy = 5;
         gbc.weightx = 0;
-        aliyunCustomEndpointCheckBox = new JCheckBox("自定义域名");
+        aliyunCustomEndpointCheckBox = new JCheckBox(MikBundle.message("oss.field.custom.domain"));
         aliyunOssConfigPanel.add(aliyunCustomEndpointCheckBox, gbc);
 
         gbc.gridx = 1;
@@ -761,15 +618,18 @@ public class UploadServicePanel {
         aliyunCustomEndpointTextField.setEnabled(false);
         aliyunOssConfigPanel.add(aliyunCustomEndpointTextField, gbc);
 
-        aliyunCustomEndpointCheckBox.addActionListener(e -> {
-            aliyunCustomEndpointTextField.setEnabled(aliyunCustomEndpointCheckBox.isSelected());
-        });
+        aliyunCustomEndpointCheckBox.addActionListener(e -> aliyunCustomEndpointTextField.setEnabled(aliyunCustomEndpointCheckBox.isSelected()));
 
         return aliyunOssConfigPanel;
     }
 
     /**
      * 创建百度云 BOS 配置面板
+     * <p>
+     * 用于构建百度云 BOS 的配置界面，包含存储桶名称、访问密钥、访问密钥密文、端点、文件目录以及自定义域名相关配置项。
+     * 面板使用 GridBagLayout 布局，各配置项通过 GridBagConstraints 进行精确定位和排列。
+     *
+     * @return 百度云 BOS 配置面板
      */
     @NotNull
     private JPanel createBaiduBosConfigPanel() {
@@ -784,7 +644,7 @@ public class UploadServicePanel {
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.weightx = 0;
-        baiduBosConfigPanel.add(new JBLabel("Bucket 名称:"), gbc);
+        baiduBosConfigPanel.add(new JBLabel(MikBundle.message("oss.field.bucket.name")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
@@ -794,7 +654,7 @@ public class UploadServicePanel {
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.weightx = 0;
-        baiduBosConfigPanel.add(new JBLabel("Access Key:"), gbc);
+        baiduBosConfigPanel.add(new JBLabel(MikBundle.message("oss.field.access.key")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
@@ -804,7 +664,7 @@ public class UploadServicePanel {
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.weightx = 0;
-        baiduBosConfigPanel.add(new JBLabel("Access Secret:"), gbc);
+        baiduBosConfigPanel.add(new JBLabel(MikBundle.message("oss.field.access.secret")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
@@ -814,7 +674,7 @@ public class UploadServicePanel {
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.weightx = 0;
-        baiduBosConfigPanel.add(new JBLabel("Endpoint:"), gbc);
+        baiduBosConfigPanel.add(new JBLabel(MikBundle.message("oss.field.endpoint")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
@@ -825,18 +685,18 @@ public class UploadServicePanel {
         gbc.gridx = 0;
         gbc.gridy = 4;
         gbc.weightx = 0;
-        baiduBosConfigPanel.add(new JBLabel("文件目录:"), gbc);
+        baiduBosConfigPanel.add(new JBLabel(MikBundle.message("oss.field.file.dir")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
         baiduBosFileDirTextField = new JTextField();
-        baiduBosFileDirTextField.setToolTipText("目录名(可选)");
+        baiduBosFileDirTextField.setToolTipText(MikBundle.message("oss.field.directory.optional"));
         baiduBosConfigPanel.add(baiduBosFileDirTextField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 5;
         gbc.weightx = 0;
-        baiduBosCustomEndpointCheckBox = new JCheckBox("自定义域名:");
+        baiduBosCustomEndpointCheckBox = new JCheckBox(MikBundle.message("oss.field.custom.domain.colon"));
         baiduBosConfigPanel.add(baiduBosCustomEndpointCheckBox, gbc);
 
         gbc.gridx = 1;
@@ -845,15 +705,17 @@ public class UploadServicePanel {
         baiduBosCustomEndpointTextField.setEnabled(false);
         baiduBosConfigPanel.add(baiduBosCustomEndpointTextField, gbc);
 
-        baiduBosCustomEndpointCheckBox.addActionListener(e -> {
-            baiduBosCustomEndpointTextField.setEnabled(baiduBosCustomEndpointCheckBox.isSelected());
-        });
+        baiduBosCustomEndpointCheckBox.addActionListener(e -> baiduBosCustomEndpointTextField.setEnabled(baiduBosCustomEndpointCheckBox.isSelected()));
 
         return baiduBosConfigPanel;
     }
 
     /**
      * 创建 GitHub 配置面板
+     * <p>
+     * 用于构建包含 GitHub 相关配置项的图形界面面板，包括仓库地址、分支、访问令牌、文件目录以及自定义域名端点选项。
+     *
+     * @return 创建的 GitHub 配置面板
      */
     @NotNull
     private JPanel createGithubConfigPanel() {
@@ -868,18 +730,18 @@ public class UploadServicePanel {
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.weightx = 0;
-        githubConfigPanel.add(new JBLabel("仓库:"), gbc);
+        githubConfigPanel.add(new JBLabel(MikBundle.message("oss.field.repository")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
         githubReposTextField = new JTextField();
-        githubReposTextField.setToolTipText("例如: username/repository");
+        githubReposTextField.setToolTipText(MikBundle.message("oss.field.repository.example"));
         githubConfigPanel.add(githubReposTextField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.weightx = 0;
-        githubConfigPanel.add(new JBLabel("分支:"), gbc);
+        githubConfigPanel.add(new JBLabel(MikBundle.message("oss.field.branch")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
@@ -890,7 +752,7 @@ public class UploadServicePanel {
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.weightx = 0;
-        githubConfigPanel.add(new JBLabel("Token:"), gbc);
+        githubConfigPanel.add(new JBLabel(MikBundle.message("oss.field.token")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
@@ -900,18 +762,18 @@ public class UploadServicePanel {
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.weightx = 0;
-        githubConfigPanel.add(new JBLabel("文件目录:"), gbc);
+        githubConfigPanel.add(new JBLabel(MikBundle.message("oss.field.file.dir")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
         githubFileDirTextField = new JTextField();
-        githubFileDirTextField.setToolTipText("目录名(可选)");
+        githubFileDirTextField.setToolTipText(MikBundle.message("oss.field.directory.optional"));
         githubConfigPanel.add(githubFileDirTextField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 4;
         gbc.weightx = 0;
-        githubCustomEndpointCheckBox = new JCheckBox("自定义域名:");
+        githubCustomEndpointCheckBox = new JCheckBox(MikBundle.message("oss.field.custom.domain.colon"));
         githubConfigPanel.add(githubCustomEndpointCheckBox, gbc);
 
         gbc.gridx = 1;
@@ -920,15 +782,17 @@ public class UploadServicePanel {
         githubCustomEndpointTextField.setEnabled(false);
         githubConfigPanel.add(githubCustomEndpointTextField, gbc);
 
-        githubCustomEndpointCheckBox.addActionListener(e -> {
-            githubCustomEndpointTextField.setEnabled(githubCustomEndpointCheckBox.isSelected());
-        });
+        githubCustomEndpointCheckBox.addActionListener(e -> githubCustomEndpointTextField.setEnabled(githubCustomEndpointCheckBox.isSelected()));
 
         return githubConfigPanel;
     }
 
     /**
      * 创建 Gitee 配置面板
+     * <p>
+     * 用于生成包含 Gitee 相关配置项的面板，包括仓库地址、分支、Token、文件目录以及自定义域名设置。
+     *
+     * @return 返回创建的 Gitee 配置面板对象
      */
     @NotNull
     private JPanel createGiteeConfigPanel() {
@@ -943,18 +807,18 @@ public class UploadServicePanel {
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.weightx = 0;
-        giteeConfigPanel.add(new JBLabel("仓库:"), gbc);
+        giteeConfigPanel.add(new JBLabel(MikBundle.message("oss.field.repository")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
         giteeReposTextField = new JTextField();
-        giteeReposTextField.setToolTipText("例如: username/repository");
+        giteeReposTextField.setToolTipText(MikBundle.message("oss.field.repository.example"));
         giteeConfigPanel.add(giteeReposTextField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.weightx = 0;
-        giteeConfigPanel.add(new JBLabel("分支:"), gbc);
+        giteeConfigPanel.add(new JBLabel(MikBundle.message("oss.field.branch")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
@@ -965,7 +829,7 @@ public class UploadServicePanel {
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.weightx = 0;
-        giteeConfigPanel.add(new JBLabel("Token:"), gbc);
+        giteeConfigPanel.add(new JBLabel(MikBundle.message("oss.field.token")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
@@ -975,18 +839,18 @@ public class UploadServicePanel {
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.weightx = 0;
-        giteeConfigPanel.add(new JBLabel("文件目录:"), gbc);
+        giteeConfigPanel.add(new JBLabel(MikBundle.message("oss.field.file.dir")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
         giteeFileDirTextField = new JTextField();
-        giteeFileDirTextField.setToolTipText("目录名(可选)");
+        giteeFileDirTextField.setToolTipText(MikBundle.message("oss.field.directory.optional"));
         giteeConfigPanel.add(giteeFileDirTextField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 4;
         gbc.weightx = 0;
-        giteeCustomEndpointCheckBox = new JCheckBox("自定义域名");
+        giteeCustomEndpointCheckBox = new JCheckBox(MikBundle.message("oss.field.custom.domain"));
         giteeConfigPanel.add(giteeCustomEndpointCheckBox, gbc);
 
         gbc.gridx = 1;
@@ -995,15 +859,17 @@ public class UploadServicePanel {
         giteeCustomEndpointTextField.setEnabled(false);
         giteeConfigPanel.add(giteeCustomEndpointTextField, gbc);
 
-        giteeCustomEndpointCheckBox.addActionListener(e -> {
-            giteeCustomEndpointTextField.setEnabled(giteeCustomEndpointCheckBox.isSelected());
-        });
+        giteeCustomEndpointCheckBox.addActionListener(e -> giteeCustomEndpointTextField.setEnabled(giteeCustomEndpointCheckBox.isSelected()));
 
         return giteeConfigPanel;
     }
 
     /**
-     * 创建七牛云配置面板
+     * 创建七牛云 OSS 配置面板
+     * <p>
+     * 用于构建七牛云对象存储服务的配置界面，包含 Bucket 名称、Access Key、Access Secret、Domain 和区域选择等配置项。
+     *
+     * @return 七牛云 OSS 配置面板
      */
     @NotNull
     private JPanel createQiniuOssConfigPanel() {
@@ -1020,7 +886,7 @@ public class UploadServicePanel {
         gbc.gridy = 0;
         gbc.gridwidth = 1;
         gbc.weightx = 0;
-        qiniuOssConfigPanel.add(new JBLabel("Bucket 名称:"), gbc);
+        qiniuOssConfigPanel.add(new JBLabel(MikBundle.message("oss.field.bucket.name")), gbc);
 
         gbc.gridx = 1;
         gbc.gridwidth = 6;
@@ -1033,7 +899,7 @@ public class UploadServicePanel {
         gbc.gridy = 1;
         gbc.gridwidth = 1;
         gbc.weightx = 0;
-        qiniuOssConfigPanel.add(new JBLabel("Access Key:"), gbc);
+        qiniuOssConfigPanel.add(new JBLabel(MikBundle.message("oss.field.access.key")), gbc);
 
         gbc.gridx = 1;
         gbc.gridwidth = 6;
@@ -1046,7 +912,7 @@ public class UploadServicePanel {
         gbc.gridy = 2;
         gbc.gridwidth = 1;
         gbc.weightx = 0;
-        qiniuOssConfigPanel.add(new JBLabel("Access Secret:"), gbc);
+        qiniuOssConfigPanel.add(new JBLabel(MikBundle.message("oss.field.access.secret")), gbc);
 
         gbc.gridx = 1;
         gbc.gridwidth = 6;
@@ -1059,7 +925,7 @@ public class UploadServicePanel {
         gbc.gridy = 3;
         gbc.gridwidth = 1;
         gbc.weightx = 0;
-        qiniuOssConfigPanel.add(new JBLabel("Domain:"), gbc);
+        qiniuOssConfigPanel.add(new JBLabel(MikBundle.message("oss.field.domain")), gbc);
 
         gbc.gridx = 1;
         gbc.gridwidth = 6;
@@ -1072,7 +938,7 @@ public class UploadServicePanel {
         gbc.gridy = 4;
         gbc.gridwidth = 1;
         gbc.weightx = 0;
-        qiniuOssConfigPanel.add(new JBLabel("区域:"), gbc);
+        qiniuOssConfigPanel.add(new JBLabel(MikBundle.message("oss.field.region")), gbc);
 
         ButtonGroup zoneGroup = new ButtonGroup();
 
@@ -1081,7 +947,7 @@ public class UploadServicePanel {
         gbc.gridwidth = 1;
         gbc.weightx = 0;
         gbc.fill = GridBagConstraints.NONE;
-        qiniuOssEastChinaRadioButton = new JRadioButton("EastChina");
+        qiniuOssEastChinaRadioButton = new JRadioButton(MikBundle.message("oss.qiniu.region.east.china"));
         zoneGroup.add(qiniuOssEastChinaRadioButton);
         qiniuOssConfigPanel.add(qiniuOssEastChinaRadioButton, gbc);
 
@@ -1089,7 +955,7 @@ public class UploadServicePanel {
         gbc.gridx = 2;
         gbc.gridwidth = 1;
         gbc.weightx = 0;
-        qiniuOssNortChinaRadioButton = new JRadioButton("NortChina");
+        qiniuOssNortChinaRadioButton = new JRadioButton(MikBundle.message("oss.qiniu.region.north.china"));
         zoneGroup.add(qiniuOssNortChinaRadioButton);
         qiniuOssConfigPanel.add(qiniuOssNortChinaRadioButton, gbc);
 
@@ -1097,7 +963,7 @@ public class UploadServicePanel {
         gbc.gridx = 3;
         gbc.gridwidth = 1;
         gbc.weightx = 0;
-        qiniuOssSouthChinaRadioButton = new JRadioButton("SouthChina");
+        qiniuOssSouthChinaRadioButton = new JRadioButton(MikBundle.message("oss.qiniu.region.south.china"));
         zoneGroup.add(qiniuOssSouthChinaRadioButton);
         qiniuOssConfigPanel.add(qiniuOssSouthChinaRadioButton, gbc);
 
@@ -1105,14 +971,14 @@ public class UploadServicePanel {
         gbc.gridx = 4;
         gbc.gridwidth = 1;
         gbc.weightx = 0;
-        qiniuOssNorthAmeriaRadioButton = new JRadioButton("NorthAmeria");
+        qiniuOssNorthAmeriaRadioButton = new JRadioButton(MikBundle.message("oss.qiniu.region.north.america"));
         zoneGroup.add(qiniuOssNorthAmeriaRadioButton);
         qiniuOssConfigPanel.add(qiniuOssNorthAmeriaRadioButton, gbc);
 
         gbc.gridx = 5;
         gbc.gridwidth = 1;
         gbc.weightx = 0;
-        qiniuOssSoutheastAsiaRadioButton = new JRadioButton("东南亚");
+        qiniuOssSoutheastAsiaRadioButton = new JRadioButton(MikBundle.message("oss.qiniu.region.southeast.asia"));
         zoneGroup.add(qiniuOssSoutheastAsiaRadioButton);
         qiniuOssConfigPanel.add(qiniuOssSoutheastAsiaRadioButton, gbc);
 
@@ -1128,6 +994,10 @@ public class UploadServicePanel {
 
     /**
      * 创建腾讯云 COS 配置面板
+     * <p>
+     * 用于生成腾讯云对象存储服务（COS）的配置界面，包含存储桶名称、访问密钥、密钥和区域等输入字段。
+     *
+     * @return 腾讯云 COS 配置面板
      */
     @NotNull
     private JPanel createTencentOssConfigPanel() {
@@ -1142,7 +1012,7 @@ public class UploadServicePanel {
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.weightx = 0;
-        tencentOssConfigPanel.add(new JBLabel("Bucket 名称:"), gbc);
+        tencentOssConfigPanel.add(new JBLabel(MikBundle.message("oss.field.bucket.name")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
@@ -1152,7 +1022,7 @@ public class UploadServicePanel {
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.weightx = 0;
-        tencentOssConfigPanel.add(new JBLabel("Access Key:"), gbc);
+        tencentOssConfigPanel.add(new JBLabel(MikBundle.message("oss.field.access.key")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
@@ -1162,7 +1032,7 @@ public class UploadServicePanel {
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.weightx = 0;
-        tencentOssConfigPanel.add(new JBLabel("Secret Key:"), gbc);
+        tencentOssConfigPanel.add(new JBLabel(MikBundle.message("oss.field.secret.key")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
@@ -1172,7 +1042,7 @@ public class UploadServicePanel {
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.weightx = 0;
-        tencentOssConfigPanel.add(new JBLabel("Region Name:"), gbc);
+        tencentOssConfigPanel.add(new JBLabel(MikBundle.message("oss.field.region.name")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
@@ -1185,6 +1055,10 @@ public class UploadServicePanel {
 
     /**
      * 创建自定义 OSS 配置面板
+     * <p>
+     * 用于生成包含 OSS 配置相关输入字段的面板，包括 API 地址、请求密钥、响应 URL 路径和 HTTP 方法等。
+     *
+     * @return 自定义 OSS 配置面板
      */
     @NotNull
     private JPanel createCustomOssConfigPanel() {
@@ -1199,7 +1073,7 @@ public class UploadServicePanel {
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.weightx = 0;
-        customOssConfigPanel.add(new JBLabel("API 地址:"), gbc);
+        customOssConfigPanel.add(new JBLabel(MikBundle.message("oss.field.api.address")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
@@ -1209,7 +1083,7 @@ public class UploadServicePanel {
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.weightx = 0;
-        customOssConfigPanel.add(new JBLabel("请求 Key:"), gbc);
+        customOssConfigPanel.add(new JBLabel(MikBundle.message("oss.field.request.key")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
@@ -1219,7 +1093,7 @@ public class UploadServicePanel {
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.weightx = 0;
-        customOssConfigPanel.add(new JBLabel("响应 URL 路径:"), gbc);
+        customOssConfigPanel.add(new JBLabel(MikBundle.message("oss.field.response.url.path")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
@@ -1229,7 +1103,7 @@ public class UploadServicePanel {
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.weightx = 0;
-        customOssConfigPanel.add(new JBLabel("HTTP 方法:"), gbc);
+        customOssConfigPanel.add(new JBLabel(MikBundle.message("oss.field.http.method")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
@@ -1241,7 +1115,11 @@ public class UploadServicePanel {
     }
 
     /**
-     * 创建 PicList 配置面板
+     * 创建 PicList 配置面板，用于展示和编辑 PicList 相关配置信息
+     * <p>
+     * 该方法初始化一个 JPanel，使用 GridBagLayout 布局，并添加多个标签和文本框控件，用于配置 PicList 的 API 地址、图片床类型、配置文件名、API 密钥以及 CLI 路径。
+     *
+     * @return 创建好的 PicList 配置面板
      */
     @NotNull
     private JPanel createPicListConfigPanel() {
@@ -1256,56 +1134,56 @@ public class UploadServicePanel {
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.weightx = 0;
-        picListConfigPanel.add(new JBLabel("API 地址:"), gbc);
+        picListConfigPanel.add(new JBLabel(MikBundle.message("oss.field.api.address")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
         picListApiTextField = new JTextField();
-        picListApiTextField.setToolTipText("完成 API 地址, 优先级低于命令行");
+        picListApiTextField.setToolTipText(MikBundle.message("oss.field.complete.api.address"));
         picListConfigPanel.add(picListApiTextField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.weightx = 0;
-        picListConfigPanel.add(new JBLabel("图床类型:"), gbc);
+        picListConfigPanel.add(new JBLabel(MikBundle.message("oss.field.picbed.type")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
         picListPicbedTextField = new JTextField();
-        picListPicbedTextField.setToolTipText("图床类型（如 aws-s3, qiniu 等）");
+        picListPicbedTextField.setToolTipText(MikBundle.message("oss.field.picbed.type.example"));
         picListConfigPanel.add(picListPicbedTextField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.weightx = 0;
-        picListConfigPanel.add(new JBLabel("配置名称:"), gbc);
+        picListConfigPanel.add(new JBLabel(MikBundle.message("oss.field.config.name")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
         picListConfigNameTextField = new JTextField();
-        picListConfigNameTextField.setToolTipText("配置文件名称");
+        picListConfigNameTextField.setToolTipText(MikBundle.message("oss.field.config.file.name"));
         picListConfigPanel.add(picListConfigNameTextField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.weightx = 0;
-        picListConfigPanel.add(new JBLabel("接口密钥:"), gbc);
+        picListConfigPanel.add(new JBLabel(MikBundle.message("oss.field.api.key")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
         picListKeyTextField = new JTextField();
-        picListKeyTextField.setToolTipText("接口密钥（用于鉴权）");
+        picListKeyTextField.setToolTipText(MikBundle.message("oss.field.api.key.auth"));
         picListConfigPanel.add(picListKeyTextField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 4;
         gbc.weightx = 0;
-        picListConfigPanel.add(new JBLabel("命令行路径:"), gbc);
+        picListConfigPanel.add(new JBLabel(MikBundle.message("oss.field.cli.path")), gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
         picListExeTextField = new TextFieldWithBrowseButton();
-        picListExeTextField.setToolTipText("选择命令行文件, 优先级高于 API");
+        picListExeTextField.setToolTipText(MikBundle.message("oss.field.select.cli.file"));
 
         // 初始化文件选择器（参考老页面的实现）
         initPicListExeBrowser();
@@ -1319,7 +1197,7 @@ public class UploadServicePanel {
     /**
      * 初始化 PicList 可执行文件选择器
      * <p>
-     * 参考老页面的 initPicListExeBrowser() 方法实现
+     * 用于配置文件选择器，允许用户选择可执行文件或特定格式的目录，如 .exe、.app 或 .appimage 文件。
      */
     private void initPicListExeBrowser() {
         if (this.picListExeTextField == null) {
@@ -1353,8 +1231,8 @@ public class UploadServicePanel {
 
         // 添加浏览文件夹监听器
         this.picListExeTextField.addBrowseFolderListener(
-            "选择 PicList 可执行文件",
-            "请选择 PicList 命令行可执行文件",
+            MikBundle.message("panel.upload.service.file.chooser.title"),
+            MikBundle.message("panel.upload.service.file.chooser.description"),
             null,  // 项目，可以为 null
             descriptor,
             TextComponentAccessor.TEXT_FIELD_WHOLE_TEXT
@@ -1430,11 +1308,12 @@ public class UploadServicePanel {
         };
     }
 
-
     /**
      * 初始化上传服务设定面板
+     * <p>
+     * 根据当前状态对象初始化上传服务相关的配置项，包括设置默认图床服务商和对应的配置面板。
      *
-     * @param state 当前状态对象
+     * @param state 当前状态对象，用于获取默认图床服务商和配置信息
      */
     public void initUploadServicePanel(@NotNull MikState state) {
         // 从持久化配置中获取选中的图床服务商
@@ -1453,9 +1332,9 @@ public class UploadServicePanel {
     }
 
     /**
-     * 重置状态相关 UI 显示内容
+     * 重置状态相关的 UI 显示内容
      * <p>
-     * 根据传入的 MikState 对象，更新云服务器状态提示信息和测试上传按钮的显示文本。
+     * 根据传入的云服务器索引，更新状态提示信息和测试上传按钮的显示文本。
      *
      * @param currentCloudIndex 当前选择的云服务器索引
      */
@@ -1465,12 +1344,11 @@ public class UploadServicePanel {
             this.cloudServerAvailableMessage.setText(
                 OssState.getStatus(currentCloudIndex)
                 ? MikBundle.message("oss.available")
-                : MikBundle.message("oss.not.available")
-                                                    );
+                : MikBundle.message("oss.not.available"));
         }
-        this.testUploadButton.setText(OssState.getStatus(currentCloudIndex)
-                                      ? "<html><span style='color:green'>●</span> 验证图片上传</html>"
-                                      : "<html><span style='color:red'>●</span> 验证图片上传</html>");
+        String color = OssState.getStatus(currentCloudIndex) ? "green" : "red";
+        String testButtonText = MikBundle.message("panel.upload.service.test.button.text");
+        this.testUploadButton.setText("<html><span style='color:" + color + "'>●</span> " + testButtonText + "</html>");
     }
 
     /**
@@ -1500,6 +1378,8 @@ public class UploadServicePanel {
 
     /**
      * 判断上传服务设定是否已修改
+     * <p>
+     * 比较当前上传服务的状态与传入的状态对象，判断是否发生修改。
      *
      * @param state 要比较的状态对象
      * @return 如果当前状态与给定状态一致，返回 true；否则返回 false
@@ -1510,9 +1390,11 @@ public class UploadServicePanel {
     }
 
     /**
-     * 应用上传服务设定配置到状态对象
+     * 将应用上传服务的配置应用到状态对象中
+     * <p>
+     * 通过指定的状态对象，将上传服务的相关配置设置到状态中，用于后续操作使用。
      *
-     * @param state 状态对象
+     * @param state 状态对象，用于承载上传服务的配置信息
      */
     public void applyUploadServiceConfigs(@NotNull MikState state) {
         // 保存当前选中的服务商的配置
@@ -1522,11 +1404,11 @@ public class UploadServicePanel {
     /**
      * 初始化各个 OSS 设置对象
      * <p>
-     * 创建各个图床服务商的 Setting 对象，并调用 init 方法初始化配置
-     * <p>
-     * 注意：该方法只在初始化时调用一次，创建默认选中的图床 Setting 对象
+     * 根据传入的云服务商索引，创建对应的 OSS 设置对象，并调用 init 方法进行初始化配置。
+     * 该方法仅在初始化时调用一次，用于创建默认选中的图床设置对象。
      *
-     * @param state 当前状态对象
+     * @param cloudIndex 云服务商的索引，用于确定具体要初始化的 OSS 服务类型
+     * @param state      当前状态对象，用于获取对应 OSS 服务的配置状态
      */
     public void initOssSettings(int cloudIndex, MikState state) {
         // 初始化默认选中的图床 Setting 对象
@@ -1619,11 +1501,24 @@ public class UploadServicePanel {
         }
     }
 
+    /**
+     * 应用OSS状态信息
+     * <p>
+     * 根据传入的MikState对象和默认云类型，执行OSS状态相关的处理逻辑
+     */
     private void applyOssState(MikState state) {
         final int cloudType = state.getDefaultCloudType();
         applyOssState(state, cloudType);
     }
 
+    /**
+     * 根据云类型应用对应的OSS状态配置
+     * <p>
+     * 根据传入的云类型枚举值，调用对应OSS配置对象的apply方法，传入相应的状态对象。
+     *
+     * @param state     包含各云平台OSS状态的对象
+     * @param cloudType 云类型标识，用于确定使用哪个OSS配置
+     */
     private void applyOssState(MikState state, int cloudType) {
 
         final CloudEnum cloudEnum = CloudEnum.of(cloudType);
@@ -1640,6 +1535,14 @@ public class UploadServicePanel {
         }
     }
 
+    /**
+     * 重置所有 OSS 配置状态
+     * <p>
+     * 根据传入的 MikState 对象，重置各个 OSS 配置的状态。
+     * 依次调用每个 OSS 配置对象的 reset 方法，传入对应的状态值。
+     *
+     * @param state 包含各个 OSS 配置状态的 MikState 对象
+     */
     public void resetOssState(MikState state) {
 
         // 重置各个 OSS 配置
@@ -1672,6 +1575,15 @@ public class UploadServicePanel {
         }
     }
 
+    /**
+     * 判断 OSS 状态是否发生修改
+     * <p>
+     * 遍历所有 OSS 配置，检查每个配置是否在给定的 MikState 中标记为已修改。只要有一个配置返回 true，整个方法即返回 true。
+     * 使用短路逻辑，一旦发现已修改的配置，立即返回，提高效率。
+     *
+     * @param state 包含各个 OSS 状态信息的对象
+     * @return 如果有任何 OSS 配置状态发生修改，返回 true；否则返回 false
+     */
     public boolean isOssStateModified(MikState state) {
         // 检查各个 OSS 配置是否修改
         // 只要有一个 OSS 配置返回 true（已修改），整个方法就返回 true
@@ -1704,13 +1616,10 @@ public class UploadServicePanel {
         return this.picListOssSetting != null && this.picListOssSetting.isModified(state.getPicListOssState());
     }
 
-
     /**
-     * 为 "Test" 和 "Help" 按钮添加监听器，用于根据选中的图床进行测试或获取帮助信息
+     * 为 "Test" 和 "Help" 按钮添加点击事件监听器，用于执行测试上传或打开帮助页面
      * <p>
-     * 该方法为 "Test" 按钮绑定点击事件，用于上传测试文件并显示结果；同时为 "Help" 按钮绑定点击事件，用于打开对应帮助页面。
-     *
-     * @since 0.0.1
+     * 该方法为 "Test" 按钮绑定点击事件，用于选择对应的图床并上传测试文件，显示上传结果；同时为 "Help" 按钮绑定点击事件，用于打开对应图床的帮助页面。
      */
     public void testAndHelpListener() {
         // "Test" 按钮点击事件处理

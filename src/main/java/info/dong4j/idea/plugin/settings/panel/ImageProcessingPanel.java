@@ -3,6 +3,7 @@ package info.dong4j.idea.plugin.settings.panel;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ui.JBUI;
 
+import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.enums.InsertImageActionEnum;
 import info.dong4j.idea.plugin.settings.MikState;
 
@@ -20,90 +21,63 @@ import javax.swing.JTextField;
 import lombok.Getter;
 
 /**
- *
+ * 图片处理面板类
+ * <p>
+ * 该类用于构建和管理图片处理相关的 UI 面板，提供图片插入方式的选择、自定义路径设置、本地和网络图片处理规则配置等功能。支持与 MikState 状态对象进行数据绑定，实现配置的保存、加载和修改检测。
  *
  * @author dong4j
  * @version 1.0.0
- * @email "mailto:dong4j@gmail.com"
- * @date 2025.10.31 22:35
- * @since x.x.x
+ * @date 2025.10.31
+ * @since 1.0.0
  */
-@SuppressWarnings( {"DuplicatedCode", "D"})
+@SuppressWarnings( {"DuplicatedCode"})
 @Getter
 public class ImageProcessingPanel {
     // ========== 图片处理区域 ==========
-    /**
-     * 图片处理面板
-     */
+    /** 图片处理面板，用于显示和操作图片处理相关功能的界面组件 */
     @Getter
     private JPanel content;
-    /**
-     * 插入图片时的操作下拉框
-     * <p>
-     * 【新功能】对应老页面的部分逻辑：
-     * - 选项4"上传图片"对应老页面的 uploadAndReplaceCheckBox 功能
-     * - 选项2/3对应老页面的 copyToDirCheckBox + whereToCopyTextField 功能
-     */
+    /** 插入图片时的操作下拉框，用于选择不同的插入方式，如上传图片或复制到指定目录 */
     private JComboBox<String> insertImageComboBox;
-    /**
-     * 自定义路径输入框
-     * <p>
-     * 【新功能】对应老页面的 whereToCopyTextField，但新增了占位符支持
-     */
+    /** 自定义路径输入框，用于输入自定义路径，支持占位符显示 */
     private JTextField customPathTextField;
-    /**
-     * 自定义路径提示标签
-     * <p>
-     * 【新功能】用于显示自定义路径的说明信息
-     */
+    /** 自定义路径提示标签，用于显示自定义路径的说明信息 */
     private JBLabel customPathHintLabel;
-    /**
-     * 对本地位置的图片应用上述规则复选框
-     * <p>
-     * 【新功能】
-     */
+    /** 对本地位置的图片应用上述规则的复选框 */
     private JCheckBox applyToLocalImagesCheckBox;
-    /**
-     * 对网络位置的图片应用上述规则复选框
-     * <p>
-     * 【新功能】
-     */
+    /** 对网络位置的图片应用上述规则的复选框 */
     private JCheckBox applyToNetworkImagesCheckBox;
-    /**
-     * 优先使用相对路径复选框
-     * <p>
-     * 【新功能】
-     */
+    /** 优先使用相对路径复选框 */
     private JCheckBox preferRelativePathCheckBox;
-    /**
-     * 为相对路径添加 ./ 复选框
-     * <p>
-     * 【新功能】
-     */
+    /** 为相对路径添加 ./ 复选框 */
     private JCheckBox addDotSlashCheckBox;
-    /**
-     * 插入时自动转义图片 URL 复选框
-     * <p>
-     * 【新功能】
-     */
+    /** 插入时自动转义图片 URL 的复选框 */
     private JCheckBox autoEscapeImageUrlCheckBox;
-    /**
-     * 当前状态对象的引用，用于在 ActionListener 中访问保存的自定义路径值
-     */
+    /** 当前状态对象的引用，用于在 ActionListener 中访问保存的自定义路径值 */
     private MikState currentState;
 
+    /**
+     * 初始化图像处理面板
+     * <p>
+     * 构造函数用于初始化图像处理面板，调用创建图像处理面板的方法
+     */
     public ImageProcessingPanel() {
         createImageProcessingPanel();
     }
 
     /**
      * 创建图片处理区域面板
+     * <p>
+     * 初始化并构建图片处理相关的 UI 组件，包括下拉选项、自定义路径输入框、复选框等，用于配置图片插入规则和路径处理方式。
+     * 下拉选项用于选择图片插入动作，根据选择显示或隐藏自定义路径输入框及相关提示标签。
+     * 复选框用于控制是否对本地或网络图片应用规则，以及图片语法偏好设置。
+     *
+     * @since 1.0
      */
-    @SuppressWarnings("DialogTitleCapitalization")
     private void createImageProcessingPanel() {
         content = new JPanel();
         content.setLayout(new GridBagLayout());
-        content.setBorder(BorderFactory.createTitledBorder("插入图片时..."));
+        content.setBorder(BorderFactory.createTitledBorder(MikBundle.message("panel.image.processing.title")));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.WEST;
@@ -113,14 +87,14 @@ public class ImageProcessingPanel {
         // 下拉选项
         gbc.gridx = 0;
         gbc.gridy = 0;
-        content.add(new JBLabel("插入图片时的操作:"), gbc);
+        content.add(new JBLabel(MikBundle.message("panel.image.processing.insert.action")), gbc);
 
         gbc.gridx = 1;
         gbc.gridwidth = 2;
         gbc.weightx = 1.0;
         insertImageComboBox = new com.intellij.openapi.ui.ComboBox<>(InsertImageActionEnum.getDescriptions());
 
-        final JBLabel jbLabel = new JBLabel("自定义路径:");
+        final JBLabel jbLabel = new JBLabel(MikBundle.message("panel.image.processing.custom.path"));
 
         insertImageComboBox.addActionListener(e -> {
             int selectedIndex = insertImageComboBox.getSelectedIndex();
@@ -167,14 +141,7 @@ public class ImageProcessingPanel {
         gbc.gridy = 2;
         gbc.gridwidth = 2;
         gbc.weightx = 1.0;
-        customPathHintLabel = new JBLabel("""
-                                              <html>
-                                                  输入相对路径 (以 ./ 或 ../ 开头) 或绝对路径.<br/>
-                                                  <b>${project}</b>: 当前项目路径<br/>
-                                                  <b>${filename}</b>: 当前文件名<br/>
-                                                  示例: ./assets, ./images, ../images, ./${filename}.assets, ${project}/images
-                                              </html>
-                                              """);
+        customPathHintLabel = new JBLabel(MikBundle.message("panel.image.processing.custom.path.hint"));
         customPathHintLabel.setVisible(false);
         customPathHintLabel.setEnabled(false);
         content.add(customPathHintLabel, gbc);
@@ -184,13 +151,13 @@ public class ImageProcessingPanel {
         gbc.gridy = 3;
         gbc.gridwidth = 3;
         gbc.weightx = 0;
-        applyToLocalImagesCheckBox = new JCheckBox("对本地位置的图片应用上述规则");
+        applyToLocalImagesCheckBox = new JCheckBox(MikBundle.message("panel.image.processing.apply.local"));
         content.add(applyToLocalImagesCheckBox, gbc);
 
         // 复选框：对网络位置的图片应用上述规则
         gbc.gridy = 4;
-        applyToNetworkImagesCheckBox = new JCheckBox("对网络位置的图片应用上述规则");
-        applyToNetworkImagesCheckBox.setToolTipText("在合法的 markdown 图片标签中，如果粘贴的是网络图片，则会直接下载到指定的目录中");
+        applyToNetworkImagesCheckBox = new JCheckBox(MikBundle.message("panel.image.processing.apply.network"));
+        applyToNetworkImagesCheckBox.setToolTipText(MikBundle.message("panel.image.processing.apply.network.tooltip"));
         content.add(applyToNetworkImagesCheckBox, gbc);
 
         // 图片语法偏好
@@ -199,32 +166,31 @@ public class ImageProcessingPanel {
 
         gbc.gridy = 6;
         gbc.gridwidth = 3;
-        content.add(new JBLabel("图片语法偏好:"), gbc);
+        content.add(new JBLabel(MikBundle.message("panel.image.processing.syntax.preference")), gbc);
 
         gbc.gridy = 7;
-        preferRelativePathCheckBox = new JCheckBox("优先使用相对路径");
-        preferRelativePathCheckBox.setToolTipText("复制到绝对路径时，自动转换为相对路径");
+        preferRelativePathCheckBox = new JCheckBox(MikBundle.message("panel.image.processing.prefer.relative"));
+        preferRelativePathCheckBox.setToolTipText(MikBundle.message("panel.image.processing.prefer.relative.tooltip"));
         content.add(preferRelativePathCheckBox, gbc);
 
         gbc.gridy = 8;
-        addDotSlashCheckBox = new JCheckBox("为相对路径添加 ./");
-        addDotSlashCheckBox.setToolTipText("开启后，相对路径会自动添加 ./ 前缀");
+        addDotSlashCheckBox = new JCheckBox(MikBundle.message("panel.image.processing.add.dot.slash"));
+        addDotSlashCheckBox.setToolTipText(MikBundle.message("panel.image.processing.add.dot.slash.tooltip"));
         addDotSlashCheckBox.setEnabled(false);
-        preferRelativePathCheckBox.addActionListener(e -> {
-            addDotSlashCheckBox.setEnabled(preferRelativePathCheckBox.isSelected());
-        });
+        preferRelativePathCheckBox.addActionListener(e -> addDotSlashCheckBox.setEnabled(preferRelativePathCheckBox.isSelected()));
         content.add(addDotSlashCheckBox, gbc);
 
         gbc.gridy = 9;
-        autoEscapeImageUrlCheckBox = new JCheckBox("插入时自动转义图片 URL");
-        autoEscapeImageUrlCheckBox.setToolTipText("开启后，插入图片 URL 时会自动进行转义处理");
+        autoEscapeImageUrlCheckBox = new JCheckBox(MikBundle.message("panel.image.processing.auto.escape"));
+        autoEscapeImageUrlCheckBox.setToolTipText(MikBundle.message("panel.image.processing.auto.escape.tooltip"));
         content.add(autoEscapeImageUrlCheckBox, gbc);
     }
 
     /**
      * 判断图片处理设置是否被修改
      * <p>
-     * 检查传入的MikState对象中图片处理相关设置是否发生改变
+     * 比较当前图片处理设置与传入的MikState对象中的设置，判断是否有变化。
+     * 如果有任何设置项不同，则返回true，表示设置被修改；否则返回false。
      *
      * @param state MikState对象，用于获取图片处理设置状态
      * @return 如果图片处理设置被修改，返回true；否则返回false
@@ -274,9 +240,9 @@ public class ImageProcessingPanel {
     /**
      * 应用图片处理配置到状态对象
      * <p>
-     * 将面板中各个控件的值保存到传入的 MikState 对象中
+     * 将面板中各个控件的值保存到传入的 MikState 对象中，包括插入图片操作类型、路径设置、复选框状态等。
      *
-     * @param state 状态对象
+     * @param state 状态对象，用于保存配置信息
      */
     public void applyImageProcessingConfigs(@NotNull MikState state) {
         // 获取选中的操作枚举
@@ -307,9 +273,9 @@ public class ImageProcessingPanel {
     /**
      * 初始化图片处理面板
      * <p>
-     * 根据传入的 MikState 对象初始化面板中各个控件的值
+     * 根据传入的 MikState 对象初始化面板中各个控件的值，包括下拉框、复选框等组件的状态。
      *
-     * @param state 当前状态对象
+     * @param state 当前状态对象，用于获取图片处理相关的配置信息
      */
     public void initImageProcessingPanel(@NotNull MikState state) {
         // 保存 state 引用，以便在 ActionListener 中访问

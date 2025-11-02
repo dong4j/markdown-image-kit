@@ -36,6 +36,8 @@ public class MikState {
     private String currentInsertPath = "";
     /** 保存的自定义路径值，用于持久化用户输入的自定义路径，即使当前选择的不是"复制到指定路径"也保留 */
     private String savedCustomInsertPath = "";
+    /** 图片保存路径，默认为 "./imgs" 目录，用于存储上传或生成的图片文件 */
+    private String imageSavePath = "./imgs";
     /** 是否应用到本地图片 */
     private boolean applyToLocalImages = false;
     /** 是否应用到网络图片 */
@@ -46,35 +48,15 @@ public class MikState {
     private boolean addDotSlash = false;
     /** 自动转义图片 URL 标志，为 true 时会对图片 URL 进行转义处理 */
     private boolean autoEscapeImageUrl = false;
-
-
-
-
-    /** 图片备份标志，表示是否启用图片备份功能 */
-    private boolean backup = false;
-    /** 拷贝图片到目录标志，用于指示是否将图片复制到指定目录 */
-    private boolean copyToDir = false;
-    /** 上传图片并替换标志位，用于控制是否执行图片上传及替换操作 */
-    private boolean uploadAndReplace = false;
-    /** 图片保存路径，默认为 "./imgs" 目录，用于存储上传或生成的图片文件 */
-    private String imageSavePath = "./imgs";
     //endregion
 
-
     //region 图片处理
-    /** 是否替换标签 */
-    private boolean changeToHtmlTag = false;
-    /** 替换的标签类型 */
-    private String tagType = "";
-    /** 替换的标签类型代码 */
-    private String tagTypeCode = "";
-
-
     /** 重命名文件标志，用于指示是否需要对文件进行重命名操作 */
     private boolean rename = false;
     /** 文件名后缀索引，用于标识当前文件的后缀类型（已废弃，使用 renameTemplate 代替） */
     @Deprecated
     private int suffixIndex = SuffixEnum.FILE_NAME.index;
+
     /**
      * 重命名模板，支持占位符格式：
      * <ul>
@@ -103,8 +85,14 @@ public class MikState {
     private boolean watermark = false;
     /** 水印文本，用于在界面中显示的标识信息 */
     private String watermarkText = "@MIK";
-    //endregion
 
+    /** 是否替换标签 */
+    private boolean changeToHtmlTag = false;
+    /** 替换的标签类型 */
+    private String tagType = "";
+    /** 替换的标签类型代码 */
+    private String tagTypeCode = "";
+    //endregion
 
     //region 上传服务设定
     /** 默认云服务类型，表示使用 SM_MS_CLOUD 云服务 */

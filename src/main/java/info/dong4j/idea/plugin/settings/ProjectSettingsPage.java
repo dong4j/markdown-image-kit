@@ -62,6 +62,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @SuppressWarnings("D")
 @Slf4j
+@Deprecated
 public class ProjectSettingsPage implements SearchableConfigurable, Configurable.NoMargin {
     /** 测试文件名，用于测试场景中的文件标识 */
     public static final String TEST_FILE_NAME = "mik.webp";
