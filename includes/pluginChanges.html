@@ -24,9 +24,24 @@
 
 <p>2.1.0</p>
 <ul>
-    <li>新增转为 webp 功能</li>
-    <li>增加代码逻辑健壮性</li>
-    <li>修复帮助测试按钮点击无法打开帮助页面的问题</li>
+    <li>Refactor settings page layout, prioritize image processing functionality (similar to Typora's design philosophy)</li>
+    <li>Refactor insert image functionality, add placeholder support (${filename}, ${project}) for custom paths</li>
+    <li>Add network image processing: paste network image URL in Markdown image tag ( ![](cursor) ) to download automatically</li>
+    <li>Add image rename template with placeholder support (${datetime:format}, ${string:length}, ${number:length}, ${filename})</li>
+    <li>Add convert to WebP functionality with quality control</li>
+    <li>Add support for relative path preferences (./ prefix)</li>
+    <li>Add auto-escape image URL option</li>
+    <li>Add migration to local storage option in image hosting migration feature</li>
+</ul>
+<ul>
+    <li>重构设置页面布局, 将图片处理功能放在首位(参考 Typora 的设计理念)</li>
+    <li>重构插入图片功能, 支持占位符(${filename}, ${project})用于自定义路径</li>
+    <li>新增网络图片处理, 在Markdown 图片标签中粘贴网络图片链接可直接下载( ![](光标) )</li>
+    <li>新增图片重命名模板功能, 支持占位符(${datetime:format}, ${string:length}, ${number:length}, ${filename})</li>
+    <li>新增转为 WebP 功能, 支持质量调节</li>
+    <li>新增相对路径偏好设置(支持 ./ 前缀)</li>
+    <li>新增自动转义图片 URL 选项</li>
+    <li>图床迁移新增迁移到本地功能</li>
 </ul>
 
 <p>2.0.0</p>
