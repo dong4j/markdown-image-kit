@@ -206,7 +206,7 @@ public class UploadNotification extends MikNotification {
      */
     public static void notifyConfigurableError(Project project, String actionName) {
         // 使用占位符构建完整的通知内容
-        String template = "<p><a href=''>%s</a></p><br /><p>%s</p><br /><p>%s <a href='%s'>Help</a></p>";
+        String template = "<p>%s:</p><br /><p>%s</p><br /><p>%s <a href='%s'>Help</a></p>";
         String content = String.format(template,
                                        MikBundle.message("notification.configure.action", actionName),  // {0}
                                        MikBundle.message("notification.help.or.configure"),  // {1}

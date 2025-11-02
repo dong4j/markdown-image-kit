@@ -1,7 +1,8 @@
-package info.dong4j.idea.plugin.action.image;
+package info.dong4j.idea.plugin.action.menu;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.vfs.VirtualFile;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.action.intention.IntentionActionBase;
@@ -13,6 +14,7 @@ import info.dong4j.idea.plugin.chain.ImageRenameHandler;
 import info.dong4j.idea.plugin.chain.ImageUploadHandler;
 import info.dong4j.idea.plugin.chain.InsertToClipboardHandler;
 import info.dong4j.idea.plugin.chain.OptionClientHandler;
+import info.dong4j.idea.plugin.chain.RefreshFileSystemHandler;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
@@ -22,6 +24,7 @@ import info.dong4j.idea.plugin.task.ActionTask;
 import info.dong4j.idea.plugin.util.ClientUtils;
 
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
@@ -48,6 +51,11 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public final class ImageUploadAction extends ImageActionBase {
+    /** 最小文件大小限制：1KB */
+    private static final long MIN_FILE_SIZE = 1024;
+    /** 最大文件大小限制：5MB */
+    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
+
     /**
      * 获取图标
      * <p>
@@ -58,8 +66,40 @@ public final class ImageUploadAction extends ImageActionBase {
      */
     @Contract(pure = true)
     @Override
-    protected Icon getIcon() {
+    public Icon getIcon() {
         return MikIcons.MIK;
+    }
+
+    /**
+     * 过滤文件
+     * <p>
+     * 图片上传时过滤掉不符合大小要求的文件：
+     * <ul>
+     *   <li>小于 1KB 的文件：可能是损坏或无效的图片</li>
+     *   <li>大于 5MB 的文件：文件过大，上传可能失败或耗时过长</li>
+     * </ul>
+     *
+     * @param virtualFile 虚拟文件对象
+     * @return 如果文件应该被处理返回 true，否则返回 false
+     * @since 2.2.0
+     */
+    @Override
+    protected boolean shouldProcessFile(@NotNull VirtualFile virtualFile) {
+        long fileSize = virtualFile.getLength();
+
+        // 过滤掉小于 1KB 的文件
+        if (fileSize < MIN_FILE_SIZE) {
+            log.debug("图片上传跳过小文件 ({}字节 < 1KB): {}", fileSize, virtualFile.getName());
+            return false;
+        }
+
+        // 过滤掉大于 5MB 的文件
+        if (fileSize > MAX_FILE_SIZE) {
+            log.debug("图片上传跳过大文件 ({}字节 > 10MB): {}", fileSize, virtualFile.getName());
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -77,6 +117,7 @@ public final class ImageUploadAction extends ImageActionBase {
         OssClient client = ClientUtils.getClient(cloudEnum);
 
         EventData data = new EventData()
+            .setAction("ImageUploadAction")
             .setActionEvent(event)
             .setProject(event.getProject())
             .setClient(client)
@@ -96,7 +137,8 @@ public final class ImageUploadAction extends ImageActionBase {
             .addHandler(new ImageLabelChangeHandler())
             // 写到 clipboard
             .addHandler(new InsertToClipboardHandler())
-            .addHandler(new FinalChainHandler());
+            .addHandler(new FinalChainHandler())
+            .addHandler(new RefreshFileSystemHandler());
 
         // 开启后台任务
         new ActionTask(event.getProject(), MikBundle.message("mik.action.upload.process", cloudEnum.title), manager).queue();

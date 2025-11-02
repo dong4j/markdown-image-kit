@@ -1,7 +1,6 @@
 package info.dong4j.idea.plugin.chain;
 
 import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.progress.ProgressIndicator;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.client.OssClient;
@@ -75,8 +74,8 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
     @SuppressWarnings("D")
     @Override
     public boolean execute(EventData data) {
-        ProgressIndicator indicator = data.getIndicator();
-        int size = data.getSize();
+        ProgressTracker progressTracker = data.getProgressTracker();
+        int stepIndex = data.getIndex();
 
         // 统计总数，用于进度计算
         int totalCount = data.getWaitingProcessMap().values().stream()
@@ -115,29 +114,28 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
             return false;
         }
 
-        // 重设任务数
-        totalCount = uploadTasks.size();
+        // 重设任务数，使用 final 变量以便在 lambda 中使用
+        final int finalTotalCount = uploadTasks.size();
 
         // 使用原子变量跟踪进度，确保线程安全
         AtomicInteger processedCount = new AtomicInteger(0);
         // 动态计算线程池大小，最多使用15个线程，但要考虑图片数量
-        int threadPoolSize = Math.min(totalCount, 15);
+        int threadPoolSize = Math.min(finalTotalCount, 15);
         ExecutorService executorService = Executors.newFixedThreadPool(threadPoolSize);
-        log.info("开始上传 {} 张图片，使用 {} 个线程", totalCount, threadPoolSize);
+        log.info("开始上传 {} 张图片，使用 {} 个线程", finalTotalCount, threadPoolSize);
         List<CompletableFuture<?>> futures = new ArrayList<>();
 
         // 为每个图片创建异步任务
         for (ImageUploadTask task : uploadTasks) {
-            int finalTotalCount = totalCount;
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 try {
                     MarkdownImage markdownImage = task.markdownImage;
                     int currentProcessed = processedCount.incrementAndGet();
 
-                    // 更新进度
-                    String imageName = markdownImage.getImageName();
-                    indicator.setText2(MikBundle.message("mik.action.processing.title", imageName));
-                    indicator.setFraction(((currentProcessed * 1.0) + data.getIndex() * size) / (finalTotalCount * size));
+                    // 使用 ProgressTracker 更新进度
+                    if (progressTracker != null) {
+                        progressTracker.updateItemProgress(stepIndex, markdownImage.getImageName(), currentProcessed, finalTotalCount);
+                    }
 
                     // 执行上传逻辑
                     uploadImage(data, markdownImage);
@@ -152,7 +150,7 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
         // 等待所有任务完成
         try {
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[] {})).join();
-            log.info("图片上传完成，共处理 {} 张图片", totalCount);
+            log.info("图片上传完成，共处理 {} 张图片", finalTotalCount);
         } finally {
             executorService.shutdown();
         }
@@ -174,6 +172,36 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
      */
     private void uploadImage(EventData data, MarkdownImage markdownImage) {
         String imageName = markdownImage.getImageName();
+
+        // 检查输入流是否为空
+        if (markdownImage.getInputStream() == null) {
+            log.warn("图片 {} 的输入流为空，跳过上传", imageName);
+            buildMarkdownImage("![upload error: empty stream](", markdownImage);
+            return;
+        }
+
+        // 检查文件大小
+        try {
+            long fileSize;
+            // 优先从 VirtualFile 获取文件大小（更准确）
+            if (markdownImage.getVirtualFile() != null) {
+                fileSize = markdownImage.getVirtualFile().getLength();
+            } else {
+                // 否则使用 available() 方法估算（可能不准确）
+                fileSize = markdownImage.getInputStream().available();
+            }
+
+            // 如果文件小于 1KB，跳过上传
+            if (fileSize < 1024) {
+                log.warn("图片 {} 文件大小 {} 字节小于 1KB，跳过上传", imageName, fileSize);
+                buildMarkdownImage("![upload skipped: file too small](", markdownImage);
+                return;
+            }
+
+            log.debug("图片 {} 文件大小: {} 字节", imageName, fileSize);
+        } catch (Exception e) {
+            log.warn("无法获取图片 {} 的文件大小，继续上传: {}", imageName, e.getMessage());
+        }
 
         String imageUrl = null;
 
@@ -205,27 +233,22 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
     }
 
     /**
-     * 处理数据并更新进度指示器
+     * 将传入的字符串与图片路径拼接，并设置到Markdown图片对象中
      * <p>
-     * 根据传入的数据和参数更新进度指示器的状态，包括设置文本和进度比例
+     * 该方法用于构建图片的标记字符串，并更新Markdown图片对象的相关属性
      *
-     * @param data           当前处理的数据对象
-     * @param markdownName   标记名称，用于显示在进度指示器中
-     * @param indicator      进度指示器对象，用于更新进度和文本
-     * @param size           单个数据项的大小
-     * @param totalProcessed 已处理的总项数
-     * @param totalCount     总项数，用于计算进度比例
-     * @since 1.6.4
+     * @param title             传入的字符串
+     * @param markdownImage Markdown图片对象，用于存储拼接后的标记信息
      */
-    private void extracted(EventData data,
-                           String markdownName,
-                           ProgressIndicator indicator,
-                           int size,
-                           int totalProcessed,
-                           int totalCount) {
-        indicator.setText2(MikBundle.message("mik.action.processing.title", markdownName));
-        indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
+    private static void buildMarkdownImage(String title, MarkdownImage markdownImage) {
+        String mark = title + markdownImage.getPath() + ")";
+        markdownImage.setOriginalLineText(mark);
+        markdownImage.setOriginalMark(mark);
+        markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
+        markdownImage.setFinalMark(mark);
+        markdownImage.setLocation(ImageLocationEnum.LOCAL);
     }
+
 
     /**
      * 处理 Markdown 图片数据，仅上传 location 为 LOCAL 的图片
@@ -238,41 +261,9 @@ public class ImageUploadHandler extends ActionHandlerAdapter {
      * @since 0.0.1
      */
     @Override
+    @Deprecated
     public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
-        String imageName = markdownImage.getImageName();
-        // 已上传过的不处理, 此时 finalmark 为 null, 替换是忽略
-        if (ImageLocationEnum.NETWORK.equals(markdownImage.getLocation())) {
-            return;
-        }
-
-        if (StringUtils.isBlank(imageName) || markdownImage.getInputStream() == null) {
-            log.trace("inputstream 为 null 或者 imageName 为 null, remove markdownImage = {}", markdownImage);
-            imageIterator.remove();
-            return;
-        }
-
-        String imageUrl = null;
-
-        try {
-            imageUrl = data.getClient().upload(markdownImage.getInputStream(), markdownImage.getImageName());
-            log.info("图片上传成功: {} -> {}", imageName, imageUrl);
-        } catch (Exception ignored) {
-        }
-
-        String mark;
-        // 如果上传失败, 则只修改 ![], 避免丢失原始格式
-        if (StringUtils.isBlank(imageUrl)) {
-            mark = "![upload error](" + markdownImage.getPath() + ")";
-            markdownImage.setLocation(ImageLocationEnum.LOCAL);
-        } else {
-            mark = "![](" + imageUrl + ")";
-            markdownImage.setPath(imageUrl);
-            markdownImage.setLocation(ImageLocationEnum.NETWORK);
-        }
-
-        markdownImage.setOriginalLineText(mark);
-        markdownImage.setOriginalMark(mark);
-        markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
-        markdownImage.setFinalMark(mark);
+        // 此方法已被多线程版本替代，不再使用
+        log.trace("invoke 方法已被多线程 execute 方法替代");
     }
 }

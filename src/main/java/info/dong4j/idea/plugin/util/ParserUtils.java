@@ -151,7 +151,7 @@ public final class ParserUtils {
      * @since 0.0.1
      */
     public static String parse2(String text, String title, String path) {
-        return text.replaceAll("\\$\\{title}", title).replaceAll("\\$\\{path}", path);
+        return text.replaceAll("\\$\\{title}", title == null ? "" : title).replaceAll("\\$\\{path}", path);
     }
 
     /**
@@ -172,7 +172,7 @@ public final class ParserUtils {
 
         String describe = text.substring(start + 2, end);
         String file = text.substring(text.indexOf("(") + 1, text.indexOf(")"));
-        return new HashMap<String, String>(1) {
+        return new HashMap<>(1) {
             /** 序列化版本号，用于确保类的兼容性 */
             @Serial
             private static final long serialVersionUID = 6465853189583120987L;

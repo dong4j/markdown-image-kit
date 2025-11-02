@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 
+import info.dong4j.idea.plugin.chain.ProgressTracker;
 import info.dong4j.idea.plugin.client.OssClient;
 
 import java.util.List;
@@ -28,6 +29,7 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class EventData {
+    private String action;
     /** Action 事件对象，用于传递和处理用户操作事件 */
     private AnActionEvent actionEvent;
     /** 显示当前处理进度 */
@@ -48,4 +50,6 @@ public class EventData {
     private int size;
     /** 当前执行的节点索引 */
     private int index;
+    /** 进度跟踪器，用于统一管理进度展示 */
+    private ProgressTracker progressTracker;
 }

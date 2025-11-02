@@ -1,5 +1,6 @@
 package info.dong4j.idea.plugin.settings.panel;
 
+import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ui.JBUI;
 
@@ -14,11 +15,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
 import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
@@ -41,28 +41,6 @@ public class ImageEnhancementPanel {
     /** 图片增强处理面板 */
     @Getter
     private JPanel content;
-    /** 替换为 <a> 标签的复选框，用于控制是否将选项转换为 HTML 标签 */
-    private JCheckBox replaceToHtmlTagCheckBox;
-    /** 正常 HTML 标签单选按钮，对应老页面的 commonRadioButton */
-    private JRadioButton normalHtmlTagRadioButton;
-    /** 点击放大 HTML 标签单选按钮，用于表示是否启用点击放大 HTML 标签的功能 */
-    private JRadioButton clickToZoomHtmlTagRadioButton;
-    /** 自定义 HTML 标签单选按钮 【字段映射】对应老页面的 customRadioButton */
-    private JRadioButton customHtmlTagRadioButton;
-    /** 自定义 HTML 标签输入框，用于输入自定义的 HTML 标签内容 */
-    private JTextField customHtmlTagTextField;
-    /** 图片压缩复选框 【字段映射】对应老页面的 compressCheckBox */
-    private JCheckBox compressCheckBox;
-    /**
-     * 压缩比例微调器
-     * <p>
-     * 【字段映射】对应老页面的 compressSlider (JSlider)，新页面改为 JSpinner 以便更精确控制
-     */
-    private JSpinner compressSpinner;
-    /** 转为 WebP 复选框 【字段映射】对应老页面的 convertToWebpCheckBox */
-    private JCheckBox convertToWebpCheckBox;
-    /** WebP 质量微调器，用于调整 WebP 图像的压缩质量，新页面新增功能，老页面未包含此设置 */
-    private JSpinner webpQualitySpinner;
     /**
      * 图片重命名复选框
      * <p>
@@ -73,10 +51,33 @@ public class ImageEnhancementPanel {
     private JTextField renamePatternTextField;
     /** 重命名占位符提示标签 */
     private JLabel renamePlaceholderHintLabel;
+
+    /**
+     * 压缩比例微调器
+     * <p>
+     * 【字段映射】对应老页面的 compressSlider (JSlider)，新页面改为 JSpinner 以便更精确控制
+     */
+    private JSpinner compressSpinner;
+    /** 转为 WebP 复选框 【字段映射】对应老页面的 convertToWebpCheckBox */
+    private JCheckBox convertToWebpCheckBox;
+    /** WebP 质量微调器，用于调整 WebP 图像的压缩质量，新页面新增功能，老页面未包含此设置 */
+    private JSpinner webpQualitySpinner;
     /** 添加水印的复选框，用于控制是否显示水印功能 */
     private JCheckBox watermarkCheckBox;
     /** 水印文本输入框，用于输入水印内容，【字段映射】对应老页面的 watermarkTextField */
     private JTextField watermarkTextTextField;
+
+    /** 替换为 <a> 标签的复选框，用于控制是否将选项转换为 HTML 标签 */
+    private JCheckBox replaceToHtmlTagCheckBox;
+    /** HTML 标签类型下拉框，用于选择标签类型（正常、点击放大、自定义） */
+    private JComboBox<String> htmlTagTypeComboBox;
+    /** 自定义 HTML 标签输入框，用于输入自定义的 HTML 标签内容 */
+    private JTextField customHtmlTagTextField;
+
+    /** 图片压缩复选框 【字段映射】对应老页面的 compressCheckBox */
+    private JCheckBox compressCheckBox;
+    /** 当前状态对象的引用，用于在 ActionListener 中访问保存的自定义标签代码 */
+    private MikState currentState;
 
     /**
      * 构造函数，初始化图像增强面板
@@ -214,55 +215,63 @@ public class ImageEnhancementPanel {
         // 替换为 <a> 标签 - 放在水印下面
         gbc.gridx = 0;
         gbc.gridy = 5;
-        gbc.gridwidth = 3;
+        gbc.gridwidth = 1;
+        gbc.weightx = 0;
+        gbc.insets = JBUI.insets(5, 10);
         replaceToHtmlTagCheckBox = new JCheckBox(MikBundle.message("panel.image.enhancement.replace.html.tag"));
         content.add(replaceToHtmlTagCheckBox, gbc);
 
-        ButtonGroup htmlTagGroup = new ButtonGroup();
-
-        // 正常 - 相对复选框缩进2个空格宽度
-        gbc.gridy = 6;
-        gbc.gridwidth = 1;
-        gbc.gridx = 0;
-        gbc.insets = JBUI.insets(5, 30, 5, 10); // 左边距30像素（约2个空格）
-        normalHtmlTagRadioButton = new JRadioButton(MikBundle.message("panel.image.enhancement.html.normal"));
-        normalHtmlTagRadioButton.setEnabled(false);
-        htmlTagGroup.add(normalHtmlTagRadioButton);
-        content.add(normalHtmlTagRadioButton, gbc);
-
-        // 点击放大
-        gbc.gridy = 7;
-        clickToZoomHtmlTagRadioButton = new JRadioButton(MikBundle.message("panel.image.enhancement.html.zoom"));
-        clickToZoomHtmlTagRadioButton.setEnabled(false);
-        htmlTagGroup.add(clickToZoomHtmlTagRadioButton);
-        content.add(clickToZoomHtmlTagRadioButton, gbc);
-
-        // 自定义
-        gbc.gridy = 8;
-        customHtmlTagRadioButton = new JRadioButton(MikBundle.message("panel.image.enhancement.html.custom"));
-        customHtmlTagRadioButton.setEnabled(false);
-        htmlTagGroup.add(customHtmlTagRadioButton);
-        content.add(customHtmlTagRadioButton, gbc);
-
-        // 自定义输入框
+        // HTML 标签类型下拉框
         gbc.gridx = 1;
         gbc.gridwidth = 2;
         gbc.weightx = 1.0;
-        gbc.insets = JBUI.insets(5, 10); // 恢复默认边距
+        htmlTagTypeComboBox = new ComboBox<>(ImageMarkEnum.getDescriptions());
+        htmlTagTypeComboBox.setEnabled(false);
+
+        htmlTagTypeComboBox.addActionListener(e -> {
+            int selectedIndex = htmlTagTypeComboBox.getSelectedIndex();
+            ImageMarkEnum tagEnum = ImageMarkEnum.of(selectedIndex);
+            boolean showCustom = tagEnum == ImageMarkEnum.CUSTOM;
+            customHtmlTagTextField.setVisible(showCustom);
+            customHtmlTagTextField.setEnabled(showCustom && replaceToHtmlTagCheckBox.isSelected());
+            // 当选择自定义时，如果输入框为空，则从保存的值中恢复
+            if (showCustom && currentState != null) {
+                String currentText = customHtmlTagTextField.getText().trim();
+                if (currentText.isEmpty()) {
+                    String savedCustomCode = currentState.getCustomTagCode();
+                    if (savedCustomCode != null && !savedCustomCode.isEmpty()) {
+                        customHtmlTagTextField.setText(savedCustomCode);
+                    }
+                }
+            }
+        });
+        content.add(htmlTagTypeComboBox, gbc);
+
+        // 自定义输入框（占满一行，不需要左侧标签）
+        gbc.gridx = 1;
+        gbc.gridy = 6;
+        gbc.gridwidth = 2;
+        gbc.weightx = 1.0;
         customHtmlTagTextField = new JTextField();
+        customHtmlTagTextField.setVisible(false);
         customHtmlTagTextField.setEnabled(false);
         customHtmlTagTextField.setToolTipText("请输入自定义 HTML 标签模板");
         content.add(customHtmlTagTextField, gbc);
 
+
         // 启用/禁用相关控件
         replaceToHtmlTagCheckBox.addActionListener(e -> {
             boolean enabled = replaceToHtmlTagCheckBox.isSelected();
-            normalHtmlTagRadioButton.setEnabled(enabled);
-            clickToZoomHtmlTagRadioButton.setEnabled(enabled);
-            customHtmlTagRadioButton.setEnabled(enabled);
-            customHtmlTagTextField.setEnabled(enabled && customHtmlTagRadioButton.isSelected());
+            htmlTagTypeComboBox.setEnabled(enabled);
+
+            // 触发下拉框的 ActionListener，以更新自定义输入框的显示状态
+            int selectedIndex = htmlTagTypeComboBox.getSelectedIndex();
+            ImageMarkEnum tagEnum = ImageMarkEnum.of(selectedIndex);
+            boolean showCustom = tagEnum == ImageMarkEnum.CUSTOM;
+
+            customHtmlTagTextField.setVisible(enabled && showCustom);
+            customHtmlTagTextField.setEnabled(enabled && showCustom);
         });
-        customHtmlTagRadioButton.addActionListener(e -> customHtmlTagTextField.setEnabled(replaceToHtmlTagCheckBox.isSelected() && customHtmlTagRadioButton.isSelected()));
 
     }
 
@@ -274,27 +283,34 @@ public class ImageEnhancementPanel {
      * @param state 当前状态对象，包含图片增强处理的各种配置信息
      */
     public void initImageEnhancementPanel(@NotNull MikState state) {
+        // 保存 state 引用，以便在 ActionListener 中访问
+        this.currentState = state;
+
         // 替换为 HTML 标签
         this.replaceToHtmlTagCheckBox.setSelected(state.isChangeToHtmlTag());
 
         boolean htmlTagEnabled = state.isChangeToHtmlTag();
-        this.normalHtmlTagRadioButton.setEnabled(htmlTagEnabled);
-        this.clickToZoomHtmlTagRadioButton.setEnabled(htmlTagEnabled);
-        this.customHtmlTagRadioButton.setEnabled(htmlTagEnabled);
 
-        // 根据状态设置选中的单选按钮
-        String tagType = state.getTagType();
-        if (ImageMarkEnum.COMMON_PICTURE.text.equals(tagType)) {
-            this.normalHtmlTagRadioButton.setSelected(true);
-        } else if (ImageMarkEnum.LARGE_PICTURE.text.equals(tagType)) {
-            this.clickToZoomHtmlTagRadioButton.setSelected(true);
-        } else if (ImageMarkEnum.CUSTOM.text.equals(tagType)) {
-            this.customHtmlTagRadioButton.setSelected(true);
-            this.customHtmlTagTextField.setText(state.getTagTypeCode());
-            this.customHtmlTagTextField.setEnabled(htmlTagEnabled);
-        } else {
-            this.normalHtmlTagRadioButton.setSelected(true);
+        // 设置下拉框的启用状态
+        this.htmlTagTypeComboBox.setEnabled(htmlTagEnabled);
+
+        // 根据状态设置下拉框的选中项
+        ImageMarkEnum tagEnum = state.getImageMarkEnum();
+        if (tagEnum == null) {
+            tagEnum = ImageMarkEnum.ORIGINAL;
         }
+
+        this.htmlTagTypeComboBox.setSelectedIndex(tagEnum.index);
+
+        // 自定义输入框的可见性和启用状态
+        boolean customSelected = tagEnum == ImageMarkEnum.CUSTOM;
+        if (customSelected) {
+            this.customHtmlTagTextField.setText(state.getCustomTagCode());
+        }
+
+        boolean customVisible = htmlTagEnabled && customSelected;
+        this.customHtmlTagTextField.setVisible(customVisible);
+        this.customHtmlTagTextField.setEnabled(customVisible);
 
         // 图片压缩
         this.compressCheckBox.setSelected(state.isCompress());
@@ -339,18 +355,15 @@ public class ImageEnhancementPanel {
     public boolean isImageEnhancementModified(@NotNull MikState state) {
         boolean changeToHtmlTag = this.replaceToHtmlTagCheckBox.isSelected();
 
-        String tagType = "";
-        String tagTypeCode = "";
+        // 从下拉框获取选中的标签类型枚举
+        ImageMarkEnum selectedTagEnum = null;
+        String customTagTypeCode = "";
         if (changeToHtmlTag) {
-            if (this.normalHtmlTagRadioButton.isSelected()) {
-                tagType = ImageMarkEnum.COMMON_PICTURE.text;
-                tagTypeCode = ImageMarkEnum.COMMON_PICTURE.code;
-            } else if (this.clickToZoomHtmlTagRadioButton.isSelected()) {
-                tagType = ImageMarkEnum.LARGE_PICTURE.text;
-                tagTypeCode = ImageMarkEnum.LARGE_PICTURE.code;
-            } else if (this.customHtmlTagRadioButton.isSelected()) {
-                tagType = ImageMarkEnum.CUSTOM.text;
-                tagTypeCode = this.customHtmlTagTextField.getText().trim();
+            int selectedIndex = this.htmlTagTypeComboBox.getSelectedIndex();
+            selectedTagEnum = ImageMarkEnum.of(selectedIndex);
+            // 如果是自定义类型，获取自定义代码
+            if (selectedTagEnum == ImageMarkEnum.CUSTOM) {
+                customTagTypeCode = this.customHtmlTagTextField.getText().trim();
             }
         }
 
@@ -364,9 +377,18 @@ public class ImageEnhancementPanel {
 
         boolean watermark = this.watermarkCheckBox.isSelected();
         String watermarkText = this.watermarkTextTextField.getText().trim();
+
+        // 比较枚举值和自定义代码
+        boolean tagEnumEquals = (selectedTagEnum == state.getImageMarkEnum());
+        boolean customCodeEquals = true;
+        if (selectedTagEnum == ImageMarkEnum.CUSTOM) {
+            String stateCode = state.getCustomTagCode() != null ? state.getCustomTagCode() : "";
+            customCodeEquals = customTagTypeCode.equals(stateCode);
+        }
+        
         return !(changeToHtmlTag == state.isChangeToHtmlTag()
-                 && tagType.equals(state.getTagType())
-                 && tagTypeCode.equals(state.getTagTypeCode())
+                 && tagEnumEquals
+                 && customCodeEquals
                  && compress == state.isCompress()
                  && compressPercent == state.getCompressBeforeUploadOfPercent()
                  && webpQuality == state.getWebpQuality()
@@ -384,20 +406,21 @@ public class ImageEnhancementPanel {
      *
      * @param state 状态对象，用于存储图片增强配置信息
      */
-    @SuppressWarnings("D")
     public void applyImageEnhancementConfigs(@NotNull MikState state) {
         state.setChangeToHtmlTag(this.replaceToHtmlTagCheckBox.isSelected());
 
         if (this.replaceToHtmlTagCheckBox.isSelected()) {
-            if (this.normalHtmlTagRadioButton.isSelected()) {
-                state.setTagType(ImageMarkEnum.COMMON_PICTURE.text);
-                state.setTagTypeCode(ImageMarkEnum.COMMON_PICTURE.code);
-            } else if (this.clickToZoomHtmlTagRadioButton.isSelected()) {
-                state.setTagType(ImageMarkEnum.LARGE_PICTURE.text);
-                state.setTagTypeCode(ImageMarkEnum.LARGE_PICTURE.code);
-            } else if (this.customHtmlTagRadioButton.isSelected()) {
-                state.setTagType(ImageMarkEnum.CUSTOM.text);
-                state.setTagTypeCode(this.customHtmlTagTextField.getText().trim());
+            int selectedIndex = this.htmlTagTypeComboBox.getSelectedIndex();
+            // 将下拉框索引映射回枚举值
+            ImageMarkEnum tagEnum = ImageMarkEnum.of(selectedIndex);
+            // 设置标签类型枚举
+            state.setImageMarkEnum(tagEnum);
+
+            // 如果是自定义类型，保存自定义代码
+            if (tagEnum == ImageMarkEnum.CUSTOM) {
+                state.setCustomTagCode(this.customHtmlTagTextField.getText().trim());
+            } else {
+                state.setCustomTagCode(""); // 非自定义类型清空自定义代码
             }
         }
 

@@ -1,4 +1,4 @@
-package info.dong4j.idea.plugin.action.markdown;
+package info.dong4j.idea.plugin.action.menu;
 
 import info.dong4j.idea.plugin.client.GithubClient;
 import info.dong4j.idea.plugin.client.OssClient;

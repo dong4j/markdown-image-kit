@@ -145,13 +145,15 @@ public class CustomOssClient implements OssClient {
             throw new RuntimeException("服务器返回空响应");
         }
 
-        JsonElement parse = JsonParser.parseString(json);
-        String url = this.extractUrlFromJson(parse, this.responseUrlPath);
-        
-        if (StringUtils.isNotBlank(url)) {
-            return url;
-        }
+        try {
+            JsonElement parse = JsonParser.parseString(json);
+            String url = this.extractUrlFromJson(parse, this.responseUrlPath);
 
+            if (StringUtils.isNotBlank(url)) {
+                return url;
+            }
+        } catch (Exception ignored) {
+        }
         showDialog(result);
         throw new RuntimeException("无法从响应中提取URL，请检查'响应URL路径'配置是否正确: " + responseUrlPath + "\n响应内容: " + json);
     }
@@ -194,6 +196,7 @@ public class CustomOssClient implements OssClient {
      * 显示上传错误对话框
      * <p>
      * 根据传入的 result 参数构建并显示一个自定义的上传错误对话框，展示请求头信息、参数、文件部分、响应内容和 JSON 数据。
+     * 窗口大小会根据文本内容自动调整。
      *
      * @param result 包含上传相关信息的 Map 对象，包含 "headerInfo"、"params"、"filePart"、"response" 和 "json" 键
      * @since 1.5.0
@@ -201,22 +204,119 @@ public class CustomOssClient implements OssClient {
     private static void showDialog(Map<String, String> result) {
         DialogBuilder builder = new DialogBuilder();
         CustomUploadErrorDialog dialog = new CustomUploadErrorDialog();
-        dialog.getResponse().setText(result.get("headerInfo") + "\n"
-                                     + result.get("params") + "\n"
-                                     + result.get("filePart") + "\n"
-                                     + result.get("response") + "\n"
-                                     + result.get("json") + "\n");
 
+        // 设置文本内容
+        String text = result.get("headerInfo") + "\n"
+                      + result.get("params") + "\n"
+                      + result.get("filePart") + "\n"
+                      + result.get("response") + "\n"
+                      + result.get("json") + "\n";
+        dialog.getResponse().setText(text);
+
+        // 根据文本内容计算合适的窗口大小
+        int preferredWidth = calculatePreferredWidth(dialog.getResponse(), text);
+        int preferredHeight = calculatePreferredHeight(dialog.getResponse(), text);
+
+        // 设置最小和最大尺寸限制
+        int minWidth = 400;
+        int minHeight = 200;
+        int maxWidth = 1200;
+        int maxHeight = 800;
+
+        int finalWidth = Math.max(minWidth, Math.min(maxWidth, preferredWidth));
+        int finalHeight = Math.max(minHeight, Math.min(maxHeight, preferredHeight));
+
+        // 设置内容面板的推荐大小，以便 DialogBuilder 自动调整窗口大小
+        dialog.getContentPane().setPreferredSize(new java.awt.Dimension(finalWidth, finalHeight));
+        
         builder.setOkActionEnabled(true);
         builder.setCenterPanel(dialog.getContentPane());
         builder.setTitle(MikBundle.message("custom.oss.error.dialog.title"));
         builder.removeAllActions();
         builder.addOkAction();
-        builder.setOkOperation((() -> {
-            builder.getDialogWrapper().close(DialogWrapper.OK_EXIT_CODE);
-        }));
 
-        builder.show();
+        DialogWrapper dialogWrapper = builder.getDialogWrapper();
+        if (dialogWrapper != null) {
+            builder.setOkOperation((() -> {
+                dialogWrapper.close(DialogWrapper.OK_EXIT_CODE);
+            }));
+
+            // 显示对话框
+            builder.show();
+
+            // 显示后设置对话框大小（确保窗口大小正确）
+            if (dialogWrapper.getPeer() != null) {
+                java.awt.Window window = dialogWrapper.getPeer().getWindow();
+                if (window != null) {
+                    window.setSize(finalWidth, finalHeight);
+                    // 确保窗口居中并自适应内容
+                    window.setLocationRelativeTo(null);
+                }
+            }
+        } else {
+            // 如果无法获取 DialogWrapper，则直接显示（使用默认大小）
+            builder.show();
+        }
+    }
+
+    /**
+     * 计算文本区域的最佳宽度
+     * <p>
+     * 根据文本内容和字体信息，计算文本区域的最佳显示宽度。
+     *
+     * @param textArea 文本区域组件
+     * @param text     文本内容
+     * @return 推荐宽度（像素）
+     */
+    private static int calculatePreferredWidth(javax.swing.JTextArea textArea, String text) {
+        if (text == null || text.isEmpty()) {
+            return 400;
+        }
+
+        // 使用 FontMetrics 计算文本宽度
+        java.awt.FontMetrics fm = textArea.getFontMetrics(textArea.getFont());
+        String[] lines = text.split("\n");
+
+        int maxLineWidth = 0;
+        for (String line : lines) {
+            int lineWidth = fm.stringWidth(line);
+            maxLineWidth = Math.max(maxLineWidth, lineWidth);
+        }
+
+        // 添加一些边距和滚动条宽度（约 50 像素）
+        int padding = 80;
+        return maxLineWidth + padding;
+    }
+
+    /**
+     * 计算文本区域的最佳高度
+     * <p>
+     * 根据文本内容的行数和字体信息，计算文本区域的最佳显示高度。
+     *
+     * @param textArea 文本区域组件
+     * @param text     文本内容
+     * @return 推荐高度（像素）
+     */
+    private static int calculatePreferredHeight(javax.swing.JTextArea textArea, String text) {
+        if (text == null || text.isEmpty()) {
+            return 200;
+        }
+
+        // 计算行数
+        String[] lines = text.split("\n");
+        int lineCount = lines.length;
+
+        // 如果文本很长，限制显示的行数（每行约 20 像素，最多显示 30 行）
+        int maxVisibleLines = 30;
+        int displayLines = Math.min(lineCount, maxVisibleLines);
+
+        // 使用 FontMetrics 计算行高
+        java.awt.FontMetrics fm = textArea.getFontMetrics(textArea.getFont());
+        int lineHeight = fm.getHeight();
+
+        // 添加一些边距（约 100 像素用于标题、按钮等）
+        int padding = 100;
+        return displayLines * lineHeight + padding;
     }
 
     /**

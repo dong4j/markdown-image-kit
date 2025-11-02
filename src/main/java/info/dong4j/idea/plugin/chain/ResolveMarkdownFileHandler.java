@@ -57,7 +57,7 @@ public class ResolveMarkdownFileHandler extends ActionHandlerAdapter {
         // 优先处理设置的数据, 用于 ImageMoveIntentionAction 和 ImageUploadIntentionAction
         Map<Document, List<MarkdownImage>> waitingProcessMap = data.getWaitingProcessMap();
         if (waitingProcessMap == null || waitingProcessMap.isEmpty()) {
-            // 解析当前文档或者选择的文件树中的所有 markdown 文件.
+            // 解析当前文档或者选择的文件树中的所有 menu 文件.
             waitingProcessMap = MarkdownUtils.getProcessMarkdownInfo(data.getActionEvent(), data.getProject());
             data.setWaitingProcessMap(waitingProcessMap);
         }

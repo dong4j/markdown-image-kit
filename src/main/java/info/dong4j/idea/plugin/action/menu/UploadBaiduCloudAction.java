@@ -1,7 +1,7 @@
-package info.dong4j.idea.plugin.action.markdown;
+package info.dong4j.idea.plugin.action.menu;
 
+import info.dong4j.idea.plugin.client.BaiduBosClient;
 import info.dong4j.idea.plugin.client.OssClient;
-import info.dong4j.idea.plugin.client.TencentOssClient;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 
 import org.jetbrains.annotations.Contract;
@@ -14,10 +14,11 @@ import icons.MikIcons;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 上传到腾讯云 OSS 的操作类
+ * 上传到百度 OSS 事件
  * <p>
- * 该类继承自 UploadActionBase，用于封装上传文件到腾讯云对象存储服务（OSS）的具体实现。
- * 提供了获取图标、名称和 OSS 客户端实例的方法，用于在上传过程中展示相关信息和与 OSS 服务交互。
+ * 该类用于表示上传文件到百度云存储（OSS）的事件操作，继承自 UploadActionBase 类，提供与百度云存储相关的图标、名称和客户端获取方法。
+ * <p>
+ * 主要用于在系统中触发或处理上传文件到百度云存储的业务逻辑。
  *
  * @author dong4j
  * @version 0.0.1
@@ -25,26 +26,26 @@ import lombok.extern.slf4j.Slf4j;
  * @since 0.0.1
  */
 @Slf4j
-public final class UploadTencentCloudAction extends UploadActionBase {
+public final class UploadBaiduCloudAction extends UploadActionBase {
     /**
      * 获取图标
      * <p>
-     * 返回预定义的腾讯图标实例
+     * 返回预定义的百度图标实例
      *
-     * @return 图标对象
+     * @return 百度图标对象
      * @since 0.0.1
      */
     @NotNull
     @Contract(pure = true)
     @Override
     protected Icon getIcon() {
-        return MikIcons.TENCENT;
+        return MikIcons.BAIDU;
     }
 
     /**
      * 获取名称
      * <p>
-     * 返回预定义的名称常量，用于标识腾讯云。
+     * 返回预定义的名称常量，用于标识百度云。
      *
      * @return 名称常量
      * @since 0.0.1
@@ -53,7 +54,7 @@ public final class UploadTencentCloudAction extends UploadActionBase {
     @Contract(pure = true)
     @Override
     String getName() {
-        return CloudEnum.TENCENT_CLOUD.title;
+        return CloudEnum.BAIDU_CLOUD.title;
     }
 
     /**
@@ -67,6 +68,6 @@ public final class UploadTencentCloudAction extends UploadActionBase {
     @Contract(pure = true)
     @Override
     OssClient getClient() {
-        return TencentOssClient.getInstance();
+        return BaiduBosClient.getInstance();
     }
 }

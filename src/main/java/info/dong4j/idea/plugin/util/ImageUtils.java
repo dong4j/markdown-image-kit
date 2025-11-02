@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -675,27 +676,74 @@ public final class ImageUtils {
     /**
      * 判断给定文件是否为图片文件
      * <p>
-     * 通过检查文件类型名称是否为图片类型来判断该文件是否为图片文件
+     * 通过检查文件类型名称和文件扩展名来判断该文件是否为图片文件
+     * 支持常见图片格式：jpg、jpeg、png、gif、bmp、webp、svg 等
      *
      * @param file 文件对象
      * @return 如果是图片文件返回 true，否则返回 false
      * @since 0.0.1
      */
     private static boolean isImageFile(PsiFile file) {
-        return ImageContents.IMAGE_TYPE_NAME.equals(file.getFileType().getName());
+        return isImageFileInternal(file, PsiFile::getName, PsiFile::getFileType);
     }
 
     /**
      * 判断给定文件是否为图片文件
      * <p>
-     * 通过比较文件类型名称与预定义的图片类型名称，判断该文件是否为图片类型
+     * 通过比较文件类型名称和文件扩展名，判断该文件是否为图片类型
+     * 支持常见图片格式：jpg、jpeg、png、gif、bmp、webp、svg 等
      *
      * @param file 要判断的文件对象
      * @return 如果是图片文件返回 true，否则返回 false
      * @since 0.0.1
      */
     public static boolean isImageFile(VirtualFile file) {
-        return ImageContents.IMAGE_TYPE_NAME.equals(file.getFileType().getName());
+        return isImageFileInternal(file, VirtualFile::getName, VirtualFile::getFileType);
+    }
+
+    /**
+     * 通用图片文件判断方法
+     *
+     * @param file              文件对象
+     * @param nameExtractor     文件名提取函数
+     * @param fileTypeExtractor 文件类型提取函数
+     * @param <T>               文件类型
+     * @return 如果是图片文件返回 true，否则返回 false
+     */
+    private static <T> boolean isImageFileInternal(T file,
+                                                   Function<T, String> nameExtractor,
+                                                   Function<T, com.intellij.openapi.fileTypes.FileType> fileTypeExtractor) {
+        if (file == null) {
+            return false;
+        }
+
+        // 首先检查文件类型名称
+        if (ImageContents.IMAGE_TYPE_NAME.equals(fileTypeExtractor.apply(file).getName())) {
+            return true;
+        }
+
+        // 其次检查文件扩展名（适配 SVG 等特殊格式）
+        return checkImageExtension(nameExtractor.apply(file));
+    }
+
+    /**
+     * 检查文件名是否具有图片扩展名
+     * <p>
+     * 支持常见图片格式：jpg、jpeg、png、gif、bmp、webp、svg 等
+     *
+     * @param fileName 文件名
+     * @return 如果具有图片扩展名返回 true，否则返回 false
+     */
+    private static boolean checkImageExtension(String fileName) {
+        if (fileName == null) {
+            return false;
+        }
+
+        String lowerFileName = fileName.toLowerCase();
+        return lowerFileName.endsWith(".jpg") || lowerFileName.endsWith(".jpeg")
+               || lowerFileName.endsWith(".png") || lowerFileName.endsWith(".gif")
+               || lowerFileName.endsWith(".bmp") || lowerFileName.endsWith(".webp")
+               || lowerFileName.endsWith(".svg") || lowerFileName.endsWith(".ico");
     }
 
     /**

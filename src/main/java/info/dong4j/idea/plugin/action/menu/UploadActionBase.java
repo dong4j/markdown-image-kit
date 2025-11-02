@@ -1,4 +1,4 @@
-package info.dong4j.idea.plugin.action.markdown;
+package info.dong4j.idea.plugin.action.menu;
 
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -99,6 +99,7 @@ public abstract class UploadActionBase extends AnAction {
         Project project = event.getProject();
         if (project != null) {
             EventData data = new EventData()
+                .setAction("UploadActionBase")
                 .setActionEvent(event)
                 .setProject(project)
                 // 使用子类的具体 client

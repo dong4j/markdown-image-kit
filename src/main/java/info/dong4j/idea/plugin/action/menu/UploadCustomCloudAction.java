@@ -1,7 +1,7 @@
-package info.dong4j.idea.plugin.action.markdown;
+package info.dong4j.idea.plugin.action.menu;
 
+import info.dong4j.idea.plugin.client.CustomOssClient;
 import info.dong4j.idea.plugin.client.OssClient;
-import info.dong4j.idea.plugin.client.PicListClient;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 
 import org.jetbrains.annotations.Contract;
@@ -23,7 +23,7 @@ import icons.MikIcons;
  * @date 2021.02.14
  * @since 1.5.0
  */
-public final class UploadPicListCloudAction extends UploadActionBase {
+public final class UploadCustomCloudAction extends UploadActionBase {
     /**
      * 获取图标
      * <p>
@@ -35,7 +35,7 @@ public final class UploadPicListCloudAction extends UploadActionBase {
     @Contract(pure = true)
     @Override
     protected Icon getIcon() {
-        return MikIcons.PICLIST;
+        return MikIcons.CUSTOM;
     }
 
     /**
@@ -50,7 +50,7 @@ public final class UploadPicListCloudAction extends UploadActionBase {
     @Contract(pure = true)
     @Override
     String getName() {
-        return CloudEnum.PICLIST.title;
+        return CloudEnum.CUSTOMIZE.title;
     }
 
     /**
@@ -64,6 +64,6 @@ public final class UploadPicListCloudAction extends UploadActionBase {
     @Contract(pure = true)
     @Override
     OssClient getClient() {
-        return PicListClient.getInstance();
+        return CustomOssClient.getInstance();
     }
 }

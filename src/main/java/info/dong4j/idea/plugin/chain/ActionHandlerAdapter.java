@@ -1,11 +1,11 @@
 package info.dong4j.idea.plugin.chain;
 
 import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.progress.ProgressIndicator;
 
-import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 import java.util.List;
@@ -41,9 +41,30 @@ public class ActionHandlerAdapter extends BaseActionHandler {
     }
 
     /**
+     * 过滤文件
+     * <p>
+     * 判断给定的文件是否应该被处理。子类可以重写此方法实现自定义的过滤逻辑。
+     * <p>
+     * 例如：
+     * <ul>
+     *   <li>图片压缩时过滤掉 svg 和 gif 格式</li>
+     *   <li>图片上传时过滤掉小于 1KB 或大于 5MB 的文件</li>
+     * </ul>
+     *
+     * @param markdownImage Markdown图片对象
+     * @return 如果文件应该被处理返回 true，否则返回 false
+     * @since 2.2.0
+     */
+    protected boolean shouldProcess(@NotNull MarkdownImage markdownImage) {
+        // 默认实现：处理所有文件
+        return true;
+    }
+
+    /**
      * 执行处理操作，遍历等待处理的图片数据并逐个处理
      * <p>
-     * 该方法从EventData中获取进度指示器和数据大小，然后遍历等待处理的图片集合，对每张图片进行处理，并更新进度信息。
+     * 该方法从EventData中获取进度跟踪器，然后遍历等待处理的图片集合，对每张图片进行处理，并更新进度信息。
+     * 使用统一的进度跟踪机制，提供更准确的进度展示。
      *
      * @param data 包含处理所需数据的EventData对象
      * @return 始终返回true，表示处理成功完成
@@ -51,22 +72,41 @@ public class ActionHandlerAdapter extends BaseActionHandler {
      */
     @Override
     public boolean execute(EventData data) {
-        ProgressIndicator indicator = data.getIndicator();
-        int size = data.getSize();
-        int totalProcessed = 0;
+        ProgressTracker progressTracker = data.getProgressTracker();
+        int stepIndex = data.getIndex();
 
+        // 统计总图片数
+        int totalCount = data.getWaitingProcessMap().values().stream()
+            .mapToInt(List::size)
+            .sum();
+
+        if (totalCount == 0) {
+            log.trace("没有待处理的图片数据");
+            return true;
+        }
+
+        // 遍历处理每张图片
+        int processedCount = 0;
         for (Map.Entry<Document, List<MarkdownImage>> imageEntry : data.getWaitingProcessMap().entrySet()) {
-            int totalCount = imageEntry.getValue().size();
             Iterator<MarkdownImage> imageIterator = imageEntry.getValue().iterator();
             while (imageIterator.hasNext()) {
                 MarkdownImage markdownImage = imageIterator.next();
+                processedCount++;
 
-                indicator.setText2(MikBundle.message("mik.action.processing.title", markdownImage.getImageName()));
-                indicator.setFraction(((++totalProcessed * 1.0) + data.getIndex() * size) / totalCount * size);
+                // 使用 ProgressTracker 更新进度
+                if (progressTracker != null) {
+                    progressTracker.updateItemProgress(stepIndex, markdownImage.getImageName(), processedCount, totalCount);
+                }
+
+                if (!this.shouldProcess(markdownImage)) {
+                    log.trace("[{}:{}] 跳过图片: {}", data.getAction(), getName(), markdownImage.getImageName());
+                    continue;
+                }
 
                 this.invoke(data, imageIterator, markdownImage);
             }
         }
+
         return true;
     }
 

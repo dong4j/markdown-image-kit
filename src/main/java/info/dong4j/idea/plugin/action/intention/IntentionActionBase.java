@@ -22,6 +22,12 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.Serial;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -192,5 +198,35 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
         VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
 
         return MarkdownUtils.analysisImageMark(virtualFile, this.getLineText(editor), documentLine);
+    }
+
+    /**
+     * 创建包含文档和Markdown图片的处理数据映射
+     * <p>
+     * 根据传入的编辑器和匹配的Markdown图片，创建一个映射关系，其中键为文档对象，值为包含该Markdown图片的列表。
+     *
+     * @param editor         编辑器对象，用于获取文档
+     * @param matchImageMark 匹配的Markdown图片对象，将被添加到文档对应的列表中
+     * @return 包含文档和Markdown图片的映射关系
+     */
+    @NotNull
+    static Map<Document, List<MarkdownImage>> createProcessData(Editor editor, MarkdownImage matchImageMark) {
+        return new HashMap<>(1) {
+            /** 序列化版本号，用于确保类的兼容性 */
+            @Serial
+            private static final long serialVersionUID = -1445021799207331254L;
+
+            {
+                this.put(editor.getDocument(), new ArrayList<>(1) {
+                    /** 序列化版本号，用于确保类的兼容性 */
+                    @Serial
+                    private static final long serialVersionUID = 4482739561378065459L;
+
+                    {
+                        this.add(matchImageMark);
+                    }
+                });
+            }
+        };
     }
 }

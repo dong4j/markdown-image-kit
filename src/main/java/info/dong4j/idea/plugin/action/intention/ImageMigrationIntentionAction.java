@@ -18,9 +18,6 @@ import info.dong4j.idea.plugin.task.ActionTask;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Serial;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 0.0.1
  */
 @Slf4j
-public final class ImageMoveIntentionAction extends IntentionActionBase {
+public final class ImageMigrationIntentionAction extends IntentionActionBase {
     /**
      * 获取移动意图提示信息
      * <p>
@@ -70,36 +67,18 @@ public final class ImageMoveIntentionAction extends IntentionActionBase {
     public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element)
         throws IncorrectOperationException {
         MarkdownImage markdownImage = this.getMarkdownImage(editor);
-        if (markdownImage == null) {
-            return;
-        }
-
         OssClient client = this.getClient();
-        if (markdownImage.getLocation().name().equals(ImageLocationEnum.LOCAL.name())
-            // 如果当前标签所在的图床与设置的图床一样则不处理
+
+        if (markdownImage == null
+            || markdownImage.getLocation() == ImageLocationEnum.LOCAL
             || markdownImage.getPath().contains(client.getCloudType().feature)) {
             return;
         }
 
-        Map<Document, List<MarkdownImage>> waitingForMoveMap = new HashMap<>(1) {
-            /** 序列化版本号，用于确保类的兼容性 */
-            @Serial
-            private static final long serialVersionUID = -3664108591483424778L;
-
-            {
-                this.put(editor.getDocument(), new ArrayList<>(1) {
-                    /** 序列化版本号，用于确保类的兼容性 */
-                    @Serial
-                    private static final long serialVersionUID = 5608817905987286437L;
-
-                    {
-                        this.add(markdownImage);
-                    }
-                });
-            }
-        };
+        final Map<Document, List<MarkdownImage>> waitingForMoveMap = createProcessData(editor, markdownImage);
 
         EventData data = new EventData()
+            .setAction("ImageMigrationIntentionAction")
             .setProject(project)
             .setClient(client)
             .setClientName(this.getName())
@@ -116,7 +95,6 @@ public final class ImageMoveIntentionAction extends IntentionActionBase {
                            ActionManager.buildMoveImageChain(data))
                 .queue();
         } catch (Exception ignored) {
-
         }
     }
 }

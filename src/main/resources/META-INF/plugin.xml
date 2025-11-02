@@ -46,7 +46,7 @@
                 parentId="tools"
                 instance="info.dong4j.idea.plugin.settings.NewProjectSettingsPage"
                 id="markdown.image.kit.preview"
-                displayName="Markdown Image Kit (Preview)"/>
+                displayName="Markdown Image Kit"/>
 
         <!-- 持久化 -->
         <applicationService serviceImplementation="info.dong4j.idea.plugin.settings.MikPersistenComponent"/>
@@ -59,7 +59,7 @@
         </intentionAction>
         <!--suppress PluginXmlExtensionRegistration -->
         <intentionAction>
-            <className>info.dong4j.idea.plugin.action.intention.ImageMoveIntentionAction</className>
+            <className>info.dong4j.idea.plugin.action.intention.ImageMigrationIntentionAction</className>
             <category>MIK</category>
             <descriptionDirectoryName>ImageMoveIntention</descriptionDirectoryName>
         </intentionAction>
@@ -73,52 +73,52 @@
     </extensions>
 
     <actions>
-        <action id="SmmsObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadSmmsCloudAction"
+        <action id="SmmsObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.UploadSmmsCloudAction"
                 popup="true" text="SM.MS">
         </action>
-        <action id="AliyunObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadAliyunCloudAction"
+        <action id="AliyunObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.UploadAliyunCloudAction"
                 popup="true" text="阿里云">
         </action>
-        <action id="QiniuObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadQiniuCloudAction"
+        <action id="QiniuObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.UploadQiniuCloudAction"
                 popup="true" text="七牛云">
         </action>
-        <action id="TencentObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadTencentCloudAction"
+        <action id="TencentObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.UploadTencentCloudAction"
                 popup="true" text="腾讯云">
         </action>
-        <action id="BaiduObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadBaiduCloudAction"
+        <action id="BaiduObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.UploadBaiduCloudAction"
                 popup="true" text="百度云">
         </action>
-        <action id="GithubObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadGithubCloudAction"
+        <action id="GithubObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.UploadGithubCloudAction"
                 popup="true" text="GitHub">
         </action>
-        <action id="GiteeObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadGiteeCloudAction"
+        <action id="GiteeObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.UploadGiteeCloudAction"
                 popup="true" text="Gitee">
         </action>
-        <action id="CustomObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadCustomCloudAction"
+        <action id="CustomObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.UploadCustomCloudAction"
                 popup="true" text="自定义">
         </action>
-        <action id="PicListObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.markdown.UploadPicListCloudAction"
+        <action id="PicListObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.UploadPicListCloudAction"
                 popup="true" text="PicList/PicGo">
         </action>
 
-        <action id="ImageCompressAction" class="info.dong4j.idea.plugin.action.image.ImageCompressAction"
+        <action id="ImageCompressAction" class="info.dong4j.idea.plugin.action.menu.ImageCompressAction"
                 popup="true" text="图片压缩" description="按照设置压缩图片, 如果启用 webp 将转换成 WebP 格式">
         </action>
-        <!-- 仅上传图片, 上传成功后会将 markdown 图片标签回写到剪切板 -->
-        <action id="ImageUploadAction" class="info.dong4j.idea.plugin.action.image.ImageUploadAction"
+        <!-- 仅上传图片, 上传成功后会将 menu 图片标签回写到剪切板 -->
+        <action id="ImageUploadAction" class="info.dong4j.idea.plugin.action.menu.ImageUploadAction"
                 popup="true" text="图片上传:默认图床">
         </action>
-        <action id="MoveToOtherStorageAction" class="info.dong4j.idea.plugin.action.markdown.MoveToOtherStorageAction"
+        <action id="MoveToOtherStorageAction" class="info.dong4j.idea.plugin.action.menu.ImageMigrationAction"
                 popup="true" text="图床迁移">
         </action>
 
-        <action id="ChangeLabelAction" class="info.dong4j.idea.plugin.action.markdown.ChangeLabelAction"
+        <action id="ChangeLabelAction" class="info.dong4j.idea.plugin.action.menu.ImageLabelChangeAction"
                 popup="true" text="替换标签">
         </action>
 
 
         <group popup="true" id="info.dong4j.idea.plugin.markdown.image.kit"
-               class="info.dong4j.idea.plugin.action.MikGroupAction"
+               class="info.dong4j.idea.plugin.action.menu.MikGroupAction"
                text="Markdown Image Kit">
             <reference ref="PicListObjectStorageServiceAction"/>
             <reference ref="SmmsObjectStorageServiceAction"/>
@@ -141,7 +141,7 @@
         </group>
 
         <!-- 编辑器右键菜单 -->
-        <group popup="true" id="info.dong4j.idea.plugin.editor.popup.menu.group" text="Upload Image"
+        <group popup="true" id="info.dong4j.idea.plugin.editor.popup.menu.group" text="Markdown Image Kit"
                icon="icons.MikIcons.MIK">
             <reference ref="PicListObjectStorageServiceAction"/>
             <reference ref="SmmsObjectStorageServiceAction"/>

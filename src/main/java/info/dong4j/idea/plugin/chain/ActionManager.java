@@ -102,24 +102,65 @@ public class ActionManager {
      * 执行处理链中的各个处理器
      * <p>
      * 遍历处理器链，依次调用每个启用的处理器，并更新进度指示器的状态
+     * 使用 ProgressTracker 统一管理进度展示，提供更友好的用户体验
      *
      * @param indicator 进度指示器，用于显示处理进度和当前处理的处理器名称
      */
+    @SuppressWarnings("D")
     public void invoke(ProgressIndicator indicator) {
-        int totalProcessed = 0;
         this.data.setIndicator(indicator);
-        this.data.setSize(this.handlersChain.size());
-        int index = 0;
+
+        // 第一步：收集所有启用的 handler 信息
+        List<String> enabledHandlerNames = new ArrayList<>();
+        List<IActionHandler> enabledHandlers = new ArrayList<>();
         for (IActionHandler handler : this.handlersChain) {
-            this.data.setIndex(index++);
             if (handler.isEnabled(this.data)) {
+                enabledHandlerNames.add(handler.getName());
+                enabledHandlers.add(handler);
+            }
+        }
+
+        // 如果没有启用的 handler，直接返回
+        if (enabledHandlers.isEmpty()) {
+            log.warn("没有启用的处理器");
+            return;
+        }
+
+        // 第二步：创建 ProgressTracker（仅在 indicator 不为 null 时创建，预览模式下可能为 null）
+        ProgressTracker progressTracker = null;
+        if (indicator != null) {
+            progressTracker = new ProgressTracker(indicator, enabledHandlerNames);
+        }
+        this.data.setProgressTracker(progressTracker);
+        this.data.setSize(enabledHandlers.size());
+
+        // 第三步：执行处理器链，使用 ProgressTracker 更新进度
+        int stepIndex = 0;
+        for (IActionHandler handler : this.handlersChain) {
+            if (handler.isEnabled(this.data)) {
+                this.data.setIndex(stepIndex);
+
+                // 开始新步骤（仅在 progressTracker 不为 null 时）
+                if (progressTracker != null) {
+                    progressTracker.startStep(stepIndex);
+                }
+                
                 log.trace("invoke {}", handler.getName());
-                indicator.setText2(handler.getName());
+
+                // 执行处理器
                 if (!handler.execute(this.data)) {
+                    log.warn("处理器 {} 执行失败，中断处理链", handler.getName());
                     break;
                 }
+
+                // 步骤完成
+                stepIndex++;
             }
-            indicator.setFraction(++totalProcessed * 1.0 / this.handlersChain.size());
+        }
+
+        // 完成所有步骤（仅在 progressTracker 不为 null 时）
+        if (progressTracker != null) {
+            progressTracker.finish();
         }
     }
 
@@ -134,7 +175,7 @@ public class ActionManager {
      */
     public static ActionManager buildUploadChain(EventData data) {
         return new ActionManager(data)
-            // 解析 markdown 文件
+            // 解析 menu 文件
             .addHandler(new ResolveMarkdownFileHandler())
             // 图片压缩
             .addHandler(new ImageCompressionHandler())
@@ -148,7 +189,8 @@ public class ActionManager {
             .addHandler(new ImageLabelChangeHandler())
             // 写入标签
             .addHandler(new ReplaceToDocument())
-            .addHandler(new FinalChainHandler());
+            .addHandler(new FinalChainHandler())
+            .addHandler(new RefreshFileSystemHandler());
     }
 
     /**

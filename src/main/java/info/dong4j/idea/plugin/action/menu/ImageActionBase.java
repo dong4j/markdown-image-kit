@@ -1,4 +1,4 @@
-package info.dong4j.idea.plugin.action.image;
+package info.dong4j.idea.plugin.action.menu;
 
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -159,16 +159,44 @@ public abstract class ImageActionBase extends AnAction {
     }
 
     /**
+     * 过滤文件
+     * <p>
+     * 判断给定的文件是否应该被处理。子类可以重写此方法实现自定义的过滤逻辑。
+     * <p>
+     * 例如：
+     * <ul>
+     *   <li>图片压缩时过滤掉 svg 和 gif 格式</li>
+     *   <li>图片上传时过滤掉小于 1KB 或大于 5MB 的文件</li>
+     * </ul>
+     *
+     * @param virtualFile 虚拟文件对象
+     * @return 如果文件应该被处理返回 true，否则返回 false
+     * @since 2.2.0
+     */
+    protected boolean shouldProcessFile(@NotNull VirtualFile virtualFile) {
+        // 默认实现：处理所有文件
+        return true;
+    }
+
+    /**
      * 构建等待处理的流程映射
      * <p>
      * 将给定的虚拟文件转换为 MarkdownImage 对象，并将其添加到等待处理的流程映射中。
      * 该方法线程安全，支持在多线程环境下调用。
+     * <p>
+     * 在添加文件前会调用 {@link #shouldProcessFile(VirtualFile)} 方法进行过滤。
      *
      * @param waitingProcessMap 等待处理的流程映射（应该是线程安全的）
      * @param virtualFile       虚拟文件对象
      */
     private void buildWaitingProcessMap(@NotNull Map<Document, List<MarkdownImage>> waitingProcessMap,
                                         @NotNull VirtualFile virtualFile) {
+        // 调用子类的过滤方法
+        if (!shouldProcessFile(virtualFile)) {
+            log.debug("文件被过滤，跳过处理: {}", virtualFile.getPath());
+            return;
+        }
+
         MarkdownImage markdownImage = new MarkdownImage();
         markdownImage.setVirtualFile(virtualFile);
         markdownImage.setImageName(virtualFile.getName());

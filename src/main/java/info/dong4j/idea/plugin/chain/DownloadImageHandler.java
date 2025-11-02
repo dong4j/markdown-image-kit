@@ -1,7 +1,6 @@
 package info.dong4j.idea.plugin.chain;
 
 import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.util.io.FileUtil;
 
 import info.dong4j.idea.plugin.MikBundle;
@@ -80,6 +79,25 @@ public class DownloadImageHandler extends ActionHandlerAdapter {
     }
 
     /**
+     * 判断是否需要处理该Markdown图片
+     * <p>
+     * 该方法用于判断是否需要对给定的Markdown图片进行处理。只处理网络图片，若为本地图片则检查路径是否有效。
+     *
+     * @param markdownImage 要判断的Markdown图片对象
+     * @return 如果需要处理返回true，否则返回false
+     */
+    @Override
+    protected boolean shouldProcess(@NotNull MarkdownImage markdownImage) {
+        // 只处理网络图片
+        if (ImageLocationEnum.NETWORK.equals(markdownImage.getLocation())) {
+            return true;
+        }
+        String imageUrl = markdownImage.getPath();
+        return imageUrl != null && !imageUrl.isEmpty() &&
+               (imageUrl.startsWith("http://") || imageUrl.startsWith("https://"));
+    }
+
+    /**
      * 执行多线程下载处理
      * <p>
      * 重写 execute 方法，使用线程池并发下载图片，提高下载效率。
@@ -97,8 +115,7 @@ public class DownloadImageHandler extends ActionHandlerAdapter {
         for (Map.Entry<Document, List<MarkdownImage>> entry : data.getWaitingProcessMap().entrySet()) {
             List<MarkdownImage> images = entry.getValue();
             for (MarkdownImage markdownImage : images) {
-                // 只收集网络图片
-                if (ImageLocationEnum.NETWORK.equals(markdownImage.getLocation())) {
+                if (shouldProcess(markdownImage)) {
                     downloadTasks.add(new ImageDownloadTask(markdownImage, entry.getKey(), data));
                 }
             }
@@ -116,8 +133,9 @@ public class DownloadImageHandler extends ActionHandlerAdapter {
         ExecutorService executorService = Executors.newFixedThreadPool(threadPoolSize);
         log.info("开始下载 {} 张图片，使用 {} 个线程", totalCount, threadPoolSize);
 
-        // 获取进度指示器
-        ProgressIndicator indicator = data.getIndicator();
+        // 获取进度跟踪器
+        ProgressTracker progressTracker = data.getProgressTracker();
+        int stepIndex = data.getIndex();
         AtomicInteger processedCount = new AtomicInteger(0);
         AtomicInteger successCount = new AtomicInteger(0);
         AtomicInteger failCount = new AtomicInteger(0);
@@ -130,15 +148,13 @@ public class DownloadImageHandler extends ActionHandlerAdapter {
                     int currentProcessed = processedCount.incrementAndGet();
                     MarkdownImage markdownImage = task.markdownImage;
 
-                    // 更新进度
-                    if (indicator != null) {
+                    // 使用 ProgressTracker 更新进度
+                    if (progressTracker != null) {
                         String filename = markdownImage.getImageName();
                         if (filename == null || filename.isEmpty()) {
                             filename = markdownImage.getPath();
                         }
-                        indicator.setText2(String.format("%s: %s (%d/%d)",
-                                                         getName(), filename, currentProcessed, totalCount));
-                        indicator.setFraction(currentProcessed * 1.0 / totalCount);
+                        progressTracker.updateItemProgress(stepIndex, filename, currentProcessed, totalCount);
                     }
 
                     // 下载图片（调用单个图片的下载逻辑）
@@ -206,15 +222,7 @@ public class DownloadImageHandler extends ActionHandlerAdapter {
      * @since 2.0.0
      */
     private void downloadSingleImage(MarkdownImage markdownImage) throws IOException {
-        // 只处理网络图片
-        if (!ImageLocationEnum.NETWORK.equals(markdownImage.getLocation())) {
-            return;
-        }
-
         String imageUrl = markdownImage.getPath();
-        if (imageUrl == null || imageUrl.isEmpty()) {
-            throw new IOException("图片URL为空");
-        }
 
         // 下载图片
         URLConnection connection = getUrlConnection(imageUrl);
@@ -357,7 +365,7 @@ public class DownloadImageHandler extends ActionHandlerAdapter {
      * @param eventData     事件数据
      * @since 2.0.0
      */
-        private record ImageDownloadTask(MarkdownImage markdownImage, Document document, EventData eventData) {
+    private record ImageDownloadTask(MarkdownImage markdownImage, Document document, EventData eventData) {
         /**
          * 构造函数
          *
@@ -368,7 +376,7 @@ public class DownloadImageHandler extends ActionHandlerAdapter {
          */
         private ImageDownloadTask {
         }
-        }
+    }
 
 }
 

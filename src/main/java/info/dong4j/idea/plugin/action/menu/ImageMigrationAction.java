@@ -1,4 +1,4 @@
-package info.dong4j.idea.plugin.action.markdown;
+package info.dong4j.idea.plugin.action.menu;
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
@@ -37,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @SuppressWarnings("D")
 @Slf4j
-public final class MoveToOtherStorageAction extends AnAction {
+public final class ImageMigrationAction extends AnAction {
     /** 默认域名提示信息，用于当域名字段未填写时显示的提示内容 */
     private static final String DOMAIN_DEFAULT_MESSAGE = MikBundle.message("mik.panel.message.domain-field");
     /** 连接超时时间，单位为毫秒，默认设置为 5 秒 */
@@ -94,6 +94,7 @@ public final class MoveToOtherStorageAction extends AnAction {
                                 : (cloudEnum != null ? cloudEnum.title : "");
 
             EventData data = new EventData()
+                .setAction("ImageMigrationAction")
                 .setActionEvent(event)
                 .setProject(project)
                 .setClient(isLocalStorage || cloudEnum == null ? null : ClientUtils.getClient(cloudEnum))

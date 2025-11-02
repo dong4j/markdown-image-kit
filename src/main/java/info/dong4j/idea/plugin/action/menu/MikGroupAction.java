@@ -1,4 +1,4 @@
-package info.dong4j.idea.plugin.action;
+package info.dong4j.idea.plugin.action.menu;
 
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;

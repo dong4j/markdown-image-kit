@@ -187,6 +187,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
         OssClient client = ClientUtils.getClient(cloudEnum);
 
         EventData data = new EventData()
+            .setAction("PasteImageAction")
             .setProject(editor.getProject())
             .setEditor(editor)
             .setClient(client)

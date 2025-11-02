@@ -31,7 +31,7 @@ public class IntentionActionTest extends LightPlatformTestCase {
         ImageUploadIntentionAction uploadAction = new ImageUploadIntentionAction();
         assertNotNull(uploadAction);
 
-        ImageMoveIntentionAction moveAction = new ImageMoveIntentionAction();
+        ImageMigrationIntentionAction moveAction = new ImageMigrationIntentionAction();
         assertNotNull(moveAction);
 
         ImageLabelChangeIntetionAction changeAction = new ImageLabelChangeIntetionAction();
@@ -50,7 +50,7 @@ public class IntentionActionTest extends LightPlatformTestCase {
         ImageUploadIntentionAction uploadAction = new ImageUploadIntentionAction();
         assertNotNull(uploadAction);
 
-        ImageMoveIntentionAction moveAction = new ImageMoveIntentionAction();
+        ImageMigrationIntentionAction moveAction = new ImageMigrationIntentionAction();
         assertNotNull(moveAction);
 
         ImageLabelChangeIntetionAction changeAction = new ImageLabelChangeIntetionAction();

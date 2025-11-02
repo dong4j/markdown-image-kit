@@ -10,6 +10,7 @@ import com.intellij.psi.PsiDocumentManager;
 
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
+import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
 
@@ -64,7 +65,14 @@ public final class PsiDocumentUtils {
                                              MarkdownImage markdownImage) {
         // 只处理开启了替换开关且现有的标签格式与配置不一样, 或者未上传(未上传的必须处理)
         boolean isLocal = markdownImage.getLocation().equals(ImageLocationEnum.LOCAL);
-        boolean changeHtmlTag = !state.getTagTypeCode().equals(markdownImage.getImageMarkType().code)
+
+        // 获取配置中的标签代码
+        ImageMarkEnum tagEnum = state.getImageMarkEnum();
+        String configTagCode = tagEnum == ImageMarkEnum.CUSTOM
+                               ? state.getCustomTagCode()
+                               : (tagEnum != null ? tagEnum.getCode() : "");
+
+        boolean changeHtmlTag = !configTagCode.equals(markdownImage.getImageMarkType().code)
                                 && state.isChangeToHtmlTag();
         if (isLocal || changeHtmlTag) {
             String newLineText = UploadUtils.getFinalImageMark(markdownImage.getTitle(),

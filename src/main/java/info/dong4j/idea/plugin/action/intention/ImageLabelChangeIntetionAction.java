@@ -14,14 +14,10 @@ import info.dong4j.idea.plugin.chain.ReplaceToDocument;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
-import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.task.ActionTask;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Serial;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -69,9 +65,7 @@ public class ImageLabelChangeIntetionAction extends IntentionActionBase {
      * @since 0.0.1
      */
     @Override
-    public boolean isAvailable(@NotNull Project project, Editor editor,
-                               @NotNull PsiElement element) {
-
+    public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement element) {
         return super.isAvailable(project, editor, element) && getState().isChangeToHtmlTag();
     }
 
@@ -88,45 +82,37 @@ public class ImageLabelChangeIntetionAction extends IntentionActionBase {
     @Override
     public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element)
         throws IncorrectOperationException {
+
+        // 如果处于预览模式，则直接返回，不执行任何会产生副作用的操作, 只有在真实执行意图操作时才执行完整的处理流程
+        if (com.intellij.codeInsight.intention.preview.IntentionPreviewUtils.isPreviewElement(element)) {
+            return;
+        }
+
         MarkdownImage markdownImage = this.getMarkdownImage(editor);
-        if (markdownImage != null) {
-            if (markdownImage.getLocation().name().equals(ImageLocationEnum.LOCAL.name())) {
-                return;
-            }
+        if (markdownImage == null || markdownImage.getLocation().name().equals(ImageLocationEnum.LOCAL.name())) {
+            return;
+        }
 
-            Map<Document, List<MarkdownImage>> waitingForMoveMap = new HashMap<>(1) {
-                /** 序列化版本号，用于确保类的兼容性 */
-                @Serial
-                private static final long serialVersionUID = 2431958015276934209L;
+        // 手动设置为 null, 后面才能替换
+        markdownImage.setImageMarkType(null);
+        final Map<Document, List<MarkdownImage>> waitingForMoveMap = createProcessData(editor, markdownImage);
 
-                {
-                    this.put(editor.getDocument(), new ArrayList<>(1) {
-                        /** 序列化版本号，用于确保类的兼容性 */
-                        @Serial
-                        private static final long serialVersionUID = -9013015357454667709L;
+        EventData data = new EventData()
+            .setAction("ImageLabelChangeIntetionAction")
+            .setProject(project)
+            .setWaitingProcessMap(waitingForMoveMap);
 
-                        {
-                            // 手动设置为原始类型, 后面才能替换
-                            markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
-                            this.add(markdownImage);
-                        }
-                    });
-                }
-            };
+        ActionManager actionManager = new ActionManager(data)
+            .addHandler(new ImageLabelChangeHandler())
+            // 写入标签
+            .addHandler(new ReplaceToDocument())
+            .addHandler(new FinalChainHandler());
 
-            EventData data = new EventData()
-                .setProject(project)
-                .setWaitingProcessMap(waitingForMoveMap);
-
-            ActionManager actionManager = new ActionManager(data)
-                .addHandler(new ImageLabelChangeHandler())
-                // 写入标签
-                .addHandler(new ReplaceToDocument())
-                .addHandler(new FinalChainHandler());
-
-            // 开启后台任务
-            new ActionTask(project, MikBundle.message("mik.action.move.process", this.getName()),
+        // 开启后台任务
+        try {
+            new ActionTask(project, MikBundle.message("mik.action.change.process", this.getName()),
                            actionManager).queue();
+        } catch (Exception ignored) {
         }
     }
 }

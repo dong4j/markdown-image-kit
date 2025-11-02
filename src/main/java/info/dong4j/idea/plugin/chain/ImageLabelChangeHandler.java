@@ -7,6 +7,9 @@ import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.util.ParserUtils;
+import info.dong4j.idea.plugin.util.StringUtils;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 
@@ -46,6 +49,7 @@ public class ImageLabelChangeHandler extends ActionHandlerAdapter {
      * 判断当前事件数据是否启用
      * <p>
      * 根据传入的事件数据判断是否启用相关功能
+     * 只有在勾选了"标签替换"开关时才启用
      *
      * @param data 事件数据
      * @return 是否启用
@@ -57,9 +61,32 @@ public class ImageLabelChangeHandler extends ActionHandlerAdapter {
     }
 
     /**
-     * 处理事件数据，根据图片标记类型决定是否进行替换操作
+     * 判断是否需要处理给定的Markdown图片
      * <p>
-     * 如果图片位置为本地类型，则直接返回不进行处理。若图片标记类型为原始类型，则调用change方法进行替换。
+     * 该方法用于判断是否需要对指定的Markdown图片进行处理，如果图片的位置类型为本地，则不进行处理。
+     *
+     * @param markdownImage 要判断的Markdown图片对象
+     * @return 如果图片位置不是本地类型，则返回true，表示需要处理；否则返回false
+     */
+    @Override
+    protected boolean shouldProcess(@NotNull MarkdownImage markdownImage) {
+        // 如果是本地类型, 则不替换
+        return !markdownImage.getLocation().equals(ImageLocationEnum.LOCAL);
+    }
+
+    /**
+     * 处理事件数据，根据配置的标签类型执行标签转换
+     * <p>
+     * 该方法会根据配置的目标标签类型（imageMarkEnum）和当前图片的标签类型（imageMarkType）进行比较，
+     * 如果两者不同，则执行标签转换，支持所有标签类型之间的相互转换：
+     * <ul>
+     *   <li>原始 ↔ 正常</li>
+     *   <li>原始 ↔ 点击放大</li>
+     *   <li>原始 ↔ 自定义</li>
+     *   <li>正常 ↔ 点击放大</li>
+     *   <li>正常 ↔ 自定义</li>
+     *   <li>点击放大 ↔ 自定义</li>
+     * </ul>
      *
      * @param data          事件数据对象
      * @param imageIterator 图片迭代器，用于遍历图片列表
@@ -67,36 +94,91 @@ public class ImageLabelChangeHandler extends ActionHandlerAdapter {
      */
     @Override
     public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
-        // 如果是本地类型, 则不替换
-        if (markdownImage.getLocation().equals(ImageLocationEnum.LOCAL)) {
-            return;
-        }
-
-        // 只替换原始类型的标签, 避免全部替换(使用右键上传时, 根据类型替换为指定标签, 如果已经替换过则不处理)
+        // 获取配置的目标标签类型
+        ImageMarkEnum targetMarkType = IntentionActionBase.getState().getImageMarkEnum();
+        // 获取当前图片的标签类型
         ImageMarkEnum currentMarkType = markdownImage.getImageMarkType();
-        if (ImageMarkEnum.ORIGINAL.equals(currentMarkType)) {
-            change(markdownImage);
+
+        // 如果目标标签类型与当前标签类型不同，则执行转换
+        if (targetMarkType != null && !targetMarkType.equals(currentMarkType)) {
+            log.debug("标签转换: {} -> {}, 图片: {}",
+                      currentMarkType != null ? currentMarkType.getText() : "null",
+                      targetMarkType.getText(),
+                      markdownImage.getImageName());
+            changeMarkType(markdownImage, targetMarkType);
+        } else {
+            log.trace("标签类型一致，跳过转换: {}, 图片: {}",
+                      currentMarkType != null ? currentMarkType.getText() : "null",
+                      markdownImage.getImageName());
         }
     }
 
     /**
-     * 根据 Markdown 图片对象更新其最终标记内容
+     * 根据目标标签类型更新 Markdown 图片的标记内容
      * <p>
-     * 该方法根据配置的标签类型代码判断使用默认消息还是解析后的结果作为最终标记，并设置到 Markdown 图片对象中
+     * 该方法根据目标标签类型生成相应的标记代码，并设置到 Markdown 图片对象中。
+     * 支持以下标签类型：
+     * <ul>
+     *   <li>ORIGINAL - 原始标记：![](...)</li>
+     *   <li>COMMON_PICTURE - 正常标记：<a title='...' href='...'>![...](...)&#60;/a></li>
+     *   <li>LARGE_PICTURE - 点击放大标记：<a data-fancybox title='...' href='...'>![...](...)&#60;/a></li>
+     *   <li>CUSTOM - 自定义标记：使用用户配置的模板</li>
+     * </ul>
      *
-     * @param markdownImage Markdown 图片对象，用于存储更新后的最终标记
+     * @param markdownImage  Markdown 图片对象，用于存储更新后的最终标记
+     * @param targetMarkType 目标标签类型
      */
-    public static void change(MarkdownImage markdownImage) {
+    private void changeMarkType(@NotNull MarkdownImage markdownImage, @NotNull ImageMarkEnum targetMarkType) {
         String finalMark;
-        // 最后替换与配置不一致的标签
-        String typeCode = IntentionActionBase.getState().getTagTypeCode();
+        String typeCode;
+
+        // 根据目标标签类型获取对应的代码模板
+        if (targetMarkType == ImageMarkEnum.CUSTOM) {
+            // 自定义类型需要从配置中获取自定义代码
+            typeCode = IntentionActionBase.getState().getCustomTagCode();
+            if (StringUtils.isBlank(typeCode)) {
+                log.warn("自定义标签代码为空，跳过转换: {}", markdownImage.getImageName());
+                return;
+            }
+        } else {
+            // 使用枚举中定义的代码
+            typeCode = targetMarkType.getCode();
+        }
+
+        // 检查代码是否为错误提示信息
         if (MikBundle.message("mik.change.mark.message").equals(typeCode)) {
             finalMark = MESSAGE;
         } else {
+            // 使用解析器生成最终标记
             finalMark = ParserUtils.parse2(typeCode,
                                            markdownImage.getTitle(),
                                            markdownImage.getPath());
         }
+
+        // 更新图片的标记类型和最终标记
+        markdownImage.setImageMarkType(targetMarkType);
         markdownImage.setFinalMark(finalMark);
+
+        log.debug("标签转换完成: {}, 新标记: {}", markdownImage.getImageName(), finalMark);
     }
+
+    /**
+     * 根据 Markdown 图片对象更新其最终标记内容（兼容旧版本）
+     * <p>
+     * 该方法为向后兼容保留，建议使用 {@link #changeMarkType(MarkdownImage, ImageMarkEnum)}
+     *
+     * @param markdownImage Markdown 图片对象，用于存储更新后的最终标记
+     * @deprecated 使用 {@link #changeMarkType(MarkdownImage, ImageMarkEnum)} 替代
+     */
+    @Deprecated
+    public static void change(MarkdownImage markdownImage) {
+        ImageMarkEnum targetMarkType = IntentionActionBase.getState().getImageMarkEnum();
+        if (targetMarkType == null) {
+            log.warn("目标标签类型为空，跳过转换");
+            return;
+        }
+        new ImageLabelChangeHandler().changeMarkType(markdownImage, targetMarkType);
+    }
+
+
 }

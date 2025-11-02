@@ -1,6 +1,7 @@
 package info.dong4j.idea.plugin.settings;
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
+import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.enums.InsertImageActionEnum;
 import info.dong4j.idea.plugin.settings.oss.AliyunOssState;
 import info.dong4j.idea.plugin.settings.oss.BaiduBosState;
@@ -83,10 +84,10 @@ public class MikState {
 
     /** 是否替换标签 */
     private boolean changeToHtmlTag = false;
-    /** 替换的标签类型 */
-    private String tagType = "";
-    /** 替换的标签类型代码 */
-    private String tagTypeCode = "";
+    /** 标签类型枚举，用于标识图片标签的类型（原始、正常、点击放大、自定义） */
+    private ImageMarkEnum imageMarkEnum = ImageMarkEnum.ORIGINAL;
+    /** 自定义标签代码，仅当 imageMarkEnum 为 CUSTOM 时使用 */
+    private String customTagCode = "";
     //endregion
 
     //region 上传服务设定

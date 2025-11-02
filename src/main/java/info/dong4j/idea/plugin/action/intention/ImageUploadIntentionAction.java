@@ -15,9 +15,6 @@ import info.dong4j.idea.plugin.task.ActionTask;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Serial;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -67,34 +64,19 @@ public final class ImageUploadIntentionAction extends IntentionActionBase {
                        Editor editor,
                        @NotNull PsiElement element) throws IncorrectOperationException {
 
-        MarkdownImage matchImageMark = this.getMarkdownImage(editor);
-        if (matchImageMark == null) {
+        MarkdownImage markdownImage = this.getMarkdownImage(editor);
+        if (markdownImage == null) {
             return;
         }
 
-        if (ImageLocationEnum.NETWORK.name().equals(matchImageMark.getLocation().name())) {
+        if (ImageLocationEnum.NETWORK.name().equals(markdownImage.getLocation().name())) {
             return;
         }
 
-        Map<Document, List<MarkdownImage>> waitingForMoveMap = new HashMap<>(1) {
-            /** 序列化版本号，用于确保类的兼容性 */
-            @Serial
-            private static final long serialVersionUID = -1445021799207331254L;
-
-            {
-                this.put(editor.getDocument(), new ArrayList<>(1) {
-                    /** 序列化版本号，用于确保类的兼容性 */
-                    @Serial
-                    private static final long serialVersionUID = 4482739561378065459L;
-
-                    {
-                        this.add(matchImageMark);
-                    }
-                });
-            }
-        };
+        final Map<Document, List<MarkdownImage>> waitingForMoveMap = createProcessData(editor, markdownImage);
 
         EventData data = new EventData()
+            .setAction("ImageUploadIntentionAction")
             .setProject(project)
             .setClientName(this.getName())
             .setClient(this.getClient())
@@ -109,4 +91,5 @@ public final class ImageUploadIntentionAction extends IntentionActionBase {
         } catch (Exception ignored) {
         }
     }
+
 }

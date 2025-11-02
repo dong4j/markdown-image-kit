@@ -10,6 +10,7 @@ import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 
 import info.dong4j.idea.plugin.content.ImageContents;
+import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
 
@@ -61,7 +62,13 @@ public class UploadUtils {
                                                 title,
                                                 imageUrl);
         if (isChangeToHtmlTag) {
-            newLineText = ParserUtils.parse0(state.getTagTypeCode(),
+            // 根据标签类型枚举获取代码
+            ImageMarkEnum tagEnum = state.getImageMarkEnum();
+            String tagCode = tagEnum == ImageMarkEnum.CUSTOM
+                             ? state.getCustomTagCode()
+                             : (tagEnum != null ? tagEnum.getCode() : ImageContents.DEFAULT_IMAGE_MARK);
+
+            newLineText = ParserUtils.parse0(tagCode,
                                              title,
                                              imageUrl,
                                              title,
