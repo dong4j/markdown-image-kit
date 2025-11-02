@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 0.0.1
  */
 @Slf4j
-@State(name = "MikSettings", storages = @Storage("markdown.image.kit.configs.2.0.0.xml"))
+@State(name = "MikSettings", storages = @Storage("markdown.image.kit.configs.2.1.x.xml"))
 public class MikPersistenComponent implements PersistentStateComponent<MikState> {
     /** 我的状态对象，用于存储和管理当前实例的相关状态信息 */
     private MikState myState = new MikState();
