@@ -1,7 +1,9 @@
-package info.dong4j.idea.plugin.chain;
+package info.dong4j.idea.plugin.chain.handler;
 
 import com.intellij.openapi.editor.Document;
 
+import info.dong4j.idea.plugin.chain.BaseActionHandler;
+import info.dong4j.idea.plugin.chain.ProgressTracker;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 
@@ -120,7 +122,7 @@ public class ActionHandlerAdapter extends BaseActionHandler {
      * @param markdownImage Markdown图片对象
      */
     @Override
-    protected void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
+    public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
         log.trace("执行特定逻辑");
     }
 }

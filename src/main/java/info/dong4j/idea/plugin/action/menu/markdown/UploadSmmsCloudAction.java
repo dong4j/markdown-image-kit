@@ -1,4 +1,4 @@
-package info.dong4j.idea.plugin.action.menu;
+package info.dong4j.idea.plugin.action.menu.markdown;
 
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.client.SmmsClient;

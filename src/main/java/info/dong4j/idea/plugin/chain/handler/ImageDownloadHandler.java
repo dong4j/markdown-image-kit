@@ -1,10 +1,11 @@
-package info.dong4j.idea.plugin.chain;
+package info.dong4j.idea.plugin.chain.handler;
 
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.util.io.FileUtil;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.action.intention.IntentionActionBase;
+import info.dong4j.idea.plugin.chain.ProgressTracker;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.FileType;
@@ -47,7 +48,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @SuppressWarnings("D")
 @Slf4j
-public class DownloadImageHandler extends ActionHandlerAdapter {
+public class ImageDownloadHandler extends ActionHandlerAdapter {
     /**
      * 获取名称
      * <p>

@@ -1,4 +1,4 @@
-package info.dong4j.idea.plugin.chain;
+package info.dong4j.idea.plugin.chain.handler;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.vfs.LocalFileSystem;

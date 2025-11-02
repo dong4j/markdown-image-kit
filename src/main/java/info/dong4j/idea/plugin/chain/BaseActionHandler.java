@@ -54,5 +54,5 @@ public abstract class BaseActionHandler implements IActionHandler {
      * @param markdownImage 当前处理的Markdown图片对象
      * @since 0.0.1
      */
-    abstract void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage);
+    public abstract void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage);
 }

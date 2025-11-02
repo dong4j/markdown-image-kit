@@ -1,4 +1,4 @@
-package info.dong4j.idea.plugin.chain;
+package info.dong4j.idea.plugin.chain.handler;
 
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -24,7 +24,7 @@ import java.util.Map;
  * @date 2021.02.14
  * @since 0.0.1
  */
-public class InsertToClipboardHandler extends ActionHandlerAdapter {
+public class WriteToClipboardHandler extends ActionHandlerAdapter {
     /**
      * 获取名称
      * <p>

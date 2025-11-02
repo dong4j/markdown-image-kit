@@ -1,4 +1,4 @@
-package info.dong4j.idea.plugin.chain;
+package info.dong4j.idea.plugin.chain.handler;
 
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
@@ -26,7 +26,7 @@ import java.util.Iterator;
  * @date 2025.10.24
  * @since 1.0.0
  */
-public class InsertToDocumentHandler extends ActionHandlerAdapter {
+public class WriteToEditorHandler extends ActionHandlerAdapter {
     /**
      * 获取文档标题名称
      * <p>

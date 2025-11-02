@@ -1,4 +1,4 @@
-package info.dong4j.idea.plugin.chain;
+package info.dong4j.idea.plugin.chain.handler;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.client.OssClient;
@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 0.0.1
  */
 @Slf4j
-public class OptionClientHandler extends ActionHandlerAdapter {
+public class CheckAvailableClientHandler extends ActionHandlerAdapter {
     /**
      * 获取名称
      * <p>

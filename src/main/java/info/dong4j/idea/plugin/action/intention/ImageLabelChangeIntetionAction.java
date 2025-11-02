@@ -8,9 +8,9 @@ import com.intellij.util.IncorrectOperationException;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ActionManager;
-import info.dong4j.idea.plugin.chain.FinalChainHandler;
-import info.dong4j.idea.plugin.chain.ImageLabelChangeHandler;
-import info.dong4j.idea.plugin.chain.ReplaceToDocument;
+import info.dong4j.idea.plugin.chain.handler.FinalChainHandler;
+import info.dong4j.idea.plugin.chain.handler.ImageLabelChangeHandler;
+import info.dong4j.idea.plugin.chain.handler.WriteToDocumentHandler;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
@@ -105,7 +105,7 @@ public class ImageLabelChangeIntetionAction extends IntentionActionBase {
         ActionManager actionManager = new ActionManager(data)
             .addHandler(new ImageLabelChangeHandler())
             // 写入标签
-            .addHandler(new ReplaceToDocument())
+            .addHandler(new WriteToDocumentHandler())
             .addHandler(new FinalChainHandler());
 
         // 开启后台任务

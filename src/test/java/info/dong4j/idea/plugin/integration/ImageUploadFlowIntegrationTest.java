@@ -4,9 +4,9 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.progress.ProgressIndicator;
 
 import info.dong4j.idea.plugin.chain.ActionManager;
-import info.dong4j.idea.plugin.chain.ImageUploadHandler;
-import info.dong4j.idea.plugin.chain.OptionClientHandler;
-import info.dong4j.idea.plugin.chain.ReplaceToDocument;
+import info.dong4j.idea.plugin.chain.handler.CheckAvailableClientHandler;
+import info.dong4j.idea.plugin.chain.handler.ImageUploadHandler;
+import info.dong4j.idea.plugin.chain.handler.WriteToDocumentHandler;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
@@ -86,7 +86,7 @@ public class ImageUploadFlowIntegrationTest {
     void fullUploadFlow() {
         // 创建最简化的处理链 - 仅测试上传逻辑
         ActionManager manager = new ActionManager(eventData)
-            .addHandler(new MockOptionClientHandler(mockClient))
+            .addHandler(new MockCheckAvailableClientHandler(mockClient))
             .addHandler(new ImageUploadHandler());
 
         // 创建进度指示器 mock
@@ -306,7 +306,7 @@ public class ImageUploadFlowIntegrationTest {
      * @date 2025.04.01
      * @since 1.0.0
      */
-    static class MockReplaceToDocument extends ReplaceToDocument {
+    static class MockWriteToDocumentHandler extends WriteToDocumentHandler {
         /**
          * 执行事件处理逻辑
          * <p>
@@ -332,7 +332,7 @@ public class ImageUploadFlowIntegrationTest {
      * @date 2025.10.24
      * @since 1.0.0
      */
-    static class MockOptionClientHandler extends OptionClientHandler {
+    static class MockCheckAvailableClientHandler extends CheckAvailableClientHandler {
         /** OssClient 实例，用于与阿里云对象存储服务进行交互 */
         private final OssClient client;
 
@@ -343,7 +343,7 @@ public class ImageUploadFlowIntegrationTest {
          *
          * @param client OssClient 实例，用于与 OSS 服务进行交互
          */
-        MockOptionClientHandler(OssClient client) {
+        MockCheckAvailableClientHandler(OssClient client) {
             this.client = client;
         }
 

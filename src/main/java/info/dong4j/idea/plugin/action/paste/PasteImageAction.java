@@ -17,16 +17,16 @@ import com.intellij.util.Producer;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ActionManager;
-import info.dong4j.idea.plugin.chain.DownloadImageHandler;
-import info.dong4j.idea.plugin.chain.FinalChainHandler;
-import info.dong4j.idea.plugin.chain.ImageCompressionHandler;
-import info.dong4j.idea.plugin.chain.ImageLabelChangeHandler;
-import info.dong4j.idea.plugin.chain.ImageRenameHandler;
-import info.dong4j.idea.plugin.chain.ImageStorageHandler;
-import info.dong4j.idea.plugin.chain.ImageUploadHandler;
-import info.dong4j.idea.plugin.chain.InsertToDocumentHandler;
-import info.dong4j.idea.plugin.chain.OptionClientHandler;
-import info.dong4j.idea.plugin.chain.RefreshFileSystemHandler;
+import info.dong4j.idea.plugin.chain.handler.CheckAvailableClientHandler;
+import info.dong4j.idea.plugin.chain.handler.FinalChainHandler;
+import info.dong4j.idea.plugin.chain.handler.ImageCompressionHandler;
+import info.dong4j.idea.plugin.chain.handler.ImageDownloadHandler;
+import info.dong4j.idea.plugin.chain.handler.ImageLabelChangeHandler;
+import info.dong4j.idea.plugin.chain.handler.ImageRenameHandler;
+import info.dong4j.idea.plugin.chain.handler.ImageStorageHandler;
+import info.dong4j.idea.plugin.chain.handler.ImageUploadHandler;
+import info.dong4j.idea.plugin.chain.handler.RefreshFileSystemHandler;
+import info.dong4j.idea.plugin.chain.handler.WriteToEditorHandler;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.entity.EventData;
@@ -153,7 +153,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
                     final ActionManager manager = createManager(editor, state, waitingProcessMap);
 
                     // 如果包含网络图片，先添加下载处理器
-                    manager.addHandler(hasNetworkImage, new DownloadImageHandler())
+                    manager.addHandler(hasNetworkImage, new ImageDownloadHandler())
                         // 图片压缩
                         .addHandler(new ImageCompressionHandler())
                         // 图片重命名
@@ -161,13 +161,15 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
                         .addHandler(needStoraged, new ImageStorageHandler())
                         // 刷新文件系统
                         .addHandler(needStoraged, new RefreshFileSystemHandler())
-                        .addHandler(insertImageAction == InsertImageActionEnum.UPLOAD, new OptionClientHandler())
+                        .addHandler(insertImageAction == InsertImageActionEnum.UPLOAD, new CheckAvailableClientHandler())
                         .addHandler(insertImageAction == InsertImageActionEnum.UPLOAD, new ImageUploadHandler())
                         .addHandler(new ImageLabelChangeHandler())
                         // 写入标签
-                        .addHandler(new InsertToDocumentHandler())
-                        .addHandler(new FinalChainHandler())
-                        .addHandler(new RefreshFileSystemHandler());
+                        .addHandler(new WriteToEditorHandler())
+                        // 刷新文件系统
+                        .addHandler(new RefreshFileSystemHandler())
+                        // 回收资源
+                        .addHandler(new FinalChainHandler());
 
                     new ActionTask(editor.getProject(), MikBundle.message("mik.action.paste.task"), manager).queue();
                     return;

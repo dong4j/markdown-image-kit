@@ -1,4 +1,4 @@
-package info.dong4j.idea.plugin.chain;
+package info.dong4j.idea.plugin.chain.handler;
 
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
@@ -23,7 +23,7 @@ import java.util.Map;
  * @date 2021.02.14
  * @since 0.0.1
  */
-public class ReplaceToDocument extends ActionHandlerAdapter {
+public class WriteToDocumentHandler extends ActionHandlerAdapter {
     /**
      * 获取名称
      * <p>

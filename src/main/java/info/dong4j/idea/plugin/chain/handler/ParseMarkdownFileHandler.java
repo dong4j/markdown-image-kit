@@ -1,9 +1,10 @@
-package info.dong4j.idea.plugin.chain;
+package info.dong4j.idea.plugin.chain.handler;
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.editor.Document;
 
 import info.dong4j.idea.plugin.MikBundle;
+import info.dong4j.idea.plugin.chain.MarkdownFileFilter;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.util.MarkdownUtils;
@@ -26,7 +27,7 @@ import lombok.Setter;
  * @since 0.0.1
  */
 @Setter
-public class ResolveMarkdownFileHandler extends ActionHandlerAdapter {
+public class ParseMarkdownFileHandler extends ActionHandlerAdapter {
     /** Markdown 文件过滤器，用于筛选符合要求的 Markdown 文件 */
     private MarkdownFileFilter fileFilter;
 
@@ -57,7 +58,7 @@ public class ResolveMarkdownFileHandler extends ActionHandlerAdapter {
         // 优先处理设置的数据, 用于 ImageMoveIntentionAction 和 ImageUploadIntentionAction
         Map<Document, List<MarkdownImage>> waitingProcessMap = data.getWaitingProcessMap();
         if (waitingProcessMap == null || waitingProcessMap.isEmpty()) {
-            // 解析当前文档或者选择的文件树中的所有 menu 文件.
+            // 解析当前文档或者选择的文件树中的所有 markdown 文件.
             waitingProcessMap = MarkdownUtils.getProcessMarkdownInfo(data.getActionEvent(), data.getProject());
             data.setWaitingProcessMap(waitingProcessMap);
         }

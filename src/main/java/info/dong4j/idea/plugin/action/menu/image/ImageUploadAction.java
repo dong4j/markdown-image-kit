@@ -1,4 +1,4 @@
-package info.dong4j.idea.plugin.action.menu;
+package info.dong4j.idea.plugin.action.menu.image;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Document;
@@ -7,14 +7,14 @@ import com.intellij.openapi.vfs.VirtualFile;
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.action.intention.IntentionActionBase;
 import info.dong4j.idea.plugin.chain.ActionManager;
-import info.dong4j.idea.plugin.chain.FinalChainHandler;
-import info.dong4j.idea.plugin.chain.ImageCompressionHandler;
-import info.dong4j.idea.plugin.chain.ImageLabelChangeHandler;
-import info.dong4j.idea.plugin.chain.ImageRenameHandler;
-import info.dong4j.idea.plugin.chain.ImageUploadHandler;
-import info.dong4j.idea.plugin.chain.InsertToClipboardHandler;
-import info.dong4j.idea.plugin.chain.OptionClientHandler;
-import info.dong4j.idea.plugin.chain.RefreshFileSystemHandler;
+import info.dong4j.idea.plugin.chain.handler.CheckAvailableClientHandler;
+import info.dong4j.idea.plugin.chain.handler.FinalChainHandler;
+import info.dong4j.idea.plugin.chain.handler.ImageCompressionHandler;
+import info.dong4j.idea.plugin.chain.handler.ImageLabelChangeHandler;
+import info.dong4j.idea.plugin.chain.handler.ImageRenameHandler;
+import info.dong4j.idea.plugin.chain.handler.ImageUploadHandler;
+import info.dong4j.idea.plugin.chain.handler.RefreshFileSystemHandler;
+import info.dong4j.idea.plugin.chain.handler.WriteToClipboardHandler;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
@@ -130,15 +130,17 @@ public final class ImageUploadAction extends ImageActionBase {
             // 图片重命名
             .addHandler(new ImageRenameHandler())
             // 处理 client
-            .addHandler(new OptionClientHandler())
+            .addHandler(new CheckAvailableClientHandler())
             // 图片上传
             .addHandler(new ImageUploadHandler())
             // 标签转换
             .addHandler(new ImageLabelChangeHandler())
             // 写到 clipboard
-            .addHandler(new InsertToClipboardHandler())
-            .addHandler(new FinalChainHandler())
-            .addHandler(new RefreshFileSystemHandler());
+            .addHandler(new WriteToClipboardHandler())
+            // 刷新文件系统
+            .addHandler(new RefreshFileSystemHandler())
+            // 回收资源
+            .addHandler(new FinalChainHandler());
 
         // 开启后台任务
         new ActionTask(event.getProject(), MikBundle.message("mik.action.upload.process", cloudEnum.title), manager).queue();

@@ -1,6 +1,6 @@
-package info.dong4j.idea.plugin.action.menu;
+package info.dong4j.idea.plugin.action.menu.markdown;
 
-import info.dong4j.idea.plugin.client.GithubClient;
+import info.dong4j.idea.plugin.client.GiteeClient;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 
@@ -14,59 +14,59 @@ import icons.MikIcons;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 上传到 GitHub 云服务的操作类
+ * 上传到 Gitee 云的事件类
  * <p>
- * 该类用于实现将文件上传到 GitHub 的具体操作逻辑，继承自通用的上传操作基类 UploadActionBase。
- * 提供了获取图标、名称和客户端等方法，用于统一处理云服务上传相关的配置和行为。
+ * 该类用于处理与 Gitee 云相关的上传操作，继承自 UploadActionBase 类，提供 Gitee 云的图标、名称和客户端获取方法。
+ * 主要用于在集成开发环境中触发和管理 Gitee 云的文件上传事件。
  *
  * @author dong4j
  * @version 1.0.0
  * @date 2021.02.14
- * @since 1.3.0
+ * @since 1.4.0
  */
 @Slf4j
-public final class UploadGithubCloudAction extends UploadActionBase {
+public final class UploadGiteeCloudAction extends UploadActionBase {
     /**
      * 获取图标
      * <p>
-     * 返回预定义的 GitHub 图标实例
+     * 返回预定义的 GITEE 图标
      *
      * @return 图标对象
-     * @since 1.3.0
+     * @since 1.4.0
      */
     @NotNull
     @Contract(pure = true)
     @Override
     protected Icon getIcon() {
-        return MikIcons.GITHUB;
+        return MikIcons.GITEE;
     }
 
     /**
      * 获取名称
      * <p>
-     * 返回预定义的名称常量，当前为 GitHub 的标题名称。
+     * 返回预定义的名称常量，用于表示 GITEE 的标题名称。
      *
-     * @return 名称字符串
-     * @since 1.3.0
+     * @return 名称常量
+     * @since 1.4.0
      */
     @Nullable
     @Contract(pure = true)
     @Override
     String getName() {
-        return CloudEnum.GITHUB.title;
+        return CloudEnum.GITEE.title;
     }
 
     /**
      * 获取OSS客户端实例
      * <p>
-     * 返回GithubClient的单例实例，用于与OSS服务进行交互
+     * 返回一个OSS客户端的单例实例，用于与OSS服务进行交互
      *
      * @return OssClient 实例
-     * @since 1.3.0
+     * @since 1.4.0
      */
     @Contract(pure = true)
     @Override
     OssClient getClient() {
-        return GithubClient.getInstance();
+        return GiteeClient.getInstance();
     }
 }

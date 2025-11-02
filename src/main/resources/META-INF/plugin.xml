@@ -73,39 +73,39 @@
     </extensions>
 
     <actions>
-        <action id="SmmsObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.UploadSmmsCloudAction"
+        <action id="SmmsObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.markdown.UploadSmmsCloudAction"
                 popup="true" text="SM.MS">
         </action>
-        <action id="AliyunObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.UploadAliyunCloudAction"
+        <action id="AliyunObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.markdown.UploadAliyunCloudAction"
                 popup="true" text="阿里云">
         </action>
-        <action id="QiniuObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.UploadQiniuCloudAction"
+        <action id="QiniuObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.markdown.UploadQiniuCloudAction"
                 popup="true" text="七牛云">
         </action>
-        <action id="TencentObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.UploadTencentCloudAction"
+        <action id="TencentObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.markdown.UploadTencentCloudAction"
                 popup="true" text="腾讯云">
         </action>
-        <action id="BaiduObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.UploadBaiduCloudAction"
+        <action id="BaiduObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.markdown.UploadBaiduCloudAction"
                 popup="true" text="百度云">
         </action>
-        <action id="GithubObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.UploadGithubCloudAction"
+        <action id="GithubObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.markdown.UploadGithubCloudAction"
                 popup="true" text="GitHub">
         </action>
-        <action id="GiteeObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.UploadGiteeCloudAction"
+        <action id="GiteeObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.markdown.UploadGiteeCloudAction"
                 popup="true" text="Gitee">
         </action>
-        <action id="CustomObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.UploadCustomCloudAction"
+        <action id="CustomObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.markdown.UploadCustomCloudAction"
                 popup="true" text="自定义">
         </action>
-        <action id="PicListObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.UploadPicListCloudAction"
+        <action id="PicListObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.markdown.UploadPicListCloudAction"
                 popup="true" text="PicList/PicGo">
         </action>
 
-        <action id="ImageCompressAction" class="info.dong4j.idea.plugin.action.menu.ImageCompressAction"
+        <action id="ImageCompressAction" class="info.dong4j.idea.plugin.action.menu.image.ImageCompressAction"
                 popup="true" text="图片压缩" description="按照设置压缩图片, 如果启用 webp 将转换成 WebP 格式">
         </action>
         <!-- 仅上传图片, 上传成功后会将 menu 图片标签回写到剪切板 -->
-        <action id="ImageUploadAction" class="info.dong4j.idea.plugin.action.menu.ImageUploadAction"
+        <action id="ImageUploadAction" class="info.dong4j.idea.plugin.action.menu.image.ImageUploadAction"
                 popup="true" text="图片上传:默认图床">
         </action>
         <action id="MoveToOtherStorageAction" class="info.dong4j.idea.plugin.action.menu.ImageMigrationAction"

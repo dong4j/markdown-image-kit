@@ -24,7 +24,7 @@ import icons.MikIcons;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 图床迁移操作类
+ * 图床迁移操作类:在目录, 文件和编辑器中生效
  * <p>
  * 用于执行图床迁移任务，支持对 Markdown 内容或目录中的图片进行批量迁移操作。该类主要处理迁移逻辑的初始化、执行以及与用户交互的界面设置。
  * <p>

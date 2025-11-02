@@ -4,6 +4,17 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.externalSystem.task.TaskCallback;
 import com.intellij.openapi.progress.ProgressIndicator;
 
+import info.dong4j.idea.plugin.chain.handler.CheckAvailableClientHandler;
+import info.dong4j.idea.plugin.chain.handler.FinalChainHandler;
+import info.dong4j.idea.plugin.chain.handler.ImageCompressionHandler;
+import info.dong4j.idea.plugin.chain.handler.ImageDownloadHandler;
+import info.dong4j.idea.plugin.chain.handler.ImageLabelChangeHandler;
+import info.dong4j.idea.plugin.chain.handler.ImageRenameHandler;
+import info.dong4j.idea.plugin.chain.handler.ImageStorageHandler;
+import info.dong4j.idea.plugin.chain.handler.ImageUploadHandler;
+import info.dong4j.idea.plugin.chain.handler.ParseMarkdownFileHandler;
+import info.dong4j.idea.plugin.chain.handler.RefreshFileSystemHandler;
+import info.dong4j.idea.plugin.chain.handler.WriteToDocumentHandler;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
@@ -176,21 +187,23 @@ public class ActionManager {
     public static ActionManager buildUploadChain(EventData data) {
         return new ActionManager(data)
             // 解析 menu 文件
-            .addHandler(new ResolveMarkdownFileHandler())
+            .addHandler(new ParseMarkdownFileHandler())
             // 图片压缩
             .addHandler(new ImageCompressionHandler())
             // 图片重命名
             .addHandler(new ImageRenameHandler())
             // 处理 client
-            .addHandler(new OptionClientHandler())
+            .addHandler(new CheckAvailableClientHandler())
             // 图片上传
             .addHandler(new ImageUploadHandler())
             // 标签转换
             .addHandler(new ImageLabelChangeHandler())
             // 写入标签
-            .addHandler(new ReplaceToDocument())
-            .addHandler(new FinalChainHandler())
-            .addHandler(new RefreshFileSystemHandler());
+            .addHandler(new WriteToDocumentHandler())
+            // 刷新文件系统
+            .addHandler(new RefreshFileSystemHandler())
+            // 回收资源
+            .addHandler(new FinalChainHandler());
     }
 
     /**
@@ -207,8 +220,8 @@ public class ActionManager {
     @SuppressWarnings("D")
     public static ActionManager buildMoveImageChain(EventData data) {
         // 过滤掉 LOCAL 和用户输入不匹配的标签
-        ResolveMarkdownFileHandler resolveMarkdownFileHandler = new ResolveMarkdownFileHandler();
-        resolveMarkdownFileHandler.setFileFilter((waitingProcessMap, filterString) -> {
+        ParseMarkdownFileHandler parseMarkdownFileHandler = new ParseMarkdownFileHandler();
+        parseMarkdownFileHandler.setFileFilter((waitingProcessMap, filterString) -> {
             if (waitingProcessMap == null || waitingProcessMap.isEmpty()) {
                 return;
             }
@@ -249,11 +262,11 @@ public class ActionManager {
 
 
         return new ActionManager(data)
-            .addHandler(resolveMarkdownFileHandler)
+            .addHandler(parseMarkdownFileHandler)
             // 处理 client
-            .addHandler(data.getClient() != null, new OptionClientHandler())
+            .addHandler(data.getClient() != null, new CheckAvailableClientHandler())
             // 下载网络图片
-            .addHandler(new DownloadImageHandler())
+            .addHandler(new ImageDownloadHandler())
             // 图片重命名
             .addHandler(new ImageRenameHandler())
             // 图片上传
@@ -263,7 +276,10 @@ public class ActionManager {
             // 标签转换
             .addHandler(new ImageLabelChangeHandler())
             // 写入标签
-            .addHandler(new ReplaceToDocument())
+            .addHandler(new WriteToDocumentHandler())
+            // 刷新文件系统
+            .addHandler(new RefreshFileSystemHandler())
+            // 回收资源
             .addHandler(new FinalChainHandler());
     }
 }

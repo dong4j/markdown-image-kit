@@ -7,10 +7,10 @@ import com.intellij.openapi.project.Project;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ActionManager;
-import info.dong4j.idea.plugin.chain.FinalChainHandler;
-import info.dong4j.idea.plugin.chain.ImageLabelChangeHandler;
-import info.dong4j.idea.plugin.chain.ReplaceToDocument;
-import info.dong4j.idea.plugin.chain.ResolveMarkdownFileHandler;
+import info.dong4j.idea.plugin.chain.handler.FinalChainHandler;
+import info.dong4j.idea.plugin.chain.handler.ImageLabelChangeHandler;
+import info.dong4j.idea.plugin.chain.handler.ParseMarkdownFileHandler;
+import info.dong4j.idea.plugin.chain.handler.WriteToDocumentHandler;
 import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.task.ActionTask;
@@ -22,7 +22,7 @@ import icons.MikIcons;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 全局替换标签操作类(右键菜单)
+ * 全局替换标签操作类:在目录, 文件和编辑器中生效
  * <p>
  * 该类用于实现全局替换标签的功能，主要处理在特定项目中对Markdown图像标签的替换操作。支持根据配置的标签类型进行替换，并提供相应的处理链。
  * <p>
@@ -69,12 +69,12 @@ public final class ImageLabelChangeAction extends AnAction {
                 .setProject(project);
 
             ActionManager actionManager = new ActionManager(data)
-                // 解析 menu 文件
-                .addHandler(new ResolveMarkdownFileHandler())
+                // 解析 markdown 文件
+                .addHandler(new ParseMarkdownFileHandler())
                 // 全部标签转换
                 .addHandler(new ImageLabelChangeHandler())
                 // 写入标签
-                .addHandler(new ReplaceToDocument())
+                .addHandler(new WriteToDocumentHandler())
                 .addHandler(new FinalChainHandler());
 
             new ActionTask(project,

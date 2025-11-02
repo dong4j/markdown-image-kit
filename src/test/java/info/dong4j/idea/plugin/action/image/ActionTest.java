@@ -2,8 +2,8 @@ package info.dong4j.idea.plugin.action.image;
 
 import com.intellij.testFramework.LightPlatformTestCase;
 
-import info.dong4j.idea.plugin.action.menu.ImageCompressAction;
-import info.dong4j.idea.plugin.action.menu.ImageUploadAction;
+import info.dong4j.idea.plugin.action.menu.image.ImageCompressAction;
+import info.dong4j.idea.plugin.action.menu.image.ImageUploadAction;
 
 import org.junit.jupiter.api.DisplayName;
 

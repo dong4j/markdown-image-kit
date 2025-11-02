@@ -1,4 +1,4 @@
-package info.dong4j.idea.plugin.action.menu;
+package info.dong4j.idea.plugin.action.menu.image;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Document;
@@ -6,12 +6,12 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 
 import info.dong4j.idea.plugin.MikBundle;
-import info.dong4j.idea.plugin.chain.ActionHandlerAdapter;
 import info.dong4j.idea.plugin.chain.ActionManager;
-import info.dong4j.idea.plugin.chain.FinalChainHandler;
-import info.dong4j.idea.plugin.chain.ImageCompressionHandler;
-import info.dong4j.idea.plugin.chain.ImageRenameHandler;
-import info.dong4j.idea.plugin.chain.RefreshFileSystemHandler;
+import info.dong4j.idea.plugin.chain.handler.ActionHandlerAdapter;
+import info.dong4j.idea.plugin.chain.handler.FinalChainHandler;
+import info.dong4j.idea.plugin.chain.handler.ImageCompressionHandler;
+import info.dong4j.idea.plugin.chain.handler.ImageRenameHandler;
+import info.dong4j.idea.plugin.chain.handler.RefreshFileSystemHandler;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.task.ActionTask;
@@ -112,76 +112,81 @@ public final class ImageCompressAction extends ImageActionBase {
             // 图片重命名
             .addHandler(new ImageRenameHandler())
             // 删除并替换
-            .addHandler(deleteFileHandler())
-            .addHandler(new FinalChainHandler())
-            .addHandler(new RefreshFileSystemHandler());
+            .addHandler(new DeleteFileHandler())
+            // 刷新文件系统
+            .addHandler(new RefreshFileSystemHandler())
+            // 回收资源
+            .addHandler(new FinalChainHandler());
 
         // 开启后台任务
         new ActionTask(event.getProject(), MikBundle.message("mik.action.compress.progress"), manager).queue();
     }
 
-    /**
-     * 创建用于删除文件的 ActionHandlerAdapter 实例
-     * <p>
-     * 该方法返回一个自定义的 ActionHandlerAdapter 实例，用于处理 Markdown 图片的删除操作，包括获取名称和执行删除逻辑。
-     *
-     * @return ActionHandlerAdapter 实例，用于处理文件删除操作
-     */
-    private ActionHandlerAdapter deleteFileHandler() {
-        return new ActionHandlerAdapter() {
 
-            /**
-             * 获取名称信息
-             * <p>
-             * 返回一个固定的名称字符串"替换原图"
-             *
-             * @return 名称字符串
-             */
-            @Override
-            public String getName() {
-                return MikBundle.message("mik.action.replace.original");
+    /**
+     * 删除文件处理类
+     * <p>
+     * 用于处理Markdown图片替换操作，负责获取操作名称并执行图片流写入及原始文件删除逻辑。
+     * 该类继承自ActionHandlerAdapter，主要用于在图片替换过程中完成文件的存储与清理工作。
+     *
+     * @author 未知
+     * @version 1.0.0
+     * @date 2025.10.24
+     * @since 1.0.0
+     */
+    private static final class DeleteFileHandler extends ActionHandlerAdapter {
+        /**
+         * 获取名称信息
+         * <p>
+         * 返回一个固定的名称字符串"替换原图"
+         *
+         * @return 名称字符串
+         */
+        @Override
+        public String getName() {
+            return MikBundle.message("mik.action.replace.original");
+        }
+
+        /**
+         * 处理Markdown图片的回调方法，将图片流写入指定路径
+         * <p>
+         * 该方法接收事件数据、图片迭代器和具体的Markdown图片对象，通过读取图片流并写入文件系统实现图片存储。若图片路径已更新为webp格式，则会将新文件写入指定路径，并删除原始文件。
+         *
+         * @param data          事件数据
+         * @param imageIterator 图片迭代器
+         * @param markdownImage 具体的Markdown图片对象
+         */
+        @Override
+        public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
+            InputStream inputStream = markdownImage.getInputStream();
+            String newPath = markdownImage.getPath();
+            String originalPath = null;
+
+            // 保存原始文件路径（如果存在）
+            if (markdownImage.getVirtualFile() != null) {
+                originalPath = markdownImage.getVirtualFile().getPath();
             }
 
-            /**
-             * 处理Markdown图片的回调方法，将图片流写入指定路径
-             * <p>
-             * 该方法接收事件数据、图片迭代器和具体的Markdown图片对象，通过读取图片流并写入文件系统实现图片存储
-             *
-             * @param data          事件数据
-             * @param imageIterator 图片迭代器
-             * @param markdownImage 具体的Markdown图片对象
-             */
-            @Override
-            public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
-                InputStream inputStream = markdownImage.getInputStream();
-                String newPath = markdownImage.getPath();
-                String originalPath = null;
+            try {
+                // 写入新文件（如果路径已更新为 webp，会写入到新位置）
+                FileUtil.copy(inputStream, new FileOutputStream(newPath));
 
-                // 保存原始文件路径（如果存在）
-                if (markdownImage.getVirtualFile() != null) {
-                    originalPath = markdownImage.getVirtualFile().getPath();
-                }
-
-                try {
-                    // 写入新文件（如果路径已更新为 webp，会写入到新位置）
-                    FileUtil.copy(inputStream, new FileOutputStream(newPath));
-
-                    // 如果原始文件存在且路径与新路径不同（说明已转换为 webp），则删除原始文件
-                    if (originalPath != null && !originalPath.equals(newPath)) {
-                        File originalFile = new File(originalPath);
-                        if (originalFile.exists() && originalFile.isFile()) {
-                            boolean deleted = originalFile.delete();
-                            if (deleted) {
-                                log.debug("已删除原始文件: {}", originalPath);
-                            } else {
-                                log.warn("删除原始文件失败: {}", originalPath);
-                            }
+                // 如果原始文件存在且路径与新路径不同（说明已转换为 webp），则删除原始文件
+                if (originalPath != null && !originalPath.equals(newPath)) {
+                    File originalFile = new File(originalPath);
+                    if (originalFile.exists() && originalFile.isFile()) {
+                        boolean deleted = originalFile.delete();
+                        if (deleted) {
+                            log.debug("已删除原始文件: {}", originalPath);
+                        } else {
+                            log.warn("删除原始文件失败: {}", originalPath);
                         }
                     }
-                } catch (IOException e) {
-                    log.trace("", e);
                 }
+            } catch (IOException e) {
+                log.trace("", e);
             }
-        };
+        }
     }
+
 }

@@ -1,7 +1,7 @@
-package info.dong4j.idea.plugin.action.menu;
+package info.dong4j.idea.plugin.action.menu.markdown;
 
-import info.dong4j.idea.plugin.client.AliyunOssClient;
 import info.dong4j.idea.plugin.client.OssClient;
+import info.dong4j.idea.plugin.client.TencentOssClient;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 
 import org.jetbrains.annotations.Contract;
@@ -14,10 +14,10 @@ import icons.MikIcons;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 上传到阿里 OSS 事件
+ * 上传到腾讯云 OSS 的操作类
  * <p>
- * 该类用于表示上传文件到阿里云对象存储服务（OSS）的事件操作，继承自通用的上传动作基类。
- * 提供了获取图标、名称和 OSS 客户端实例的方法，用于在系统中标识和执行上传操作。
+ * 该类继承自 UploadActionBase，用于封装上传文件到腾讯云对象存储服务（OSS）的具体实现。
+ * 提供了获取图标、名称和 OSS 客户端实例的方法，用于在上传过程中展示相关信息和与 OSS 服务交互。
  *
  * @author dong4j
  * @version 0.0.1
@@ -25,11 +25,11 @@ import lombok.extern.slf4j.Slf4j;
  * @since 0.0.1
  */
 @Slf4j
-public final class UploadAliyunCloudAction extends UploadActionBase {
+public final class UploadTencentCloudAction extends UploadActionBase {
     /**
      * 获取图标
      * <p>
-     * 返回预定义的阿里云OSS图标实例
+     * 返回预定义的腾讯图标实例
      *
      * @return 图标对象
      * @since 0.0.1
@@ -38,35 +38,35 @@ public final class UploadAliyunCloudAction extends UploadActionBase {
     @Contract(pure = true)
     @Override
     protected Icon getIcon() {
-        return MikIcons.ALIYUN_OSS;
+        return MikIcons.TENCENT;
     }
 
     /**
      * 获取名称
      * <p>
-     * 返回预定义的云服务商名称，当前返回阿里云的名称。
+     * 返回预定义的名称常量，用于标识腾讯云。
      *
-     * @return 名称
+     * @return 名称常量
      * @since 0.0.1
      */
     @Nullable
     @Contract(pure = true)
     @Override
     String getName() {
-        return CloudEnum.ALIYUN_CLOUD.title;
+        return CloudEnum.TENCENT_CLOUD.title;
     }
 
     /**
      * 获取OSS客户端实例
      * <p>
-     * 返回阿里云OSS客户端的单例实例，用于与OSS服务进行交互
+     * 返回一个OSS客户端的单例实例，用于与对象存储服务进行交互
      *
-     * @return OssClient 实例
+     * @return OSS客户端实例
      * @since 0.0.1
      */
     @Contract(pure = true)
     @Override
     OssClient getClient() {
-        return AliyunOssClient.getInstance();
+        return TencentOssClient.getInstance();
     }
 }
