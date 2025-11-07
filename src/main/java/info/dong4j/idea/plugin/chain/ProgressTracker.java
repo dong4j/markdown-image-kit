@@ -210,6 +210,7 @@ public class ProgressTracker {
      * @param current   当前已处理的项目数
      * @param total     总项目数
      */
+    @SuppressWarnings("D")
     public void updateItemProgress(int stepIndex, String itemName, int current, int total) {
         if (stepIndex < 0 || stepIndex >= steps.size()) {
             log.trace("无效的步骤索引: {}", stepIndex);

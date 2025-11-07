@@ -1371,12 +1371,6 @@ cd markdown-image-kit/markdown-image-kit
 
 ---
 
-## 📊 统计
-
-![](https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/MIK-lRpO0E.png)
-
----
-
 <div align="center">
 
 **Enjoy Markdown writing! 📝**

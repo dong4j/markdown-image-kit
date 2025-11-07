@@ -39,20 +39,11 @@
                              implementationClass="info.dong4j.idea.plugin.action.paste.PasteImageAction"
                              order="first"/>
         <!-- 设置面板 -->
-        <!--<applicationConfigurable groupId="other" instance="info.dong4j.idea.plugin.settings.ProjectSettingsPage"-->
-        <!--                         displayName="Markdown Image Kit"/>-->
-
         <applicationConfigurable
                 parentId="tools"
                 instance="info.dong4j.idea.plugin.settings.NewProjectSettingsPage"
-                id="markdown.image.kit.preview"
+                id="markdown.image.kit.configs"
                 displayName="Markdown Image Kit"/>
-
-        <!-- 持久化 -->
-        <applicationService serviceImplementation="info.dong4j.idea.plugin.settings.MikPersistenComponent"/>
-
-        <!-- MIK Console View 服务 -->
-        <projectService serviceImplementation="info.dong4j.idea.plugin.console.MikConsoleView"/>
 
         <!-- MIK Console 工具窗口 -->
         <toolWindow id="MIK Console"

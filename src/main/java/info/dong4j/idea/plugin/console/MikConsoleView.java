@@ -3,11 +3,14 @@ package info.dong4j.idea.plugin.console;
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
+
+import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -28,11 +31,11 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Service(Service.Level.PROJECT)
-public final class MikConsoleView {
+public final class MikConsoleView implements Disposable {
     /** 工具窗口 ID */
     public static final String TOOL_WINDOW_ID = "MIK Console";
     /** 日期时间格式化 */
-    private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
+    private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
 
     /** 控制台视图 */
     private ConsoleView consoleView;
@@ -79,7 +82,7 @@ public final class MikConsoleView {
      *
      * @param message 消息内容
      */
-    public void print(String message) {
+    void print(String message) {
         print(message, ConsoleViewContentType.NORMAL_OUTPUT);
     }
 
@@ -88,7 +91,7 @@ public final class MikConsoleView {
      *
      * @param message 消息内容
      */
-    public void printSuccess(String message) {
+    private void printSuccess(String message) {
         print(message, ConsoleViewContentType.LOG_INFO_OUTPUT);
     }
 
@@ -97,7 +100,7 @@ public final class MikConsoleView {
      *
      * @param message 消息内容
      */
-    public void printError(String message) {
+    private void printError(String message) {
         print(message, ConsoleViewContentType.ERROR_OUTPUT);
     }
 
@@ -106,7 +109,7 @@ public final class MikConsoleView {
      *
      * @param message 消息内容
      */
-    public void printWarning(String message) {
+    private void printWarning(String message) {
         print(message, ConsoleViewContentType.LOG_WARNING_OUTPUT);
     }
 
@@ -151,26 +154,20 @@ public final class MikConsoleView {
     }
 
     /**
-     * 清空控制台
-     */
-    public void clear() {
-        ApplicationManager.getApplication().invokeLater(() -> {
-            if (consoleView != null) {
-                consoleView.clear();
-            }
-        });
-    }
-
-    /**
      * 释放资源
+     * <p>
+     * 由 IntelliJ Platform 在项目关闭时自动调用。
+     * 清理 Console 视图资源，避免内存泄漏。
+     *
+     * @see Disposable
      */
+    @Override
     public void dispose() {
         if (consoleView != null) {
             consoleView.dispose();
             consoleView = null;
         }
     }
-
     /**
      * 获取项目的 MikConsoleView 实例
      *
@@ -189,12 +186,12 @@ public final class MikConsoleView {
      *
      * @return 如果启用返回 true，否则返回 false
      */
-    private static boolean isConsoleLogEnabled() {
+    private static boolean consoleLogDisable() {
         try {
-            return info.dong4j.idea.plugin.settings.MikPersistenComponent.getInstance().getState().isEnableConsoleLog();
+            return !MikPersistenComponent.getInstance().getState().isEnableConsoleLog();
         } catch (Exception e) {
             log.trace("获取控制台日志开关失败，默认启用", e);
-            return true;
+            return false;
         }
     }
 
@@ -204,8 +201,8 @@ public final class MikConsoleView {
      * @param project 项目实例（可为 null）
      * @param message 消息内容
      */
-    public static void printMessage(Project project, @NotNull String message) {
-        if (project == null || !isConsoleLogEnabled()) {
+    public static void printMessage(@NotNull Project project, @NotNull String message) {
+        if (consoleLogDisable()) {
             return;
         }
         try {
@@ -221,8 +218,8 @@ public final class MikConsoleView {
      * @param project 项目实例（可为 null）
      * @param message 消息内容
      */
-    public static void printSuccessMessage(Project project, @NotNull String message) {
-        if (project == null || !isConsoleLogEnabled()) {
+    public static void printSuccessMessage(@NotNull Project project, @NotNull String message) {
+        if (consoleLogDisable()) {
             return;
         }
         try {
@@ -238,8 +235,8 @@ public final class MikConsoleView {
      * @param project 项目实例（可为 null）
      * @param message 消息内容
      */
-    public static void printErrorMessage(Project project, @NotNull String message) {
-        if (project == null || !isConsoleLogEnabled()) {
+    public static void printErrorMessage(@NotNull Project project, @NotNull String message) {
+        if (consoleLogDisable()) {
             return;
         }
         try {
@@ -255,8 +252,8 @@ public final class MikConsoleView {
      * @param project 项目实例（可为 null）
      * @param message 消息内容
      */
-    public static void printWarningMessage(Project project, @NotNull String message) {
-        if (project == null || !isConsoleLogEnabled()) {
+    public static void printWarningMessage(@NotNull Project project, @NotNull String message) {
+        if (consoleLogDisable()) {
             return;
         }
         try {
@@ -267,13 +264,13 @@ public final class MikConsoleView {
     }
 
     /**
-     * 智能输出信息到控制台（根据消息内容自动选择类型）
+     * 根据消息内容自动选择类型
      *
      * @param project 项目实例（可为 null）
      * @param message 消息内容
      */
-    public static void printSmart(Project project, @NotNull String message) {
-        if (project == null || !isConsoleLogEnabled()) {
+    public static void printSmart(@NotNull Project project, @NotNull String message) {
+        if (consoleLogDisable()) {
             return;
         }
         try {
