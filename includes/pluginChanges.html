@@ -21,19 +21,16 @@
   ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   ~ SOFTWARE.
   -->
+<h3>2.1.1</h3>
+<ul>
+    <li>修复 BUG</li>
+</ul>
+<h3>2.1.1</h3>
+<ul>
+    <li>FIX BUG</li>
+</ul>
 
 <p>2.1.0</p>
-<b>New UI version, replicates Typora's image insertion logic, optimizes multi-image processing speed</b>
-<ul>
-    <li>Refactor settings page layout, prioritize image processing functionality (similar to Typora's design philosophy)</li>
-    <li>Refactor insert image functionality, add placeholder support (${filename}, ${project}) for custom paths</li>
-    <li>Add network image processing: paste network image URL in Markdown image tag ( ![](cursor) ) to download automatically</li>
-    <li>Add image rename template with placeholder support (${datetime:format}, ${string:length}, ${number:length}, ${filename})</li>
-    <li>Add convert to WebP functionality with quality control</li>
-    <li>Add support for relative path preferences (./ prefix)</li>
-    <li>Add auto-escape image URL option</li>
-    <li>Add migration to local storage option in image hosting migration feature</li>
-</ul>
 <b>新版 UI, 复刻 Typora 插入图片的处理逻辑, 优化多图片处理速度</b>
 <ul>
     <li>重构设置页面布局, 将图片处理功能放在首位(参考 Typora 的设计理念)</li>
@@ -46,7 +43,31 @@
     <li>图床迁移新增迁移到本地功能</li>
 </ul>
 
+<b>New UI version, replicates Typora's image insertion logic, optimizes multi-image processing speed</b>
+<ul>
+    <li>Refactor settings page layout, prioritize image processing functionality (similar to Typora's design philosophy)</li>
+    <li>Refactor insert image functionality, add placeholder support (${filename}, ${project}) for custom paths</li>
+    <li>Add network image processing: paste network image URL in Markdown image tag ( ![](cursor) ) to download automatically</li>
+    <li>Add image rename template with placeholder support (${datetime:format}, ${string:length}, ${number:length}, ${filename})</li>
+    <li>Add convert to WebP functionality with quality control</li>
+    <li>Add support for relative path preferences (./ prefix)</li>
+    <li>Add auto-escape image URL option</li>
+    <li>Add migration to local storage option in image hosting migration feature</li>
+</ul>
+
 <p>2.0.0</p>
+<ul>
+    <li>删除微博图床和几个之前未实现的图床, 不再维护; 可通过自定义配置或新增的 PicList/PicGo 来实现</li>
+    <li>重构 sm.ms 图床, 现在必须使用 Token 认证</li>
+    <li>修复百度云图床问题</li>
+    <li>优化图标, 减小包体积, 减小图床测试上传图片尺寸</li>
+    <li>适配 2022.3 到 2025.2 版本, 修复多个过时 API</li>
+    <li>优化异步任务, 避免创建无用线程; 优化迁移到其他图床的效率</li>
+    <li><strong>重大变更: 与 1.6.x 不兼容, 所有配置将被重置, 需要重新配置</strong></li>
+    <li>从 2.0.0 开始, MIK 专注于在 IDE 中处理 markdown 图片, 而不是管理图片上传服务</li>
+    <li>用户可以实现自己的上传服务或使用 PicList/PicGo, 只要能提供上传后的 URL 即可</li>
+    <li>参考: Typora 的设计理念 - 专注于 Markdown, 图片上传使用第三方实现</li>
+</ul>
 <ul>
     <li>Delete Weibo image hosting and several previously unimplemented image hosts; no longer maintained; can be achieved through custom
         configuration or the newly added PicList/PicGo.
@@ -63,35 +84,15 @@
     <li>Users can implement their own upload services or use PicList/PicGo, as long as they can provide the upload URL</li>
     <li>Reference: Typora's design philosophy - handle markdown, image upload uses third-party implementation.</li>
 </ul>
-<ul>
-    <li>删除微博图床和几个之前未实现的图床, 不再维护; 可通过自定义配置或新增的 PicList/PicGo 来实现</li>
-    <li>重构 sm.ms 图床, 现在必须使用 Token 认证</li>
-    <li>修复百度云图床问题</li>
-    <li>优化图标, 减小包体积, 减小图床测试上传图片尺寸</li>
-    <li>适配 2022.3 到 2025.2 版本, 修复多个过时 API</li>
-    <li>优化异步任务, 避免创建无用线程; 优化迁移到其他图床的效率</li>
-    <li><strong>重大变更: 与 1.6.x 不兼容, 所有配置将被重置, 需要重新配置</strong></li>
-    <li>从 2.0.0 开始, MIK 专注于在 IDE 中处理 markdown 图片, 而不是管理图片上传服务</li>
-    <li>用户可以实现自己的上传服务或使用 PicList/PicGo, 只要能提供上传后的 URL 即可</li>
-    <li>参考: Typora 的设计理念 - 专注于 Markdown, 图片上传使用第三方实现</li>
-</ul>
 <br/>
 <p>1.6.3-RELEASE</p>
 <ul>
-    <li>add watermark</li>
-</ul>
-<ul>
     <li>添加水印</li>
 </ul>
-<p>1.6.2-RELEASE</p>
 <ul>
-    <li>i18n support</li>
-    <li>Optimized configuration page</li>
-    <li>Move settings page to the Other group</li>
-    <li>Fixed an issue with incorrect Baidu password acquisition</li>
-    <li>Delete custom JScrollPane, Configurable.NoScroll</li>
-    <li>Use message boxes instead of custom messages</li>
+    <li>add watermark</li>
 </ul>
+<p>1.6.2-RELEASE</p>
 <ul>
     <li>国际化支持</li>
     <li>优化配置页</li>
@@ -100,19 +101,24 @@
     <li>删除自定义的 JScrollPane, 删除 Configurable.NoScroll 接口</li>
     <li>使用消息框代替自定义消息</li>
 </ul>
+<ul>
+    <li>i18n support</li>
+    <li>Optimized configuration page</li>
+    <li>Move settings page to the Other group</li>
+    <li>Fixed an issue with incorrect Baidu password acquisition</li>
+    <li>Delete custom JScrollPane, Configurable.NoScroll</li>
+    <li>Use message boxes instead of custom messages</li>
+</ul>
 <br/>
 <p>1.6.1-RELEASE</p>
 <ul>
-    <li>Delete Qiniu Cloud SDK, use HttpClient to upload pictures</li>
+    <li>删除七牛云 SDK, 使用 HttpClient 上传图片</li>
 </ul>
 <ul>
-    <li>删除七牛云 SDK, 使用 HttpClient 上传图片</li>
+    <li>Delete Qiniu Cloud SDK, use HttpClient to upload pictures</li>
 </ul>
 <br/>
 <p>1.6.0-RELEASE</p>
-<ul>
-    <li>Use Intellij Credentials API instead of DES encryption, so you need to reset the key/Token</li>
-</ul>
 <ul>
     <li>使用 Intellij Credentials API 代替 DES 加密, 因此需要重新设置密钥/Token, 启动时会弹出认证信息:</li>
     <img src="https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/MIK-C8LUI4.png" width="400" alt="">
@@ -126,82 +132,94 @@
         <li>info.dong4j.idea.plugin.settings.oss.GiteeSetting</li>
     </ul>
 </ul>
+<ul>
+    <li>Use Intellij Credentials API instead of DES encryption, so you need to reset the key/Token</li>
+</ul>
+
 <br/>
-<p>1.5.0-RELEASE</p>
+<ul>
+    <li>添加自定义图床支持, <a href="https://github.com/dong4j/mik-help">API 示例</a></li>
+    <li>修复老版本更新后可能打不开设置页的问题</li>
+    <li>修复敏感字段导致 IDEA Core 错误的问题</li>
+</ul><p>1.5.0-RELEASE</p>
+
 <ul>
     <li>Add custom image bed support, <a href="https://github.com/dong4j/mik-help">API demo</a></li>
     <li>Fix the problem that the settings page may not be opened after the old version is updated</li>
     <li>Fix the problem of IDEA Core errors caused by sensitive fields</li>
 </ul>
-<ul>
-    <li>添加自定义图床支持, <a href="https://github.com/dong4j/mik-help">API 示例</a></li>
-    <li>修复老版本更新后可能打不开设置页的问题</li>
-    <li>修复敏感字段导致 IDEA Core 错误的问题</li>
-</ul>
 <br/>
 <p>1.4.0-RELEASE</p>
-<ul>
-    <li>support gitee</li>
-    <li>Fix the problem of wrong GitHub main branch name</li>
-    <li>The original image path will not be replaced when the upload fails, which is convenient for uploading again</li>
-    <li>Fixed the wrong mouse listener causing the browser to open multiple pages</li>
-</ul>
 <ul>
     <li>上传到 Gitee</li>
     <li>修复 GitHub 主分支名错误的问题</li>
     <li>上传失败时不再替换原有的图片路径, 便于再次上传</li>
     <li>修复错误的鼠标监听器导致浏览器打开多个页面</li>
 </ul>
+<ul>
+    <li>support gitee</li>
+    <li>Fix the problem of wrong GitHub main branch name</li>
+    <li>The original image path will not be replaced when the upload fails, which is convenient for uploading again</li>
+    <li>Fixed the wrong mouse listener causing the browser to open multiple pages</li>
+</ul>
 <br/>
 <p>1.3.0-RELEASE</p>
 <ul>
-    <li>support github</li>
+    <li>上传到 GitHub</li>
 </ul>
 <ul>
-    <li>上传到 GitHub</li>
+    <li>support github</li>
 </ul>
 <br/>
 <p>1.2.0-RELEASE</p>
 <ul>
-    <li>add baidu bos</li>
+    <li>添加百度云图床</li>
 </ul>
 <ul>
-    <li>添加百度云图床</li>
+    <li>add baidu bos</li>
 </ul>
 <br/>
 <p>1.1.0-RELEASE</p>
 <ul>
-    <li>Delete com.intellij.modules.java, support WebStorm, PyCharm, GoLand</li>
-    <li>Refactor dependencies, delete apache dependencies, reduce plug-in size</li>
-</ul>
-<ul>
     <li>移除 com.intellij.modules.java, 支持 WebStorm, PyCharm, GoLand 等 IDE</li>
     <li>重构依赖, 删除 apache 相关依赖, 减少插件体积</li>
 </ul>
+<ul>
+    <li>Delete com.intellij.modules.java, support WebStorm, PyCharm, GoLand</li>
+    <li>Refactor dependencies, delete apache dependencies, reduce plug-in size</li>
+</ul>
 <br/>
 <p>1.0.0-RELEASE</p>
-<ul>
-    <li>Delete the Qcloud SDK, upload pictures using REST API</li>
-    <li>Delete Aliyun SDK, upload pictures using REST API</li>
-    <li>Fix sm.ms upload failure</li>
-    <li>Fix bulk upload warning</li>
-</ul>
 <ul>
     <li>删除 Qcloud SDK, 使用 API 上传图片</li>
     <li>删除 Aliyun SDK, 使用 API 上传图片</li>
     <li>修复 sm.ms 上传失败的问题</li>
     <li>修复批量上传警告</li>
 </ul>
+<ul>
+    <li>Delete the Qcloud SDK, upload pictures using REST API</li>
+    <li>Delete Aliyun SDK, upload pictures using REST API</li>
+    <li>Fix sm.ms upload failure</li>
+    <li>Fix bulk upload warning</li>
+</ul>
 <br/>
 <p>0.0.4-RELEASE</p>
 <ul>
-    <li>Fix WebStrom copy image can't find class problem</li>
+    <li>修复 WebStrom 复制图片找不到 class 的问题</li>
 </ul>
 <ul>
-    <li>修复 WebStrom 复制图片找不到 class 的问题</li>
+    <li>Fix WebStrom copy image can't find class problem</li>
 </ul>
 <br/>
 <p>0.0.3-RELEASE</p>
+<ul>
+    <li>支持腾讯云 COS</li>
+    <li>优化 client 逻辑, 使用懒加载初始化 client</li>
+    <li>修复 windows OS 下, 复制上传错误的问题</li>
+    <li>修复持久化文件偶尔报错的问题, 此版本将持久化文件移动到单独的 markdown-image-kit.xml 文件中, 并做了加密处理. (可能需要根据报错信息,
+        删除 other.xml 中的对应节点)
+    </li>
+</ul>
 <ul>
     <li>Support Tencent COS</li>
     <li>Optimize client logic, initialize client with lazy loading</li>
@@ -211,22 +229,25 @@
         message.)
     </li>
 </ul>
-<ul>
-    <li>支持腾讯云 COS</li>
-    <li>优化 client 逻辑, 使用懒加载初始化 client</li>
-    <li>修复 windows OS 下, 复制上传错误的问题</li>
-    <li>修复持久化文件偶尔报错的问题, 此版本将持久化文件移动到单独的 markdown-image-kit.xml 文件中, 并做了加密处理. (可能需要根据报错信息, 删除 other.xml 中的对应节点)</li>
-</ul>
 <br/>
 <p>0.0.2-RELEASE</p>
 <ul>
-    <li>Support <a href="https://sm.ms">sm.ms</a>, and set it as the default</li>
+    <li>支持 sm.ms, 并设置为默认图床</li>
 </ul>
 <ul>
-    <li>支持 sm.ms, 并设置为默认图床</li>
+    <li>Support <a href="https://sm.ms">sm.ms</a>, and set it as the default</li>
 </ul>
 <br/>
 <p>0.0.1-RELEASE</p>
+<ul>
+    <li>一键上传当前文档(所有文档)所有引用图片后自动替换, 体验最简单高效的一波流操作;</li>
+    <li>支持多个图床, 还支持自定义图床, 没有你上传不了的图片;</li>
+    <li>一键替换所有标签, 批量处理就是这么简单;</li>
+    <li>粘贴图片, 复制就是 markdown image mark, 就是这么直接;</li>
+    <li>图片直接压缩, 减少流量, 提高加载速度, 处处为你着想;</li>
+    <li>可对一个 markdown image mark 单独处理, 灵活的不要不要的;</li>
+    <li>图床迁移计划, 免费流量用完了? 迁移到另一个免费图床不就 ok 了;</li>
+</ul>
 <ul>
     <li>One-click uploading the current document (all documents) automatically replaces all reference pictures, and experiences the simplest
         and most efficient one-wave operation;
@@ -238,12 +259,4 @@
     <li>Can be processed separately for a markdown image mark, flexible and unnecessary;</li>
     <li>The bed migration plan, the free flow is used up? It is not ok to move to another free map bed;</li>
 </ul>
-<ul>
-    <li>一键上传当前文档(所有文档)所有引用图片后自动替换, 体验最简单高效的一波流操作;</li>
-    <li>支持多个图床, 还支持自定义图床, 没有你上传不了的图片;</li>
-    <li>一键替换所有标签, 批量处理就是这么简单;</li>
-    <li>粘贴图片, 复制就是 markdown image mark, 就是这么直接;</li>
-    <li>图片直接压缩, 减少流量, 提高加载速度, 处处为你着想;</li>
-    <li>可对一个 markdown image mark 单独处理, 灵活的不要不要的;</li>
-    <li>图床迁移计划, 免费流量用完了? 迁移到另一个免费图床不就 ok 了;</li>
-</ul>
+
