@@ -81,19 +81,13 @@ public final class ImageMigrationIntentionAction extends IntentionActionBase {
      * @throws IncorrectOperationException 当操作不正确时抛出异常
      */
     @Override
-    public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element)
+    public void execute(@NotNull Project project, Editor editor, @NotNull PsiElement element)
         throws IncorrectOperationException {
-
-        // 如果处于预览模式，则直接返回，不执行任何会产生副作用的操作, 只有在真实执行意图操作时才执行完整的处理流程
-        if (com.intellij.codeInsight.intention.preview.IntentionPreviewUtils.isPreviewElement(element)) {
-            return;
-        }
 
         MarkdownImage markdownImage = this.getMarkdownImage(editor);
         OssClient client = this.getClient();
 
-        if (markdownImage == null
-            || markdownImage.getLocation() == ImageLocationEnum.LOCAL
+        if (markdownImage.getLocation() == ImageLocationEnum.LOCAL
             || markdownImage.getPath().contains(client.getCloudType().feature)) {
             return;
         }

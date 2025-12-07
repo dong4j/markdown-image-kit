@@ -31,6 +31,11 @@ import lombok.Data;
 @Data
 public class MikState {
 
+    //region 全局设置
+    /** 启用插件功能的全局开关，默认为 true */
+    private boolean enablePlugin = true;
+    //endregion
+
     //region 插入图片时
     private InsertImageActionEnum insertImageAction = InsertImageActionEnum.NONE;
     private String currentInsertPath = "";
@@ -48,6 +53,8 @@ public class MikState {
     private boolean addDotSlash = false;
     /** 自动转义图片 URL 标志，为 true 时会对图片 URL 进行转义处理 */
     private boolean autoEscapeImageUrl = false;
+    /** 粘贴文件/目录时使用纯文本格式（默认 true，避免 IDEA 自动转换成 Markdown 链接格式） */
+    private boolean pasteFileAsPlainText = true;
     //endregion
 
     //region 控制台设置

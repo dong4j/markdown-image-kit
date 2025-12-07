@@ -55,6 +55,8 @@ public class ImageProcessingPanel {
     private JCheckBox autoEscapeImageUrlCheckBox;
     /** 启用控制台日志的复选框 */
     private JCheckBox enableConsoleLogCheckBox;
+    /** 粘贴文件/目录时使用纯文本格式的复选框 */
+    private JCheckBox pasteFileAsPlainTextCheckBox;
     /** 当前状态对象的引用，用于在 ActionListener 中访问保存的自定义路径值 */
     private MikState currentState;
 
@@ -188,9 +190,14 @@ public class ImageProcessingPanel {
         content.add(autoEscapeImageUrlCheckBox, gbc);
 
         gbc.gridy = 10;
-        enableConsoleLogCheckBox = new JCheckBox("启用 MIK Console 日志输出");
-        enableConsoleLogCheckBox.setToolTipText("勾选后在 MIK Console 窗口中显示任务处理的详细日志，包括图片上传、下载、存储等关键操作信息");
+        enableConsoleLogCheckBox = new JCheckBox(MikBundle.message("panel.image.processing.enable.console.log"));
+        enableConsoleLogCheckBox.setToolTipText(MikBundle.message("panel.image.processing.enable.console.log.tooltip"));
         content.add(enableConsoleLogCheckBox, gbc);
+
+        gbc.gridy = 11;
+        pasteFileAsPlainTextCheckBox = new JCheckBox(MikBundle.message("panel.image.processing.paste.file.as.plain.text"));
+        pasteFileAsPlainTextCheckBox.setToolTipText(MikBundle.message("panel.image.processing.paste.file.as.plain.text.tooltip"));
+        content.add(pasteFileAsPlainTextCheckBox, gbc);
     }
 
     /**
@@ -244,7 +251,10 @@ public class ImageProcessingPanel {
         if (autoEscapeImageUrlCheckBox.isSelected() != state.isAutoEscapeImageUrl()) {
             return true;
         }
-        return enableConsoleLogCheckBox.isSelected() != state.isEnableConsoleLog();
+        if (enableConsoleLogCheckBox.isSelected() != state.isEnableConsoleLog()) {
+            return true;
+        }
+        return pasteFileAsPlainTextCheckBox.isSelected() != state.isPasteFileAsPlainText();
     }
 
     /**
@@ -279,6 +289,7 @@ public class ImageProcessingPanel {
         state.setAddDotSlash(addDotSlashCheckBox.isSelected());
         state.setAutoEscapeImageUrl(autoEscapeImageUrlCheckBox.isSelected());
         state.setEnableConsoleLog(enableConsoleLogCheckBox.isSelected());
+        state.setPasteFileAsPlainText(pasteFileAsPlainTextCheckBox.isSelected());
     }
 
     /**
@@ -344,6 +355,27 @@ public class ImageProcessingPanel {
         addDotSlashCheckBox.setEnabled(state.isPreferRelativePath());
         autoEscapeImageUrlCheckBox.setSelected(state.isAutoEscapeImageUrl());
         enableConsoleLogCheckBox.setSelected(state.isEnableConsoleLog());
+        pasteFileAsPlainTextCheckBox.setSelected(state.isPasteFileAsPlainText());
+    }
+
+    /**
+     * 设置面板所有组件的启用/禁用状态
+     * <p>
+     * 当全局开关改变时，联动控制所有子组件的可用状态
+     *
+     * @param enabled true 启用所有组件，false 禁用所有组件
+     */
+    public void setAllComponentsEnabled(boolean enabled) {
+        insertImageComboBox.setEnabled(enabled);
+        customPathTextField.setEnabled(enabled && customPathTextField.isVisible());
+        customPathHintLabel.setEnabled(enabled && customPathHintLabel.isVisible());
+        applyToLocalImagesCheckBox.setEnabled(enabled);
+        applyToNetworkImagesCheckBox.setEnabled(enabled);
+        preferRelativePathCheckBox.setEnabled(enabled);
+        addDotSlashCheckBox.setEnabled(enabled && preferRelativePathCheckBox.isSelected());
+        autoEscapeImageUrlCheckBox.setEnabled(enabled);
+        enableConsoleLogCheckBox.setEnabled(enabled);
+        pasteFileAsPlainTextCheckBox.setEnabled(enabled);
     }
 
 }

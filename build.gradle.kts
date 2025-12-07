@@ -197,7 +197,7 @@ tasks {
             copy {
                 from("build/distributions")
                 include("${rootProject.name}-${project.version}.zip")
-                into("/Users/dong4j/Downloads")
+                into("/Users/dong4j/Downloads/mik")
             }
         }
     }

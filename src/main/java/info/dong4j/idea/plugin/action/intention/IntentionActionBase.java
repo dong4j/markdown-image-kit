@@ -1,6 +1,8 @@
 package info.dong4j.idea.plugin.action.intention;
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction;
+import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo;
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -9,6 +11,8 @@ import com.intellij.openapi.util.Iconable;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.util.IncorrectOperationException;
 
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
@@ -85,6 +89,27 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
     }
 
     /**
+     * 生成意图操作预览
+     * <p>
+     * 由于该意图操作涉及网络请求、文件上传等副作用操作，不适合在预览模式下执行。
+     * 返回 EMPTY 表示不提供预览功能。
+     *
+     * @param project 项目对象
+     * @param editor  编辑器对象
+     * @param file    当前文件
+     * @return 返回 EMPTY 表示不支持预览
+     * @since 2.2.0
+     */
+    @Override
+    public @NotNull IntentionPreviewInfo generatePreview(@NotNull Project project,
+                                                         @NotNull Editor editor,
+                                                         @NotNull PsiFile file) {
+        // 返回 EMPTY 表示不支持预览功能
+        // 这样可以避免在预览模式下访问设置、执行网络请求等产生副作用的操作
+        return IntentionPreviewInfo.EMPTY;
+    }
+
+    /**
      * 使用设置的默认 client
      * <p>
      * 通过云类型获取对应的 OSS 客户端实例
@@ -117,6 +142,10 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
      * @since 0.0.1
      */
     protected CloudEnum getCloudType() {
+        // 如果处于预览模式，返回默认值，避免访问设置和状态
+        if (IntentionPreviewUtils.isIntentionPreviewActive()) {
+            return CloudEnum.SM_MS_CLOUD;
+        }
         CloudEnum cloudEnum = OssState.getCloudType(getState().getDefaultCloudType());
         return OssState.getStatus(cloudEnum) ? cloudEnum : CloudEnum.SM_MS_CLOUD;
     }
@@ -133,6 +162,10 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
     @NotNull
     @Override
     public String getText() {
+        // 如果处于预览模式，返回简单的文本，避免访问设置和状态
+        if (IntentionPreviewUtils.isIntentionPreviewActive()) {
+            return "Configure image";
+        }
         return this.getMessage(this.getCloudType().title);
     }
 
@@ -148,6 +181,10 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
     @NotNull
     @Override
     public String getFamilyName() {
+        // 如果处于预览模式，返回简单的文本，避免访问设置和状态
+        if (IntentionPreviewUtils.isIntentionPreviewActive()) {
+            return "Configure image";
+        }
         return this.getText();
     }
 
@@ -166,6 +203,15 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
     public boolean isAvailable(@NotNull Project project, Editor editor,
                                @NotNull PsiElement element) {
 
+        // 如果处于预览模式，则直接返回 false，避免在预览阶段执行会产生副作用的操作
+        if (IntentionPreviewUtils.isPreviewElement(element)) {
+            return false;
+        }
+
+        // 检查全局开关
+        if (!getState().isEnablePlugin()) {
+            return false;
+        }
 
         if (MarkdownUtils.illegalImageMark(project, this.getLineText(editor))) {
             return false;
@@ -178,6 +224,45 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
 
         return MarkdownUtils.isMardownFile(virtualFile);
     }
+
+    /**
+     * 执行图像移动操作
+     * <p>
+     * 根据当前编辑器中的Markdown图像信息，执行图像移动的处理逻辑。如果图像位置为本地，则直接返回；否则，创建等待处理的映射关系，并通过后台任务执行图像标签替换和最终处理流程。
+     *
+     * @param project 项目对象，用于获取当前编辑环境
+     * @param editor  编辑器对象，用于获取当前文档和光标位置
+     * @param element 当前选中的Psi元素，用于定位图像信息
+     * @throws IncorrectOperationException 当操作不正确时抛出异常
+     */
+    @Override
+    public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element)
+        throws IncorrectOperationException {
+
+        // 如果处于预览模式，则直接返回，不执行任何会产生副作用的操作, 只有在真实执行意图操作时才执行完整的处理流程
+        if (IntentionPreviewUtils.isPreviewElement(element)) {
+            return;
+        }
+
+        MarkdownImage markdownImage = this.getMarkdownImage(editor);
+        if (markdownImage == null) {
+            return;
+        }
+
+        execute(project, editor, element);
+    }
+
+    /**
+     * 执行操作
+     * <p>
+     * 在给定的项目, 编辑器和 PSI 元素上下文中执行特定操作.
+     *
+     * @param project 当前项目
+     * @param editor  当前编辑器实例
+     * @param element 要操作的 PSI 元素
+     * @throws NullPointerException 如果参数为 null(由 {@code @NotNull} 注解保证 )
+     */
+    public abstract void execute(@NotNull Project project, Editor editor, @NotNull PsiElement element);
 
     /**
      * 获取光标所在行的文本内容
@@ -209,7 +294,6 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
      * @return Markdown图片信息，可能为null
      * @since 0.0.1
      */
-    @Nullable
     MarkdownImage getMarkdownImage(Editor editor) {
         Document document = editor.getDocument();
         int documentLine = document.getLineNumber(editor.getCaretModel().getOffset());

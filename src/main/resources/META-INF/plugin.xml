@@ -41,15 +41,19 @@
         <!-- 设置面板 -->
         <applicationConfigurable
                 parentId="tools"
-                instance="info.dong4j.idea.plugin.settings.NewProjectSettingsPage"
+                instance="info.dong4j.idea.plugin.settings.ProjectSettingsPage"
                 id="markdown.image.kit.configs"
                 displayName="Markdown Image Kit"/>
 
         <!-- MIK Console 工具窗口 -->
         <toolWindow id="MIK Console"
                     factoryClass="info.dong4j.idea.plugin.console.MikConsoleToolWindowFactory"
-                    anchor="bottom"
-                    icon="icons.MikIcons.MIK"/>
+                    anchor="bottom"/>
+
+        <!-- 状态栏 Widget -->
+        <statusBarWidgetFactory id="MikStatusBarWidget"
+                                implementation="info.dong4j.idea.plugin.statusbar.MikStatusBarWidgetFactory"
+                                order="last"/>
 
         <!-- alt + enter -->
         <!--suppress PluginXmlExtensionRegistration -->

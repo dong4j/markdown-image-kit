@@ -49,18 +49,6 @@ public class MikIcons {
     /** PICLIST */
     public static final Icon PICLIST = load("piclist.svg");
 
-    /** QINGCLOUD */
-    public static final Icon QINGCLOUD = load("qingcloud.svg");
-    /** UCLOUD */
-    public static final Icon UCLOUD = load("ucloud.svg");
-    /** WANGYI */
-    public static final Icon WANGYI = load("wangyi.svg");
-    /** WEIBO */
-    public static final Icon WEIBO = load("weibo.svg");
-    /** JINGDONG */
-    public static final Icon JINGDONG = load("jingdong.svg");
-    /** IMGUR */
-    public static final Icon IMGUR = load("imgur.svg");
 
     /**
      * Load

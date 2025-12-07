@@ -7,8 +7,11 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import com.intellij.util.IconUtil;
 
 import org.jetbrains.annotations.NotNull;
+
+import icons.MikIcons;
 
 /**
  * MIK Console Tool Window Factory
@@ -29,6 +32,9 @@ public class MikConsoleToolWindowFactory implements ToolWindowFactory, DumbAware
      */
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
+        // 设置工具窗口图标（缩放到适合工具窗口的大小）
+        toolWindow.setIcon(IconUtil.scale(MikIcons.MIK, null, 0.8125f));
+        
         // 获取项目级别的 MikConsoleView 服务实例
         MikConsoleView mikConsoleView = MikConsoleView.getInstance(project);
         ConsoleView consoleView = mikConsoleView.initConsole();

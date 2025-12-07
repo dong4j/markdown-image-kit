@@ -128,7 +128,7 @@ public class ImageEnhancementPanel {
         gbc.gridwidth = 3;
         gbc.weightx = 0;
         renamePlaceholderHintLabel = new JBLabel(MikBundle.message("panel.image.enhancement.rename.hint"));
-        renamePlaceholderHintLabel.setEnabled(true);
+        renamePlaceholderHintLabel.setEnabled(false); // 默认禁用，与 renameCheckBox 未勾选状态一致
         content.add(renamePlaceholderHintLabel, gbc);
 
         renameCheckBox.addActionListener(e -> {
@@ -335,6 +335,10 @@ public class ImageEnhancementPanel {
                 this.renamePatternTextField.setText("${filename}");
             }
         }
+        // 设置提示标签的启用状态
+        if (this.renamePlaceholderHintLabel != null) {
+            this.renamePlaceholderHintLabel.setEnabled(state.isRename());
+        }
 
         // 水印
         this.watermarkCheckBox.setSelected(state.isWatermark());
@@ -437,5 +441,32 @@ public class ImageEnhancementPanel {
 
         state.setWatermark(this.watermarkCheckBox.isSelected());
         state.setWatermarkText(this.watermarkTextTextField.getText().trim());
+    }
+
+    /**
+     * 设置面板所有组件的启用/禁用状态
+     * <p>
+     * 当全局开关改变时，联动控制所有子组件的可用状态
+     *
+     * @param enabled true 启用所有组件，false 禁用所有组件
+     */
+    public void setAllComponentsEnabled(boolean enabled) {
+        replaceToHtmlTagCheckBox.setEnabled(enabled);
+        htmlTagTypeComboBox.setEnabled(enabled && replaceToHtmlTagCheckBox.isSelected());
+        customHtmlTagTextField.setEnabled(enabled && replaceToHtmlTagCheckBox.isSelected()
+                                          && htmlTagTypeComboBox.getSelectedIndex() == ImageMarkEnum.CUSTOM.index);
+
+        renameCheckBox.setEnabled(enabled);
+        renamePatternTextField.setEnabled(enabled && renameCheckBox.isSelected());
+        renamePlaceholderHintLabel.setEnabled(enabled && renameCheckBox.isSelected());
+
+        compressCheckBox.setEnabled(enabled);
+        compressSpinner.setEnabled(enabled && compressCheckBox.isSelected());
+
+        convertToWebpCheckBox.setEnabled(enabled);
+        webpQualitySpinner.setEnabled(enabled && convertToWebpCheckBox.isSelected());
+
+        watermarkCheckBox.setEnabled(enabled);
+        watermarkTextTextField.setEnabled(enabled && watermarkCheckBox.isSelected());
     }
 }

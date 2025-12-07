@@ -115,20 +115,20 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
      * @param dataContext 数据上下文
      * @since 0.0.1
      */
-    @SuppressWarnings("D")
     @Override
     protected void doExecute(@NotNull Editor editor, @Nullable Caret caret, DataContext dataContext) {
 
         Document document = editor.getDocument();
         VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
         MikState state = MikPersistenComponent.getInstance().getState();
-        InsertImageActionEnum insertImageAction = state.getInsertImageAction();
 
-        // 如果 caret 为 null，尝试获取当前的 caret
-        Caret currentCaret = caret;
-        if (currentCaret == null) {
-            currentCaret = editor.getCaretModel().getCurrentCaret();
+        // 检查全局开关，如果插件被禁用，直接执行默认操作
+        if (!state.isEnablePlugin()) {
+            this.extractedDefaultAction(editor, caret, dataContext);
+            return;
         }
+        
+        InsertImageActionEnum insertImageAction = state.getInsertImageAction();
 
         if (virtualFile != null
             && MarkdownUtils.isMardownFile(virtualFile)
@@ -179,7 +179,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
             }
         }
         // 兜底, 回退到默认逻辑
-        this.defaultAction(editor, caret, dataContext);
+        this.extractedDefaultAction(editor, caret, dataContext);
     }
 
     private static ActionManager createManager(@NotNull Editor editor,
@@ -560,7 +560,9 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
     /**
      * 执行默认的粘贴操作，如果是文件则应粘贴文件名
      * <p>
-     * 该方法用于处理粘贴操作，若存在已配置的编辑器操作处理器，则调用其执行方法
+     * 该方法用于处理粘贴操作。在 Markdown 文件中，如果设置了粘贴文件为纯文本，
+     * 且剪贴板包含文件/目录，则只粘贴纯文本名称，避免被 IDEA 转换成 Markdown 链接格式 [name](path)。
+     * 对于其他类型的数据，调用原始的编辑器操作处理器。
      *
      * @param editor      编辑器实例
      * @param caret       光标位置信息
@@ -568,7 +570,49 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
      * @since 0.0.1
      */
     private void defaultAction(@NotNull Editor editor, @Nullable Caret caret, DataContext dataContext) {
+        // 在 Markdown 文件中，检查剪贴板是否包含文件/目录
+        Document document = editor.getDocument();
+        VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
+        MikState state = MikPersistenComponent.getInstance().getState();
+
+        // 只有在 Markdown 文件中且设置了粘贴文件为纯文本时才进行拦截
+        if (virtualFile != null && MarkdownUtils.isMardownFile(virtualFile) && state.isPasteFileAsPlainText()) {
+            try {
+                Map<DataFlavor, Object> clipboardData = ImageUtils.getDataFromClipboard();
+                if (clipboardData != null && clipboardData.containsKey(DataFlavor.javaFileListFlavor)) {
+                    @SuppressWarnings("unchecked")
+                    List<File> fileList = (List<File>) clipboardData.get(DataFlavor.javaFileListFlavor);
+                    if (fileList != null && !fileList.isEmpty()) {
+                        // 对于文件/目录，只粘贴名称（纯文本），避免转换成 markdown 链接格式
+                        StringBuilder textToPaste = new StringBuilder();
+                        for (int i = 0; i < fileList.size(); i++) {
+                            if (i > 0) {
+                                textToPaste.append("\n");
+                            }
+                            textToPaste.append(fileList.get(i).getName());
+                        }
+
+                        // 获取当前光标位置并插入文本（必须在 WriteAction 中执行）
+                        Caret currentCaret = caret != null ? caret : editor.getCaretModel().getCurrentCaret();
+                        int offset = currentCaret.getOffset();
+
+                        com.intellij.openapi.application.ApplicationManager.getApplication().runWriteAction(() -> {
+                            document.insertString(offset, textToPaste.toString());
+                            currentCaret.moveToOffset(offset + textToPaste.length());
+                        });
+                        return;
+                    }
+                }
+            } catch (Exception e) {
+                log.trace("处理文件粘贴时出错", e);
+            }
+        }
+        
         // 执行默认的 paste 操作
+        extractedDefaultAction(editor, caret, dataContext);
+    }
+
+    private void extractedDefaultAction(@NotNull Editor editor, @Nullable Caret caret, DataContext dataContext) {
         if (this.editorActionHandler != null) {
             this.editorActionHandler.execute(editor, caret, dataContext);
         }

@@ -2,6 +2,7 @@ package info.dong4j.idea.plugin.settings;
 
 import com.intellij.openapi.options.SearchableConfigurable;
 
+import info.dong4j.idea.plugin.settings.panel.GlobalSettingsPanel;
 import info.dong4j.idea.plugin.settings.panel.ImageEnhancementPanel;
 import info.dong4j.idea.plugin.settings.panel.ImageProcessingPanel;
 import info.dong4j.idea.plugin.settings.panel.UploadServicePanel;
@@ -32,14 +33,15 @@ import lombok.extern.slf4j.Slf4j;
  * @date 2025.11.01
  * @since 2.0.0
  */
-@SuppressWarnings("D")
 @Slf4j
-public class NewProjectSettingsPage implements SearchableConfigurable {
+public class ProjectSettingsPage implements SearchableConfigurable {
     /** 用于存储和管理持久化组件的配置参数 */
     private final MikPersistenComponent config;
     /** 主面板，用于承载主要界面组件 */
     private final JPanel myMainPanel;
 
+    /** 全局设置面板组件，用于展示和操作插件全局配置 */
+    private GlobalSettingsPanel globalSettingsPanel;
     /** 图像处理面板组件，用于展示和操作图像处理相关功能 */
     private ImageProcessingPanel imageProcessingPanel;
     /** 图像增强面板，用于处理和显示图像增强相关功能 */
@@ -54,7 +56,7 @@ public class NewProjectSettingsPage implements SearchableConfigurable {
      *
      * @since 1.0
      */
-    public NewProjectSettingsPage() {
+    public ProjectSettingsPage() {
         this.config = MikPersistenComponent.getInstance();
         this.myMainPanel = buildMainPanel();
     }
@@ -75,6 +77,13 @@ public class NewProjectSettingsPage implements SearchableConfigurable {
         // 创建左侧内容面板（使用垂直布局）
         JPanel contentPanel = new JPanel();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+
+        // 0. 全局设置区域（最上面）
+        globalSettingsPanel = new GlobalSettingsPanel();
+        contentPanel.add(globalSettingsPanel.getContent());
+
+        // 添加间距
+        contentPanel.add(new JPanel()); // 占位符
 
         // 1. 图片处理区域
         imageProcessingPanel = new ImageProcessingPanel();
@@ -97,7 +106,25 @@ public class NewProjectSettingsPage implements SearchableConfigurable {
         // 使用 BorderLayout.NORTH 而不是 CENTER，避免纵向拉伸
         // 这样内容面板会根据其内容大小决定高度，而不会填满整个可用空间
         mainPanel.add(contentPanel, BorderLayout.NORTH);
+
+        // 设置全局开关的联动逻辑
+        setupGlobalSwitchListener();
+        
         return mainPanel;
+    }
+
+    /**
+     * 设置全局开关的联动逻辑
+     * <p>
+     * 当全局开关改变时，所有子面板的组件都会被启用或禁用
+     */
+    private void setupGlobalSwitchListener() {
+        globalSettingsPanel.addEnablePluginListener(() -> {
+            boolean enabled = globalSettingsPanel.isPluginEnabled();
+            imageProcessingPanel.setAllComponentsEnabled(enabled);
+            imageEnhancementPanel.setAllComponentsEnabled(enabled);
+            uploadServicePanel.setAllComponentsEnabled(enabled);
+        });
     }
 
 
@@ -147,9 +174,16 @@ public class NewProjectSettingsPage implements SearchableConfigurable {
      */
     private void initFromSettings() {
         MikState state = this.config.getState();
+        globalSettingsPanel.initGlobalSettingsPanel(state);
         imageProcessingPanel.initImageProcessingPanel(state);
         imageEnhancementPanel.initImageEnhancementPanel(state);
         uploadServicePanel.initUploadServicePanel(state);
+
+        // 初始化时根据全局开关状态设置所有组件的启用/禁用
+        boolean enabled = state.isEnablePlugin();
+        imageProcessingPanel.setAllComponentsEnabled(enabled);
+        imageEnhancementPanel.setAllComponentsEnabled(enabled);
+        uploadServicePanel.setAllComponentsEnabled(enabled);
     }
 
     /**
@@ -163,6 +197,8 @@ public class NewProjectSettingsPage implements SearchableConfigurable {
     public boolean isModified() {
         log.trace("isModified invoke");
         MikState state = this.config.getState();
+        // 检查全局设置是否修改
+        boolean globalSettingsModified = globalSettingsPanel.isGlobalSettingsModified(state);
         // 检查图片处理设置是否修改
         boolean imageProcessingModified = imageProcessingPanel.isImageProcessingModified(state);
         // 检查图片增强处理设置是否修改
@@ -170,7 +206,7 @@ public class NewProjectSettingsPage implements SearchableConfigurable {
         // 检查上传服务设定是否修改
         boolean uploadServiceModified = uploadServicePanel.isUploadServiceModified(state);
 
-        return imageProcessingModified || imageEnhancementModified || uploadServiceModified;
+        return globalSettingsModified || imageProcessingModified || imageEnhancementModified || uploadServiceModified;
     }
 
     /**
@@ -181,6 +217,8 @@ public class NewProjectSettingsPage implements SearchableConfigurable {
     @Override
     public void apply() {
         MikState state = this.config.getState();
+        // 应用全局设置
+        globalSettingsPanel.applyGlobalSettingsConfigs(state);
         // 应用图片增强处理设置
         imageEnhancementPanel.applyImageEnhancementConfigs(state);
         // 应用图片处理设置
@@ -197,12 +235,20 @@ public class NewProjectSettingsPage implements SearchableConfigurable {
     @Override
     public void reset() {
         MikState state = this.config.getState();
+        // 重置全局设置
+        globalSettingsPanel.initGlobalSettingsPanel(state);
         // 重置图片处理设置
         imageProcessingPanel.initImageProcessingPanel(state);
         // 重置图片增强处理设置
         imageEnhancementPanel.initImageEnhancementPanel(state);
         // 重置上传服务设定
         uploadServicePanel.initUploadServicePanel(state);
+
+        // 重置时根据全局开关状态设置所有组件的启用/禁用
+        boolean enabled = state.isEnablePlugin();
+        imageProcessingPanel.setAllComponentsEnabled(enabled);
+        imageEnhancementPanel.setAllComponentsEnabled(enabled);
+        uploadServicePanel.setAllComponentsEnabled(enabled);
     }
 }
 

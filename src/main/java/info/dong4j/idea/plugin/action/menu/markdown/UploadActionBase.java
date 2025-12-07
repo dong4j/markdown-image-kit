@@ -81,6 +81,14 @@ public abstract class UploadActionBase extends AnAction {
      */
     @Override
     public void update(@NotNull AnActionEvent event) {
+        // 检查全局开关
+        info.dong4j.idea.plugin.settings.MikState state =
+            info.dong4j.idea.plugin.settings.MikPersistenComponent.getInstance().getState();
+        if (!state.isEnablePlugin()) {
+            event.getPresentation().setEnabled(false);
+            return;
+        }
+        
         boolean isAvailable = this.available();
 
         // 如果图床不可用，直接隐藏菜单项

@@ -78,12 +78,21 @@ public abstract class ImageActionBase extends AnAction {
      * 更新操作，用于启用或禁用该动作
      * <p>
      * 该方法通过设置动作可用状态为 true，使动作在 UI 中显示并可执行
+     * 如果全局开关关闭，则禁用该动作
      *
      * @param event 动作事件对象，包含执行动作所需的信息
      * @since 0.0.1
      */
     @Override
     public void update(@NotNull AnActionEvent event) {
+        // 检查全局开关
+        info.dong4j.idea.plugin.settings.MikState state =
+            info.dong4j.idea.plugin.settings.MikPersistenComponent.getInstance().getState();
+        if (!state.isEnablePlugin()) {
+            event.getPresentation().setEnabled(false);
+            return;
+        }
+        
         ActionUtils.isAvailable(true, event, this.getIcon(), ImageContents.IMAGE_TYPE_NAME);
     }
 

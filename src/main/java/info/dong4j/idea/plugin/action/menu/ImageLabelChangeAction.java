@@ -49,6 +49,14 @@ public final class ImageLabelChangeAction extends AnAction {
      */
     @Override
     public void update(@NotNull AnActionEvent event) {
+        // 检查全局开关
+        info.dong4j.idea.plugin.settings.MikState state =
+            info.dong4j.idea.plugin.settings.MikPersistenComponent.getInstance().getState();
+        if (!state.isEnablePlugin()) {
+            event.getPresentation().setEnabled(false);
+            return;
+        }
+        
         // 调用基础的可用性检查
         ActionUtils.isAvailable(true, event, MikIcons.LABEL, MarkdownContents.MARKDOWN_TYPE_NAME);
 

@@ -1677,4 +1677,39 @@ public class UploadServicePanel {
         });
     }
 
+    /**
+     * 设置面板所有组件的启用/禁用状态
+     * <p>
+     * 当全局开关改变时，联动控制所有子组件的可用状态
+     *
+     * @param enabled true 启用所有组件，false 禁用所有组件
+     */
+    public void setAllComponentsEnabled(boolean enabled) {
+        cloudServiceComboBox.setEnabled(enabled);
+        setAsDefaultCloudCheckBox.setEnabled(enabled);
+        testUploadButton.setEnabled(enabled);
+        helpButton.setEnabled(enabled);
+
+        // 禁用当前显示的配置面板中的所有输入控件
+        java.awt.Component[] components = cloudServiceConfigContainer.getComponents();
+        for (java.awt.Component component : components) {
+            setComponentEnabled(component, enabled);
+        }
+    }
+
+    /**
+     * 递归设置组件及其子组件的启用/禁用状态
+     *
+     * @param component 要设置的组件
+     * @param enabled   true 启用，false 禁用
+     */
+    private void setComponentEnabled(java.awt.Component component, boolean enabled) {
+        if (component instanceof java.awt.Container) {
+            for (java.awt.Component child : ((java.awt.Container) component).getComponents()) {
+                setComponentEnabled(child, enabled);
+            }
+        }
+        component.setEnabled(enabled);
+    }
+
 }
