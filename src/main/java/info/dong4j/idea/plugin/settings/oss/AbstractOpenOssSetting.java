@@ -222,15 +222,15 @@ public abstract class AbstractOpenOssSetting<T extends AbstractOpenOssState> imp
     public boolean isModified(@NotNull T state) {
         String repos = JTextFieldHintListener.getRealText(this.reposTextField, REPOS_HINT);
         String branch = this.branchTextField.getText().trim();
-        String token = new String(this.tokenTextField.getPassword());
 
         String filedir = this.fileDirTextField.getText().trim();
         String customEndpoint = this.customEndpointTextField.getText().trim();
         boolean isCustomEndpoint = this.customEndpointCheckBox.isSelected();
 
+        // 只比较非敏感字段，避免在 EDT 上调用 PasswordManager.getPassword()（慢操作）
+        // 密码字段的修改会在 apply() 时保存
         return !(repos.equals(state.getRepos())
                  && branch.equals(state.getBranch())
-                 && token.equals(PasswordManager.getPassword(this.credentialAttributes()))
                  && filedir.equals(state.getFiledir())
                  && state.getIsCustomEndpoint() == isCustomEndpoint
                  && customEndpoint.equals(state.getCustomEndpoint()));

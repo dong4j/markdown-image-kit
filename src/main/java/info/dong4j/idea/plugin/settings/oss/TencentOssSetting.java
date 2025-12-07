@@ -85,16 +85,14 @@ public class TencentOssSetting implements OssSetting<TencentOssState> {
      */
     @Override
     public boolean isModified(@NotNull TencentOssState state) {
-        String secretKey = new String(this.tencentSecretKeyTextField.getPassword());
-
         String bucketName = this.tencentBacketNameTextField.getText().trim();
         String accessKey = this.tencentAccessKeyTextField.getText().trim();
-
         String regionName = this.tencentRegionNameTextField.getText().trim();
 
+        // 只比较非敏感字段，避免在 EDT 上调用 PasswordManager.getPassword()（慢操作）
+        // 密码字段的修改会在 apply() 时保存
         return !(bucketName.equals(state.getBucketName())
                  && accessKey.equals(state.getAccessKey())
-                 && secretKey.equals(PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES))
                  && regionName.equals(state.getRegionName()));
     }
 

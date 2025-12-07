@@ -62,11 +62,11 @@ public class SmmsOssSetting implements OssSetting<SmmsOssState> {
      */
     @Override
     public boolean isModified(@NotNull SmmsOssState state) {
-        String token = new String(this.smmsTokenTextField.getPassword());
         String url = smmsUrlTextField.getText();
 
-        return !(url.equals(state.getUrl())
-                 && token.equals(PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES)));
+        // 只比较非敏感字段，避免在 EDT 上调用 PasswordManager.getPassword()（慢操作）
+        // 密码字段的修改会在 apply() 时保存
+        return !url.equals(state.getUrl());
     }
 
     /**

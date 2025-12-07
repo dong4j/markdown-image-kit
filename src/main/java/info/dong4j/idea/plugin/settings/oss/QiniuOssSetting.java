@@ -172,16 +172,16 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
     public boolean isModified(@NotNull QiniuOssState state) {
         String bucketName = this.qiniuOssBucketNameTextField.getText().trim();
         String accessKey = this.qiniuOssAccessKeyTextField.getText().trim();
-        String secretKey = new String(this.qiniuOssAccessSecretKeyTextField.getPassword());
 
         // todo-dong4j : (2019年03月19日 21:01) [重构为 domain]
         String endpoint = JTextFieldHintListener.getRealText(this.qiniuOssUpHostTextField, DOMAIN_HINT);
         // 从选中的单选按钮获取区域索引
         int zoneIndex = getSelectedZoneIndex();
 
+        // 只比较非敏感字段，避免在 EDT 上调用 PasswordManager.getPassword()（慢操作）
+        // 密码字段的修改会在 apply() 时保存
         return !(bucketName.equals(state.getBucketName())
                  && accessKey.equals(state.getAccessKey())
-                 && secretKey.equals(PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES))
                  && zoneIndex == state.getZoneIndex()
                  && endpoint.equals(state.getEndpoint()));
     }

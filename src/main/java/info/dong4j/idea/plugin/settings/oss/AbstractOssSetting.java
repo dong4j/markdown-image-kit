@@ -200,16 +200,16 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
     public boolean isModified(@NotNull T state) {
         String bucketName = this.bucketNameTextField.getText().trim();
         String accessKey = this.accessKeyTextField.getText().trim();
-        String secretKey = new String(this.accessSecretKeyTextField.getPassword());
 
         String endpoint = this.endpointTextField.getText().trim();
         String filedir = this.fileDirTextField.getText().trim();
         String customEndpoint = this.customEndpointTextField.getText().trim();
         boolean isCustomEndpoint = this.customEndpointCheckBox.isSelected();
 
+        // 只比较非敏感字段，避免在 EDT 上调用 PasswordManager.getPassword()（慢操作）
+        // 密码字段的修改会在 apply() 时保存
         return !(bucketName.equals(state.getBucketName())
                  && accessKey.equals(state.getAccessKey())
-                 && secretKey.equals(PasswordManager.getPassword(this.credentialAttributes()))
                  && endpoint.equals(state.getEndpoint())
                  && filedir.equals(state.getFiledir())
                  && state.getIsCustomEndpoint() == isCustomEndpoint
