@@ -168,7 +168,7 @@ dependencies {
 
     // 主要依赖
     implementation("net.coobird:thumbnailator:0.4.20")
-    runtimeOnly("org.slf4j:slf4j-simple:2.0.13")
+    compileOnly("org.slf4j:slf4j-simple:2.0.13")
 
     // 测试依赖
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
