@@ -103,7 +103,7 @@ public final class ClassUtils {
      * @return 包含所有类全限定名的列表
      * @since 0.0.1
      */
-    private static List<String> getClasses(@NotNull String packageName, @NotNull Class<?> c) {
+    private static List<String> getClasses(@NotNull String packageName, Class<?> c) {
         // 第一个class类的集合
         List<String> classes = new ArrayList<>();
         // 是否循环迭代
