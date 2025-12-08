@@ -6,13 +6,13 @@ import com.intellij.util.ui.JBUI;
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.enums.InsertImageActionEnum;
 import info.dong4j.idea.plugin.settings.MikState;
+import info.dong4j.idea.plugin.util.SwingUtils;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
-import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
@@ -81,7 +81,7 @@ public class ImageProcessingPanel {
     private void createImageProcessingPanel() {
         content = new JPanel();
         content.setLayout(new GridBagLayout());
-        content.setBorder(BorderFactory.createTitledBorder(MikBundle.message("panel.image.processing.title")));
+        content.setBorder(SwingUtils.configureTitledBorder(MikBundle.message("panel.image.processing.title")));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.WEST;

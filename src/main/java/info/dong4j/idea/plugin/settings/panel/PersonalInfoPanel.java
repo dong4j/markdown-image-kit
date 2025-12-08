@@ -7,6 +7,8 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 
+import info.dong4j.idea.plugin.util.SwingUtils;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,6 +28,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.border.TitledBorder;
 
 import lombok.Getter;
 
@@ -361,8 +364,10 @@ public class PersonalInfoPanel {
     private JPanel createCollapsibleTitle(@NotNull String title) {
         JPanel titlePanel = new JPanel(new BorderLayout());
         // 默认折叠状态，使用右箭头
+        TitledBorder titledBorder = BorderFactory.createTitledBorder("▶ " + title);
+        SwingUtils.configureTitledBorder(titledBorder);
         titlePanel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createTitledBorder("▶ " + title),
+            titledBorder,
             JBUI.Borders.empty(5)
                                                                ));
         titlePanel.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
@@ -380,8 +385,10 @@ public class PersonalInfoPanel {
      */
     private void updateCollapsibleTitle(@NotNull JPanel titlePanel, @NotNull String title, boolean expanded) {
         String arrow = expanded ? "▼ " : "▶ ";
+        TitledBorder titledBorder = BorderFactory.createTitledBorder(arrow + title);
+        SwingUtils.configureTitledBorder(titledBorder);
         titlePanel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createTitledBorder(arrow + title),
+            titledBorder,
             JBUI.Borders.empty(5)
                                                                ));
     }

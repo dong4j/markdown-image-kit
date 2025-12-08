@@ -27,6 +27,7 @@ import info.dong4j.idea.plugin.settings.oss.SmmsOssSetting;
 import info.dong4j.idea.plugin.settings.oss.TencentOssSetting;
 import info.dong4j.idea.plugin.util.ClientUtils;
 import info.dong4j.idea.plugin.util.StringUtils;
+import info.dong4j.idea.plugin.util.SwingUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -339,7 +340,7 @@ public class UploadServicePanel {
     private void createUploadServicePanel() {
         content = new JPanel();
         content.setLayout(new GridBagLayout());
-        content.setBorder(BorderFactory.createTitledBorder(MikBundle.message("panel.upload.service.title")));
+        content.setBorder(SwingUtils.configureTitledBorder(MikBundle.message("panel.upload.service.title")));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.WEST;
@@ -1229,10 +1230,12 @@ public class UploadServicePanel {
             return name.endsWith(".appimage");
         });
 
+        // 设置标题和描述
+        descriptor.withTitle(MikBundle.message("panel.upload.service.file.chooser.title"))
+            .withDescription(MikBundle.message("panel.upload.service.file.chooser.description"));
+
         // 添加浏览文件夹监听器
         this.picListExeTextField.addBrowseFolderListener(
-            MikBundle.message("panel.upload.service.file.chooser.title"),
-            MikBundle.message("panel.upload.service.file.chooser.description"),
             null,  // 项目，可以为 null
             descriptor,
             TextComponentAccessor.TEXT_FIELD_WHOLE_TEXT

@@ -4,13 +4,13 @@ import com.intellij.util.ui.JBUI;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.settings.MikState;
+import info.dong4j.idea.plugin.util.SwingUtils;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
-import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
@@ -54,8 +54,7 @@ public class GlobalSettingsPanel {
     private void createGlobalSettingsPanel() {
         content = new JPanel();
         content.setLayout(new GridBagLayout());
-        content.setBorder(BorderFactory.createTitledBorder(MikBundle.message("panel.global.title")));
-
+        content.setBorder(SwingUtils.configureTitledBorder(MikBundle.message("panel.global.title")));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = JBUI.insets(5, 10);

@@ -7,6 +7,7 @@ import com.intellij.util.ui.JBUI;
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.settings.MikState;
+import info.dong4j.idea.plugin.util.SwingUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -14,7 +15,6 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
-import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -98,7 +98,7 @@ public class ImageEnhancementPanel {
     private void createImageEnhancementPanel() {
         content = new JPanel();
         content.setLayout(new GridBagLayout());
-        content.setBorder(BorderFactory.createTitledBorder(MikBundle.message("panel.image.enhancement.title")));
+        content.setBorder(SwingUtils.configureTitledBorder(MikBundle.message("panel.image.enhancement.title")));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.WEST;
