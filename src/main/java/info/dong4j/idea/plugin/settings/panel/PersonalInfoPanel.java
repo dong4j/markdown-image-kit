@@ -7,15 +7,18 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 
-import info.dong4j.idea.plugin.util.SwingUtils;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -25,9 +28,12 @@ import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.Timer;
+import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 
 import lombok.Getter;
@@ -251,12 +257,17 @@ public class PersonalInfoPanel {
 
         // 头像（圆形，居中）
         if (info.avatar != null) {
-            JLabel avatarLabel = createCircularAvatarLabel(info.avatar, info.hoverAvatar);
+            JComponent avatarComponent = createCircularAvatarLabel(info.avatar, info.hoverAvatar);
 
-            // 使用容器确保头像完全居中
+            // 使用容器确保头像完全居中，并限制容器尺寸与头像一致
             JPanel avatarContainer = new JPanel(new BorderLayout());
             avatarContainer.setOpaque(false);
-            avatarContainer.add(avatarLabel, BorderLayout.CENTER);
+            int iconWidth = info.avatar.getIconWidth();
+            int iconHeight = info.avatar.getIconHeight();
+            avatarContainer.setPreferredSize(new Dimension(iconWidth, iconHeight));
+            avatarContainer.setMaximumSize(new Dimension(iconWidth, iconHeight));
+            avatarContainer.setMinimumSize(new Dimension(iconWidth, iconHeight));
+            avatarContainer.add(avatarComponent, BorderLayout.CENTER);
             avatarContainer.setAlignmentX(JPanel.CENTER_ALIGNMENT);
             mainPanel.add(avatarContainer);
             mainPanel.add(Box.createVerticalStrut(15));
@@ -356,6 +367,20 @@ public class PersonalInfoPanel {
     }
 
     /**
+     * 配置 TitledBorder 的字体和颜色
+     * <p>
+     * 显式设置字体和颜色，确保在 2025 版本中正常显示。
+     * 使用 UIUtil 获取主题感知的文本颜色，自动适配浅色和深色主题。
+     *
+     * @param titledBorder 要配置的 TitledBorder
+     */
+    private void configureTitledBorder(@NotNull TitledBorder titledBorder) {
+        titledBorder.setTitleFont(UIManager.getFont("Label.font"));
+        Color titleColor = UIUtil.getLabelForeground();
+        titledBorder.setTitleColor(titleColor);
+    }
+
+    /**
      * 创建可折叠的标题栏
      *
      * @param title 标题文本
@@ -365,7 +390,7 @@ public class PersonalInfoPanel {
         JPanel titlePanel = new JPanel(new BorderLayout());
         // 默认折叠状态，使用右箭头
         TitledBorder titledBorder = BorderFactory.createTitledBorder("▶ " + title);
-        SwingUtils.configureTitledBorder(titledBorder);
+        configureTitledBorder(titledBorder);
         titlePanel.setBorder(BorderFactory.createCompoundBorder(
             titledBorder,
             JBUI.Borders.empty(5)
@@ -386,7 +411,7 @@ public class PersonalInfoPanel {
     private void updateCollapsibleTitle(@NotNull JPanel titlePanel, @NotNull String title, boolean expanded) {
         String arrow = expanded ? "▼ " : "▶ ";
         TitledBorder titledBorder = BorderFactory.createTitledBorder(arrow + title);
-        SwingUtils.configureTitledBorder(titledBorder);
+        configureTitledBorder(titledBorder);
         titlePanel.setBorder(BorderFactory.createCompoundBorder(
             titledBorder,
             JBUI.Borders.empty(5)
@@ -395,35 +420,128 @@ public class PersonalInfoPanel {
 
     /**
      * 创建头像标签（直接使用原始图片，不进行缩放）
-     * 支持鼠标悬停时切换图片
+     * 支持鼠标悬停时切换图片，带淡入淡出过渡效果
      *
      * @param icon      原始图标（已经是 120x120 圆形）
      * @param hoverIcon 悬停时的图标（可选）
-     * @return 头像标签
+     * @return 头像组件
      */
-    private JLabel createCircularAvatarLabel(@NotNull ImageIcon icon, ImageIcon hoverIcon) {
-        // 直接使用原始图标，不进行任何处理
-        JLabel avatarLabel = new JLabel(icon);
-        avatarLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        avatarLabel.setVerticalAlignment(SwingConstants.CENTER);
-        avatarLabel.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
+    private JComponent createCircularAvatarLabel(@NotNull ImageIcon icon, ImageIcon hoverIcon) {
+        int iconWidth = icon.getIconWidth();
+        int iconHeight = icon.getIconHeight();
 
-        // 如果提供了悬停图标，添加鼠标事件监听器
+        // 如果提供了悬停图标，使用带过渡效果的组件
         if (hoverIcon != null) {
-            avatarLabel.addMouseListener(new MouseAdapter() {
+            return new FadingAvatarComponent(icon, hoverIcon, iconWidth, iconHeight);
+        } else {
+            // 如果没有悬停图标，使用普通 JLabel
+            JLabel avatarLabel = new JLabel(icon);
+            avatarLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            avatarLabel.setVerticalAlignment(SwingConstants.CENTER);
+            avatarLabel.setPreferredSize(new Dimension(iconWidth, iconHeight));
+            avatarLabel.setMaximumSize(new Dimension(iconWidth, iconHeight));
+            avatarLabel.setMinimumSize(new Dimension(iconWidth, iconHeight));
+            return avatarLabel;
+        }
+    }
+
+    /**
+     * 带淡入淡出过渡效果的头像组件
+     */
+    private static class FadingAvatarComponent extends JComponent {
+        private static final int ANIMATION_DURATION_MS = 200; // 动画持续时间（毫秒）
+        private static final int TIMER_DELAY_MS = 16; // 每帧延迟（约 60fps）
+
+        private final ImageIcon normalIcon;
+        private final ImageIcon hoverIcon;
+        private float hoverAlpha = 0.0f; // 悬停图标的透明度，0.0 = 完全透明，1.0 = 完全不透明
+        private boolean isHovering = false;
+        private Timer animationTimer;
+
+        public FadingAvatarComponent(@NotNull ImageIcon normalIcon, @NotNull ImageIcon hoverIcon,
+                                     int width, int height) {
+            this.normalIcon = normalIcon;
+            this.hoverIcon = hoverIcon;
+
+            setPreferredSize(new Dimension(width, height));
+            setMaximumSize(new Dimension(width, height));
+            setMinimumSize(new Dimension(width, height));
+            setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
+
+            // 创建动画定时器
+            animationTimer = new Timer(TIMER_DELAY_MS, e -> {
+                float targetAlpha = isHovering ? 1.0f : 0.0f;
+                float diff = targetAlpha - hoverAlpha;
+                float step = (float) TIMER_DELAY_MS / ANIMATION_DURATION_MS;
+
+                if (Math.abs(diff) < step) {
+                    hoverAlpha = targetAlpha;
+                    animationTimer.stop();
+                } else {
+                    hoverAlpha += diff > 0 ? step : -step;
+                }
+
+                repaint();
+            });
+
+            // 添加鼠标监听器
+            addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseEntered(MouseEvent e) {
-                    avatarLabel.setIcon(hoverIcon);
+                    isHovering = true;
+                    if (!animationTimer.isRunning()) {
+                        animationTimer.start();
+                    }
                 }
 
                 @Override
                 public void mouseExited(MouseEvent e) {
-                    avatarLabel.setIcon(icon);
+                    isHovering = false;
+                    if (!animationTimer.isRunning()) {
+                        animationTimer.start();
+                    }
                 }
             });
         }
 
-        return avatarLabel;
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+
+            Graphics2D g2 = (Graphics2D) g.create();
+            try {
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+
+                int x = (getWidth() - normalIcon.getIconWidth()) / 2;
+                int y = (getHeight() - normalIcon.getIconHeight()) / 2;
+
+                // 绘制原始图标（作为背景）
+                if (hoverAlpha < 1.0f) {
+                    float normalAlpha = 1.0f - hoverAlpha;
+                    g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, normalAlpha));
+                    normalIcon.paintIcon(this, g2, x, y);
+                }
+
+                // 绘制悬停图标（叠加在原始图标上）
+                if (hoverAlpha > 0.0f) {
+                    g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, hoverAlpha));
+                    hoverIcon.paintIcon(this, g2, x, y);
+                }
+            } finally {
+                g2.dispose();
+            }
+        }
+
+        /**
+         * 清理资源
+         */
+        public void dispose() {
+            if (animationTimer != null) {
+                animationTimer.stop();
+                animationTimer = null;
+            }
+        }
     }
 
     /**
