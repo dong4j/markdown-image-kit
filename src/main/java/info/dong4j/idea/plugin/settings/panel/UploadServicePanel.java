@@ -1234,12 +1234,14 @@ public class UploadServicePanel {
         descriptor.withTitle(MikBundle.message("panel.upload.service.file.chooser.title"))
             .withDescription(MikBundle.message("panel.upload.service.file.chooser.description"));
 
-        // 添加浏览文件夹监听器
+        // 添加浏览文件夹监听器 2024.2 以下版本不兼容最新的接口, 暂时使用这个
+        //noinspection removal
         this.picListExeTextField.addBrowseFolderListener(
+            MikBundle.message("panel.upload.service.file.chooser.title"),
+            MikBundle.message("panel.upload.service.file.chooser.description"),
             null,  // 项目，可以为 null
             descriptor,
-            TextComponentAccessor.TEXT_FIELD_WHOLE_TEXT
-                                                        );
+            TextComponentAccessor.TEXT_FIELD_WHOLE_TEXT);
     }
 
     /**
