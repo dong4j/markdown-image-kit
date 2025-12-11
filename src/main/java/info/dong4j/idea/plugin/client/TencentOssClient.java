@@ -15,9 +15,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
-import java.util.Map;
-
-import javax.swing.JPanel;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -160,39 +157,6 @@ public class TencentOssClient implements OssClient {
         String accessKey = tencentOssState.getAccessKey();
         String secretKey = PasswordManager.getPassword(TencentOssSetting.CREDENTIAL_ATTRIBUTES);
         String regionName = tencentOssState.getRegionName();
-
-        Asserts.notBlank(bucketName, "Bucket");
-        Asserts.notBlank(accessKey, "Access Key");
-        Asserts.notBlank(secretKey, "Secret Key");
-        Asserts.notBlank(regionName, "RegionName");
-
-        return this.upload(inputStream,
-                           filename,
-                           bucketName,
-                           accessKey,
-                           secretKey,
-                           regionName);
-    }
-
-    /**
-     * 在设置界面点击 'Test' 按钮上传时调用，通过 JPanel 获取当前配置
-     * <p>
-     * 该方法用于处理上传操作，从输入流中读取数据，并根据 JPanel 中的配置信息
-     * 获取存储桶名称、访问密钥、秘密密钥和区域名称，最后调用上传方法执行上传操作。
-     *
-     * @param inputStream 输入流，用于读取上传数据
-     * @param filename    文件名，表示上传的文件名称
-     * @param jPanel      JPanel 对象，用于获取当前配置信息
-     * @return 返回上传结果字符串
-     * @throws Exception 如果上传过程中发生异常
-     */
-    @Override
-    public String upload(InputStream inputStream, String filename, JPanel jPanel) throws Exception {
-        Map<String, String> map = this.getTestFieldText(jPanel);
-        String bucketName = map.get("bucketName");
-        String accessKey = map.get("accessKey");
-        String secretKey = map.get("secretKey");
-        String regionName = map.get("regionName");
 
         Asserts.notBlank(bucketName, "Bucket");
         Asserts.notBlank(accessKey, "Access Key");

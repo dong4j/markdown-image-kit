@@ -22,10 +22,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Map;
 import java.util.Optional;
-
-import javax.swing.JPanel;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -183,41 +180,6 @@ public class QiniuOssClient implements OssClient {
         String accessKey = qiniuOssState.getAccessKey();
         String secretKey = PasswordManager.getPassword(QiniuOssSetting.CREDENTIAL_ATTRIBUTES);
         String endpoint = qiniuOssState.getEndpoint();
-
-        Asserts.notBlank(bucketName, "Bucket");
-        Asserts.notBlank(accessKey, "Access Key");
-        Asserts.notBlank(secretKey, "Secret Key");
-        Asserts.notBlank(endpoint, "Domain");
-
-        return this.upload(inputStream,
-                           filename,
-                           bucketName,
-                           accessKey,
-                           secretKey,
-                           endpoint,
-                           zoneIndex);
-    }
-
-    /**
-     * 上传文件并返回结果字符串
-     * <p>
-     * 该方法接收输入流、文件名和JPanel组件，从JPanel中获取配置信息，如存储桶名称、访问密钥、
-     * 秘密密钥、端点和区域索引，然后调用上传方法完成文件上传操作。
-     *
-     * @param inputStream 输入流，用于读取上传的文件内容
-     * @param filename    文件名，表示上传的文件名称
-     * @param jPanel      JPanel组件，用于获取上传所需的配置信息
-     * @return 上传操作的结果字符串
-     * @throws Exception 上传过程中发生异常时抛出
-     */
-    @Override
-    public String upload(InputStream inputStream, String filename, JPanel jPanel) throws Exception {
-        Map<String, String> map = this.getTestFieldText(jPanel);
-        int zoneIndex = Integer.parseInt(map.get("zoneIndex"));
-        String bucketName = map.get("bucketName");
-        String accessKey = map.get("accessKey");
-        String secretKey = map.get("secretKey");
-        String endpoint = map.get("domain");
 
         Asserts.notBlank(bucketName, "Bucket");
         Asserts.notBlank(accessKey, "Access Key");

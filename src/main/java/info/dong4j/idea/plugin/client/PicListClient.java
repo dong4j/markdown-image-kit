@@ -5,8 +5,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
@@ -20,7 +18,6 @@ import org.apache.http.util.TextUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.Component;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -30,13 +27,8 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import javax.swing.JCheckBox;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -476,45 +468,6 @@ public class PicListClient implements OssClient {
                            exePathValue);
     }
 
-    /**
-     * 在设置界面点击 'Test' 按钮上传时调用，用于获取当前配置并执行上传操作
-     * <p>
-     * 该方法通过传入的 JPanel 获取配置信息，然后调用 upload 方法执行上传逻辑。
-     *
-     * @param inputStream 输入流，用于读取上传文件的内容
-     * @param filename    文件名，表示上传的文件名称
-     * @param jPanel      JPanel 对象，用于获取当前界面配置信息
-     * @return 上传操作的结果字符串
-     * @throws Exception 上传过程中发生异常时抛出
-     * @since 1.0.0
-     */
-    @Override
-    public String upload(InputStream inputStream, String filename, JPanel jPanel) throws Exception {
-        Map<String, String> map = this.getTestFieldTextWithPicListSupport(jPanel);
-        String apiValue = map.get("picListApiTextField");
-        String picbedValue = map.get("picListPicbedTextField");
-        String configNameValue = map.get("picListConfigNameTextField");
-        String keyValue = map.get("picListKeyTextField");
-        String exePathValue = map.get("picListExeTextField");
-
-        // 移除提示文本
-        picbedValue = PicListOssSetting.PICBED_HINT.equals(picbedValue) ? "" : picbedValue;
-        configNameValue = PicListOssSetting.CONFIG_NAME_HINT.equals(configNameValue) ? "" : configNameValue;
-        keyValue = PicListOssSetting.KEY_HINT.equals(keyValue) ? "" : keyValue;
-        exePathValue = PicListOssSetting.EXE_PATH_HINT.equals(exePathValue) ? "" : exePathValue;
-
-        if (TextUtils.isBlank(apiValue) && TextUtils.isBlank(exePathValue)) {
-            throw new IllegalStateException("API 地址和 可执行文件路径 必须配置一个");
-        }
-
-        return this.upload(inputStream,
-                           filename,
-                           apiValue,
-                           picbedValue,
-                           configNameValue,
-                           keyValue,
-                           exePathValue);
-    }
 
     /**
      * 处理测试按钮点击事件后的上传请求，成功后保留 client 信息
@@ -566,29 +519,4 @@ public class PicListClient implements OssClient {
         return url;
     }
 
-    /**
-     * 遍历指定面板中的组件，提取字段值
-     * <p>
-     * 支持 JTextField、JCheckBox 和 TextFieldWithBrowseButton 组件。
-     *
-     * @param jPanel 要遍历的面板对象
-     * @return 包含组件 name 属性与对应值的 Map
-     */
-    @NotNull
-    private Map<String, String> getTestFieldTextWithPicListSupport(JPanel jPanel) {
-        Map<String, String> fieldMap = new HashMap<>(8);
-        Component[] components = jPanel.getComponents();
-        for (Component c : components) {
-            if (c instanceof JTextField textField) {
-                fieldMap.put(textField.getName(), textField.getText());
-            } else if (c instanceof JCheckBox checkBox) {
-                fieldMap.put(checkBox.getName(), checkBox.isSelected() + "");
-            } else if (c instanceof TextFieldWithBrowseButton textFieldWithBrowseButton) {
-                // 获取 TextFieldWithBrowseButton 的文本字段
-                JTextField textField = textFieldWithBrowseButton.getTextField();
-                fieldMap.put(textFieldWithBrowseButton.getName(), textField.getText());
-            }
-        }
-        return fieldMap;
-    }
 }

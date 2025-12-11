@@ -15,9 +15,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
-import java.util.Map;
-
-import javax.swing.JPanel;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -104,46 +101,6 @@ public abstract class AbstractOpenClient implements OssClient {
         Asserts.notBlank(repos, "仓库名");
         Asserts.notBlank(branch, "分支名");
         Asserts.notBlank(token, "Token");
-
-        this.check(branch);
-
-        return this.upload(inputStream,
-                           filename,
-                           repos,
-                           branch,
-                           token,
-                           filedir,
-                           isCustomEndpoint,
-                           customEndpoint);
-    }
-
-    /**
-     * 在设置界面点击 'Test' 按钮上传时调用，用于获取当前配置并执行上传操作。
-     * <p>
-     * 该方法通过传入的 JPanel 获取用户输入的配置信息，包括仓库名、分支名、Token、文件目录等，并进行校验后调用上传方法。
-     *
-     * @param inputStream 输入流，用于读取上传文件的内容
-     * @param filename    文件名，表示要上传的文件名称
-     * @param jPanel      用于获取配置信息的 JPanel 对象
-     * @return 上传结果字符串
-     * @throws Exception 上传过程中发生异常时抛出
-     * @since 1.3.0
-     */
-    @Override
-    public String upload(InputStream inputStream, String filename, JPanel jPanel) throws Exception {
-        Map<String, String> map = this.getTestFieldText(jPanel);
-        String repos = map.get("repos");
-        repos = AbstractOpenOssSetting.REPOS_HINT.equals(repos) ? "" : repos;
-        String branch = map.get("branch");
-        String token = map.get("token");
-        String filedir = map.get("filedir");
-        String customEndpoint = map.get("customEndpoint");
-        boolean isCustomEndpoint = Boolean.parseBoolean(map.get("isCustomEndpoint"));
-
-        Asserts.notBlank(repos, "仓库名");
-        Asserts.notBlank(branch, "分支名");
-        Asserts.notBlank(token, "Token");
-
 
         this.check(branch);
 

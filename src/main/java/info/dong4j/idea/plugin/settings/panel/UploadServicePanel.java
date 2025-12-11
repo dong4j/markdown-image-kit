@@ -2,6 +2,7 @@ package info.dong4j.idea.plugin.settings.panel;
 
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.TextComponentAccessor;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
@@ -35,6 +36,8 @@ import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -1231,17 +1234,95 @@ public class UploadServicePanel {
         });
 
         // 设置标题和描述
-        descriptor.withTitle(MikBundle.message("panel.upload.service.file.chooser.title"))
-            .withDescription(MikBundle.message("panel.upload.service.file.chooser.description"));
+        String title = MikBundle.message("panel.upload.service.file.chooser.title");
+        String description = MikBundle.message("panel.upload.service.file.chooser.description");
+        descriptor.withTitle(title).withDescription(description);
 
-        // 添加浏览文件夹监听器 2024.2 以下版本不兼容最新的接口, 暂时使用这个
-        //noinspection removal
-        this.picListExeTextField.addBrowseFolderListener(
-            MikBundle.message("panel.upload.service.file.chooser.title"),
-            MikBundle.message("panel.upload.service.file.chooser.description"),
-            null,  // 项目，可以为 null
+        // 兼容新旧 API：先尝试新 API（2024.2+），失败则回退到旧 API（2022.3-2024.1）
+        addBrowseFolderListenerCompat(
+            this.picListExeTextField,
+            title,
+            description,
             descriptor,
-            TextComponentAccessor.TEXT_FIELD_WHOLE_TEXT);
+            TextComponentAccessor.TEXT_FIELD_WHOLE_TEXT
+                                     );
+    }
+
+    /**
+     * 兼容新旧 API 的 addBrowseFolderListener 方法
+     * <p>
+     * 该方法使用反射自动检测当前 IntelliJ Platform 版本，优先使用新 API（2024.2+），
+     * 如果新 API 不可用则回退到旧 API（2022.3-2024.1）。
+     * <p>
+     * 新 API: addBrowseFolderListener(Project, FileChooserDescriptor, TextComponentAccessor)
+     * 旧 API: addBrowseFolderListener(String, String, Project, FileChooserDescriptor, TextComponentAccessor)
+     * <p>
+     * 使用反射可以避免编译时的版本兼容性问题。
+     *
+     * @param textField   文本字段组件
+     * @param title       对话框标题
+     * @param description 对话框描述
+     * @param descriptor  文件选择描述符
+     * @param accessor    文本组件访问器
+     */
+    private void addBrowseFolderListenerCompat(
+        @NotNull TextFieldWithBrowseButton textField,
+        @NotNull String title,
+        @NotNull String description,
+        @NotNull FileChooserDescriptor descriptor,
+        @NotNull TextComponentAccessor<? super JTextField> accessor
+                                              ) {
+        try {
+            // 尝试使用新 API（2024.2+）
+            // 新 API: addBrowseFolderListener(Project, FileChooserDescriptor, TextComponentAccessor)
+            Method newMethod = textField.getClass().getMethod(
+                "addBrowseFolderListener",
+                Project.class,
+                FileChooserDescriptor.class,
+                TextComponentAccessor.class
+                                                             );
+            newMethod.invoke(textField, null, descriptor, accessor);
+            log.debug("Using new API for addBrowseFolderListener (2024.2+)");
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            // 如果新 API 不可用或调用失败，回退到旧 API（2022.3-2024.1）
+            log.debug("New API not available or failed, falling back to old API", e);
+            fallbackToOldBrowseFolderListenerAPI(textField, title, description, descriptor, accessor);
+        }
+    }
+
+    /**
+     * 回退到旧版本的 addBrowseFolderListener API
+     * <p>
+     * 旧 API: addBrowseFolderListener(String, String, Project, FileChooserDescriptor, TextComponentAccessor)
+     *
+     * @param textField   文本字段组件
+     * @param title       对话框标题
+     * @param description 对话框描述
+     * @param descriptor  文件选择描述符
+     * @param accessor    文本组件访问器
+     */
+    private void fallbackToOldBrowseFolderListenerAPI(
+        @NotNull TextFieldWithBrowseButton textField,
+        @NotNull String title,
+        @NotNull String description,
+        @NotNull FileChooserDescriptor descriptor,
+        @NotNull TextComponentAccessor<? super JTextField> accessor
+                                                     ) {
+        try {
+            // 旧 API: addBrowseFolderListener(String, String, Project, FileChooserDescriptor, TextComponentAccessor)
+            Method oldMethod = textField.getClass().getMethod(
+                "addBrowseFolderListener",
+                String.class,
+                String.class,
+                Project.class,
+                FileChooserDescriptor.class,
+                TextComponentAccessor.class
+                                                             );
+            oldMethod.invoke(textField, title, description, null, descriptor, accessor);
+            log.debug("Using old API for addBrowseFolderListener (2022.3-2024.1)");
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException ex) {
+            log.error("Failed to add browse folder listener using both new and old API", ex);
+        }
     }
 
     /**

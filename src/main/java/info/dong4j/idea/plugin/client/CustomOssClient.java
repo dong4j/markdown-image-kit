@@ -25,8 +25,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.InputStream;
 import java.util.Map;
 
-import javax.swing.JPanel;
-
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -343,42 +341,6 @@ public class CustomOssClient implements OssClient {
         this.responseUrlPath = CustomOssSetting.RESPONSE_URL_PATH_HINT.equals(responseUrlPath) ? "" : responseUrlPath;
         this.httpMethod = customOssState.getHttpMethod();
         this.httpMethod = CustomOssSetting.HTTP_METHOD_HINT.equals(httpMethod) ? "" : httpMethod;
-
-        Asserts.notBlank(api, "api");
-        Asserts.notBlank(requestKey, "发送到服务器的文件 key");
-        Asserts.notBlank(responseUrlPath, "返回结果中的 url 路径");
-        Asserts.notBlank(httpMethod, "请求方式");
-
-        return this.upload(inputStream,
-                           filename,
-                           api,
-                           requestKey,
-                           responseUrlPath,
-                           httpMethod);
-    }
-
-    /**
-     * 在设置界面点击 'Test' 按钮上传时调用，用于获取当前配置并执行上传操作
-     * <p>
-     * 该方法通过传入的 JPanel 获取配置信息，包括 API 地址、请求 key、响应 URL 路径和 HTTP 方法，然后调用 upload 方法执行上传逻辑。
-     *
-     * @param inputStream 输入流，用于读取上传文件的内容
-     * @param filename    文件名，表示上传的文件名称
-     * @param jPanel      JPanel 对象，用于获取当前界面配置信息
-     * @return 上传操作的结果字符串
-     * @throws Exception 上传过程中发生异常时抛出
-     * @since 1.5.0
-     */
-    @Override
-    public String upload(InputStream inputStream, String filename, JPanel jPanel) throws Exception {
-        Map<String, String> map = this.getTestFieldText(jPanel);
-        String api = map.get("api");
-        String requestKey = map.get("requestKey");
-        requestKey = CustomOssSetting.REQUES_TKEY_HINT.equals(requestKey) ? "" : requestKey;
-        String responseUrlPath = map.get("responseUrlPath");
-        responseUrlPath = CustomOssSetting.RESPONSE_URL_PATH_HINT.equals(responseUrlPath) ? "" : responseUrlPath;
-        String httpMethod = map.get("httpMethod");
-        httpMethod = CustomOssSetting.HTTP_METHOD_HINT.equals(httpMethod) ? "" : httpMethod;
 
         Asserts.notBlank(api, "api");
         Asserts.notBlank(requestKey, "发送到服务器的文件 key");

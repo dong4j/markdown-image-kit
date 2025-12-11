@@ -13,9 +13,6 @@ import org.apache.http.util.Asserts;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
-import java.util.Map;
-
-import javax.swing.JPanel;
 
 /**
  * OSS客户端抽象类
@@ -92,44 +89,6 @@ public abstract class AbstractOssClient implements OssClient {
                            customEndpoint);
     }
 
-    /**
-     * 从面板组件上直接获取最新配置信息，不使用 state
-     * <p>
-     * 该方法通过面板组件获取配置参数，并进行必要的校验，最后调用 upload 方法上传文件
-     *
-     * @param inputStream 输入流
-     * @param filename    文件名
-     * @param jPanel      面板组件
-     * @return 上传结果字符串
-     * @throws Exception 上传过程中发生异常时抛出
-     */
-    @Override
-    public String upload(InputStream inputStream, String filename, JPanel jPanel) throws Exception {
-        Map<String, String> map = this.getTestFieldText(jPanel);
-
-        String bucketName = map.get("bucketName");
-        String accessKey = map.get("accessKey");
-        String secretKey = map.get("secretKey");
-        String endpoint = map.get("endpoint");
-        String filedir = map.get("filedir");
-        String customEndpoint = map.get("customEndpoint");
-        boolean isCustomEndpoint = Boolean.parseBoolean(map.get("isCustomEndpoint"));
-
-        Asserts.notBlank(bucketName, "Bucket");
-        Asserts.notBlank(accessKey, "Access Key");
-        Asserts.notBlank(secretKey, "Secret Key");
-        Asserts.notBlank(endpoint, "Endpoint");
-
-        return this.upload(inputStream,
-                           filename,
-                           bucketName,
-                           accessKey,
-                           secretKey,
-                           endpoint,
-                           filedir,
-                           isCustomEndpoint,
-                           customEndpoint);
-    }
 
     /**
      * 处理上传按钮点击事件，用于上传文件并返回上传后的URL

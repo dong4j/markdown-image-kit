@@ -15,9 +15,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
-import java.util.Map;
-
-import javax.swing.JPanel;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -146,29 +143,6 @@ public class SmmsClient implements OssClient {
         String api = smmsOssState.getUrl();
 
         Asserts.notBlank(api, "URL 不能为空");
-        Asserts.notBlank(token, "Token 不能为空");
-
-        return this.upload(inputStream, filename, api, token);
-    }
-
-    /**
-     * 在设置界面点击 'Test' 按钮上传时调用，用于获取当前配置并执行上传操作
-     * <p>
-     * 该方法通过传入的 JPanel 获取配置信息，包括 API 地址、请求 key、响应 URL 路径和 HTTP 方法，然后调用 upload 方法执行上传逻辑。
-     *
-     * @param inputStream 输入流，用于读取上传文件的内容
-     * @param filename    文件名，表示上传的文件名称
-     * @param jPanel      JPanel 对象，用于获取当前界面配置信息
-     * @return 上传操作的结果字符串
-     * @throws Exception 上传过程中发生异常时抛出
-     * @since 1.5.0
-     */
-    @Override
-    public String upload(InputStream inputStream, String filename, JPanel jPanel) throws Exception {
-        Map<String, String> map = this.getTestFieldText(jPanel);
-        String token = map.get("token");
-        String api = map.get("api");
-
         Asserts.notBlank(token, "Token 不能为空");
 
         return this.upload(inputStream, filename, api, token);
