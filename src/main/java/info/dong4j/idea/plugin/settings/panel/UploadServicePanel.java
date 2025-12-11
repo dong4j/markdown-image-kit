@@ -370,14 +370,6 @@ public class UploadServicePanel {
         setAsDefaultCloudCheckBox = new JCheckBox(MikBundle.message("panel.upload.service.set.as.default"));
         content.add(setAsDefaultCloudCheckBox, gbc);
 
-        // gbc.gridx = 3;
-        // gbc.gridwidth = 1;
-        // gbc.weightx = 1.0;
-        // defaultCloudComboBox = new com.intellij.openapi.ui.ComboBox<>(createCloudServiceOptions());
-        // defaultCloudComboBox.setEnabled(false);
-        // content.add(defaultCloudComboBox, gbc);
-
-
         // 配置消息字段 cloudServerAvailableMessage
         gbc.gridx = 4;
         gbc.gridwidth = 1;
