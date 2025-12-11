@@ -64,22 +64,6 @@ public interface OssClient {
     String upload(InputStream inputStream, String filename) throws Exception;
 
     /**
-     * "Upload Test" 按钮反射调用
-     * <p>
-     * 该方法用于执行"Upload Test"按钮的反射调用，接收输入流、文件名和JPanel作为参数，返回处理结果字符串。
-     *
-     * @param inputStream 输入流，用于读取上传文件的数据
-     * @param filename    文件名，表示上传文件的名称
-     * @param jPanel      JPanel组件，可能用于界面交互或显示上传状态
-     * @return 处理结果字符串
-     * @throws Exception 通用异常，用于封装可能发生的各种错误
-     * @since 0.0.1
-     * @deprecated 使用 upload(InputStream inputStream, String filename, MikState state) 方法
-     */
-    @Deprecated
-    String upload(InputStream inputStream, String filename, JPanel jPanel) throws Exception;
-
-    /**
      * "Upload Test" 按钮测试上传（新接口）
      * <p>
      * 该方法用于执行"Upload Test"按钮的反射调用，接收输入流、文件名和MikState作为参数，从state中获取最新配置并执行上传。

@@ -182,58 +182,6 @@ public class AbstractOssClientJunit5Test {
     }
 
     /**
-     * 测试自定义 endpoint URL 构造功能
-     * <p>
-     * 测试场景：当配置了自定义 endpoint 且设置为启用状态时
-     * 预期结果：构造的 URL 应以 https 开头，并包含自定义的 endpoint 值 "cdn.example.com"
-     * <p>
-     * 说明：通过 JPanel 模拟配置界面，设置 bucketName、accessKey、secretKey、endpoint、filedir 和 customEndpoint 参数，并启用自定义 endpoint 功能。
-     */
-    @Test
-    @DisplayName("自定义 endpoint URL 构造应为 https://custom/path")
-    void urlComposeCustomEndpoint() throws Exception {
-        DummyClient client = new DummyClient();
-        // 通过带 JPanel 的 upload 路径设置静态字段
-        JPanel panel = new JPanel();
-        TestPanelUtils.addText(panel, "bucketName", "b");
-        TestPanelUtils.addText(panel, "accessKey", "ak");
-        TestPanelUtils.addText(panel, "secretKey", "sk");
-        TestPanelUtils.addText(panel, "endpoint", "e.com");
-        TestPanelUtils.addText(panel, "filedir", "dir");
-        TestPanelUtils.addText(panel, "customEndpoint", "cdn.example.com");
-        TestPanelUtils.addBoolean(panel, "isCustomEndpoint", true);
-
-        String url = client.upload(new ByteArrayInputStream(new byte[] {9}), "x.jpg", panel);
-        assertTrue(url.startsWith("https://"));
-        assertTrue(url.contains("cdn.example.com"));
-    }
-
-    /**
-     * 测试文件目录处理功能
-     * <p>
-     * 测试场景：当文件目录为空时，验证上传操作生成的URL是否符合预期
-     * 预期结果：上传操作应返回以 "https://" 开头的URL
-     * <p>
-     * 该测试模拟了上传文件的场景，设置空目录参数，并验证最终生成的URL格式
-     */
-    @Test
-    @DisplayName("测试文件目录处理")
-    void testFiledirHandling() throws Exception {
-        DummyClient client = new DummyClient();
-        JPanel panel = new JPanel();
-        TestPanelUtils.addText(panel, "bucketName", "b");
-        TestPanelUtils.addText(panel, "accessKey", "ak");
-        TestPanelUtils.addText(panel, "secretKey", "sk");
-        TestPanelUtils.addText(panel, "endpoint", "e.com");
-        TestPanelUtils.addText(panel, "filedir", ""); // 空目录
-        TestPanelUtils.addText(panel, "customEndpoint", "");
-        TestPanelUtils.addBoolean(panel, "isCustomEndpoint", false);
-
-        String url = client.upload(new ByteArrayInputStream(new byte[] {9}), "x.jpg", panel);
-        assertTrue(url.startsWith("https://"));
-    }
-
-    /**
      * 测试上传失败的情况
      * <p>
      * 测试场景：当上传操作预期失败时，例如文件格式不正确或网络问题
