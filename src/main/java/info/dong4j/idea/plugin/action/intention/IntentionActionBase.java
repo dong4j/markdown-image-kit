@@ -58,6 +58,7 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
      *
      * @return 当前组件的状态信息
      */
+    @Deprecated
     public static MikState getState() {
         return MikPersistenComponent.getInstance().getState();
     }

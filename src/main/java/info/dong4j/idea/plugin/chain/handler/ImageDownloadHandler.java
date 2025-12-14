@@ -166,8 +166,12 @@ public class ImageDownloadHandler extends ActionHandlerAdapter {
 
                     // 输出详细下载日志到控制台
                     String imageUrl = markdownImage.getPath();
+                    if (imageUrl == null || imageUrl.trim().isEmpty() || !imageUrl.trim().startsWith("http://") && !imageUrl.trim().startsWith("https://")) {
+                        log.trace("无效的网络图片URL: {}", imageUrl);
+                        MikConsoleView.printSmart(task.eventData.getProject(), String.format("  [✗] 无效的网络图片URL: %s", imageUrl));
+                        return;
+                    }
                     MikConsoleView.printMessage(task.eventData.getProject(), String.format("  [下载] 网络图片URL: %s", imageUrl));
-                    
                     // 下载图片（调用单个图片的下载逻辑）
                     downloadSingleImage(markdownImage);
 
@@ -255,7 +259,7 @@ public class ImageDownloadHandler extends ActionHandlerAdapter {
             imageBytes = FileUtil.loadBytes(in);
         }
 
-        if (imageBytes == null || imageBytes.length == 0) {
+        if (imageBytes.length == 0) {
             throw new IOException("下载图片为空");
         }
 

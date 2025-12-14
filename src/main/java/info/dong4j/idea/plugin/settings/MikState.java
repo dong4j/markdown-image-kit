@@ -154,4 +154,15 @@ public class MikState {
         this.customOssState = new CustomOssState();
         this.picListOssState = new PicListOssState();
     }
+
+    /**
+     * 获取 MikState 的单例实例
+     * <p>
+     * 通过 MikPersistenComponent 的单例实例获取当前的 MikState 状态
+     *
+     * @return MikState 的单例实例
+     */
+    public static MikState getInstance() {
+        return MikPersistenComponent.getInstance().getState();
+    }
 }

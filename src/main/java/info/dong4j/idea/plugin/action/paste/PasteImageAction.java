@@ -306,8 +306,8 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
             String[] parts = key.substring(8).split("\\|", -1);
 
             markdownImage.setFilename(filename);
-            markdownImage.setImageName(""); // 图片名称由 DownloadImageHandler 解析
-            markdownImage.setExtension(""); // 扩展名由 DownloadImageHandler 解析
+            markdownImage.setImageName(""); // 图片名称由 ImageDownloadHandler 解析
+            markdownImage.setExtension(""); // 扩展名由 ImageDownloadHandler 解析
             markdownImage.setOriginalLineText(parts.length > 0 ? parts[0] : "");
             markdownImage.setLineNumber(parts.length > 1 && !parts[1].isEmpty() ? Integer.parseInt(parts[1]) : 0);
             markdownImage.setLineStartOffset(parts.length > 2 && !parts[2].isEmpty() ? Integer.parseInt(parts[2]) : 0);
@@ -486,7 +486,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
      * 处理网络图片 URL
      * <p>
      * 该方法用于处理剪贴板中的网络图片 URL，解析光标所在的图片标签信息，并构建相应的元数据。
-     * 元数据将以特殊格式存储在 imageMap 的 key 中。图片名称和扩展名的解析由 DownloadImageHandler 处理。
+     * 元数据将以特殊格式存储在 imageMap 的 key 中。图片名称和扩展名的解析由 ImageDownloadHandler 处理。
      *
      * @param imageUrl 网络图片 URL
      * @param editor   编辑器对象
@@ -527,7 +527,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
 
         // 构建元数据 key
         // 格式：network:originalLineText|lineNumber|pathStartOffset|pathEndOffset|imageUrl|originalMark
-        // 图片名称和扩展名将在 DownloadImageHandler 中根据 URL 和响应头解析
+        // 图片名称和扩展名将在 ImageDownloadHandler 中根据 URL 和响应头解析
         String metadataKey = String.format("network:%s|%d|%d|%d|%s|%s",
                                            originalLineText,
                                            lineNumber,
@@ -536,7 +536,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
                                            imageUrl,
                                            originalMark);
 
-        // 使用空的 ByteArrayInputStream 作为占位符，实际下载会在 DownloadImageHandler 中进行
+        // 使用空的 ByteArrayInputStream 作为占位符，实际下载会在 ImageDownloadHandler 中进行
         imageMap.put(metadataKey, new ByteArrayInputStream(new byte[0]));
     }
 

@@ -73,13 +73,13 @@ public class ImageStorageHandler extends ActionHandlerAdapter {
      *
      * @param data 事件数据
      * @return 是否启用功能
-     * @since 0.0.1
      * @see EventData#temporaryStoragePath
+     * @since 0.0.1
      */
     @Override
     public boolean isEnabled(EventData data) {
         // 检查全局配置路径或临时存储路径
-        boolean hasGlobalPath = !IntentionActionBase.getState().getCurrentInsertPath().isBlank();
+        boolean hasGlobalPath = !MikState.getInstance().getCurrentInsertPath().isBlank();
         boolean hasTemporaryPath = StringUtils.isNotBlank(data.getTemporaryStoragePath());
         return hasGlobalPath || hasTemporaryPath;
     }
@@ -135,10 +135,12 @@ public class ImageStorageHandler extends ActionHandlerAdapter {
                 // 根据不同情况处理图片
                 String storageType;
                 if (markdownImage.getLocation() == ImageLocationEnum.NETWORK) {
+                    // todo-dong4j : (2025.12.15 01:53) [这个逻辑可能走不到 需要排查一下]
                     storageType = "网络图片";
-                    // 网络图片：始终拷贝到 currentInsertPath（已经由 DownloadImageHandler 处理）
+                    // 网络图片：始终拷贝到 currentInsertPath（已经由 ImageDownloadHandler 处理）
                     processNetworkImage(markdownImage, currentFile, savepath, state);
                 } else if (markdownImage.isImageStream()) {
+                    // 网络图片迁移到本地和本地图片迁移到本地都会走这个分支
                     storageType = "图片流";
                     // 图片流：从剪贴板粘贴的图片
                     processImageStream(markdownImage, currentFile, savepath, state);
@@ -179,6 +181,25 @@ public class ImageStorageHandler extends ActionHandlerAdapter {
                                      MikState state) {
         // 网络图片已经下载并保存，只需要生成正确的路径
         String imagePath = generateImagePath(markdownImage, currentFile, savepath, state, true);
+        updateMarkdownImage(markdownImage, imagePath, state);
+    }
+
+    /**
+     * 处理本地图片
+     * <p>
+     * 本地图片直接移动到 currentInsertPath。
+     *
+     * @param markdownImage Markdown 图片对象
+     * @param currentFile   当前 Markdown 文件
+     * @param savepath      保存路径
+     * @param state         配置状态
+     */
+    private void processLocalImage(MarkdownImage markdownImage,
+                                   VirtualFile currentFile,
+                                   String savepath,
+                                   MikState state) {
+        // 本地图片直接移动到 currentInsertPath
+        String imagePath = generateImagePath(markdownImage, currentFile, savepath, state, false);
         updateMarkdownImage(markdownImage, imagePath, state);
     }
 

@@ -270,7 +270,7 @@ public class ActionManager {
      * <p>
      * 根据EventData构建一个用于图床迁移的ActionManager，处理不同迁移场景下的图片标签解析逻辑。
      * 右键批量迁移和意图迁移需要不同的数据解析方式：右键批量迁移直接解析当前文件中的图片标签，仅处理用户指定的标签；意图迁移则解析光标所在行的标签，若标签所在图床与设置图床一致则跳过处理。
-     * 使用 DownloadImageHandler 处理网络图片下载。
+     * 使用 ImageDownloadHandler 处理网络图片下载。
      *
      * @param data 用于迁移操作的事件数据
      * @return 构建完成的ActionManager实例
@@ -296,19 +296,23 @@ public class ActionManager {
                 List<MarkdownImage> images = entry.getValue();
 
 
-                // 过滤图片：排除 LOCAL 和用户输入不匹配的标签，以及已在目标图床的图片
+                // 过滤图片：排除与用户输入不匹配的标签，以及已在目标图床的图片
                 for (MarkdownImage markdownImage : images) {
-                    // 排除 LOCAL 和用户输入不匹配的标签
-                    if (markdownImage.getLocation() == ImageLocationEnum.LOCAL
-                        || !markdownImage.getPath().contains(filterString)
+                    // 排除与用户输入不匹配的标签
+                    if (!markdownImage.getPath().contains(filterString)
                         || (client != null && markdownImage.getPath().contains(client.getCloudType().feature))) {
 
-                        log.trace("排除 LOCAL 和用户输入不匹配的标签: {}", markdownImage.getPath());
+                        log.trace("排除与用户输入不匹配的标签: {}", markdownImage.getPath());
                         toRemove.add(markdownImage);
                     } else {
-                        // 将需要下载的图片标记为 NETWORK 类型，DownloadImageHandler 会处理
-                        markdownImage.setLocation(ImageLocationEnum.NETWORK);
-                        log.trace("标记为网络图片: {}", markdownImage.getPath());
+                        final String path = markdownImage.getPath();
+                        if (path != null && (path.trim().startsWith("http://") || path.trim().startsWith("https://"))) {
+                            log.trace("标记为网络图片: {}", path);
+                            markdownImage.setLocation(ImageLocationEnum.NETWORK);
+                        } else {
+                            log.trace("标记为本地图片: {}", path);
+                            markdownImage.setLocation(ImageLocationEnum.LOCAL);
+                        }
                     }
                 }
             }

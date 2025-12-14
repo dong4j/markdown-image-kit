@@ -9,6 +9,7 @@ import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.JBUI;
 
 import info.dong4j.idea.plugin.MikBundle;
+import info.dong4j.idea.plugin.action.intention.IntentionActionBase;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.util.StringUtils;
 
@@ -300,7 +301,7 @@ public class MoveToOtherOssSettingsDialog extends DialogWrapper {
         }
 
         // 获取当前配置的存储路径
-        String currentPath = info.dong4j.idea.plugin.action.intention.IntentionActionBase.getState().getCurrentInsertPath();
+        String currentPath = IntentionActionBase.getState().getCurrentInsertPath();
         boolean hasConfiguredPath = StringUtils.isNotBlank(currentPath);
 
         if (hasConfiguredPath) {
@@ -333,7 +334,7 @@ public class MoveToOtherOssSettingsDialog extends DialogWrapper {
         }
 
         // 检查当前是否有有效的存储路径配置
-        String currentPath = info.dong4j.idea.plugin.action.intention.IntentionActionBase.getState().getCurrentInsertPath();
+        String currentPath = IntentionActionBase.getState().getCurrentInsertPath();
         return StringUtils.isBlank(currentPath);
     }
     
