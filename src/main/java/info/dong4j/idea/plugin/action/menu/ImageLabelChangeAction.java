@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
 
 import info.dong4j.idea.plugin.MikBundle;
@@ -15,22 +16,28 @@ import info.dong4j.idea.plugin.chain.handler.ParseMarkdownFileHandler;
 import info.dong4j.idea.plugin.chain.handler.WriteToDocumentHandler;
 import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.entity.EventData;
+import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.task.ActionTask;
 import info.dong4j.idea.plugin.util.ActionUtils;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+import java.util.Map;
+
 import icons.MikIcons;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * 全局替换标签操作类:在目录, 文件和编辑器中生效
- * todo-dong4j : (2025.12.15 01:53) [如果是编辑器中通过鼠标右键替换, 则通过当前光标的位置获取图片链接, 如果获取不到就替换所有标签]
  * <p>
  * 该类用于实现全局替换标签的功能，主要处理在特定项目中对Markdown图像标签的替换操作。支持根据配置的标签类型进行替换，并提供相应的处理链。
  * <p>
  * 该类继承自AnAction，用于在IDE中注册为可执行操作，支持更新状态和执行动作。
+ * <p>
+ * 智能判断功能：在编辑器中通过鼠标右键触发时，会先判断当前光标所在行是否为有效的Markdown图片标签，
+ * 如果是则仅处理当前标签，否则处理整个文件。
  *
  * @author dong4j
  * @version 0.0.1
@@ -78,6 +85,9 @@ public final class ImageLabelChangeAction extends AnAction {
      * <p>
      * 该方法接收一个动作事件，根据项目信息初始化处理流程，包括解析Markdown文件、
      * 判断是否需要替换图片标签以及最终写入处理结果。
+     * <p>
+     * 智能判断：如果是在编辑器中通过鼠标右键触发，会先判断当前光标所在行是否为有效的Markdown图片标签，
+     * 如果是则仅处理当前标签，否则处理整个文件。
      *
      * @param event 动作事件对象，包含触发动作的相关信息
      * @since 0.0.1
@@ -86,27 +96,39 @@ public final class ImageLabelChangeAction extends AnAction {
     public void actionPerformed(@NotNull AnActionEvent event) {
 
         Project project = event.getProject();
-        if (project != null) {
-
-            EventData data = new EventData()
-                .setAction("ImageLabelChangeAction")
-                .setActionEvent(event)
-                .setProject(project);
-
-            ActionManager actionManager = new ActionManager(data)
-                // 解析 markdown 文件
-                .addHandler(new ParseMarkdownFileHandler())
-                // 全部标签转换
-                .addHandler(new ImageLabelChangeHandler())
-                // 写入标签
-                .addHandler(new WriteToDocumentHandler())
-                .addHandler(new FinalChainHandler());
-
-            new ActionTask(project,
-                           MikBundle.message("mik.action.change.process"),
-                           actionManager).queue();
+        if (project == null) {
+            return;
         }
+
+        EventData data = new EventData()
+            .setAction("ImageLabelChangeAction")
+            .setActionEvent(event)
+            .setProject(project);
+
+        // 智能判断：检查光标所在行是否为有效的图片标签
+        Map<Document, List<MarkdownImage>> waitingProcessMap = ActionUtils.checkAndGetSingleImageTag(event, project);
+        if (waitingProcessMap != null && !waitingProcessMap.isEmpty()) {
+            // 如果找到单个图片标签，直接设置到 EventData 中，跳过文件解析步骤
+            data.setWaitingProcessMap(waitingProcessMap);
+            log.debug("检测到光标所在行为有效的图片标签，仅处理当前标签");
+        } else {
+            log.debug("未检测到光标所在行为有效的图片标签，将处理整个文件");
+        }
+
+        ActionManager actionManager = new ActionManager(data)
+            // 解析 markdown 文件（如果 waitingProcessMap 已设置，则跳过解析）
+            .addHandler(new ParseMarkdownFileHandler())
+            // 全部标签转换
+            .addHandler(new ImageLabelChangeHandler())
+            // 写入标签
+            .addHandler(new WriteToDocumentHandler())
+            .addHandler(new FinalChainHandler());
+
+        new ActionTask(project,
+                       MikBundle.message("mik.action.change.process"),
+                       actionManager).queue();
     }
+
 
     /**
      * 获取动作更新线程

@@ -3,6 +3,7 @@ package info.dong4j.idea.plugin.action.menu.markdown;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFileManager;
 
@@ -11,10 +12,14 @@ import info.dong4j.idea.plugin.chain.ActionManager;
 import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.entity.EventData;
+import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.task.ActionTask;
 import info.dong4j.idea.plugin.util.ActionUtils;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.Icon;
 
@@ -27,6 +32,9 @@ import lombok.extern.slf4j.Slf4j;
  * 所有具体实现类需继承该类并实现抽象方法，如获取图标、获取名称和获取 OSS 客户端。
  * <p>
  * 该类使用了策略模式，通过子类实现不同的上传逻辑，统一调用上传流程。
+ * <p>
+ * 智能判断功能：在编辑器中通过鼠标右键触发时，会先判断当前光标所在行是否为有效的Markdown图片标签，
+ * 如果是则仅处理当前标签，否则处理整个文件。
  *
  * @author dong4j
  * @version 0.0.1
@@ -106,6 +114,9 @@ public abstract class UploadActionBase extends AnAction {
      * 执行动作事件，所有子类都走此逻辑，用于进行前置判断和解析 markdown 图片标记
      * <p>
      * 该方法首先刷新虚拟文件系统，确保新添加的文件已被正确加载。然后获取项目对象，并创建事件数据对象，设置相关属性。最后启动后台任务，执行上传处理流程。
+     * <p>
+     * 智能判断：如果是在编辑器中通过鼠标右键触发，会先判断当前光标所在行是否为有效的Markdown图片标签，
+     * 如果是则仅处理当前标签，否则处理整个文件。
      *
      * @param event 事件对象，表示触发的动作事件
      * @since 0.0.1
@@ -116,19 +127,32 @@ public abstract class UploadActionBase extends AnAction {
         VirtualFileManager.getInstance().syncRefresh();
 
         Project project = event.getProject();
-        if (project != null) {
-            EventData data = new EventData()
-                .setAction(this.getClass().getSimpleName())
-                .setActionEvent(event)
-                .setProject(project)
-                // 使用子类的具体 client
-                .setClient(this.getClient())
-                .setClientName(this.getName());
-
-            // 开启后台任务
-            new ActionTask(project, MikBundle.message("mik.action.upload.process", this.getName()), ActionManager.buildUploadChain(data)).queue();
+        if (project == null) {
+            return;
         }
+
+        EventData data = new EventData()
+            .setAction(this.getClass().getSimpleName())
+            .setActionEvent(event)
+            .setProject(project)
+            // 使用子类的具体 client
+            .setClient(this.getClient())
+            .setClientName(this.getName());
+
+        // 智能判断：检查光标所在行是否为有效的图片标签
+        Map<Document, List<MarkdownImage>> waitingProcessMap = ActionUtils.checkAndGetSingleImageTag(event, project);
+        if (waitingProcessMap != null && !waitingProcessMap.isEmpty()) {
+            // 如果找到单个图片标签，直接设置到 EventData 中，跳过文件解析步骤
+            data.setWaitingProcessMap(waitingProcessMap);
+            log.debug("检测到光标所在行为有效的图片标签，仅处理当前标签");
+        } else {
+            log.debug("未检测到光标所在行为有效的图片标签，将处理整个文件");
+        }
+
+        // 开启后台任务
+        new ActionTask(project, MikBundle.message("mik.action.upload.process", this.getName()), ActionManager.buildUploadChain(data)).queue();
     }
+
 
     /**
      * 获取具体上传的客户端，委托给后台任务执行

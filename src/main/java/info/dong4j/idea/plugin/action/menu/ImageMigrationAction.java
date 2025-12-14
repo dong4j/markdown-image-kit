@@ -4,6 +4,7 @@ import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
 
 import info.dong4j.idea.plugin.MikBundle;
@@ -11,6 +12,7 @@ import info.dong4j.idea.plugin.chain.ActionManager;
 import info.dong4j.idea.plugin.chain.MarkdownFileFilter;
 import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.entity.EventData;
+import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
@@ -22,16 +24,21 @@ import info.dong4j.idea.plugin.util.StringUtils;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+import java.util.Map;
+
 import icons.MikIcons;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * 图床迁移操作类:在目录, 文件和编辑器中生效
- * todo-dong4j : (2025.12.15 01:53) [如果是编辑器中通过鼠标右键上传/迁移, 则通过当前光标的位置获取图片链接, 如果获取不到就上传/迁移所有]
  * <p>
  * 用于执行图床迁移任务，支持对 Markdown 内容或目录中的图片进行批量迁移操作。该类主要处理迁移逻辑的初始化、执行以及与用户交互的界面设置。
  * <p>
  * 该类基于 IntelliJ 平台的 AnAction 接口实现，用于在 IDE 中提供一个可配置的迁移操作功能。通过对话框收集迁移参数，如目标域名、云存储类型等，并根据参数状态控制操作按钮的可用性。
+ * <p>
+ * 智能判断功能：在编辑器中通过鼠标右键触发时，会先判断当前光标所在行是否为有效的Markdown图片标签，
+ * 如果是则仅处理当前标签，否则处理整个文件。
  *
  * @author dong4j
  * @version 1.0.0
@@ -61,7 +68,7 @@ public final class ImageMigrationAction extends AnAction {
             event.getPresentation().setEnabled(false);
             return;
         }
-        
+
         // 调用基础的可用性检查
         ActionUtils.isAvailable(true, event, MikIcons.MIGRATION, MarkdownContents.MARKDOWN_TYPE_NAME);
 
@@ -74,6 +81,9 @@ public final class ImageMigrationAction extends AnAction {
      * 处理移动文件到其他云存储设置的Action操作
      * <p>
      * 根据用户在对话框中选择的云存储类型和域名，执行移动文件操作，并更新相关配置。
+     * <p>
+     * 智能判断：如果是在编辑器中通过鼠标右键触发，会先判断当前光标所在行是否为有效的Markdown图片标签，
+     * 如果是则仅处理当前标签，否则处理整个文件。
      *
      * @param event Action事件对象，包含用户操作相关信息
      * @since 0.0.1
@@ -82,47 +92,60 @@ public final class ImageMigrationAction extends AnAction {
     public void actionPerformed(@NotNull AnActionEvent event) {
 
         Project project = event.getProject();
-        if (project != null) {
-            MoveToOtherOssSettingsDialog dialog = new MoveToOtherOssSettingsDialog();
-            if (!dialog.showAndGet()) {
-                return;
-            }
-
-            // 获取域名输入（不管本地存储还是云存储，都需要输入）
-            String domain = dialog.getDomainText().trim();
-            if (StringUtils.isBlank(domain)) {
-                return;
-            }
-
-            // 检查是否是本地存储
-            boolean isLocalStorage = dialog.isLocalStorage();
-            CloudEnum cloudEnum = dialog.getSelectedCloudEnum();
-
-            // 本地存储时 cloudEnum 为 null
-            String clientName = isLocalStorage
-                                ? MikBundle.message("oss.title.local")
-                                : (cloudEnum != null ? cloudEnum.title : "");
-
-            // 获取临时存储路径（仅本地存储且无全局配置时）
-            String temporaryStoragePath = dialog.getStoragePath();
-
-            EventData data = new EventData()
-                .setAction("ImageMigrationAction")
-                .setActionEvent(event)
-                .setProject(project)
-                .setClient(isLocalStorage || cloudEnum == null ? null : ClientUtils.getClient(cloudEnum))
-                .setClientName(clientName)
-                .setTemporaryStoragePath(temporaryStoragePath);
-
-            // http://www.jetbrains.org/intellij/sdk/docs/basics/persisting_state_of_components.html
-            PropertiesComponent propComp = PropertiesComponent.getInstance();
-            // 过滤掉配置用户输入后的其他标签
-            propComp.setValue(MarkdownFileFilter.FILTER_KEY, domain.equals(MOVE_ALL) ? "" : domain);
-
-            new ActionTask(project,
-                           MikBundle.message("mik.action.move.process", clientName),
-                           ActionManager.buildImageMigrationChain(data)).queue();
+        if (project == null) {
+            return;
         }
+
+        // 智能判断：检查光标所在行是否为有效的图片标签（在对话框显示之前检查）
+        Map<Document, List<MarkdownImage>> waitingProcessMap = ActionUtils.checkAndGetSingleImageTag(event, project);
+
+        MoveToOtherOssSettingsDialog dialog = new MoveToOtherOssSettingsDialog();
+        if (!dialog.showAndGet()) {
+            return;
+        }
+
+        // 获取域名输入（不管本地存储还是云存储，都需要输入）
+        String domain = dialog.getDomainText().trim();
+        if (StringUtils.isBlank(domain)) {
+            return;
+        }
+
+        // 检查是否是本地存储
+        boolean isLocalStorage = dialog.isLocalStorage();
+        CloudEnum cloudEnum = dialog.getSelectedCloudEnum();
+
+        // 本地存储时 cloudEnum 为 null
+        String clientName = isLocalStorage
+                            ? MikBundle.message("oss.title.local")
+                            : (cloudEnum != null ? cloudEnum.title : "");
+
+        // 获取临时存储路径（仅本地存储且无全局配置时）
+        String temporaryStoragePath = dialog.getStoragePath();
+
+        EventData data = new EventData()
+            .setAction("ImageMigrationAction")
+            .setActionEvent(event)
+            .setProject(project)
+            .setClient(isLocalStorage || cloudEnum == null ? null : ClientUtils.getClient(cloudEnum))
+            .setClientName(clientName)
+            .setTemporaryStoragePath(temporaryStoragePath);
+
+        // 如果找到单个图片标签，直接设置到 EventData 中，跳过文件解析步骤
+        if (waitingProcessMap != null && !waitingProcessMap.isEmpty()) {
+            data.setWaitingProcessMap(waitingProcessMap);
+            log.debug("检测到光标所在行为有效的图片标签，仅处理当前标签");
+        } else {
+            log.debug("未检测到光标所在行为有效的图片标签，将处理整个文件");
+        }
+
+        // http://www.jetbrains.org/intellij/sdk/docs/basics/persisting_state_of_components.html
+        PropertiesComponent propComp = PropertiesComponent.getInstance();
+        // 过滤掉配置用户输入后的其他标签
+        propComp.setValue(MarkdownFileFilter.FILTER_KEY, domain.equals(MOVE_ALL) ? "" : domain);
+
+        new ActionTask(project,
+                       MikBundle.message("mik.action.move.process", clientName),
+                       ActionManager.buildImageMigrationChain(data)).queue();
     }
 
 

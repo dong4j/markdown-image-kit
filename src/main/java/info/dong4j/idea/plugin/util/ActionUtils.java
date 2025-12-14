@@ -4,18 +4,30 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiUtilBase;
 
 import info.dong4j.idea.plugin.content.ImageContents;
 import info.dong4j.idea.plugin.content.MikContents;
+import info.dong4j.idea.plugin.entity.MarkdownImage;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.Icon;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * ActionUtils 工具类
@@ -28,6 +40,7 @@ import javax.swing.Icon;
  * @date 2021.02.14
  * @since 0.0.1
  */
+@Slf4j
 public final class ActionUtils {
     /**
      * 判断当前操作是否可用
@@ -94,5 +107,62 @@ public final class ActionUtils {
             }
         }
         presentation.setEnabled(isAvailable && isValid);
+    }
+
+    /**
+     * 检查光标所在行是否为有效的Markdown图片标签
+     * <p>
+     * 如果光标在编辑器中，且所在行是有效的Markdown图片标签，则返回只包含该标签的处理映射。
+     * 否则返回 null，表示需要处理整个文件。
+     * <p>
+     * 该方法用于实现智能判断功能：在编辑器中通过鼠标右键触发时，会先判断当前光标所在行是否为有效的Markdown图片标签，
+     * 如果是则仅处理当前标签，否则处理整个文件。
+     *
+     * @param event   动作事件对象
+     * @param project 项目对象
+     * @return 如果找到有效的图片标签，返回包含该标签的映射；否则返回 null
+     * @since 2.3.0
+     */
+    @Nullable
+    public static Map<Document, List<MarkdownImage>> checkAndGetSingleImageTag(@NotNull AnActionEvent event,
+                                                                               @NotNull Project project) {
+        // 检查是否有编辑器
+        DataContext dataContext = event.getDataContext();
+        Editor editor = PlatformDataKeys.EDITOR.getData(dataContext);
+        if (editor == null) {
+            return null;
+        }
+
+        // 获取光标所在行的文本
+        Document document = editor.getDocument();
+        int caretOffset = editor.getCaretModel().getOffset();
+        int documentLine = document.getLineNumber(caretOffset);
+        int lineStartOffset = document.getLineStartOffset(documentLine);
+        int lineEndOffset = document.getLineEndOffset(documentLine);
+        String lineText = document.getText(new TextRange(lineStartOffset, lineEndOffset));
+
+        // 检查该行是否为有效的图片标签
+        if (MarkdownUtils.illegalImageMark(project, lineText)) {
+            return null;
+        }
+
+        // 解析该行的图片标签
+        VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
+        if (virtualFile == null) {
+            return null;
+        }
+
+        MarkdownImage markdownImage = MarkdownUtils.analysisImageMark(virtualFile, lineText, documentLine);
+        if (markdownImage == null) {
+            return null;
+        }
+
+        // 创建只包含该图片的处理映射
+        Map<Document, List<MarkdownImage>> waitingProcessMap = new HashMap<>(1);
+        List<MarkdownImage> imageList = new ArrayList<>(1);
+        imageList.add(markdownImage);
+        waitingProcessMap.put(document, imageList);
+
+        return waitingProcessMap;
     }
 }
