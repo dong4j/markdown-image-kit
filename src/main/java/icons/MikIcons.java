@@ -23,6 +23,8 @@ public class MikIcons {
 
     /** 图片上传 */
     public static final Icon UPLOAD = load("upload.svg");
+    /** 图片下载 */
+    public static final Icon DOWNLOAD = load("upload.svg"); // 暂时使用 upload 图标，后续可以添加专门的下载图标
     /** 图片压缩 */
     public static final Icon COMPRESS = load("compress.svg");
     /** 图床迁移 */

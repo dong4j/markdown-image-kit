@@ -75,6 +75,10 @@
             <descriptionDirectoryName>ImageLabelChangeIntetion</descriptionDirectoryName>
         </intentionAction>
 
+        <!-- Code Vision Provider -->
+        <!--suppress PluginXmlValidity -->
+        <codeInsight.codeVisionProvider implementation="info.dong4j.idea.plugin.codevision.MarkdownImageCodeVisionProvider"/>
+
     </extensions>
 
     <actions>
