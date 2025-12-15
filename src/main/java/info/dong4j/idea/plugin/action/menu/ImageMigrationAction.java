@@ -4,12 +4,19 @@ import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.ui.popup.ListPopup;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.chain.ActionManager;
 import info.dong4j.idea.plugin.chain.MarkdownFileFilter;
+import info.dong4j.idea.plugin.client.OssClient;
 import info.dong4j.idea.plugin.content.MarkdownContents;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
@@ -23,9 +30,11 @@ import info.dong4j.idea.plugin.util.ClientUtils;
 import info.dong4j.idea.plugin.util.StringUtils;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import icons.MikIcons;
 import lombok.extern.slf4j.Slf4j;
@@ -99,6 +108,13 @@ public final class ImageMigrationAction extends AnAction {
         // 智能判断：检查光标所在行是否为有效的图片标签（在对话框显示之前检查）
         Map<Document, List<MarkdownImage>> waitingProcessMap = ActionUtils.checkAndGetSingleImageTag(event, project);
 
+        // 如果是编辑器中的单个合法标签，直接弹出可用图床选择，无需对话框
+        if (waitingProcessMap != null && !waitingProcessMap.isEmpty()) {
+            Editor editor = event.getData(PlatformDataKeys.EDITOR);
+            showQuickTargetChooser(project, event, editor, waitingProcessMap);
+            return;
+        }
+
         MoveToOtherOssSettingsDialog dialog = new MoveToOtherOssSettingsDialog();
         if (!dialog.showAndGet()) {
             return;
@@ -146,6 +162,146 @@ public final class ImageMigrationAction extends AnAction {
         new ActionTask(project,
                        MikBundle.message("mik.action.move.process", clientName),
                        ActionManager.buildImageMigrationChain(data)).queue();
+    }
+
+    /**
+     * 显示快速目标选择器弹窗
+     * <p>
+     * 收集可用的迁移目标, 若无目标则提示用户无可用云服务, 否则创建动作组并显示弹窗供用户选择目标
+     *
+     * @param project           当前项目
+     * @param event             动作事件
+     * @param editor            编辑器实例, 可能为 null
+     * @param waitingProcessMap 等待处理的文档与图片映射关系
+     */
+    private void showQuickTargetChooser(@NotNull Project project,
+                                        @NotNull AnActionEvent event,
+                                        @Nullable Editor editor,
+                                        @NotNull Map<Document, List<MarkdownImage>> waitingProcessMap) {
+        List<MigrationTarget> targets = collectAvailableTargets();
+        if (targets.isEmpty()) {
+            Messages.showInfoMessage(project,
+                                     MikBundle.message("mik.codevision.no.available.cloud"),
+                                     MikBundle.message("mik.codevision.title"));
+            return;
+        }
+
+        DefaultActionGroup group = new DefaultActionGroup();
+        for (MigrationTarget target : targets) {
+            group.add(new MigrationTargetAction(target, project, event, waitingProcessMap));
+        }
+
+        ListPopup popup = JBPopupFactory.getInstance()
+            .createActionGroupPopup(
+                MikBundle.message("mik.codevision.select.cloud"),
+                group,
+                event.getDataContext(),
+                JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
+                false
+                                   );
+
+        if (editor != null) {
+            popup.showInBestPositionFor(editor);
+        } else {
+            popup.showInBestPositionFor(event.getDataContext());
+        }
+    }
+
+    /**
+     * 收集可用的迁移目标
+     * <p>
+     * 从云环境枚举中创建迁移目标列表, 并检查本地迁移路径是否可用. 如果可用, 则将本地迁移目标添加到列表中.
+     *
+     * @return 包含所有可用迁移目标的列表
+     */
+    private List<MigrationTarget> collectAvailableTargets() {
+        List<MigrationTarget> cloudTargets = java.util.Arrays.stream(CloudEnum.values())
+            .map(cloud -> new MigrationTarget(cloud, cloud.title, ClientUtils.getClient(cloud)))
+            .filter(target -> ClientUtils.isEnable(target.client))
+            .collect(Collectors.toList());
+
+        // 本地存储：需要配置了存储路径才认为可用
+        boolean localAvailable = StringUtils.isNotBlank(MikState.getInstance().getCurrentInsertPath());
+        if (localAvailable) {
+            cloudTargets.add(new MigrationTarget(null, MikBundle.message("oss.title.local"), null));
+        }
+
+        return cloudTargets;
+    }
+
+    /**
+         * 迁移目标内部类
+         * <p>
+         * 用于封装迁移操作的目标信息, 包括云平台类型, 显示名称以及对应的 OSS 客户端实例, 主要用于迁移任务的配置和执行过程中的目标识别与操作.
+         *
+         * @author zeka.stack.team
+         * @version 1.0.0
+         * @email "mailto:zeka.stack@gmail.com"
+         * @date 2025.12.15
+         * @since 1.0.0
+         */
+        private record MigrationTarget(CloudEnum cloudEnum, String displayName, OssClient client) {
+            private MigrationTarget(@Nullable CloudEnum cloudEnum, @NotNull String displayName, @Nullable OssClient client) {
+                this.cloudEnum = cloudEnum;
+                this.displayName = displayName;
+                this.client = client;
+            }
+        }
+
+    /**
+     * 迁移目标操作类
+     * <p>
+     * 该类继承自 AnAction, 用于处理与迁移目标相关的操作, 主要负责触发图像迁移任务并传递必要的上下文信息.
+     * 该类为内部静态类, 用于在特定迁移目标被选中时执行迁移流程.
+     *
+     * @author zeka.stack.team
+     * @version 1.0.0
+     * @email "mailto:zeka.stack@gmail.com"
+     * @date 2025.12.15
+     * @since 1.0.0
+     */
+    private static final class MigrationTargetAction extends AnAction {
+        private final MigrationTarget target;
+        private final Project project;
+        private final AnActionEvent sourceEvent;
+        private final Map<Document, List<MarkdownImage>> waitingProcessMap;
+
+        private MigrationTargetAction(@NotNull MigrationTarget target,
+                                      @NotNull Project project,
+                                      @NotNull AnActionEvent sourceEvent,
+                                      @NotNull Map<Document, List<MarkdownImage>> waitingProcessMap) {
+            super(target.displayName, null, MikIcons.MIGRATION);
+            this.target = target;
+            this.project = project;
+            this.sourceEvent = sourceEvent;
+            this.waitingProcessMap = waitingProcessMap;
+        }
+
+        /**
+         * 执行图像迁移操作
+         * <p>
+         * 根据传入的事件对象创建事件数据, 并配置相关参数, 然后启动图像迁移任务.
+         *
+         * @param e 与操作相关的事件对象
+         * @throws NullPointerException 如果传入的事件对象为 null
+         */
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            EventData data = new EventData()
+                .setAction("ImageMigrationAction")
+                .setActionEvent(sourceEvent)
+                .setProject(project)
+                .setWaitingProcessMap(waitingProcessMap)
+                .setClient(target.cloudEnum == null ? null : target.client)
+                .setClientName(target.displayName);
+
+            // 单张标签迁移不需要过滤
+            PropertiesComponent.getInstance().setValue(MarkdownFileFilter.FILTER_KEY, "");
+
+            new ActionTask(project,
+                           MikBundle.message("mik.action.move.process", target.displayName),
+                           ActionManager.buildImageMigrationChain(data)).queue();
+        }
     }
 
 
