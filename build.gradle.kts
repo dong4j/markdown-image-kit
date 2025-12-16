@@ -149,6 +149,9 @@ dependencies {
     intellijPlatform {
         create(providers.gradleProperty("platformType"), providers.gradleProperty("platformVersion"))
 
+        // Markdown plugin (for PSI image elements)
+        bundledPlugins("org.intellij.plugins.markdown")
+
         // Marketplace ZIP Signer for plugin signing
         zipSigner()
 
@@ -214,4 +217,3 @@ tasks {
         useJUnitPlatform()
     }
 }
-

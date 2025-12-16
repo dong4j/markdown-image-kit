@@ -32,6 +32,7 @@
     on how to target different products -->
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
+    <depends>org.intellij.plugins.markdown</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- clipboard -->
@@ -78,6 +79,8 @@
         <!-- Code Vision Provider -->
         <!--suppress PluginXmlValidity -->
         <codeInsight.codeVisionProvider implementation="info.dong4j.idea.plugin.codevision.MarkdownImageCodeVisionProvider"/>
+        <!--suppress PluginXmlValidity -->
+        <codeInsight.codeVisionProvider implementation="info.dong4j.idea.plugin.codevision.CleanShotAnnotateCodeVisionProvider"/>
 
     </extensions>
 
