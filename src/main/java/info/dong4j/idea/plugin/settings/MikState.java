@@ -1,6 +1,7 @@
 package info.dong4j.idea.plugin.settings;
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
+import info.dong4j.idea.plugin.enums.ImageEditorEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.enums.InsertImageActionEnum;
 import info.dong4j.idea.plugin.settings.oss.AliyunOssState;
@@ -37,7 +38,9 @@ public class MikState {
     //endregion
 
     //region 插入图片时
+    /** 插入图片的操作类型, 默认为 NONE */
     private InsertImageActionEnum insertImageAction = InsertImageActionEnum.NONE;
+    /** 当前插入图片的路径 */
     private String currentInsertPath = "";
     /** 保存的自定义路径值，用于持久化用户输入的自定义路径，即使当前选择的不是"复制到指定路径"也保留 */
     private String savedCustomInsertPath = "";
@@ -55,10 +58,14 @@ public class MikState {
     private boolean autoEscapeImageUrl = false;
     /** 粘贴文件/目录时使用纯文本格式（默认 true，避免 IDEA 自动转换成 Markdown 链接格式） */
     private boolean pasteFileAsPlainText = true;
+    /** 启用图片编辑器功能 */
+    private boolean enableImageEditor = false;
+    /** 图片编辑器类型，默认为 CleanShot X */
+    private ImageEditorEnum imageEditor = ImageEditorEnum.CLEANSHOT_X;
     //endregion
 
     //region 控制台设置
-    /** 启用控制台日志输出，用于控制是否在 MIK Console 中显示详细的任务处理日志 */
+    /** 是否启用控制台日志输出 */
     private boolean enableConsoleLog = true;
     //endregion
 
@@ -87,6 +94,7 @@ public class MikState {
 
     /** 是否将图片转换为 webp 格式 */
     private boolean convertToWebp = false;
+    /** WebP 图片压缩质量, 数值范围 0-100 */
     private int webpQuality = 60;
 
     /** 水印开关，用于控制是否显示水印 */

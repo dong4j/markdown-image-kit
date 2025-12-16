@@ -15,6 +15,7 @@ import com.intellij.util.IconUtil;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.enums.CloudEnum;
+import info.dong4j.idea.plugin.enums.ImageEditorEnum;
 import info.dong4j.idea.plugin.settings.MikPersistenComponent;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
@@ -155,6 +156,17 @@ public class MikStatusBarWidget extends EditorBasedStatusBarPopup {
 
         group.add(new Separator());
 
+        // 图片编辑器选择
+        group.add(new DefaultActionGroup("🖼️ " + MikBundle.message("panel.image.processing.enable.image.editor"), true) {
+            {
+                for (ImageEditorEnum editorEnum : ImageEditorEnum.values()) {
+                    add(new SelectImageEditorAction(editorEnum));
+                }
+            }
+        });
+
+        group.add(new Separator());
+
         // 打开设置页面
         group.add(new OpenSettingsAction());
 
@@ -171,10 +183,21 @@ public class MikStatusBarWidget extends EditorBasedStatusBarPopup {
      * 切换插件启用状态的 Action
      */
     private static class TogglePluginAction extends AnAction {
+        /**
+         * 构造函数, 用于初始化 TogglePluginAction 实例
+         * <p> 设置该操作的名称, 描述和图标, 用于在状态栏中显示插件切换功能
+         *
+         */
         public TogglePluginAction() {
             super(MikBundle.message("statusbar.toggle.plugin"), "", MikIcons.MIK);
         }
 
+        /**
+         * 执行切换插件状态的操作
+         * <p> 获取当前插件状态, 将其取反并更新状态栏显示
+         *
+         * @param e Action 事件对象
+         */
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             MikState state = MikPersistenComponent.getInstance().getState();
@@ -183,6 +206,12 @@ public class MikStatusBarWidget extends EditorBasedStatusBarPopup {
             updateStatusBar(e.getProject());
         }
 
+        /**
+         * 更新操作界面的显示状态
+         * <p> 根据插件的启用状态更新操作按钮的文本和图标, 用于在状态栏中显示插件的启用或禁用状态.
+         *
+         * @param e ActionEvent 对象, 包含操作事件的相关信息
+         */
         @Override
         public void update(@NotNull AnActionEvent e) {
             MikState state = MikPersistenComponent.getInstance().getState();
@@ -194,6 +223,12 @@ public class MikStatusBarWidget extends EditorBasedStatusBarPopup {
                                        );
         }
 
+        /**
+         * 指定此操作的更新线程
+         * <p> 返回用于更新操作状态的线程类型, 此处指定为后台线程 (BGT).
+         *
+         * @return 返回 {@link com.intellij.openapi.actionSystem.ActionUpdateThread#BGT} 表示后台线程
+         */
         @Override
         public @NotNull com.intellij.openapi.actionSystem.ActionUpdateThread getActionUpdateThread() {
             return com.intellij.openapi.actionSystem.ActionUpdateThread.BGT;
@@ -204,16 +239,33 @@ public class MikStatusBarWidget extends EditorBasedStatusBarPopup {
      * 切换相对路径偏好的 Action
      */
     private static class ToggleRelativePathAction extends AnAction {
+        /**
+         * 构造函数, 用于初始化 ToggleRelativePathAction 实例
+         * <p> 设置该操作的显示名称, 名称来源于资源文件中的对应键值
+         *
+         */
         public ToggleRelativePathAction() {
             super(MikBundle.message("statusbar.toggle.relative.path"));
         }
 
+        /**
+         * 执行切换相对路径偏好的操作
+         * <p> 获取插件状态并切换用户是否偏好使用相对路径的设置
+         *
+         * @param e Action 事件对象
+         */
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             MikState state = MikPersistenComponent.getInstance().getState();
             state.setPreferRelativePath(!state.isPreferRelativePath());
         }
 
+        /**
+         * 更新操作按钮的状态和显示文本
+         * <p> 根据插件状态启用情况设置按钮是否可用, 并根据相对路径偏好设置修改按钮显示文本.
+         *
+         * @param e ActionEvent 对象, 包含操作事件信息
+         */
         @Override
         public void update(@NotNull AnActionEvent e) {
             MikState state = MikPersistenComponent.getInstance().getState();
@@ -227,6 +279,12 @@ public class MikStatusBarWidget extends EditorBasedStatusBarPopup {
             e.getPresentation().setText(text);
         }
 
+        /**
+         * 指定此操作的更新线程
+         * <p> 返回用于更新操作界面的线程类型, 此处指定为后台线程 (BGT).
+         *
+         * @return 返回 {@link com.intellij.openapi.actionSystem.ActionUpdateThread#BGT} 表示在后台线程中更新
+         */
         @Override
         public @NotNull com.intellij.openapi.actionSystem.ActionUpdateThread getActionUpdateThread() {
             return com.intellij.openapi.actionSystem.ActionUpdateThread.BGT;
@@ -237,16 +295,33 @@ public class MikStatusBarWidget extends EditorBasedStatusBarPopup {
      * 切换添加 ./ 前缀的 Action
      */
     private static class ToggleAddDotSlashAction extends AnAction {
+        /**
+         * 构造函数, 用于初始化 ToggleAddDotSlashAction 实例
+         * <p> 使用指定的文本初始化动作, 该文本来自资源文件中的国际化消息
+         *
+         */
         public ToggleAddDotSlashAction() {
             super(MikBundle.message("statusbar.toggle.add.dot.slash"));
         }
 
+        /**
+         * 切换添加点斜线的功能状态
+         * <p> 在动作触发时, 获取当前状态并翻转添加点斜线的布尔值, 从而切换该功能的启用状态.
+         *
+         * @param e 动作事件对象, 包含触发此动作的相关信息
+         */
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             MikState state = MikPersistenComponent.getInstance().getState();
             state.setAddDotSlash(!state.isAddDotSlash());
         }
 
+        /**
+         * 更新操作按钮的状态和显示文本
+         * <p> 根据插件状态和路径偏好设置, 启用或禁用按钮, 并根据是否添加了点斜线前缀来更新按钮文本.
+         *
+         * @param e ActionEvent 对象, 包含操作事件信息
+         */
         @Override
         public void update(@NotNull AnActionEvent e) {
             MikState state = MikPersistenComponent.getInstance().getState();
@@ -261,6 +336,12 @@ public class MikStatusBarWidget extends EditorBasedStatusBarPopup {
             e.getPresentation().setText(text);
         }
 
+        /**
+         * 指定此操作的更新线程
+         * <p> 返回用于更新操作界面的线程类型, 此处指定为后台线程 (BGT).
+         *
+         * @return 返回 {@link com.intellij.openapi.actionSystem.ActionUpdateThread#BGT} 表示在后台线程中更新
+         */
         @Override
         public @NotNull com.intellij.openapi.actionSystem.ActionUpdateThread getActionUpdateThread() {
             return com.intellij.openapi.actionSystem.ActionUpdateThread.BGT;
@@ -271,16 +352,33 @@ public class MikStatusBarWidget extends EditorBasedStatusBarPopup {
      * 切换自动转义图片 URL 的 Action
      */
     private static class ToggleAutoEscapeAction extends AnAction {
+        /**
+         * 构造函数, 用于初始化 ToggleAutoEscapeAction 实例
+         * <p> 使用指定的文本初始化该操作, 该文本通常用于状态栏显示
+         *
+         */
         public ToggleAutoEscapeAction() {
             super(MikBundle.message("statusbar.toggle.auto.escape"));
         }
 
+        /**
+         * 执行切换自动转义图片 URL 的功能
+         * <p> 获取插件状态并切换自动转义图片 URL 的设置值
+         *
+         * @param e Action 事件对象
+         */
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             MikState state = MikPersistenComponent.getInstance().getState();
             state.setAutoEscapeImageUrl(!state.isAutoEscapeImageUrl());
         }
 
+        /**
+         * 更新操作按钮的状态和显示文本
+         * <p> 根据插件状态和自动转义图片 URL 的设置, 启用或禁用按钮, 并更新按钮显示文本以反映当前设置.
+         *
+         * @param e ActionEvent 对象, 包含与操作相关的事件数据
+         */
         @Override
         public void update(@NotNull AnActionEvent e) {
             MikState state = MikPersistenComponent.getInstance().getState();
@@ -294,6 +392,12 @@ public class MikStatusBarWidget extends EditorBasedStatusBarPopup {
             e.getPresentation().setText(text);
         }
 
+        /**
+         * 指定此操作的更新线程
+         * <p> 返回用于更新操作界面的线程类型, 此处指定为后台线程 (BGT).
+         *
+         * @return 返回 {@link com.intellij.openapi.actionSystem.ActionUpdateThread#BGT} 表示在后台线程中更新
+         */
         @Override
         public @NotNull com.intellij.openapi.actionSystem.ActionUpdateThread getActionUpdateThread() {
             return com.intellij.openapi.actionSystem.ActionUpdateThread.BGT;
@@ -304,13 +408,29 @@ public class MikStatusBarWidget extends EditorBasedStatusBarPopup {
      * 选择默认图床的 Action
      */
     private static class SelectDefaultCloudAction extends AnAction {
+        /**
+         * 表示当前操作的云服务类型
+         * <p> 用于标识该动作对应的云平台, 如阿里云, 腾讯云等
+         */
         private final CloudEnum cloudEnum;
 
+        /**
+         * 构造一个用于选择默认云服务的操作
+         * <p> 初始化该操作时设置其显示名称, 描述和图标, 并保存对应的云服务枚举值
+         *
+         * @param cloudEnum 对应的云服务枚举值
+         */
         public SelectDefaultCloudAction(CloudEnum cloudEnum) {
             super(cloudEnum.getTitle(), "", getCloudIcon(cloudEnum));
             this.cloudEnum = cloudEnum;
         }
 
+        /**
+         * 执行设置默认云类型的动作
+         * <p> 获取当前状态并设置默认云类型及默认云检查标志为 true.
+         *
+         * @param e ActionEvent 对象, 包含触发此动作的事件信息
+         */
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             MikState state = MikPersistenComponent.getInstance().getState();
@@ -318,6 +438,12 @@ public class MikStatusBarWidget extends EditorBasedStatusBarPopup {
             state.setDefaultCloudCheck(true);
         }
 
+        /**
+         * 更新操作的呈现状态
+         * <p> 根据插件是否启用和当前默认云类型, 设置操作的文本和启用状态.
+         *
+         * @param e ActionEvent 对象, 包含操作的上下文信息
+         */
         @Override
         public void update(@NotNull AnActionEvent e) {
             MikState state = MikPersistenComponent.getInstance().getState();
@@ -332,6 +458,12 @@ public class MikStatusBarWidget extends EditorBasedStatusBarPopup {
             }
         }
 
+        /**
+         * 指定此操作的更新线程
+         * <p> 返回用于更新操作界面的线程类型, 此处指定为后台线程 (BGT).
+         *
+         * @return 返回 {@link com.intellij.openapi.actionSystem.ActionUpdateThread#BGT} 表示后台线程
+         */
         @Override
         public @NotNull com.intellij.openapi.actionSystem.ActionUpdateThread getActionUpdateThread() {
             return com.intellij.openapi.actionSystem.ActionUpdateThread.BGT;
@@ -342,16 +474,33 @@ public class MikStatusBarWidget extends EditorBasedStatusBarPopup {
      * 切换 Console 日志输出的 Action
      */
     private static class ToggleConsoleLogAction extends AnAction {
+        /**
+         * 构造函数, 用于初始化 ToggleConsoleLogAction 实例
+         * <p> 使用指定的国际化消息作为操作名称初始化该动作
+         *
+         */
         public ToggleConsoleLogAction() {
             super(MikBundle.message("statusbar.toggle.console.log"));
         }
 
+        /**
+         * 切换控制台日志功能的状态
+         * <p> 根据当前状态, 将控制台日志功能启用或禁用进行取反操作.
+         *
+         * @param e Action 事件对象
+         */
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             MikState state = MikPersistenComponent.getInstance().getState();
             state.setEnableConsoleLog(!state.isEnableConsoleLog());
         }
 
+        /**
+         * 更新操作按钮的状态和显示文本
+         * <p> 根据插件状态启用情况设置按钮是否可用, 并根据控制台日志是否启用设置显示文本
+         *
+         * @param e ActionEvent 对象, 包含操作事件信息
+         */
         @Override
         public void update(@NotNull AnActionEvent e) {
             MikState state = MikPersistenComponent.getInstance().getState();
@@ -365,6 +514,12 @@ public class MikStatusBarWidget extends EditorBasedStatusBarPopup {
             e.getPresentation().setText(text);
         }
 
+        /**
+         * 指定此操作的更新线程
+         * <p> 返回用于更新操作界面的线程类型, 此处指定为后台线程 (BGT).
+         *
+         * @return 返回 {@link com.intellij.openapi.actionSystem.ActionUpdateThread#BGT} 表示在后台线程中更新
+         */
         @Override
         public @NotNull com.intellij.openapi.actionSystem.ActionUpdateThread getActionUpdateThread() {
             return com.intellij.openapi.actionSystem.ActionUpdateThread.BGT;
@@ -375,16 +530,33 @@ public class MikStatusBarWidget extends EditorBasedStatusBarPopup {
      * 切换粘贴文件为纯文本的 Action
      */
     private static class TogglePastePlainTextAction extends AnAction {
+        /**
+         * 构造函数, 用于初始化 TogglePastePlainTextAction 实例
+         * <p> 使用指定的国际化消息作为操作名称初始化该动作
+         *
+         */
         public TogglePastePlainTextAction() {
             super(MikBundle.message("statusbar.toggle.paste.plain.text"));
         }
 
+        /**
+         * 执行切换粘贴纯文本模式的操作
+         * <p> 获取插件状态并切换粘贴文件为纯文本的设置值
+         *
+         * @param e Action 事件对象
+         */
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             MikState state = MikPersistenComponent.getInstance().getState();
             state.setPasteFileAsPlainText(!state.isPasteFileAsPlainText());
         }
 
+        /**
+         * 更新操作按钮的状态和显示文本
+         * <p> 根据插件状态启用或禁用按钮, 并根据当前“粘贴为纯文本”设置修改按钮显示文本.
+         *
+         * @param e ActionEvent 对象, 包含操作事件信息
+         */
         @Override
         public void update(@NotNull AnActionEvent e) {
             MikState state = MikPersistenComponent.getInstance().getState();
@@ -398,6 +570,12 @@ public class MikStatusBarWidget extends EditorBasedStatusBarPopup {
             e.getPresentation().setText(text);
         }
 
+        /**
+         * 指定此操作的更新线程
+         * <p> 返回用于更新操作状态的线程类型, 此处指定为后台线程 (BGT).
+         *
+         * @return 返回 {@link com.intellij.openapi.actionSystem.ActionUpdateThread#BGT} 表示使用后台线程进行更新
+         */
         @Override
         public @NotNull com.intellij.openapi.actionSystem.ActionUpdateThread getActionUpdateThread() {
             return com.intellij.openapi.actionSystem.ActionUpdateThread.BGT;
@@ -408,10 +586,20 @@ public class MikStatusBarWidget extends EditorBasedStatusBarPopup {
      * 打开 MIK 设置页面的 Action
      */
     private static class OpenSettingsAction extends AnAction {
+        /**
+         * 构造一个 OpenSettingsAction 实例
+         * <p> 初始化动作并设置其显示名称, 名称由资源文件中的 "statusbar.open.settings" 键对应的值构成
+         */
         public OpenSettingsAction() {
             super("⚙️ " + MikBundle.message("statusbar.open.settings"));
         }
 
+        /**
+         * 执行打开设置对话框的操作
+         * <p> 根据传入的动作事件获取项目, 并显示指定的设置对话框.
+         *
+         * @param e 动作事件对象, 用于获取项目信息
+         */
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             Project project = e.getProject();
@@ -421,11 +609,92 @@ public class MikStatusBarWidget extends EditorBasedStatusBarPopup {
             }
         }
 
+        /**
+         * 更新操作的可用性状态
+         * <p> 根据当前项目是否存在, 启用或禁用该操作的界面展示.
+         *
+         * @param e 动作事件对象, 包含与操作相关的上下文信息
+         */
         @Override
         public void update(@NotNull AnActionEvent e) {
             e.getPresentation().setEnabled(e.getProject() != null);
         }
 
+        /**
+         * 指定此操作的更新线程
+         * <p> 返回用于更新操作界面的线程类型, 此处指定为后台线程.
+         *
+         * @return 返回 {@link com.intellij.openapi.actionSystem.ActionUpdateThread#BGT} 表示后台线程
+         */
+        @Override
+        public @NotNull com.intellij.openapi.actionSystem.ActionUpdateThread getActionUpdateThread() {
+            return com.intellij.openapi.actionSystem.ActionUpdateThread.BGT;
+        }
+    }
+
+    /**
+     * 选择图片编辑器的 Action
+     */
+    private static class SelectImageEditorAction extends AnAction {
+        /**
+         * 表示图像编辑器的枚举类型
+         * <p> 用于标识当前选择的图像编辑器
+         */
+        private final ImageEditorEnum editorEnum;
+
+        /**
+         * 构造一个用于选择图像编辑器的操作
+         * <p> 初始化操作并设置其名称, 描述和图标, 同时保存传入的图像编辑器类型
+         *
+         * @param editorEnum 要设置的图像编辑器类型
+         */
+        public SelectImageEditorAction(ImageEditorEnum editorEnum) {
+            super(editorEnum.getName(), "", getEditorIcon(editorEnum));
+            this.editorEnum = editorEnum;
+        }
+
+        /**
+         * 执行选择图像编辑器的操作
+         * <p> 获取当前状态并设置所选的图像编辑器以及启用图像编辑器功能
+         *
+         * @param e Action 事件对象
+         */
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            MikState state = MikPersistenComponent.getInstance().getState();
+            state.setImageEditor(editorEnum);
+            state.setEnableImageEditor(true);
+        }
+
+        /**
+         * 更新操作按钮的状态和显示文本
+         * <p> 根据当前插件状态和所选图像编辑器, 启用或禁用按钮, 并设置相应的显示文本.
+         *
+         * @param e 操作事件对象, 用于获取和设置按钮的呈现状态
+         */
+        @Override
+        public void update(@NotNull AnActionEvent e) {
+            MikState state = MikPersistenComponent.getInstance().getState();
+            e.getPresentation().setEnabled(state.isEnablePlugin());
+
+            // 检查是否是当前选中的编辑器
+            ImageEditorEnum currentEditor = state.getImageEditor();
+            if (currentEditor == null) {
+                currentEditor = ImageEditorEnum.SHOTTR;
+            }
+            if (currentEditor == editorEnum && state.isEnableImageEditor()) {
+                e.getPresentation().setText("✓ " + editorEnum.getName());
+            } else {
+                e.getPresentation().setText(editorEnum.getName());
+            }
+        }
+
+        /**
+         * 指定该操作的更新线程
+         * <p> 返回用于更新操作界面的线程类型, 此处指定为后台线程 (BGT).
+         *
+         * @return 返回 {@link com.intellij.openapi.actionSystem.ActionUpdateThread#BGT} 表示后台线程
+         */
         @Override
         public @NotNull com.intellij.openapi.actionSystem.ActionUpdateThread getActionUpdateThread() {
             return com.intellij.openapi.actionSystem.ActionUpdateThread.BGT;
@@ -449,6 +718,22 @@ public class MikStatusBarWidget extends EditorBasedStatusBarPopup {
             case GITEE -> MikIcons.GITEE;
             case CUSTOMIZE -> MikIcons.CUSTOM;
             case PICLIST -> MikIcons.PICLIST;
+        };
+
+        // 缩放图标，使其适合菜单显示（通常为原大小的 81.25%）
+        return IconUtil.scale(icon, null, 0.8125f);
+    }
+
+    /**
+     * 根据图片编辑器类型获取对应的图标
+     *
+     * @param editorEnum 图片编辑器类型
+     * @return 对应的图标（经过缩放处理）
+     */
+    private static Icon getEditorIcon(ImageEditorEnum editorEnum) {
+        Icon icon = switch (editorEnum) {
+            case SHOTTR -> MikIcons.SHOTTR;
+            case CLEANSHOT_X -> MikIcons.CLEANSHOTX;
         };
 
         // 缩放图标，使其适合菜单显示（通常为原大小的 81.25%）

@@ -5,6 +5,7 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ui.JBUI;
 
 import info.dong4j.idea.plugin.MikBundle;
+import info.dong4j.idea.plugin.enums.ImageEditorEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.util.SwingUtils;
@@ -15,14 +16,18 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.Icon;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 
+import icons.MikIcons;
 import lombok.Getter;
 
 /**
@@ -76,6 +81,10 @@ public class ImageEnhancementPanel {
 
     /** 图片压缩复选框 【字段映射】对应老页面的 compressCheckBox */
     private JCheckBox compressCheckBox;
+    /** 启用图片编辑器的复选框 */
+    private JCheckBox enableImageEditorCheckBox;
+    /** 图片编辑器下拉列表 */
+    private JComboBox<String> imageEditorComboBox;
     /** 当前状态对象的引用，用于在 ActionListener 中访问保存的自定义标签代码 */
     private MikState currentState;
 
@@ -137,9 +146,61 @@ public class ImageEnhancementPanel {
             renamePlaceholderHintLabel.setEnabled(enabled);
         });
 
-        // 图片压缩
+        // 图片编辑器配置
         gbc.gridx = 0;
         gbc.gridy = 2;
+        gbc.gridwidth = 1;
+        gbc.weightx = 0;
+        enableImageEditorCheckBox = new JCheckBox(MikBundle.message("panel.image.processing.enable.image.editor"));
+        enableImageEditorCheckBox.setToolTipText(MikBundle.message("panel.image.processing.enable.image.editor.tooltip"));
+        enableImageEditorCheckBox.addActionListener(e -> {
+            boolean enabled = enableImageEditorCheckBox.isSelected();
+            imageEditorComboBox.setEnabled(enabled);
+        });
+        content.add(enableImageEditorCheckBox, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridwidth = 2;
+        gbc.weightx = 1.0;
+        imageEditorComboBox = new ComboBox<>(ImageEditorEnum.getNames());
+        imageEditorComboBox.setEnabled(false);
+        // 设置自定义渲染器，显示图标和文本
+        imageEditorComboBox.setRenderer(new DefaultListCellRenderer() {
+            /**
+             * 重写列表单元格渲染器方法, 用于自定义单元格显示内容和图标
+             * <p> 根据当前索引获取对应的 ImageEditorEnum 枚举值, 并设置单元格的图标和文本.
+             *
+             * @param list         当前列表组件
+             * @param value        当前单元格的值
+             * @param index        当前单元格的索引
+             * @param isSelected   当前单元格是否被选中
+             * @param cellHasFocus 当前单元格是否获得焦点
+             * @return 渲染后的单元格组件
+             */
+            @Override
+            public java.awt.Component getListCellRendererComponent(
+                JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                // 根据索引获取对应的枚举值
+                if (index >= 0 && index < ImageEditorEnum.values().length) {
+                    ImageEditorEnum editorEnum = ImageEditorEnum.of(index);
+                    if (editorEnum != null) {
+                        Icon icon = switch (editorEnum) {
+                            case SHOTTR -> MikIcons.SHOTTR;
+                            case CLEANSHOT_X -> MikIcons.CLEANSHOTX;
+                        };
+                        label.setIcon(icon);
+                        label.setText(editorEnum.getName());
+                    }
+                }
+                return label;
+            }
+        });
+        content.add(imageEditorComboBox, gbc);
+
+        // 图片压缩
+        gbc.gridx = 0;
+        gbc.gridy = 4;
         gbc.gridwidth = 1;
         gbc.weightx = 0;
         gbc.insets = JBUI.insets(5, 10); // 确保复选框使用统一的间距设置
@@ -166,7 +227,7 @@ public class ImageEnhancementPanel {
 
         // 转为 WebP
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = 5;
         gbc.gridwidth = 1;
         gbc.weightx = 0;
         gbc.insets = JBUI.insets(5, 10); // 确保复选框使用统一的间距设置
@@ -194,14 +255,14 @@ public class ImageEnhancementPanel {
 
         // 添加水印
         gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridy = 6;
         gbc.gridwidth = 1;
         gbc.weightx = 0;
         gbc.insets = JBUI.insets(5, 10); // 确保复选框使用统一的间距设置
         watermarkCheckBox = new JCheckBox(MikBundle.message("panel.image.enhancement.watermark"));
         content.add(watermarkCheckBox, gbc);
 
-        gbc.gridy = 4;
+        gbc.gridy = 6;
         gbc.gridx = 1;
         gbc.gridwidth = 2;
         gbc.weightx = 1.0;
@@ -214,7 +275,7 @@ public class ImageEnhancementPanel {
 
         // 替换为 <a> 标签 - 放在水印下面
         gbc.gridx = 0;
-        gbc.gridy = 5;
+        gbc.gridy = 7;
         gbc.gridwidth = 1;
         gbc.weightx = 0;
         gbc.insets = JBUI.insets(5, 10);
@@ -249,7 +310,7 @@ public class ImageEnhancementPanel {
 
         // 自定义输入框（占满一行，不需要左侧标签）
         gbc.gridx = 1;
-        gbc.gridy = 6;
+        gbc.gridy = 8;
         gbc.gridwidth = 2;
         gbc.weightx = 1.0;
         customHtmlTagTextField = new JTextField();
@@ -300,7 +361,14 @@ public class ImageEnhancementPanel {
             tagEnum = ImageMarkEnum.ORIGINAL;
         }
 
-        this.htmlTagTypeComboBox.setSelectedIndex(tagEnum.index);
+        // 确保索引在有效范围内，防止因枚举值变化导致的索引越界
+        int index = tagEnum.index;
+        if (index < 0 || index >= this.htmlTagTypeComboBox.getItemCount()) {
+            // 如果索引无效，尝试通过枚举名称查找
+            tagEnum = ImageMarkEnum.ORIGINAL;
+            index = tagEnum.index;
+        }
+        this.htmlTagTypeComboBox.setSelectedIndex(index);
 
         // 自定义输入框的可见性和启用状态
         boolean customSelected = tagEnum == ImageMarkEnum.CUSTOM;
@@ -344,6 +412,15 @@ public class ImageEnhancementPanel {
         this.watermarkCheckBox.setSelected(state.isWatermark());
         this.watermarkTextTextField.setEnabled(state.isWatermark());
         this.watermarkTextTextField.setText(state.getWatermarkText());
+
+        // 图片编辑器
+        this.enableImageEditorCheckBox.setSelected(state.isEnableImageEditor());
+        ImageEditorEnum editor = state.getImageEditor();
+        if (editor == null) {
+            editor = ImageEditorEnum.SHOTTR;
+        }
+        this.imageEditorComboBox.setSelectedIndex(editor.getValue());
+        this.imageEditorComboBox.setEnabled(state.isEnableImageEditor());
     }
 
     /**
@@ -389,7 +466,19 @@ public class ImageEnhancementPanel {
             String stateCode = state.getCustomTagCode() != null ? state.getCustomTagCode() : "";
             customCodeEquals = customTagTypeCode.equals(stateCode);
         }
-        
+
+        // 图片编辑器
+        boolean enableImageEditor = this.enableImageEditorCheckBox.isSelected();
+        int selectedEditorIndex = this.imageEditorComboBox.getSelectedIndex();
+        ImageEditorEnum currentEditor = ImageEditorEnum.of(selectedEditorIndex);
+        ImageEditorEnum stateEditor = state.getImageEditor();
+        boolean editorEquals = false;
+        if (currentEditor == null || stateEditor == null) {
+            editorEquals = (currentEditor == stateEditor);
+        } else {
+            editorEquals = currentEditor.equals(stateEditor);
+        }
+
         return !(changeToHtmlTag == state.isChangeToHtmlTag()
                  && tagEnumEquals
                  && customCodeEquals
@@ -400,7 +489,9 @@ public class ImageEnhancementPanel {
                  && rename == state.isRename()
                  && renameTemplate.equals(state.getRenameTemplate() != null ? state.getRenameTemplate() : "${filename}")
                  && watermark == state.isWatermark()
-                 && watermarkText.equals(state.getWatermarkText()));
+                 && watermarkText.equals(state.getWatermarkText())
+                 && enableImageEditor == state.isEnableImageEditor()
+                 && editorEquals);
     }
 
     /**
@@ -441,6 +532,12 @@ public class ImageEnhancementPanel {
 
         state.setWatermark(this.watermarkCheckBox.isSelected());
         state.setWatermarkText(this.watermarkTextTextField.getText().trim());
+
+        // 图片编辑器
+        state.setEnableImageEditor(this.enableImageEditorCheckBox.isSelected());
+        int selectedEditorIndex = this.imageEditorComboBox.getSelectedIndex();
+        ImageEditorEnum editorEnum = ImageEditorEnum.of(selectedEditorIndex);
+        state.setImageEditor(editorEnum != null ? editorEnum : ImageEditorEnum.SHOTTR);
     }
 
     /**
@@ -468,5 +565,8 @@ public class ImageEnhancementPanel {
 
         watermarkCheckBox.setEnabled(enabled);
         watermarkTextTextField.setEnabled(enabled && watermarkCheckBox.isSelected());
+
+        enableImageEditorCheckBox.setEnabled(enabled);
+        imageEditorComboBox.setEnabled(enabled && enableImageEditorCheckBox.isSelected());
     }
 }

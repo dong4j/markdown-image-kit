@@ -144,6 +144,93 @@ public final class ImageUtils {
     }
 
     /**
+     * 将图片设置到剪贴板（复制）
+     * <p>
+     * 该方法用于将指定的图片对象复制到系统的剪贴板中，以便其他应用程序可以粘贴使用。
+     *
+     * @param image 要设置到剪贴板的图片对象
+     * @since 2.3.1
+     */
+    public static void setImageToClipboard(@NotNull Image image) {
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        ImageSelection imgSel = new ImageSelection(image);
+        clipboard.setContents(imgSel, null);
+    }
+
+    /**
+     * 图像选择类
+     * <p>
+     * 用于封装图像数据并实现数据传输功能，主要支持图像格式的拖放和复制操作。
+     * 该类实现了 Transferable 接口，用于在 Java 中进行数据的拖放操作。
+     *
+     * @author dong4j
+     * @version 1.0.0
+     * @date 2021.02.14
+     * @since 2.3.1
+     */
+    public static class ImageSelection implements Transferable {
+        /** 图像对象，用于表示和操作图像数据 */
+        private final Image image;
+
+        /**
+         * 根据指定的图片实例初始化一个ImageSelection对象
+         * <p>
+         * 该构造方法用于创建ImageSelection实例，并将传入的图片对象赋值给内部属性
+         *
+         * @param image 要绑定的图片对象
+         * @since 2.3.1
+         */
+        public ImageSelection(@NotNull Image image) {
+            this.image = image;
+        }
+
+        /**
+         * 获取传输数据格式
+         * <p>
+         * 返回支持的数据格式数组，当前仅支持图像格式
+         *
+         * @return 数据格式数组
+         * @since 2.3.1
+         */
+        @Override
+        public DataFlavor[] getTransferDataFlavors() {
+            return new DataFlavor[] {DataFlavor.imageFlavor};
+        }
+
+        /**
+         * 判断是否支持指定的数据格式
+         * <p>
+         * 检查传入的数据格式是否为图像格式
+         *
+         * @param flavor 要检查的数据格式
+         * @return 如果支持图像格式则返回 true，否则返回 false
+         * @since 2.3.1
+         */
+        @Override
+        public boolean isDataFlavorSupported(DataFlavor flavor) {
+            return DataFlavor.imageFlavor.equals(flavor);
+        }
+
+        /**
+         * 获取传输数据
+         * <p>
+         * 根据指定的DataFlavor获取对应的数据，若不支持该类型则抛出异常
+         *
+         * @param flavor 数据类型
+         * @return 传输数据对象
+         * @throws UnsupportedFlavorException 不支持的DataFlavor类型
+         * @since 2.3.1
+         */
+        @Override
+        public @NotNull Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {
+            if (!DataFlavor.imageFlavor.equals(flavor)) {
+                throw new UnsupportedFlavorException(flavor);
+            }
+            return this.image;
+        }
+    }
+
+    /**
      * 对给定的 BufferedImage 进行缩放操作，生成指定尺寸的新图片。
      * <p>
      * 该方法首先检查源图片和目标尺寸是否有效，若无效则返回 null。否则，使用仿射变换和双线性插值算法对图片进行缩放。

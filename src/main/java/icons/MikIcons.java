@@ -16,10 +16,14 @@ import javax.swing.Icon;
  * @since 2.0.0
  */
 public class MikIcons {
+    /** 图标资源所在的文件夹路径 */
     private static final String ICON_FOLDER = "/icons/";
 
     /** MIK ICON */
     public static final Icon MIK = load("mikIcon.svg");
+    /** Shottr 图片编辑器图标 */
+    public static final Icon SHOTTR = load("shottr.png");
+    /** CleanShot X 图片编辑器图标 */
     public static final Icon CLEANSHOTX = load("cleanshotx.png");
 
     /** 图片上传 */

@@ -1,6 +1,9 @@
 package info.dong4j.idea.plugin.settings;
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.openapi.options.SearchableConfigurable;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 
 import info.dong4j.idea.plugin.settings.panel.GlobalSettingsPanel;
 import info.dong4j.idea.plugin.settings.panel.ImageEnhancementPanel;
@@ -13,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.BorderLayout;
+import java.util.Objects;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -288,6 +292,9 @@ public class ProjectSettingsPage implements SearchableConfigurable {
     @Override
     public void apply() {
         MikState state = this.config.getState();
+        boolean beforeEnableImageEditor = state.isEnableImageEditor();
+        info.dong4j.idea.plugin.enums.ImageEditorEnum beforeImageEditor = state.getImageEditor();
+
         // 应用全局设置
         globalSettingsPanel.applyGlobalSettingsConfigs(state);
         // 应用图片增强处理设置
@@ -296,6 +303,13 @@ public class ProjectSettingsPage implements SearchableConfigurable {
         imageProcessingPanel.applyImageProcessingConfigs(state);
         // 应用上传服务设定
         uploadServicePanel.applyUploadServiceConfigs(state);
+
+        boolean afterEnableImageEditor = state.isEnableImageEditor();
+        info.dong4j.idea.plugin.enums.ImageEditorEnum afterImageEditor = state.getImageEditor();
+        if (beforeEnableImageEditor != afterEnableImageEditor
+            || (!Objects.equals(beforeImageEditor, afterImageEditor))) {
+            refreshCodeVisionForOpenProjects();
+        }
     }
 
     /**
@@ -321,5 +335,15 @@ public class ProjectSettingsPage implements SearchableConfigurable {
         imageEnhancementPanel.setAllComponentsEnabled(enabled);
         uploadServicePanel.setAllComponentsEnabled(enabled);
     }
-}
 
+    /**
+     * 当图片编辑器设置变更时刷新打开的编辑器以更新 Code Vision
+     */
+    private void refreshCodeVisionForOpenProjects() {
+        for (Project project : ProjectManager.getInstance().getOpenProjects()) {
+            if (!project.isDisposed()) {
+                DaemonCodeAnalyzer.getInstance(project).restart();
+            }
+        }
+    }
+}

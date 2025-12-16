@@ -39,4 +39,6 @@ public interface ImageContents {
     String COMMON_IMAGE_MARK = "<a title='${title}' href='${path}' >" + DEFAULT_IMAGE_MARK + "</a>";
     /** 常量字段，表示图片标记的固定ID，由COMMON_IMAGE_MARK的前8位字符组成 */
     String COMMON_IMAGE_MARK_ID = COMMON_IMAGE_MARK.substring(1, 9);
+    /** 居中图片标记，使用 div 包裹图片并设置居中对齐 */
+    String CENTERED_IMAGE_MARK = "<div style=\"text-align: center;\"><img src=\"${path}\" alt=\"${title}\" /></div>";
 }

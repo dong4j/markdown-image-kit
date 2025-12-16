@@ -12,7 +12,7 @@ import java.util.Optional;
 /**
  * 图片标记枚举
  * <p>
- * 定义图片标记的类型，包括大图、正常图、自定义图和原始图。每个枚举值包含对应的索引、显示文本和标记代码。
+ * 定义图片标记的类型，包括原始图、正常图、点击放大、图片居中、自定义图等。每个枚举值包含对应的索引、显示文本和标记代码。
  * <p>
  * 该枚举用于标识不同类型的图片标记，常用于图片处理或展示逻辑中，根据标记类型执行相应的操作。
  *
@@ -28,8 +28,10 @@ public enum ImageMarkEnum {
     COMMON_PICTURE(1, "正常", ImageContents.COMMON_IMAGE_MARK),
     /** 大图标记枚举值，表示图片上的"点击看大图"标记 */
     LARGE_PICTURE(2, "点击放大", ImageContents.LARG_IMAGE_MARK),
+    /** 居中图片标记枚举，用于表示图片居中显示的标记类型 */
+    CENTERED_PICTURE(3, "图片居中", ImageContents.CENTERED_IMAGE_MARK),
     /** 自定义图片标记枚举，用于表示自定义图片标记类型 */
-    CUSTOM(3, "自定义", "");
+    CUSTOM(4, "自定义", "");
     /** 索引值，表示当前元素在集合或列表中的位置 */
     public final int index;
     /** 文本内容 */
@@ -137,6 +139,7 @@ public enum ImageMarkEnum {
             ORIGINAL.getText() + ": " + ORIGINAL.getCode(),
             COMMON_PICTURE.getText() + ": " + COMMON_PICTURE.getCode(),
             LARGE_PICTURE.getText() + ": " + LARGE_PICTURE.getCode(),
+            CENTERED_PICTURE.getText() + ": " + CENTERED_PICTURE.getCode(),
             CUSTOM.getText() + ": 使用 ${title} 和 ${path} 占位符构建标签"
         };
     }

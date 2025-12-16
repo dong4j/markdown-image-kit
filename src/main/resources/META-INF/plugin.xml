@@ -80,7 +80,20 @@
         <!--suppress PluginXmlValidity -->
         <codeInsight.codeVisionProvider implementation="info.dong4j.idea.plugin.codevision.MarkdownImageCodeVisionProvider"/>
         <!--suppress PluginXmlValidity -->
-        <codeInsight.codeVisionProvider implementation="info.dong4j.idea.plugin.codevision.CleanShotAnnotateCodeVisionProvider"/>
+        <codeInsight.codeVisionProvider implementation="info.dong4j.idea.plugin.codevision.ImageEditorAnnotateCodeVisionProvider"/>
+        <!--suppress PluginXmlValidity -->
+        <codeInsight.codeVisionProvider implementation="info.dong4j.idea.plugin.codevision.MarkdownImageSizeCodeVisionProvider"/>
+        <!-- Declarative Inlay Hints Provider -->
+        <!--suppress PluginXmlValidity -->
+        <codeInsight.declarativeInlayProvider
+                language="Markdown"
+                implementationClass="info.dong4j.idea.plugin.inlay.MarkdownImageSizeInlayProvider"
+                isEnabledByDefault="true"
+                group="CODE_VISION"
+                providerId="markdown.image.kit.inlay.image.size"
+                bundle="messages.MikBundle"
+                nameKey="mik.inlay.image.size.name"
+                descriptionKey="mik.inlay.image.size.description"/>
 
     </extensions>
 

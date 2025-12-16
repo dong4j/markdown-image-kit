@@ -1,6 +1,8 @@
 package info.dong4j.idea.plugin.settings.oss;
 
 import com.intellij.credentialStore.CredentialAttributes;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
 
 import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.settings.OssState;
@@ -24,12 +26,17 @@ import javax.swing.JTextField;
  * @since 1.0.0
  */
 public class SmmsOssSetting implements OssSetting<SmmsOssState> {
+    /**
+     * 用于存储和检索 SMMS OSS 设置中 Token 的凭证属性
+     * <p> 该属性用于与密码管理器交互, 安全地保存和获取 Token 值.
+     */
     public static final CredentialAttributes CREDENTIAL_ATTRIBUTES =
         PasswordManager.buildCredentialAttributes(SmmsOssSetting.class.getName(),
                                                   "SMMSOSS_SETTINGS_TOKEN");
 
     /** 图床类型文本输入框 */
     private final JPasswordField smmsTokenTextField;
+    /** SMMS 服务的 URL 输入框 */
     private final JTextField smmsUrlTextField;
 
     /**
@@ -91,6 +98,14 @@ public class SmmsOssSetting implements OssSetting<SmmsOssState> {
     @Override
     public void reset(SmmsOssState state) {
         this.smmsUrlTextField.setText(StringUtils.isBlank(state.getUrl()) ? SmmsOssState.API : state.getUrl());
-        this.smmsTokenTextField.setText(PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES));
+        ApplicationManager.getApplication().executeOnPooledThread(() -> {
+            String token = PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES);
+            ApplicationManager.getApplication().invokeLater(() -> {
+                // 避免覆盖用户已经手动输入的值
+                if (StringUtils.isBlank(new String(this.smmsTokenTextField.getPassword()))) {
+                    this.smmsTokenTextField.setText(token);
+                }
+            }, ModalityState.any());
+        });
     }
 }
