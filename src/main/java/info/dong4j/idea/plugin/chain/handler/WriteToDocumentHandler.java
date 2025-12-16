@@ -1,5 +1,6 @@
 package info.dong4j.idea.plugin.chain.handler;
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -87,6 +88,8 @@ public class WriteToDocumentHandler extends ActionHandlerAdapter {
         }
 
         MikConsoleView.printSuccessMessage(data.getProject(), "  [✓] 所有图片标签已写入文档");
+        // 触发 Code Vision 重算，确保最新标签对应的入口刷新
+        DaemonCodeAnalyzer.getInstance(data.getProject()).restart();
         return true;
     }
 }

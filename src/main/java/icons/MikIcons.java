@@ -20,6 +20,7 @@ public class MikIcons {
 
     /** MIK ICON */
     public static final Icon MIK = load("mikIcon.svg");
+    public static final Icon CLEANSHOTX = load("cleanshotx.png");
 
     /** 图片上传 */
     public static final Icon UPLOAD = load("upload.svg");

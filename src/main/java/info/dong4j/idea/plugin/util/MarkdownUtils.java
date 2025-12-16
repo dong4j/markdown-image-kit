@@ -10,8 +10,10 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 
 import info.dong4j.idea.plugin.content.ImageContents;
@@ -116,15 +118,18 @@ public final class MarkdownUtils {
         List<MarkdownImage> markdownImageList = new ArrayList<>();
 
         if (document != null) {
-            int lineCount = document.getLineCount();
-            // 解析每一行文本
-            for (int line = 0; line < lineCount; line++) {
-                // 获取指定行的第一个字符在全文中的偏移量，行号的取值范围为：[0,getLineCount()-1]
-                int startOffset = document.getLineStartOffset(line);
-                // 获取指定行的最后一个字符在全文中的偏移量，行号的取值范围为：[0,getLineCount()-1]
-                int endOffset = document.getLineEndOffset(line);
-                TextRange currentLineTextRange = TextRange.create(startOffset, endOffset);
-                String originalLineText = document.getText(currentLineTextRange);
+            PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document);
+            if (psiFile == null) {
+                return markdownImageList;
+            }
+
+            for (org.intellij.plugins.markdown.lang.psi.impl.MarkdownImage imageElement :
+                com.intellij.psi.util.PsiTreeUtil.findChildrenOfType(psiFile,
+                                                                     org.intellij.plugins.markdown.lang.psi.impl.MarkdownImage.class)) {
+                TextRange imageRange = imageElement.getTextRange();
+                int line = document.getLineNumber(imageRange.getStartOffset());
+                TextRange lineRange = TextRange.create(document.getLineStartOffset(line), document.getLineEndOffset(line));
+                String originalLineText = document.getText(lineRange);
 
                 if (illegalImageMark(project, originalLineText)) {
                     continue;
@@ -260,11 +265,30 @@ public final class MarkdownUtils {
         // 严格验证图片文件是否存在
         VirtualFile virtualFiles = UploadUtils.searchVirtualFileByName(project, imageName);
         if (virtualFiles == null) {
-            return true;
+            // 刚写入的文件可能尚未被 VFS 感知，尝试刷新定位
+            VirtualFile refreshed = refreshAndFindLocalFile(path, project);
+            if (refreshed == null) {
+                return true;
+            }
+            virtualFiles = refreshed;
         }
 
         // 文件不是图片
         return !ImageUtils.isImageFile(virtualFiles);
+    }
+
+    @Nullable
+    private static VirtualFile refreshAndFindLocalFile(@NotNull String path, @Nullable Project project) {
+        try {
+            File file = new File(path);
+            if (!file.isAbsolute() && project != null && project.getBasePath() != null) {
+                file = new File(project.getBasePath(), path);
+            }
+            return LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
+        } catch (Exception e) {
+            log.trace("refreshAndFindLocalFile error, path={}", path, e);
+            return null;
+        }
     }
 
     /**
