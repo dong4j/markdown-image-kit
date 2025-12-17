@@ -26,6 +26,8 @@ import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
+import info.dong4j.idea.plugin.enums.InsertImageActionEnum;
+import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.task.ActionTask;
 import info.dong4j.idea.plugin.util.ClientUtils;
 
@@ -92,8 +94,14 @@ public class MarkdownImageCodeVisionProvider extends AbstractMarkdownImageCodeVi
     protected @NotNull List<CodeVisionEntry> createEntriesForImage(@NotNull Context context,
                                                                    @NotNull MarkdownImage markdownImage) {
         if (markdownImage.getLocation() == ImageLocationEnum.NETWORK) {
-            //noinspection DataFlowIssue
-            return Collections.singletonList(createDownloadEntry(context.project, markdownImage));
+            final MikState instance = MikState.getInstance();
+            //noinspection DataFlowIssue 下载时需要先判断配置(todo-dong4j : (2025.12.17 09:53) [在 EventData 添加一个字段, 用于覆写全局配置])
+            return instance.getInsertImageAction() == InsertImageActionEnum.NONE
+                   || instance.getInsertImageAction() == InsertImageActionEnum.UPLOAD
+                   || !instance.isApplyToLocalImages()
+                   || !instance.isApplyToNetworkImages()
+                   ? Collections.emptyList()
+                   : Collections.singletonList(createDownloadEntry(context.project, markdownImage));
         }
 
         if (markdownImage.getLocation() == ImageLocationEnum.LOCAL) {
