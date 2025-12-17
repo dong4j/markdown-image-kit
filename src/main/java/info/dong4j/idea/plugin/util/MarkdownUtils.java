@@ -214,7 +214,19 @@ public final class MarkdownUtils {
                 String imagename = path.substring(path.lastIndexOf(File.separator) + 1);
 
                 Project project = ProjectUtil.guessProjectForFile(virtualFile);
+                if (project == null) {
+                    // 退化：项目未知时仅填充基本信息, 后续解析走相对路径
+                    markdownImage.setExtension(ImageUtils.getFileExtension(imagename));
+                    markdownImage.setImageName(imagename);
+                    markdownImage.setVirtualFile(null);
+                    return markdownImage;
+                }
+
                 VirtualFile imageVirtualFile = UploadUtils.searchVirtualFileByName(project, imagename);
+                if (imageVirtualFile == null) {
+                    log.trace("未找到本地图片文件: {}", imagename);
+                    return null;
+                }
 
                 markdownImage.setExtension(imageVirtualFile.getExtension());
                 markdownImage.setInputStream(imageVirtualFile.getInputStream());

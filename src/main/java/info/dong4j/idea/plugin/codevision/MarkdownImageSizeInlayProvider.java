@@ -30,12 +30,16 @@ import org.intellij.plugins.markdown.lang.psi.impl.MarkdownLinkDestination;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.Dimension;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
+
+import javax.imageio.ImageIO;
 
 import kotlin.Unit;
 import lombok.extern.slf4j.Slf4j;
@@ -140,22 +144,29 @@ public class MarkdownImageSizeInlayProvider implements InlayHintsProvider {
             return;
         }
 
+        Dimension dimension = readImageDimension(imagePath);
+        if (dimension == null) {
+            return;
+        }
+
         Long size = readFileSize(imagePath);
         if (size == null) {
             return;
         }
 
+        String dimensionText = formatDimension(dimension);
         String humanReadable = formatSize(size);
+        String displayText = dimensionText + "|" + humanReadable;
         InlayPosition position = calculateDestinationPosition((MarkdownImage) element);
         if (position == null) {
             position = new InlineInlayPosition(element.getTextRange().getEndOffset(), true, 0);
         }
         sink.addPresentation(position,
                              null,
-                             MikBundle.message("mik.inlay.image.size.tooltip", imagePath.getFileName(), humanReadable),
+                             MikBundle.message("mik.inlay.image.size.tooltip", imagePath.getFileName(), dimensionText, humanReadable),
                              FORMAT,
                              builder -> {
-                                 builder.text(humanReadable, null);
+                                 builder.text(displayText, null);
                                  return Unit.INSTANCE;
                              });
     }
@@ -219,22 +230,22 @@ public class MarkdownImageSizeInlayProvider implements InlayHintsProvider {
 
     /**
      * 将字节数转换为可读的大小格式
-     * <p> 根据字节数自动转换为 B,KB 或 MB, 并保留两位小数
+     * <p> 根据字节数自动转换为 B,KB 或 MB, 并保留两位小数 (无空格)
      *
      * @param bytes 需要转换的字节数
-     * @return 格式化后的大小字符串, 例如 "1.23 KB" 或 "4.56 MB"
+     * @return 格式化后的大小字符串, 例如 "1.23KB" 或 "4.56MB"
      */
     @NotNull
     private String formatSize(long bytes) {
         if (bytes < 1024) {
-            return bytes + " B";
+            return bytes + "B";
         }
         double kb = bytes / 1024.0;
         if (kb < 1024) {
-            return DECIMAL_FORMAT.format(kb) + " KB";
+            return DECIMAL_FORMAT.format(kb) + "KB";
         }
         double mb = kb / 1024.0;
-        return DECIMAL_FORMAT.format(mb) + " MB";
+        return DECIMAL_FORMAT.format(mb) + "MB";
     }
 
     private boolean isMarkdownFile(@NotNull PsiFile file) {
@@ -255,5 +266,30 @@ public class MarkdownImageSizeInlayProvider implements InlayHintsProvider {
             return null;
         }
         return new InlineInlayPosition(destination.getTextRange().getStartOffset(), true, 0);
+    }
+
+    /**
+     * 读取图片尺寸
+     *
+     * @param imagePath 图片路径
+     * @return 图片宽高, 读取失败返回 null
+     */
+    @Nullable
+    private Dimension readImageDimension(@NotNull Path imagePath) {
+        try {
+            BufferedImage image = ImageIO.read(imagePath.toFile());
+            if (image == null) {
+                return null;
+            }
+            return new Dimension(image.getWidth(), image.getHeight());
+        } catch (Exception e) {
+            log.trace("读取图片尺寸失败: {}", imagePath, e);
+            return null;
+        }
+    }
+
+    @NotNull
+    private String formatDimension(@NotNull Dimension dimension) {
+        return dimension.width + "x" + dimension.height;
     }
 }
