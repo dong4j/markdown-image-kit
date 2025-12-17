@@ -2,9 +2,20 @@
 IDEA_PLUGINS_DIR := /Users/dong4j/Developer/4.Tools/JetBrains/IDEA/plugins
 MIK_DIR := .
 
+# asdf Java 环境支持
+SHELL := /bin/zsh
+
 build-plugin:
 	@echo "正在构建 mik 插件..."
-	cd $(MIK_DIR) && ./gradlew buildPlugin
+	@ASDF_CMD='$(ASDF_INIT)'; \
+		if ! eval "$$ASDF_CMD"; then \
+			echo "提示: 未找到 $(ASDF_SH), 将尝试使用系统 Java"; \
+		fi; \
+		if ! java -version >/dev/null 2>&1; then \
+			echo "错误: 未找到 Java 运行环境, 请通过 asdf 安装并激活 Java (例如: asdf install java temurin-17 && asdf global java temurin-17)"; \
+			exit 1; \
+		fi; \
+		cd $(MIK_DIR) && eval "$$ASDF_CMD" && ./gradlew buildPlugin
 
 # 拷贝构建产物到 IDEA 插件目录（解压后拷贝目录）
 install-plugins: build-plugin

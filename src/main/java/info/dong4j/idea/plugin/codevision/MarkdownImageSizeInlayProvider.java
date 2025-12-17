@@ -1,4 +1,4 @@
-package info.dong4j.idea.plugin.inlay;
+package info.dong4j.idea.plugin.codevision;
 
 import com.intellij.codeInsight.hints.declarative.HintColorKind;
 import com.intellij.codeInsight.hints.declarative.HintFormat;
@@ -16,6 +16,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.util.PsiTreeUtil;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
@@ -25,6 +26,7 @@ import info.dong4j.idea.plugin.util.MarkdownUtils;
 import info.dong4j.idea.plugin.util.StringUtils;
 
 import org.intellij.plugins.markdown.lang.psi.impl.MarkdownImage;
+import org.intellij.plugins.markdown.lang.psi.impl.MarkdownLinkDestination;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -144,7 +146,10 @@ public class MarkdownImageSizeInlayProvider implements InlayHintsProvider {
         }
 
         String humanReadable = formatSize(size);
-        InlayPosition position = new InlineInlayPosition(element.getTextRange().getEndOffset(), true, 0);
+        InlayPosition position = calculateDestinationPosition((MarkdownImage) element);
+        if (position == null) {
+            position = new InlineInlayPosition(element.getTextRange().getEndOffset(), true, 0);
+        }
         sink.addPresentation(position,
                              null,
                              MikBundle.message("mik.inlay.image.size.tooltip", imagePath.getFileName(), humanReadable),
@@ -235,5 +240,20 @@ public class MarkdownImageSizeInlayProvider implements InlayHintsProvider {
     private boolean isMarkdownFile(@NotNull PsiFile file) {
         VirtualFile virtualFile = file.getVirtualFile();
         return virtualFile != null && MarkdownUtils.isMardownFile(virtualFile);
+    }
+
+    /**
+     * 尝试将提示放置在图片路径起始处 (即括号内路径之前)
+     *
+     * @param markdownImage Markdown 图片 PSI 元素
+     * @return 内联提示位置, 找不到路径时返回 null
+     */
+    @Nullable
+    private InlineInlayPosition calculateDestinationPosition(@NotNull MarkdownImage markdownImage) {
+        MarkdownLinkDestination destination = PsiTreeUtil.findChildOfType(markdownImage, MarkdownLinkDestination.class);
+        if (destination == null) {
+            return null;
+        }
+        return new InlineInlayPosition(destination.getTextRange().getStartOffset(), true, 0);
     }
 }

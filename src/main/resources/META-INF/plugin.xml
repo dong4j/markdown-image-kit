@@ -87,9 +87,9 @@
         <!--suppress PluginXmlValidity -->
         <codeInsight.declarativeInlayProvider
                 language="Markdown"
-                implementationClass="info.dong4j.idea.plugin.inlay.MarkdownImageSizeInlayProvider"
+                implementationClass="info.dong4j.idea.plugin.codevision.MarkdownImageSizeInlayProvider"
                 isEnabledByDefault="true"
-                group="CODE_VISION"
+                group="CODE_VISION_GROUP"
                 providerId="markdown.image.kit.inlay.image.size"
                 bundle="messages.MikBundle"
                 nameKey="mik.inlay.image.size.name"
