@@ -108,6 +108,11 @@ public class MikState {
     private ImageMarkEnum imageMarkEnum = ImageMarkEnum.ORIGINAL;
     /** 自定义标签代码，仅当 imageMarkEnum 为 CUSTOM 时使用 */
     private String customTagCode = "";
+
+    /** 删除图片标志，用于指示是否启用删除图片功能 */
+    private boolean deleteImage = false;
+    /** 删除图片时是否二次确认，仅当 deleteImage 为 true 时生效 */
+    private boolean deleteImageWithConfirm = true;
     //endregion
 
     //region 上传服务设定

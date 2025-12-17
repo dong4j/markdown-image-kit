@@ -85,6 +85,10 @@ public class ImageEnhancementPanel {
     private JCheckBox enableImageEditorCheckBox;
     /** 图片编辑器下拉列表 */
     private JComboBox<String> imageEditorComboBox;
+    /** 删除图片复选框 */
+    private JCheckBox deleteImageCheckBox;
+    /** 删除时是否二次确认复选框 */
+    private JCheckBox deleteImageWithConfirmCheckBox;
     /** 当前状态对象的引用，用于在 ActionListener 中访问保存的自定义标签代码 */
     private MikState currentState;
 
@@ -334,6 +338,31 @@ public class ImageEnhancementPanel {
             customHtmlTagTextField.setEnabled(enabled && showCustom);
         });
 
+        // 删除图片配置
+        gbc.gridx = 0;
+        gbc.gridy = 9;
+        gbc.gridwidth = 1;
+        gbc.weightx = 0;
+        gbc.insets = JBUI.insets(5, 10);
+        deleteImageCheckBox = new JCheckBox(MikBundle.message("panel.image.enhancement.delete.image"));
+        deleteImageCheckBox.addActionListener(e -> {
+            boolean enabled = deleteImageCheckBox.isSelected();
+            deleteImageWithConfirmCheckBox.setEnabled(enabled);
+        });
+        content.add(deleteImageCheckBox, gbc);
+
+        // 删除时是否二次确认复选框 - 放在下一行，前面添加空格表示子选项
+        gbc.gridx = 0;
+        gbc.gridy = 10;
+        gbc.gridwidth = 3;
+        gbc.weightx = 1.0;
+        gbc.insets = JBUI.insets(5, 30, 5, 10); // 增加左边距，使其看起来像子选项
+        deleteImageWithConfirmCheckBox = new JCheckBox("  " + MikBundle.message("panel.image.enhancement.delete.image.with.confirm"));
+        deleteImageWithConfirmCheckBox.setEnabled(false);
+        content.add(deleteImageWithConfirmCheckBox, gbc);
+        // 恢复默认的 insets 设置
+        gbc.insets = JBUI.insets(5, 10);
+
     }
 
     /**
@@ -421,6 +450,11 @@ public class ImageEnhancementPanel {
         }
         this.imageEditorComboBox.setSelectedIndex(editor.getValue());
         this.imageEditorComboBox.setEnabled(state.isEnableImageEditor());
+
+        // 删除图片
+        this.deleteImageCheckBox.setSelected(state.isDeleteImage());
+        this.deleteImageWithConfirmCheckBox.setSelected(state.isDeleteImageWithConfirm());
+        this.deleteImageWithConfirmCheckBox.setEnabled(state.isDeleteImage());
     }
 
     /**
@@ -459,6 +493,9 @@ public class ImageEnhancementPanel {
         boolean watermark = this.watermarkCheckBox.isSelected();
         String watermarkText = this.watermarkTextTextField.getText().trim();
 
+        boolean deleteImage = this.deleteImageCheckBox.isSelected();
+        boolean deleteImageWithConfirm = this.deleteImageWithConfirmCheckBox.isSelected();
+
         // 比较枚举值和自定义代码
         boolean tagEnumEquals = (selectedTagEnum == state.getImageMarkEnum());
         boolean customCodeEquals = true;
@@ -491,7 +528,9 @@ public class ImageEnhancementPanel {
                  && watermark == state.isWatermark()
                  && watermarkText.equals(state.getWatermarkText())
                  && enableImageEditor == state.isEnableImageEditor()
-                 && editorEquals);
+                 && editorEquals
+                 && deleteImage == state.isDeleteImage()
+                 && deleteImageWithConfirm == state.isDeleteImageWithConfirm());
     }
 
     /**
@@ -538,6 +577,10 @@ public class ImageEnhancementPanel {
         int selectedEditorIndex = this.imageEditorComboBox.getSelectedIndex();
         ImageEditorEnum editorEnum = ImageEditorEnum.of(selectedEditorIndex);
         state.setImageEditor(editorEnum != null ? editorEnum : ImageEditorEnum.SHOTTR);
+
+        // 删除图片
+        state.setDeleteImage(this.deleteImageCheckBox.isSelected());
+        state.setDeleteImageWithConfirm(this.deleteImageWithConfirmCheckBox.isSelected());
     }
 
     /**
@@ -568,5 +611,8 @@ public class ImageEnhancementPanel {
 
         enableImageEditorCheckBox.setEnabled(enabled);
         imageEditorComboBox.setEnabled(enabled && enableImageEditorCheckBox.isSelected());
+
+        deleteImageCheckBox.setEnabled(enabled);
+        deleteImageWithConfirmCheckBox.setEnabled(enabled && deleteImageCheckBox.isSelected());
     }
 }
