@@ -39,6 +39,12 @@
         <editorActionHandler action="EditorPaste"
                              implementationClass="info.dong4j.idea.plugin.action.paste.PasteImageAction"
                              order="first"/>
+        <editorActionHandler action="EditorPasteSimple"
+                             implementationClass="info.dong4j.idea.plugin.action.paste.PasteImageAction"
+                             order="first"/>
+        <customPasteProvider id="MikPasteProvider"
+                             order="first"
+                             implementation="info.dong4j.idea.plugin.action.paste.MikPasteProvider"/>
         <!-- 设置面板 -->
         <applicationConfigurable
                 parentId="tools"

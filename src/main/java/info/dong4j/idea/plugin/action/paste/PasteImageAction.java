@@ -117,6 +117,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
      */
     @Override
     protected void doExecute(@NotNull Editor editor, @Nullable Caret caret, DataContext dataContext) {
+        log.debug("PasteImageAction.doExecute 被调用 - 开始处理粘贴操作");
 
         Document document = editor.getDocument();
         VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
@@ -127,7 +128,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
             this.extractedDefaultAction(editor, caret, dataContext);
             return;
         }
-        
+
         InsertImageActionEnum insertImageAction = state.getInsertImageAction();
 
         if (virtualFile != null
@@ -382,7 +383,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
         if (state.isApplyToNetworkImages() && entry.getKey().equals(DataFlavor.stringFlavor)) {
             String text = (String) entry.getValue();
             if (text != null && (text.trim().startsWith("http://") || text.trim().startsWith("https://"))) {
-                // 检查光标是否在图片路径中 ![](光标必须在这里, 复制才能生效)
+                // 检查光标是否在图片路径中 ![](光标必须在这里, 复制才能生效[将网络图片直接下载到本地])
                 if (this.isCaretInImagePath(editor, caret)) {
                     this.resolveFromNetworkUrl(text.trim(), editor, caret, imageMap);
                     if (!imageMap.isEmpty()) {
@@ -607,7 +608,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
                 log.trace("处理文件粘贴时出错", e);
             }
         }
-        
+
         // 执行默认的 paste 操作
         extractedDefaultAction(editor, caret, dataContext);
     }
@@ -712,7 +713,8 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
      */
     @Override
     public void execute(Editor editor, DataContext dataContext, @Nullable Producer<? extends Transferable> producer) {
-
+        // 兼容 DnD/特殊粘贴路径，确保走统一的 paste 处理逻辑
+        doExecute(editor, null, dataContext);
     }
 
     /**

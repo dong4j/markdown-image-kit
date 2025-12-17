@@ -38,8 +38,8 @@ public class MikState {
     //endregion
 
     //region 插入图片时
-    /** 插入图片的操作类型, 默认为 NONE */
-    private InsertImageActionEnum insertImageAction = InsertImageActionEnum.NONE;
+    /** 插入图片的操作类型, 默认为 COPY_TO_CURRENT */
+    private InsertImageActionEnum insertImageAction = InsertImageActionEnum.COPY_TO_CURRENT;
     /** 当前插入图片的路径 */
     private String currentInsertPath = "";
     /** 保存的自定义路径值，用于持久化用户输入的自定义路径，即使当前选择的不是"复制到指定路径"也保留 */
