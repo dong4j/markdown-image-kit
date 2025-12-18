@@ -218,8 +218,14 @@ public class PersonalInfoPanel {
         content = new JPanel();
         content.setLayout(new BorderLayout());
 
-        // 创建可折叠的标题栏
-        JPanel titlePanel = createCollapsibleTitle("👨‍💻 About Me");
+        // 创建标题文本
+        final String titleText = "👨‍💻 About Me";
+
+        // 创建标题面板（不带边框，因为边框在容器上）
+        JPanel titlePanel = new JPanel(new BorderLayout());
+        titlePanel.setBorder(JBUI.Borders.empty(5));
+        titlePanel.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
+        titlePanel.setOpaque(false);
 
         // 主内容面板（居中布局）
         JPanel mainPanel = new JPanel();
@@ -239,17 +245,36 @@ public class PersonalInfoPanel {
         content.add(titlePanel, BorderLayout.NORTH);
         content.add(contentWrapper, BorderLayout.CENTER);
 
-        // 存储内容面板的引用，以便在标题栏点击时切换显示
+        // 为容器设置 TitledBorder（边框会包围整个区域）
+        TitledBorder containerBorder = BorderFactory.createTitledBorder("▶ " + titleText);
+        configureTitledBorder(containerBorder);
+        content.setBorder(BorderFactory.createCompoundBorder(
+            containerBorder,
+            JBUI.Borders.empty(5)
+                                                            ));
+        content.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
+        content.setOpaque(true);
+        content.setBackground(UIUtil.getPanelBackground());
+
+        // 存储内容面板的引用，以便在点击时切换显示
         final JPanel contentPanel = mainPanel;
 
-        // 为标题栏添加点击事件
-        final String titleText = "👨‍💻 About Me";
-        titlePanel.addMouseListener(new MouseAdapter() {
+        // 为容器添加点击事件（整个容器都可以点击）
+        content.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 boolean isVisible = contentPanel.isVisible();
                 contentPanel.setVisible(!isVisible);
-                updateCollapsibleTitle(titlePanel, titleText, !isVisible);
+
+                // 更新容器的 TitledBorder（因为边框在容器上）
+                String arrow = !isVisible ? "▼ " : "▶ ";
+                TitledBorder containerBorder = BorderFactory.createTitledBorder(arrow + titleText);
+                configureTitledBorder(containerBorder);
+                content.setBorder(BorderFactory.createCompoundBorder(
+                    containerBorder,
+                    JBUI.Borders.empty(5)
+                                                                    ));
+
                 content.revalidate();
                 content.repaint();
             }
