@@ -86,7 +86,7 @@
         <!--suppress PluginXmlValidity -->
         <codeInsight.codeVisionProvider implementation="info.dong4j.idea.plugin.codevision.MarkdownImageCodeVisionProvider"/>
         <!--suppress PluginXmlValidity -->
-        <codeInsight.codeVisionProvider implementation="info.dong4j.idea.plugin.codevision.ImageEditorAnnotateCodeVisionProvider"/>
+        <codeInsight.codeVisionProvider implementation="info.dong4j.idea.plugin.codevision.ImageEditorCodeVisionProvider"/>
         <!--suppress PluginXmlValidity -->
         <codeInsight.codeVisionProvider implementation="info.dong4j.idea.plugin.codevision.MarkdownImageDeleteCodeVisionProvider"/>
         <!-- Declarative Inlay Hints Provider -->

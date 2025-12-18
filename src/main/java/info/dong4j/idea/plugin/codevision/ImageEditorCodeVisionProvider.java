@@ -3,7 +3,19 @@ package info.dong4j.idea.plugin.codevision;
 import com.intellij.codeInsight.codeVision.CodeVisionEntry;
 import com.intellij.codeInsight.codeVision.ui.model.ClickableTextCodeVisionEntry;
 import com.intellij.ide.BrowserUtil;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.TextEditorWithPreview;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.newvfs.BulkFileListener;
+import com.intellij.openapi.vfs.newvfs.events.VFileContentChangeEvent;
+import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
+import com.intellij.util.ReflectionUtil;
+import com.intellij.util.messages.MessageBusConnection;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
@@ -20,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.Image;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.InvalidPathException;
@@ -35,6 +48,8 @@ import icons.MikIcons;
 import kotlin.Unit;
 import lombok.extern.slf4j.Slf4j;
 
+import static com.intellij.openapi.vfs.VirtualFileManager.VFS_CHANGES;
+
 /**
  * 图片编辑器注解代码视觉提供者
  * <p> 该类继承自 AbstractMarkdownImageCodeVisionProvider, 用于在 Markdown 图像上提供外部图片编辑能力.
@@ -47,7 +62,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0.0
  */
 @Slf4j
-public class ImageEditorAnnotateCodeVisionProvider extends AbstractMarkdownImageCodeVisionProvider {
+public class ImageEditorCodeVisionProvider extends AbstractMarkdownImageCodeVisionProvider {
     /** 提供者的唯一标识符 */
     private static final String PROVIDER_ID = "markdown.image.kit.code.vision.annotate";
 
@@ -70,7 +85,11 @@ public class ImageEditorAnnotateCodeVisionProvider extends AbstractMarkdownImage
      */
     @Override
     protected @NotNull String getProviderName() {
-        return MikBundle.message("mik.codevision.annotate");
+        ImageEditorEnum editor = MikPersistenComponent.getInstance().getState().getImageEditor();
+        if (editor == null) {
+            editor = ImageEditorEnum.SHOTTR;
+        }
+        return MikBundle.message("mik.codevision.annotate", editor.getName());
     }
 
     /**
@@ -116,17 +135,18 @@ public class ImageEditorAnnotateCodeVisionProvider extends AbstractMarkdownImage
             return null;
         }
 
+        String editorName = editor.getName();
         Icon editorIcon = getEditorIcon(editor);
         return new ClickableTextCodeVisionEntry(
-            MikBundle.message("mik.codevision.annotate"),
+            MikBundle.message("mik.codevision.annotate", editorName),
             getId(),
             (event, currentEditor) -> {
                 openInImageEditor(context, absolutePath, editor);
                 return Unit.INSTANCE;
             },
             editorIcon,
-            MikBundle.message("mik.codevision.annotate"),
-            MikBundle.message("mik.codevision.annotate.tooltip"),
+            MikBundle.message("mik.codevision.annotate", editorName),
+            MikBundle.message("mik.codevision.annotate.tooltip", editorName),
             Collections.emptyList()
         );
     }
@@ -147,6 +167,19 @@ public class ImageEditorAnnotateCodeVisionProvider extends AbstractMarkdownImage
     private void openInImageEditor(@NotNull Context context,
                                    @NotNull String absolutePath,
                                    @NotNull ImageEditorEnum editor) {
+        VirtualFile imageVirtualFile = LocalFileSystem.getInstance().findFileByPath(absolutePath);
+        if (imageVirtualFile == null) {
+            log.trace("图片文件不存在: {}", absolutePath);
+            Messages.showErrorDialog(
+                context.project,
+                MikBundle.message("mik.codevision.annotate.path.missing", editor.getName()),
+                MikBundle.message("mik.codevision.title")
+                                    );
+            return;
+        }
+
+        MessageBusConnection connection = registerRefreshOnImageChange(context, imageVirtualFile);
+
         try {
             if (editor == ImageEditorEnum.SHOTTR) {
                 processByShottr(context, absolutePath, editor);
@@ -157,12 +190,90 @@ public class ImageEditorAnnotateCodeVisionProvider extends AbstractMarkdownImage
                 BrowserUtil.browse(url);
             }
         } catch (Exception e) {
+            disconnectQuietly(connection);
             log.trace("打开图片编辑器失败: {}", absolutePath, e);
             Messages.showErrorDialog(
                 context.project,
-                MikBundle.message("mik.codevision.annotate.path.missing"),
+                MikBundle.message("mik.codevision.annotate.path.missing", editor.getName()),
                 MikBundle.message("mik.codevision.title")
                                     );
+        }
+    }
+
+    /**
+     * 监听图片文件内容变更, 在外部编辑器保存后刷新 VFS 与 Markdown 预览
+     */
+    @Nullable
+    private MessageBusConnection registerRefreshOnImageChange(@NotNull Context context, @NotNull VirtualFile imageVirtualFile) {
+        if (context.project == null) {
+            return null;
+        }
+
+        MessageBusConnection connection = context.project.getMessageBus().connect(context.project);
+        connection.subscribe(VFS_CHANGES, new BulkFileListener() {
+            @Override
+            public void after(@NotNull List<? extends VFileEvent> events) {
+                for (VFileEvent event : events) {
+                    if (!(event instanceof VFileContentChangeEvent)) {
+                        continue;
+                    }
+                    VirtualFile changedFile = event.getFile();
+                    if (changedFile.equals(imageVirtualFile)) {
+                        ApplicationManager.getApplication().invokeLater(() -> refreshImageAndMarkdownPreview(context, imageVirtualFile));
+                        connection.disconnect();
+                        break;
+                    }
+                }
+            }
+        });
+        return connection;
+    }
+
+    private void refreshImageAndMarkdownPreview(@NotNull Context context, @NotNull VirtualFile imageVirtualFile) {
+        VfsUtil.markDirtyAndRefresh(false, false, true, imageVirtualFile);
+
+        if (context.project == null || context.virtualFile == null) {
+            return;
+        }
+
+        FileEditor[] editors = FileEditorManager.getInstance(context.project).getAllEditors(context.virtualFile);
+        for (FileEditor editor : editors) {
+            if (tryReloadPreview(editor)) {
+                continue;
+            }
+            if (editor instanceof TextEditorWithPreview textEditorWithPreview) {
+                tryReloadPreview(textEditorWithPreview.getPreviewEditor());
+            }
+        }
+    }
+
+    private boolean tryReloadPreview(@Nullable FileEditor editor) {
+        if (editor == null) {
+            return false;
+        }
+
+        for (String methodName : new String[] {"reload", "reloadPanel", "reloadHtml", "invalidateHtml", "render", "reparseMarkdown"}) {
+            try {
+                Method method = ReflectionUtil.getMethod(editor.getClass(), methodName);
+                if (method != null && method.getParameterCount() == 0) {
+                    method.setAccessible(true);
+                    method.invoke(editor);
+                    return true;
+                }
+            } catch (Exception e) {
+                log.trace("刷新 Markdown 预览失败: {}", methodName, e);
+            }
+        }
+        return false;
+    }
+
+    private void disconnectQuietly(@Nullable MessageBusConnection connection) {
+        if (connection != null) {
+            try {
+                connection.disconnect();
+            } catch (Exception e) {
+                log.trace("断开 VFS 监听连接失败", e);
+            }
         }
     }
 
@@ -182,7 +293,7 @@ public class ImageEditorAnnotateCodeVisionProvider extends AbstractMarkdownImage
             log.trace("图片文件不存在: {}", absolutePath);
             Messages.showErrorDialog(
                 context.project,
-                MikBundle.message("mik.codevision.annotate.path.missing"),
+                MikBundle.message("mik.codevision.annotate.path.missing", editor.getName()),
                 MikBundle.message("mik.codevision.title")
                                     );
             return;
@@ -195,7 +306,7 @@ public class ImageEditorAnnotateCodeVisionProvider extends AbstractMarkdownImage
                 log.trace("无法读取图片文件: {}", absolutePath);
                 Messages.showErrorDialog(
                     context.project,
-                    MikBundle.message("mik.codevision.annotate.path.missing"),
+                    MikBundle.message("mik.codevision.annotate.path.missing", editor.getName()),
                     MikBundle.message("mik.codevision.title")
                                         );
                 return;
@@ -211,7 +322,7 @@ public class ImageEditorAnnotateCodeVisionProvider extends AbstractMarkdownImage
             log.trace("读取图片文件失败: {}", absolutePath, e);
             Messages.showErrorDialog(
                 context.project,
-                MikBundle.message("mik.codevision.annotate.path.missing"),
+                MikBundle.message("mik.codevision.annotate.path.missing", editor.getName()),
                 MikBundle.message("mik.codevision.title")
                                     );
         }

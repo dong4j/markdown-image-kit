@@ -11,6 +11,7 @@ import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.PopupStep;
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.openapi.vfs.VirtualFileManager;
 
 import info.dong4j.idea.plugin.MikBundle;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
@@ -124,6 +125,15 @@ public class MarkdownImageDeleteCodeVisionProvider extends AbstractMarkdownImage
         return Collections.singletonList(entry);
     }
 
+    /**
+     * 删除图片并从文档中移除对应的标记
+     * <p> 根据提供的上下文信息和图片对象, 删除本地图片文件并从编辑器的当前文档中移除对应的图片标记.</p>
+     *
+     * @param context       上下文信息, 用于获取项目和执行写操作
+     * @param markdownImage Markdown 图片对象, 包含图片路径和标记信息
+     * @param imagePath     图片的绝对路径, 如果为 null 则不执行文件删除操作
+     * @param editor        当前编辑器实例, 用于操作文档内容
+     */
     private void deleteImageAndMark(@NotNull Context context,
                                     @NotNull MarkdownImage markdownImage,
                                     @Nullable Path imagePath,
@@ -137,6 +147,8 @@ public class MarkdownImageDeleteCodeVisionProvider extends AbstractMarkdownImage
             if (imagePath != null) {
                 try {
                     Files.deleteIfExists(imagePath);
+                    // 删除后刷新文件系统
+                    VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
                 } catch (IOException e) {
                     log.trace("删除图片文件失败: {}", imagePath, e);
                 }
@@ -166,6 +178,13 @@ public class MarkdownImageDeleteCodeVisionProvider extends AbstractMarkdownImage
         });
     }
 
+    /**
+     * 显示确认删除图片的弹窗
+     * <p> 创建一个弹窗, 用于确认是否删除图片. 弹窗包含两个选项: 确认删除和不确认 (并关闭确认提示). 根据用户选择执行相应操作.</p>
+     *
+     * @param editor       当前编辑器实例
+     * @param deleteAction 删除图片的回调操作
+     */
     private void showConfirmPopup(@NotNull Editor editor, @NotNull Runnable deleteAction) {
         List<String> items = Arrays.asList(
             MikBundle.message("mik.codevision.image.delete.confirm"),
@@ -173,6 +192,14 @@ public class MarkdownImageDeleteCodeVisionProvider extends AbstractMarkdownImage
                                           );
         JBPopupFactory.getInstance().createListPopup(new BaseListPopupStep<>(MikBundle.message("mik.codevision.image.delete.title"),
                                                                              items) {
+            /**
+             * 处理用户在弹出菜单中选择的选项
+             * <p> 当用户选择某个选项后, 根据选择的值执行相应的操作. 如果选择的是最终选项, 则执行删除操作或修改状态后执行删除操作.
+             *
+             * @param selectedValue 用户选择的选项值
+             * @param finalChoice   是否为最终选择
+             * @return 返回 {@link PopupStep#FINAL_CHOICE} 表示处理完成
+             */
             @Override
             public PopupStep<?> onChosen(String selectedValue, boolean finalChoice) {
                 if (!finalChoice) {
@@ -188,11 +215,24 @@ public class MarkdownImageDeleteCodeVisionProvider extends AbstractMarkdownImage
                 return FINAL_CHOICE;
             }
 
+            /**
+             * 禁用自动选择功能
+             * <p> 该方法返回 false, 表示在弹出窗口中不会自动选择任何选项.</p>
+             *
+             * @return 返回 false, 表示自动选择功能被禁用
+             */
             @Override
             public boolean isAutoSelectionEnabled() {
                 return false;
             }
 
+            /**
+             * 根据传入的值返回对应的图标
+             * <p> 根据传入的字符串值判断是否与列表中的特定项匹配, 并返回相应的图标.
+             *
+             * @param value 用于匹配的字符串值
+             * @return 如果值匹配第一个项则返回警告图标, 匹配第二个项则返回检查通过图标, 否则返回 null
+             */
             @Override
             public Icon getIconFor(String value) {
                 if (Objects.equals(value, items.get(0))) {
