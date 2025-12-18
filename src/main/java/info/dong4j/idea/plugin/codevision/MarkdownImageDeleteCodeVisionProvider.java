@@ -4,6 +4,8 @@ import com.intellij.codeInsight.codeVision.CodeVisionEntry;
 import com.intellij.codeInsight.codeVision.ui.model.ClickableTextCodeVisionEntry;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.command.undo.BasicUndoableAction;
+import com.intellij.openapi.command.undo.UndoManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
@@ -23,6 +25,7 @@ import info.dong4j.idea.plugin.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.Desktop;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -143,12 +146,52 @@ public class MarkdownImageDeleteCodeVisionProvider extends AbstractMarkdownImage
             return;
         }
         WriteCommandAction.runWriteCommandAction(project, () -> {
-            // 删除图片文件, 不存在时静默
+            // 删除图片文件, 不存在时静默；同时注册可撤销的文件恢复动作
+            Path backupPath = null;
             if (imagePath != null) {
                 try {
-                    Files.deleteIfExists(imagePath);
-                    // 删除后刷新文件系统
+                    if (Files.exists(imagePath) && Files.isRegularFile(imagePath)) {
+                        // 先备份一份到临时文件, 用于 Undo 恢复
+                        String suffix = "";
+                        String fileName = imagePath.getFileName().toString();
+                        int dot = fileName.lastIndexOf('.');
+                        if (dot >= 0) {
+                            suffix = fileName.substring(dot);
+                        }
+                        backupPath = Files.createTempFile("mik-image-delete-", suffix);
+                        Files.copy(imagePath, backupPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    }
+
+                    deleteFileToTrash(imagePath);
                     VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
+
+                    if (backupPath != null) {
+                        Path finalBackupPath = backupPath;
+                        Path finalImagePath = imagePath;
+                        UndoManager.getInstance(project).undoableActionPerformed(new BasicUndoableAction() {
+                            @Override
+                            public void undo() {
+                                try {
+                                    // 确保目标目录存在
+                                    Files.createDirectories(finalImagePath.getParent());
+                                    Files.copy(finalBackupPath, finalImagePath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                                    VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
+                                } catch (IOException e) {
+                                    log.trace("撤销删除图片失败: {}", finalImagePath, e);
+                                }
+                            }
+
+                            @Override
+                            public void redo() {
+                                try {
+                                    deleteFileToTrash(finalImagePath);
+                                    VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
+                                } catch (IOException e) {
+                                    log.trace("重做删除图片失败: {}", finalImagePath, e);
+                                }
+                            }
+                        });
+                    }
                 } catch (IOException e) {
                     log.trace("删除图片文件失败: {}", imagePath, e);
                 }
@@ -176,6 +219,24 @@ public class MarkdownImageDeleteCodeVisionProvider extends AbstractMarkdownImage
                 document.deleteString(startOffset, endOffset);
             }
         });
+    }
+
+    /**
+     * 将文件移入回收站, 不支持回收站时直接删除
+     *
+     * @param imagePath 要删除的文件路径
+     */
+    private void deleteFileToTrash(@NotNull Path imagePath) throws IOException {
+        boolean movedToTrash = false;
+        if (Desktop.isDesktopSupported()) {
+            Desktop desktop = Desktop.getDesktop();
+            if (desktop.isSupported(Desktop.Action.MOVE_TO_TRASH)) {
+                movedToTrash = desktop.moveToTrash(imagePath.toFile());
+            }
+        }
+        if (!movedToTrash) {
+            Files.deleteIfExists(imagePath);
+        }
     }
 
     /**
