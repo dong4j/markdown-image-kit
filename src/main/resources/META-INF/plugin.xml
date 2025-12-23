@@ -146,6 +146,9 @@
         <action id="ChangeLabelAction" class="info.dong4j.idea.plugin.action.menu.ImageLabelChangeAction"
                 popup="true" text="替换标签">
         </action>
+        <action id="MarkdownHeadingNumberAction" class="info.dong4j.idea.plugin.action.menu.MarkdownHeadingNumberAction"
+                popup="true" text="标题编号">
+        </action>
 
 
         <group popup="true" id="info.dong4j.idea.plugin.markdown.image.kit"
@@ -166,6 +169,8 @@
             <separator/>
             <reference ref="ChangeLabelAction"/>
             <reference ref="MoveToOtherStorageAction"/>
+            <separator/>
+            <reference ref="MarkdownHeadingNumberAction"/>
             <add-to-group group-id="ToolsMenu" anchor="last"/>
             <add-to-group group-id="MainToolBar" anchor="last"/>
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
@@ -189,6 +194,8 @@
             <separator/>
             <reference ref="ChangeLabelAction"/>
             <reference ref="MoveToOtherStorageAction"/>
+            <separator/>
+            <reference ref="MarkdownHeadingNumberAction"/>
             <add-to-group group-id="EditorPopupMenu" anchor="last"/>
         </group>
 

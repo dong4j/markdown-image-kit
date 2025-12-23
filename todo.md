@@ -223,3 +223,7 @@
 - [ ] 使用 org.intellij.plugins.markdown.lang.psi.impl.MarkdownImage 来处理图片
 - [ ] 将项目中本地的 MarkdownImage 重命名, 避免和 org.intellij.plugins.markdown.lang.psi.impl.MarkdownImage 冲突
 - [ ] 添加一个类似 about me 的可折叠面板, 显示已集成的外部工具, 比如现在集成了 CleanShot X
+
+## 2025.12.21
+
+- [ ] 修复 webp 转换失效的问题
