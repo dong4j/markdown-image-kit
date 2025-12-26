@@ -269,7 +269,7 @@ public class MarkdownImageCodeVisionProvider extends AbstractMarkdownImageCodeVi
                                    @NotNull Editor editor,
                                    @NotNull MarkdownImage markdownImage,
                                    @NotNull CloudEnum cloudEnum) {
-            super(cloudEnum.title, null, getCloudIcon(cloudEnum));
+            super(cloudEnum.getTitle(), null, getCloudIcon(cloudEnum));
             this.project = project;
             this.editor = editor;
             this.markdownImage = markdownImage;
@@ -284,13 +284,13 @@ public class MarkdownImageCodeVisionProvider extends AbstractMarkdownImageCodeVi
          */
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
-            log.debug("上传图片到图床: {} -> {}", markdownImage.getPath(), cloudEnum.title);
+            log.debug("上传图片到图床: {} -> {}", markdownImage.getPath(), cloudEnum.getTitle());
 
             OssClient client = ClientUtils.getClient(cloudEnum);
             if (client == null) {
                 com.intellij.openapi.ui.Messages.showErrorDialog(
                     project,
-                    MikBundle.message("mik.codevision.client.not.available", cloudEnum.title),
+                    MikBundle.message("mik.codevision.client.not.available", cloudEnum.getTitle()),
                     MikBundle.message("mik.codevision.title")
                                                                 );
                 return;
@@ -301,7 +301,7 @@ public class MarkdownImageCodeVisionProvider extends AbstractMarkdownImageCodeVi
                 .setProject(project)
                 .setEditor(editor)
                 .setClient(client)
-                .setClientName(cloudEnum.title);
+                .setClientName(cloudEnum.getTitle());
 
             buildData(editor, markdownImage, data);
 
@@ -313,7 +313,7 @@ public class MarkdownImageCodeVisionProvider extends AbstractMarkdownImageCodeVi
                 .addHandler(new FinalChainHandler());
 
             new ActionTask(project,
-                           MikBundle.message("mik.action.upload.process", cloudEnum.title),
+                           MikBundle.message("mik.action.upload.process", cloudEnum.getTitle()),
                            actionManager).queue();
         }
 

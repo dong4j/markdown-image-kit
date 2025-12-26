@@ -195,7 +195,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
             .setProject(editor.getProject())
             .setEditor(editor)
             .setClient(client)
-            .setClientName(cloudEnum.title)
+            .setClientName(cloudEnum.getTitle())
             .setWaitingProcessMap(waitingProcessMap);
 
         return new ActionManager(data);

@@ -63,7 +63,7 @@ public final class UploadQiniuCloudAction extends UploadActionBase {
     @Contract(pure = true)
     @Override
     String getName() {
-        return CloudEnum.QINIU_CLOUD.title;
+        return CloudEnum.QINIU_CLOUD.getTitle();
     }
 
     /**

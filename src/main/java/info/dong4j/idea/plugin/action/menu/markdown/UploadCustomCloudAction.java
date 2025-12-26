@@ -64,7 +64,7 @@ public final class UploadCustomCloudAction extends UploadActionBase {
     @Contract(pure = true)
     @Override
     String getName() {
-        return CloudEnum.CUSTOMIZE.title;
+        return CloudEnum.CUSTOMIZE.getTitle();
     }
 
     /**

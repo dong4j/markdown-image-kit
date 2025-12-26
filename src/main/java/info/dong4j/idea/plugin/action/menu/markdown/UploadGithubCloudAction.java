@@ -67,7 +67,7 @@ public final class UploadGithubCloudAction extends UploadActionBase {
     @Contract(pure = true)
     @Override
     String getName() {
-        return CloudEnum.GITHUB.title;
+        return CloudEnum.GITHUB.getTitle();
     }
 
     /**

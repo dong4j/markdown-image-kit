@@ -68,7 +68,7 @@ public final class UploadBaiduCloudAction extends UploadActionBase {
     @Contract(pure = true)
     @Override
     String getName() {
-        return CloudEnum.BAIDU_CLOUD.title;
+        return CloudEnum.BAIDU_CLOUD.getTitle();
     }
 
     /**

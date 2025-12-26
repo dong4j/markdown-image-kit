@@ -67,7 +67,7 @@ public final class UploadTencentCloudAction extends UploadActionBase {
     @Contract(pure = true)
     @Override
     String getName() {
-        return CloudEnum.TENCENT_CLOUD.title;
+        return CloudEnum.TENCENT_CLOUD.getTitle();
     }
 
     /**

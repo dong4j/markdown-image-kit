@@ -133,7 +133,7 @@ public final class ImageMigrationAction extends AnAction {
         // 本地存储时 cloudEnum 为 null
         String clientName = isLocalStorage
                             ? MikBundle.message("oss.title.local")
-                            : (cloudEnum != null ? cloudEnum.title : "");
+                            : (cloudEnum != null ? cloudEnum.getTitle() : "");
 
         // 获取临时存储路径（仅本地存储且无全局配置时）
         String temporaryStoragePath = dialog.getStoragePath();
@@ -216,7 +216,7 @@ public final class ImageMigrationAction extends AnAction {
      */
     private List<MigrationTarget> collectAvailableTargets() {
         List<MigrationTarget> cloudTargets = java.util.Arrays.stream(CloudEnum.values())
-            .map(cloud -> new MigrationTarget(cloud, cloud.title, ClientUtils.getClient(cloud)))
+            .map(cloud -> new MigrationTarget(cloud, cloud.getTitle(), ClientUtils.getClient(cloud)))
             .filter(target -> ClientUtils.isEnable(target.client))
             .collect(Collectors.toList());
 

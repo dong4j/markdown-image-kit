@@ -129,7 +129,7 @@ public class MoveToOtherOssSettingsDialog extends DialogWrapper {
     private void initCloudOptions() {
         // 添加所有云服务枚举
         for (CloudEnum cloudEnum : CloudEnum.values()) {
-            cloudComboBox.addItem(new CloudOption(cloudEnum, cloudEnum.title));
+            cloudComboBox.addItem(new CloudOption(cloudEnum, cloudEnum.getTitle()));
         }
 
         // 添加本地存储选项

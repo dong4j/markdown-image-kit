@@ -67,7 +67,7 @@ public final class UploadAliyunCloudAction extends UploadActionBase {
     @Contract(pure = true)
     @Override
     String getName() {
-        return CloudEnum.ALIYUN_CLOUD.title;
+        return CloudEnum.ALIYUN_CLOUD.getTitle();
     }
 
     /**

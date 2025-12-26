@@ -69,7 +69,7 @@ public class ImageUploadFlowIntegrationTest {
             .setAction("ImageUploadFlowIntegrationTest")
             .setProject(null) // 测试环境可以不设置
             .setClient(mockClient)
-            .setClientName(CloudEnum.CUSTOMIZE.title)
+            .setClientName(CloudEnum.CUSTOMIZE.getTitle())
             .setWaitingProcessMap(mockMap);
     }
 

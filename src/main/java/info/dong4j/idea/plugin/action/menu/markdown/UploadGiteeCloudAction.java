@@ -67,7 +67,7 @@ public final class UploadGiteeCloudAction extends UploadActionBase {
     @Contract(pure = true)
     @Override
     String getName() {
-        return CloudEnum.GITEE.title;
+        return CloudEnum.GITEE.getTitle();
     }
 
     /**

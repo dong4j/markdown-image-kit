@@ -141,7 +141,7 @@ public final class ImageUploadAction extends ImageActionBase {
             .setActionEvent(event)
             .setProject(event.getProject())
             .setClient(client)
-            .setClientName(cloudEnum.title)
+            .setClientName(cloudEnum.getTitle())
             .setWaitingProcessMap(waitingProcessMap);
 
         ActionManager manager = new ActionManager(data)
@@ -163,6 +163,6 @@ public final class ImageUploadAction extends ImageActionBase {
             .addHandler(new FinalChainHandler());
 
         // 开启后台任务
-        new ActionTask(event.getProject(), MikBundle.message("mik.action.upload.process", cloudEnum.title), manager).queue();
+        new ActionTask(event.getProject(), MikBundle.message("mik.action.upload.process", cloudEnum.getTitle()), manager).queue();
     }
 }

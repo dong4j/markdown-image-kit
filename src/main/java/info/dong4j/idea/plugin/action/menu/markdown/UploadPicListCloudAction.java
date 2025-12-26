@@ -64,7 +64,7 @@ public final class UploadPicListCloudAction extends UploadActionBase {
     @Contract(pure = true)
     @Override
     String getName() {
-        return CloudEnum.PICLIST.title;
+        return CloudEnum.PICLIST.getTitle();
     }
 
     /**

@@ -155,7 +155,7 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
      * @since 0.0.1
      */
     protected String getName() {
-        return this.getCloudType().title;
+        return this.getCloudType().getTitle();
     }
 
     /**
@@ -200,7 +200,7 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
         // 安全地获取云类型，避免在类初始化阶段访问服务
         try {
             CloudEnum cloudType = this.getCloudType();
-            return this.getMessage(cloudType.title);
+            return this.getMessage(cloudType.getTitle());
         } catch (Exception e) {
             // 如果服务不可用（可能在类初始化阶段），返回默认文本
             log.trace("无法获取云类型，返回默认文本: {}", e.getMessage());

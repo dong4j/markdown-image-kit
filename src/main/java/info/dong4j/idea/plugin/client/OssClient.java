@@ -38,7 +38,7 @@ public interface OssClient {
      * @return 名称
      */
     default String getName(){
-        return this.getCloudType().title;
+        return this.getCloudType().getTitle();
     }
 
     /**

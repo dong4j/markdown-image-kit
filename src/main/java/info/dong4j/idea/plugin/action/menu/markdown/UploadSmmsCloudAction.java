@@ -49,7 +49,7 @@ public final class UploadSmmsCloudAction extends UploadActionBase {
     @Contract(pure = true)
     @Override
     String getName() {
-        return CloudEnum.SM_MS_CLOUD.title;
+        return CloudEnum.SM_MS_CLOUD.getTitle();
     }
 
     /**
