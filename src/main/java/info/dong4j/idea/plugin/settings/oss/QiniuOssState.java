@@ -27,8 +27,6 @@ public class QiniuOssState extends OssState {
     private String endpoint = "";
     /** Access key */
     private String accessKey = "";
-    /** 访问密钥，用户用于身份验证的私密密钥 */
-    private String accessSecretKey = "";
     /** 存储桶名称 */
     private String bucketName = "";
     /** 区域索引，表示当前区域对应的枚举值索引 */

@@ -271,21 +271,24 @@ public abstract class AbstractOpenOssSetting<T extends AbstractOpenOssState> imp
     /**
      * 重置表单字段为指定状态
      * <p>
-     * 根据传入的状态对象，将各个文本字段和复选框恢复为对应的状态值
+     * 根据传入的状态对象，将各个文本字段和复选框恢复为对应的状态值。
+     * 密码字段的获取在后台线程执行，避免在 EDT 上执行慢操作。
      *
      * @param state 要恢复的状态对象
      * @since 1.3.0
      */
     @Override
     public void reset(T state) {
+        // 先设置非密码字段，这些操作在 EDT 上是安全的
         this.reposTextField.setText(state.getRepos());
         JTextFieldHintListener.init(this.reposTextField, REPOS_HINT);
         this.branchTextField.setText(state.getBranch());
-
-        this.tokenTextField.setText(PasswordManager.getPassword(this.credentialAttributes()));
         this.fileDirTextField.setText(state.getFiledir());
 
         this.customEndpointCheckBox.setSelected(state.getIsCustomEndpoint());
         this.customEndpointTextField.setText(state.getCustomEndpoint());
+
+        // 异步获取密码并更新密码字段，避免在 EDT 上执行慢操作
+        PasswordManager.getPasswordAsync(this.credentialAttributes(), this.tokenTextField);
     }
 }

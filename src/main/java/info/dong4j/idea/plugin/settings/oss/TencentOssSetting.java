@@ -128,16 +128,20 @@ public class TencentOssSetting implements OssSetting<TencentOssState> {
     /**
      * 重置腾讯云OSS配置信息
      * <p>
-     * 根据传入的腾讯云OSS状态对象，更新界面上的各个配置字段内容
+     * 根据传入的腾讯云OSS状态对象，更新界面上的各个配置字段内容。
+     * 密码字段的获取在后台线程执行，避免在 EDT 上执行慢操作。
      *
      * @param state 腾讯云OSS状态对象，包含访问密钥、区域名称、存储桶名称等信息
      * @since 1.4.0
      */
     @Override
     public void reset(TencentOssState state) {
+        // 先设置非密码字段，这些操作在 EDT 上是安全的
         this.tencentAccessKeyTextField.setText(state.getAccessKey());
         this.tencentRegionNameTextField.setText(state.getRegionName());
         this.tencentBacketNameTextField.setText(state.getBucketName());
-        this.tencentSecretKeyTextField.setText(PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES));
+
+        // 异步获取密码并更新密码字段，避免在 EDT 上执行慢操作
+        PasswordManager.getPasswordAsync(CREDENTIAL_ATTRIBUTES, this.tencentSecretKeyTextField);
     }
 }

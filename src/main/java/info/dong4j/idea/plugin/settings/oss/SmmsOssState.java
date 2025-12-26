@@ -22,7 +22,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SmmsOssState extends OssState {
     public final static String API = "https://sm.ms/api/v2/upload";
-    /** 认证 */
-    private String token = "";
     private String url = API;
 }

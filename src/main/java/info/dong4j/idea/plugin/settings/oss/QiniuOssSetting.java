@@ -229,9 +229,9 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
      */
     @Override
     public void reset(QiniuOssState state) {
+        // 先设置非密码字段，这些操作在 EDT 上是安全的
         this.qiniuOssBucketNameTextField.setText(state.getBucketName());
         this.qiniuOssAccessKeyTextField.setText(state.getAccessKey());
-        this.qiniuOssAccessSecretKeyTextField.setText(PasswordManager.getPassword(CREDENTIAL_ATTRIBUTES));
         this.qiniuOssUpHostTextField.setText(state.getEndpoint());
         JTextFieldHintListener.init(this.qiniuOssUpHostTextField, DOMAIN_HINT);
         this.zoneIndexTextFiled.setText(String.valueOf(state.getZoneIndex()));
@@ -241,5 +241,8 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
         this.qiniuOssSouthChinaRadioButton.setSelected(state.getZoneIndex() == ZoneEnum.SOUTH_CHINA.index);
         this.qiniuOssNorthAmeriaRadioButton.setSelected(state.getZoneIndex() == ZoneEnum.NORTH_AMERIA.index);
         this.qiniuOssSoutheastAsiaRadioButton.setSelected(state.getZoneIndex() == ZoneEnum.SOUTHEAST_ASIA.index);
+
+        // 异步获取密码并更新密码字段，避免在 EDT 上执行慢操作
+        PasswordManager.getPasswordAsync(CREDENTIAL_ATTRIBUTES, this.qiniuOssAccessSecretKeyTextField);
     }
 }

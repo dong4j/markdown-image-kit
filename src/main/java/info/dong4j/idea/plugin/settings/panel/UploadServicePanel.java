@@ -1,6 +1,7 @@
 package info.dong4j.idea.plugin.settings.panel;
 
 import com.intellij.ide.BrowserUtil;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
@@ -50,6 +51,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -1698,50 +1700,69 @@ public class UploadServicePanel {
      * 为 "Test" 和 "Help" 按钮添加点击事件监听器，用于执行测试上传或打开帮助页面
      * <p>
      * 该方法为 "Test" 按钮绑定点击事件，用于选择对应的图床并上传测试文件，显示上传结果；同时为 "Help" 按钮绑定点击事件，用于打开对应图床的帮助页面。
+     * <p>
+     * EDT 处理说明：
+     * 按钮点击事件在 EDT 上执行，但 ClientUtils.getClient() 和 client.upload() 中调用密码管理器获取密码是耗时操作，
+     * 如果在 EDT 上执行会导致 UI 冻结。因此使用 ApplicationManager.getApplication().executeOnPooledThread()
+     * 将耗时操作放到后台线程池执行，所有 UI 更新操作（如显示对话框）使用 SwingUtilities.invokeLater() 切回 EDT 执行。
+     * SwingUtilities.invokeLater() 不受模态状态影响，可以在模态对话框中立即执行，而 ApplicationManager.invokeLater()
+     * 在模态对话框中可能被延迟到对话框关闭后才执行。
+     * <p>
+     * 执行流程：EDT (按钮点击) -> 后台线程池 (获取客户端、上传文件) -> EDT (显示结果对话框)
      */
     public void testAndHelpListener() {
         // "Test" 按钮点击事件处理
         this.testUploadButton.addActionListener(e -> {
             int index = this.cloudServiceComboBox.getSelectedIndex();
-            InputStream inputStream = this.getClass().getResourceAsStream("/" + TEST_FILE_NAME);
             CloudEnum cloudEnum = OssState.getCloudType(index);
-            OssClient client = ClientUtils.getClient(cloudEnum);
-            if (client != null) {
-                String url;
-                MikState state = MikPersistenComponent.getInstance().getState();
-                // 主动保存当前配置, 后续测试逻辑可以从 state 获取最新配置
-                this.applyOssState(state, index);
-                try {
-                    url = client.upload(inputStream, TEST_FILE_NAME, state);
-                    log.trace("测试按钮上传的图片返回结果: {}", url);
 
-                    if (StringUtils.isNotBlank(url)) {
-                        if (log.isTraceEnabled()) {
-                            BrowserUtil.browse(url);
+            // 处理 EDT 问题, ClientUtils.getClient 因为初始化时会调用密码管理器获取密码, 这属于耗时操作, 而且在 upload 也有获取密码逻辑
+            ApplicationManager.getApplication().executeOnPooledThread(() -> {
+                try {
+                    OssClient client = ClientUtils.getClient(cloudEnum);
+                    if (client != null) {
+                        String url;
+                        MikState state = MikPersistenComponent.getInstance().getState();
+                        // 主动保存当前配置, 后续测试逻辑可以从 state 获取最新配置
+                        this.applyOssState(state, index);
+
+                        InputStream inputStream = this.getClass().getResourceAsStream("/" + TEST_FILE_NAME);
+                        url = client.upload(inputStream, TEST_FILE_NAME, state);
+                        log.trace("测试按钮上传的图片返回结果: {}", url);
+
+                        if (StringUtils.isNotBlank(url)) {
+                            if (log.isTraceEnabled()) {
+                                BrowserUtil.browse(url);
+                            }
+                        } else {
+                            SwingUtilities.invokeLater(() -> {
+                                Messages.showMessageDialog(this.content,
+                                                           MikBundle.message("settings.upload.failed", cloudEnum.getTitle()),
+                                                           "Error",
+                                                           Messages.getErrorIcon());
+                            });
+
                         }
                     } else {
+                        SwingUtilities.invokeLater(() -> {
+                            Messages.showMessageDialog(this.content,
+                                                       MikBundle.message("settings.upload.not.available", cloudEnum.getTitle()),
+                                                       "Error",
+                                                       Messages.getErrorIcon());
+                        });
+                    }
+                } catch (Exception exception) {
+                    SwingUtilities.invokeLater(() -> {
                         Messages.showMessageDialog(this.content,
-                                                   MikBundle.message("settings.upload.failed", cloudEnum.getTitle()),
+                                                   exception.getMessage(),
                                                    "Error",
                                                    Messages.getErrorIcon());
-                    }
-
-                } catch (Exception exception) {
-                    Messages.showMessageDialog(this.content,
-                                               exception.getMessage(),
-                                               "Error",
-                                               Messages.getErrorIcon());
+                    });
                 } finally {
                     // 重置提示状态
                     resetAvailableStatus(index);
                 }
-
-            } else {
-                Messages.showMessageDialog(this.content,
-                                           MikBundle.message("settings.upload.not.available", cloudEnum.getTitle()),
-                                           "Error",
-                                           Messages.getErrorIcon());
-            }
+            });
         });
 
         // help button 监听

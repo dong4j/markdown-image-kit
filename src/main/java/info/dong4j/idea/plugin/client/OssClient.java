@@ -3,17 +3,9 @@ package info.dong4j.idea.plugin.client;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.settings.MikState;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.awt.Component;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import javax.swing.JCheckBox;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 /**
  * OssClient 接口
@@ -82,26 +74,4 @@ public interface OssClient {
         throw new UnsupportedOperationException("该方法需要在具体的 OssClient 实现类中重写");
     }
 
-    /**
-     * 遍历指定面板中的组件，提取 JTextField 和 JCheckBox 的 name 属性及其对应值，返回为 Map 结构
-     * <p>
-     * 该方法会递归查找面板中的所有组件，若组件为 JTextField，则提取其 name 属性和文本内容；若为 JCheckBox，则提取其 name 属性和选中状态（true/false）
-     *
-     * @param jPanel 要遍历的面板对象
-     * @return 包含组件 name 属性与对应值的 Map
-     * @since 0.0.1
-     */
-    @NotNull
-    default Map<String, String> getTestFieldText(JPanel jPanel) {
-        Map<String, String> fieldMap = new HashMap<>(8);
-        Component[] components = jPanel.getComponents();
-        for (Component c : components) {
-            if (c instanceof JTextField textField) {
-                fieldMap.put(textField.getName(), textField.getText());
-            } else if (c instanceof JCheckBox checkBox) {
-                fieldMap.put(checkBox.getName(), checkBox.isSelected() + "");
-            }
-        }
-        return fieldMap;
-    }
 }

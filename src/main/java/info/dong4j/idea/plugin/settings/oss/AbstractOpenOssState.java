@@ -26,8 +26,6 @@ public abstract class AbstractOpenOssState extends OssState {
     private String repos = "";
     /** 分支名称 */
     protected String branch = "";
-    /** Token 值 */
-    private String token = "";
     /** 文件目录路径，用于存储或读取文件的相对路径 */
     private String filedir = "";
     /** 自定义端点地址，用于指定特定的服务接口地址 */

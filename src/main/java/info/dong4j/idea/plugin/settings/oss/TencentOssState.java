@@ -23,8 +23,6 @@ import lombok.NoArgsConstructor;
 public class TencentOssState extends OssState {
     /** Access key */
     private String accessKey = "";
-    /** Secret key */
-    private String secretKey = "";
     /** 存储桶名称 */
     private String bucketName = "";
     /** 区域名称 */

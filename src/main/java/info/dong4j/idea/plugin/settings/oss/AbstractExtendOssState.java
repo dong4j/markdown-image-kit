@@ -25,8 +25,6 @@ public abstract class AbstractExtendOssState extends OssState {
     private String endpoint = "";
     /** Access key */
     private String accessKey = "";
-    /** 访问密钥，用于身份验证和请求签名 */
-    private String accessSecretKey = "";
     /** 存储桶名称 */
     private String bucketName = "";
     /** 文件目录路径，用于存储或读取文件的相对路径 */

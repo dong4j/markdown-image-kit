@@ -243,7 +243,6 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
 
         state.setBucketName(bucketName);
         state.setAccessKey(accessKey);
-        state.setAccessSecretKey(accessSecretKey);
         PasswordManager.setPassword(this.credentialAttributes(), accessSecretKey);
         state.setEndpoint(endpoint);
         state.setCustomEndpoint(customEndpoint);
@@ -255,20 +254,24 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
      * 重置表单字段为指定状态的值
      * <p>
      * 根据传入的 state 对象，将各个文本字段和复选框设置为对应的状态值。
+     * 密码字段的获取在后台线程执行，避免在 EDT 上执行慢操作。
      *
      * @param state 要设置的状态对象，包含桶名、访问密钥、秘密密钥、端点、文件目录、是否使用自定义端点及自定义端点信息
      * @since 1.1.0
      */
     @Override
     public void reset(T state) {
+        // 先设置非密码字段，这些操作在 EDT 上是安全的
         this.bucketNameTextField.setText(state.getBucketName());
         this.accessKeyTextField.setText(state.getAccessKey());
-        this.accessSecretKeyTextField.setText(PasswordManager.getPassword(this.credentialAttributes()));
         this.endpointTextField.setText(state.getEndpoint());
         this.fileDirTextField.setText(state.getFiledir());
 
         this.customEndpointCheckBox.setSelected(state.getIsCustomEndpoint());
         this.customEndpointTextField.setText(state.getCustomEndpoint());
+
+        // 异步获取密码并更新密码字段，避免在 EDT 上执行慢操作
+        PasswordManager.getPasswordAsync(this.credentialAttributes(), this.accessSecretKeyTextField);
     }
 
     /**
