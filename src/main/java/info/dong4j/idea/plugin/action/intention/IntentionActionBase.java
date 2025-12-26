@@ -3,6 +3,8 @@ package info.dong4j.idea.plugin.action.intention;
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction;
 import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo;
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils;
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -56,11 +58,33 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
      * <p>
      * 在需要时按需获取服务实例，而不是在类初始化时获取
      *
-     * @return 当前组件的状态信息
+     * @return 当前组件的状态信息，如果服务不可用则返回 null
      */
     @Deprecated
     public static MikState getState() {
         return MikPersistenComponent.getInstance().getState();
+    }
+
+    /**
+     * 安全地获取当前组件的状态信息
+     * <p>
+     * 在类初始化阶段，服务可能尚未可用，此方法会检查服务是否可用后再获取状态
+     *
+     * @return 当前组件的状态信息，如果服务不可用则返回 null
+     */
+    @Nullable
+    protected static MikState getStateSafely() {
+        try {
+            Application application = ApplicationManager.getApplication();
+            if (application == null || application.isDisposed()) {
+                return null;
+            }
+            return MikPersistenComponent.getInstance().getState();
+        } catch (Exception e) {
+            // 在类初始化阶段，服务可能尚未可用，返回 null
+            log.trace("无法获取服务状态，可能处于类初始化阶段: {}", e.getMessage());
+            return null;
+        }
     }
 
     /**
@@ -147,7 +171,13 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
         if (IntentionPreviewUtils.isIntentionPreviewActive()) {
             return CloudEnum.SM_MS_CLOUD;
         }
-        CloudEnum cloudEnum = OssState.getCloudType(getState().getDefaultCloudType());
+        // 安全地获取状态，避免在类初始化阶段访问服务
+        MikState state = getStateSafely();
+        if (state == null) {
+            // 如果服务不可用（可能在类初始化阶段），返回默认值
+            return CloudEnum.SM_MS_CLOUD;
+        }
+        CloudEnum cloudEnum = OssState.getCloudType(state.getDefaultCloudType());
         return OssState.getStatus(cloudEnum) ? cloudEnum : CloudEnum.SM_MS_CLOUD;
     }
 
@@ -167,7 +197,15 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
         if (IntentionPreviewUtils.isIntentionPreviewActive()) {
             return "Configure image";
         }
-        return this.getMessage(this.getCloudType().title);
+        // 安全地获取云类型，避免在类初始化阶段访问服务
+        try {
+            CloudEnum cloudType = this.getCloudType();
+            return this.getMessage(cloudType.title);
+        } catch (Exception e) {
+            // 如果服务不可用（可能在类初始化阶段），返回默认文本
+            log.trace("无法获取云类型，返回默认文本: {}", e.getMessage());
+            return "Configure image";
+        }
     }
 
     /**
@@ -209,8 +247,9 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
             return false;
         }
 
-        // 检查全局开关
-        if (!getState().isEnablePlugin()) {
+        // 检查全局开关，安全地获取状态
+        MikState state = getStateSafely();
+        if (state == null || !state.isEnablePlugin()) {
             return false;
         }
 

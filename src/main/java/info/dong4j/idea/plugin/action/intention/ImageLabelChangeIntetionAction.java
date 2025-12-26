@@ -14,7 +14,8 @@ import info.dong4j.idea.plugin.chain.handler.WriteToDocumentHandler;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
-import info.dong4j.idea.plugin.settings.MikPersistenComponent;
+import info.dong4j.idea.plugin.enums.ImageMarkEnum;
+import info.dong4j.idea.plugin.settings.MikState;
 import info.dong4j.idea.plugin.task.ActionTask;
 
 import org.jetbrains.annotations.NotNull;
@@ -69,8 +70,14 @@ public class ImageLabelChangeIntetionAction extends IntentionActionBase {
     @NotNull
     @Override
     String getMessage(String clientName) {
-        return MikBundle.message("mik.intention.change.message",
-                                 MikPersistenComponent.getInstance().getState().getImageMarkEnum().getText());
+        // 安全地获取状态，避免在类初始化阶段访问服务
+        MikState state = getStateSafely();
+        if (state == null) {
+            // 如果服务不可用（可能在类初始化阶段），返回默认消息
+            return "正在初始化...";
+        }
+        ImageMarkEnum imageMarkEnum = state.getImageMarkEnum();
+        return MikBundle.message("mik.intention.change.message", imageMarkEnum.getText());
     }
 
     /**
