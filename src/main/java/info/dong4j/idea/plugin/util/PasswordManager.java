@@ -1,15 +1,10 @@
 package info.dong4j.idea.plugin.util;
 
 import com.intellij.credentialStore.CredentialAttributes;
-import com.intellij.credentialStore.Credentials;
 import com.intellij.ide.passwordSafe.PasswordSafe;
-import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.concurrency.Promise;
-
-import java.util.concurrent.TimeUnit;
 
 import javax.swing.JPasswordField;
 
@@ -96,44 +91,6 @@ public class PasswordManager {
             } catch (Exception ignored) {
             }
         });
-    }
-
-    /**
-     * 阻塞式获取密码（线程安全）
-     * <p>
-     * 根据提供的凭证属性获取对应的密码值，若密码为空则返回空字符串。
-     * 此方法会自动处理线程问题：
-     * - 如果当前在 EDT 线程上，使用异步接口在后台线程获取密码并阻塞等待结果
-     * - 如果当前不在 EDT 线程上，直接同步获取密码
-     * <p>
-     * 此方法适用于需要在 EDT 上调用但需要获取密码的场景（如上传操作）。
-     *
-     * @param credentialAttributes 凭证属性对象，用于指定密码相关的参数
-     * @return 密码值，若为空则返回空字符串
-     * @since 1.6.0
-     */
-    public String getPasswordAsync(@NotNull CredentialAttributes credentialAttributes) {
-        Application application = ApplicationManager.getApplication();
-
-        // 如果不在 EDT 上，直接同步获取
-        if (!application.isDispatchThread()) {
-            return getPassword(credentialAttributes);
-        }
-
-        // 如果在 EDT 上，使用异步接口获取密码
-        Promise<Credentials> promise = PasswordSafe.getInstance().getAsync(credentialAttributes);
-
-        try {
-            // 阻塞等待结果，最多等待 5 秒
-            Credentials credentials = promise.blockingGet(3, TimeUnit.SECONDS);
-            if (credentials != null && credentials.getPasswordAsString() != null) {
-                return credentials.getPasswordAsString();
-            }
-            return "";
-        } catch (Exception e) {
-            // 如果获取失败，返回空字符串
-            return "";
-        }
     }
 
 }
