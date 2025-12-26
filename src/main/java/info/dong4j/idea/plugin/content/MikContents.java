@@ -15,5 +15,5 @@ public interface MikContents {
     /** node_modules 文件夹名称，用于标识 Node.js 项目依赖库目录 */
     String NODE_MODULES_FILE = "node_modules";
     /** 帮助 REST API URL */
-    String HELP_REST_URL = "https://mik.dong4j.site/%s";
+    String HELP_REST_URL = "https://mik.dong4j.site/api/%s";
 }
