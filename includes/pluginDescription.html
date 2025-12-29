@@ -28,50 +28,81 @@
 <a href="https://mik.dong4j.site/docs.html">Documentation</a>
 <br/>
 <br/>
-<p><b>Markdown Image Kit</b> 是一款在 IDEA 中方便高效得管理 Markdown 文档图片的插件.</p>
-<p>在 IntelliJ IDEA 中写作(主要是技术文档), 配图成了一个大问题, 我们需要借助其他 APP 来完成这一操作.</p>
-<p>为了解决现状, 因此开发了此插件, 能方便得给技术文档配图, 一键上传图片并直接替换为 markdown image 标签, 当然还提供其他一些附属功能.</p>
+<p><b>Markdown Image Kit</b> 是一款专为 JetBrains IDE 设计的 Markdown 图片管理插件，让你在 IDE 中优雅地处理 Markdown 文档中的图片。</p>
+<p>在 IntelliJ IDEA 中写作技术文档时，配图往往需要借助其他工具完成。本插件将图片上传、标签替换、批量处理等功能无缝集成到 IDE
+    中，让技术文档配图变得简单高效。</p>
 <br/>
-<b>Features</b>
+<b>核心特性</b>
 <ul>
-    <li>一键上传当前文档(所有文档)所有引用图片后自动替换, 体验最简单高效的一波流操作;</li>
-    <li>支持多个图床, 还支持自定义图床, 没有你上传不了的图片;</li>
-    <li>一键替换所有标签, 批量处理就是这么简单;</li>
-    <li>粘贴图片, 复制就是 markdown image mark, 就是这么直接;</li>
-    <li>图片直接压缩, 减少流量, 提高加载速度, 处处为你着想;</li>
-    <li>可对一个 markdown image mark 单独处理, 灵活的不要不要的;</li>
-    <li>图床迁移计划, 免费流量用完了? 迁移到另一个免费图床不就 ok 了;</li>
-    <li>支持 Jetbrains 旗下所有 IDE;</li>
-</ul>
-<br/>
-<p>警告, 如果将 IDE 的设置同步到 github/gitee, 请将仓库设置为私有, 否则有可能暴露密钥.</p>
-<p>从 1.6.0 开始使用 Keychain(macOS)/KeePass(Windows) 代替 DES 加密方式.</p>
-<img alt="Setting Page" src="https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/MIK-lRpO0E.png" width="400">
-<br/>
-<img alt="Right Menus" src="https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/MIK-lE5Y3U.png" width="250">
-<br/>
-<img alt="Move Image" src="https://gitee.com/dong4j/idea-plugin-dev/raw/master/docs/product/imgs/MIK-xsWVla.png" width="400">
-<br/>
-<b>Markdown Image Kit</b> is a plugin for easy and efficient management of Markdown document images in IDEA.
-<p>Writing in IntelliJ IDEA (mainly technical documentation), mapping has become a big issue, and we need to do this with other APPs.</p>
-<p>In order to solve the current situation, the plug-in has been developed, which can conveniently map technical documents,</p>
-<p>upload images with one click and directly replace them with markdown image tags, and of course provide other auxiliary functions.</p>
-<br/>
-<b>Features</b>
-<ul>
-    <li>One-click uploading the current document (all documents) automatically replaces all reference pictures, and experiences the simplest
-        and most efficient one-wave operation;
+    <li><b>📝 Typora 完美复刻</b> - 复制图片后直接粘贴，自动上传到图床或保存到指定目录，支持自定义重命名模板，在 JetBrains IDE 中体验 Typora
+        般的图片处理体验；
     </li>
-    <li>Support multiple map beds, also support custom maps, no pictures you can't upload;</li>
-    <li>One-click replacement for all labels, batch processing is as simple as that;</li>
-    <li>Paste the picture, copy is markdown image mark, it is so direct;</li>
-    <li>Direct compression of images, reduce traffic, increase loading speed, and think for you everywhere;</li>
-    <li>Can be processed separately for a markdown image mark, flexible and unnecessary;</li>
-    <li>The bed migration plan, the free flow is used up? It is not ok to move to another free map bed;</li>
-    <li>Supported IntelliJ IDEA, WebStorm, PhpStorm, PyCharm, Android Studio, GoLand, AppCode and other IDEs;</li>
+    <li><b>🔄 图床迁移</b> - 轻松将图片从一个图床批量迁移到另一个，也支持将网络图片下载到本地，免费流量用完了？换个图床继续用；</li>
+    <li><b>🔗 第三方集成</b> - 对接 PicList/PicGO 等成熟工具，间接支持 20+ 种图床（阿里云、腾讯云、七牛云、GitHub 等）；</li>
+    <li><b>📦 批量处理</b> - 一键上传文档中所有本地图片，批量替换标签格式，批量处理就是这么简单；</li>
+    <li><b>🎨 灵活配置</b> - 支持图片压缩、重命名、标签自定义、本地保存等多种配置选项；</li>
+    <li><b>💡 智能识别</b> - 自动识别本地/网络图片，避免重复上传，精准处理每一张图片；</li>
+    <li><b>👁️ Code Vision 快速操作</b> - 通过 Code Vision 在图片标签上方显示图片尺寸和大小，快速执行删除图片+标签、使用 CleanShot X 或 Shottr
+        编辑图片等操作；
+    </li>
+    <li><b>🛠️ 自定义图床</b> - 支持自定义图床 API，可对接任意存储服务，参考 <a href="https://github.com/dong4j/mik-help">mik-help</a> 项目快速搭建；
+    </li>
+    <li><b>🌐 全平台支持</b> - 支持 IntelliJ IDEA、WebStorm、PyCharm、GoLand、PhpStorm 等所有 JetBrains IDE（2022.3+）；</li>
 </ul>
 <br/>
-<p>Warning: if you synchronize the settings of the IDE to github/gitee, please set the repository to private, otherwise the key may be
-    exposed</p>
-<p>Starting from 1.6.0, use Keychain (macOS)/KeePass (Windows) instead of DES encryption method.</p>
+<b>推荐使用方式</b>
+<ul>
+    <li><b>PicList/PicGO（推荐）</b> - 配置一次，支持所有图床，图床配置在 PicList 中管理，更灵活可控；</li>
+    <li><b>自建图床</b> - 特殊需求可参考 <a href="https://github.com/dong4j/mik-help">mik-help</a> 项目自建中转服务；</li>
+</ul>
+<br/>
+<p><b>⚠️ 安全提示</b>：如果将 IDE 的设置同步到 GitHub/Gitee，请将仓库设置为私有，否则有可能暴露密钥。</p>
+<p>从 1.6.0 开始使用 Keychain(macOS)/KeePass(Windows) 代替 DES 加密方式，密钥存储更安全。</p>
+<br/>
+<b>Markdown Image Kit</b> is a plugin designed for JetBrains IDEs to elegantly manage images in Markdown documents.
+<p>When writing technical documentation in IntelliJ IDEA, adding images often requires external tools. This plugin seamlessly integrates
+    image uploading, tag replacement, and batch processing into the IDE, making image management simple and efficient.</p>
+<br/>
+<b>Core Features</b>
+<ul>
+    <li><b>📝 Typora Perfect Replica</b> - Copy an image and paste it directly. Automatically uploads to image hosting or saves to a
+        specified directory, with custom renaming templates. Experience Typora-like image processing in JetBrains IDEs;
+    </li>
+    <li><b>🔄 Image Host Migration</b> - Easily migrate images from one hosting service to another in batch, or download network images to
+        local. Free quota exhausted? Just switch to another service;
+    </li>
+    <li><b>🔗 Third-party Integration</b> - Integrate with mature tools like PicList/PicGO, indirectly supporting 20+ image hosting services
+        (Aliyun, Tencent Cloud, Qiniu, GitHub, etc.);
+    </li>
+    <li><b>📦 Batch Processing</b> - Upload all local images in a document with one click, batch replace tag formats. Batch processing made
+        simple;
+    </li>
+    <li><b>🎨 Flexible Configuration</b> - Support image compression, renaming, custom tags, local saving, and various configuration options;
+    </li>
+    <li><b>💡 Smart Recognition</b> - Automatically identify local/network images, avoid duplicate uploads, and process each image precisely;
+    </li>
+    <li><b>👁️ Code Vision Quick Actions</b> - Display image dimensions and file size above image tags via Code Vision, quickly perform
+        actions like deleting images+tags, editing images with CleanShot X or Shottr;
+    </li>
+    <li><b>🛠️ Custom Image Host</b> - Support custom image hosting APIs, can integrate with any storage service. Refer to the
+        <a href="https://github.com/dong4j/mik-help">mik-help</a> project for quick setup;
+    </li>
+    <li><b>🌐 Full Platform Support</b> - Support all JetBrains IDEs (2022.3+) including IntelliJ IDEA, WebStorm, PyCharm, GoLand, PhpStorm,
+        etc.;
+    </li>
+</ul>
+<br/>
+<b>Recommended Usage</b>
+<ul>
+    <li><b>PicList/PicGO (Recommended)</b> - Configure once, support all image hosting services. Manage configurations in PicList for more
+        flexibility;
+    </li>
+    <li><b>Self-hosted</b> - For special requirements, refer to the <a href="https://github.com/dong4j/mik-help">mik-help</a> project to
+        build your own proxy service;
+    </li>
+</ul>
+<br/>
+<p><b>⚠️ Security Notice</b>: If you synchronize IDE settings to GitHub/Gitee, please set the repository to private, otherwise keys may be
+    exposed.</p>
+<p>Starting from version 1.6.0, Keychain (macOS)/KeePass (Windows) is used instead of DES encryption for more secure key storage.</p>
 <br/>
