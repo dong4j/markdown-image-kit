@@ -25,6 +25,8 @@ public class MikIcons {
     public static final Icon SHOTTR = load("shottr.png");
     /** CleanShot X 图片编辑器图标 */
     public static final Icon CLEANSHOTX = load("cleanshotx.png");
+    /** Draw.io 图片编辑器图标 */
+    public static final Icon DRAWIO = load("drawio.png");
 
     /** 图片上传 */
     public static final Icon UPLOAD = load("upload.svg");

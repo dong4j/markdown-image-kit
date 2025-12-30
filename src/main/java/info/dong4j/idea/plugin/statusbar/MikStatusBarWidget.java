@@ -41,6 +41,10 @@ import icons.MikIcons;
 public class MikStatusBarWidget extends EditorBasedStatusBarPopup {
     /** Widget ID，用于唯一标识该组件 */
     public static final String ID = "MikStatusBarWidget";
+    private static final ImageEditorEnum[] IMAGE_EDITOR_OPTIONS = new ImageEditorEnum[] {
+        ImageEditorEnum.CLEANSHOT_X,
+        ImageEditorEnum.SHOTTR
+    };
 
     /**
      * 构造函数
@@ -159,7 +163,7 @@ public class MikStatusBarWidget extends EditorBasedStatusBarPopup {
         // 图片编辑器选择
         group.add(new DefaultActionGroup("🖼️ " + MikBundle.message("panel.image.processing.enable.image.editor"), true) {
             {
-                for (ImageEditorEnum editorEnum : ImageEditorEnum.values()) {
+                for (ImageEditorEnum editorEnum : IMAGE_EDITOR_OPTIONS) {
                     add(new SelectImageEditorAction(editorEnum));
                 }
             }
@@ -678,10 +682,7 @@ public class MikStatusBarWidget extends EditorBasedStatusBarPopup {
             e.getPresentation().setEnabled(state.isEnablePlugin());
 
             // 检查是否是当前选中的编辑器
-            ImageEditorEnum currentEditor = state.getImageEditor();
-            if (currentEditor == null) {
-                currentEditor = ImageEditorEnum.SHOTTR;
-            }
+            ImageEditorEnum currentEditor = normalizeImageEditor(state.getImageEditor());
             if (currentEditor == editorEnum && state.isEnableImageEditor()) {
                 e.getPresentation().setText("✓ " + editorEnum.getName());
             } else {
@@ -734,10 +735,18 @@ public class MikStatusBarWidget extends EditorBasedStatusBarPopup {
         Icon icon = switch (editorEnum) {
             case SHOTTR -> MikIcons.SHOTTR;
             case CLEANSHOT_X -> MikIcons.CLEANSHOTX;
+            case DRAWIO -> MikIcons.DRAWIO;
         };
 
         // 缩放图标，使其适合菜单显示（通常为原大小的 81.25%）
         return IconUtil.scale(icon, null, 0.8125f);
+    }
+
+    private static ImageEditorEnum normalizeImageEditor(@Nullable ImageEditorEnum editorEnum) {
+        if (editorEnum == null || editorEnum == ImageEditorEnum.DRAWIO) {
+            return ImageEditorEnum.CLEANSHOT_X;
+        }
+        return editorEnum;
     }
 
     /**
@@ -769,4 +778,3 @@ public class MikStatusBarWidget extends EditorBasedStatusBarPopup {
         }, com.intellij.openapi.application.ModalityState.defaultModalityState());
     }
 }
-

@@ -43,6 +43,11 @@ import lombok.Getter;
 public class ImageEnhancementPanel {
 
     // ========== 图片增强处理区域 ==========
+    private static final ImageEditorEnum[] IMAGE_EDITOR_OPTIONS = new ImageEditorEnum[] {
+        ImageEditorEnum.CLEANSHOT_X,
+        ImageEditorEnum.SHOTTR
+    };
+
     /** 图片增强处理面板 */
     @Getter
     private JPanel content;
@@ -166,7 +171,7 @@ public class ImageEnhancementPanel {
         gbc.gridx = 1;
         gbc.gridwidth = 2;
         gbc.weightx = 1.0;
-        imageEditorComboBox = new ComboBox<>(ImageEditorEnum.getNames());
+        imageEditorComboBox = new ComboBox<>(getImageEditorOptionNames());
         imageEditorComboBox.setEnabled(false);
         // 设置自定义渲染器，显示图标和文本
         imageEditorComboBox.setRenderer(new DefaultListCellRenderer() {
@@ -186,16 +191,15 @@ public class ImageEnhancementPanel {
                 JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 // 根据索引获取对应的枚举值
-                if (index >= 0 && index < ImageEditorEnum.values().length) {
-                    ImageEditorEnum editorEnum = ImageEditorEnum.of(index);
-                    if (editorEnum != null) {
-                        Icon icon = switch (editorEnum) {
-                            case SHOTTR -> MikIcons.SHOTTR;
-                            case CLEANSHOT_X -> MikIcons.CLEANSHOTX;
-                        };
-                        label.setIcon(icon);
-                        label.setText(editorEnum.getName());
-                    }
+                ImageEditorEnum editorEnum = getImageEditorOption(index);
+                if (editorEnum != null) {
+                    Icon icon = switch (editorEnum) {
+                        case SHOTTR -> MikIcons.SHOTTR;
+                        case CLEANSHOT_X -> MikIcons.CLEANSHOTX;
+                        default -> null;
+                    };
+                    label.setIcon(icon);
+                    label.setText(editorEnum.getName());
                 }
                 return label;
             }
@@ -445,10 +449,7 @@ public class ImageEnhancementPanel {
         // 图片编辑器
         this.enableImageEditorCheckBox.setSelected(state.isEnableImageEditor());
         ImageEditorEnum editor = state.getImageEditor();
-        if (editor == null) {
-            editor = ImageEditorEnum.SHOTTR;
-        }
-        this.imageEditorComboBox.setSelectedIndex(editor.getValue());
+        this.imageEditorComboBox.setSelectedIndex(getImageEditorOptionIndex(editor));
         this.imageEditorComboBox.setEnabled(state.isEnableImageEditor());
 
         // 删除图片
@@ -507,8 +508,8 @@ public class ImageEnhancementPanel {
         // 图片编辑器
         boolean enableImageEditor = this.enableImageEditorCheckBox.isSelected();
         int selectedEditorIndex = this.imageEditorComboBox.getSelectedIndex();
-        ImageEditorEnum currentEditor = ImageEditorEnum.of(selectedEditorIndex);
-        ImageEditorEnum stateEditor = state.getImageEditor();
+        ImageEditorEnum currentEditor = getImageEditorOption(selectedEditorIndex);
+        ImageEditorEnum stateEditor = normalizeImageEditor(state.getImageEditor());
         boolean editorEquals = false;
         if (currentEditor == null || stateEditor == null) {
             editorEquals = (currentEditor == stateEditor);
@@ -575,8 +576,8 @@ public class ImageEnhancementPanel {
         // 图片编辑器
         state.setEnableImageEditor(this.enableImageEditorCheckBox.isSelected());
         int selectedEditorIndex = this.imageEditorComboBox.getSelectedIndex();
-        ImageEditorEnum editorEnum = ImageEditorEnum.of(selectedEditorIndex);
-        state.setImageEditor(editorEnum != null ? editorEnum : ImageEditorEnum.SHOTTR);
+        ImageEditorEnum editorEnum = getImageEditorOption(selectedEditorIndex);
+        state.setImageEditor(editorEnum != null ? editorEnum : ImageEditorEnum.CLEANSHOT_X);
 
         // 删除图片
         state.setDeleteImage(this.deleteImageCheckBox.isSelected());
@@ -614,5 +615,42 @@ public class ImageEnhancementPanel {
 
         deleteImageCheckBox.setEnabled(enabled);
         deleteImageWithConfirmCheckBox.setEnabled(enabled && deleteImageCheckBox.isSelected());
+    }
+
+    private static String[] getImageEditorOptionNames() {
+        String[] names = new String[IMAGE_EDITOR_OPTIONS.length];
+        for (int i = 0; i < IMAGE_EDITOR_OPTIONS.length; i++) {
+            names[i] = IMAGE_EDITOR_OPTIONS[i].getName();
+        }
+        return names;
+    }
+
+    private static int getImageEditorOptionIndex(ImageEditorEnum editor) {
+        ImageEditorEnum normalizedEditor = normalizeImageEditor(editor);
+        for (int i = 0; i < IMAGE_EDITOR_OPTIONS.length; i++) {
+            if (IMAGE_EDITOR_OPTIONS[i] == normalizedEditor) {
+                return i;
+            }
+        }
+        for (int i = 0; i < IMAGE_EDITOR_OPTIONS.length; i++) {
+            if (IMAGE_EDITOR_OPTIONS[i] == ImageEditorEnum.CLEANSHOT_X) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
+    private static ImageEditorEnum getImageEditorOption(int index) {
+        if (index < 0 || index >= IMAGE_EDITOR_OPTIONS.length) {
+            return null;
+        }
+        return IMAGE_EDITOR_OPTIONS[index];
+    }
+
+    private static ImageEditorEnum normalizeImageEditor(ImageEditorEnum editor) {
+        if (editor == null || editor == ImageEditorEnum.DRAWIO) {
+            return ImageEditorEnum.CLEANSHOT_X;
+        }
+        return editor;
     }
 }

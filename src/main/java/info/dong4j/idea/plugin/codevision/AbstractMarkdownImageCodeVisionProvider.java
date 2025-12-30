@@ -8,6 +8,7 @@ import com.intellij.codeInsight.codeVision.CodeVisionState;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -142,24 +143,17 @@ public abstract class AbstractMarkdownImageCodeVisionProvider implements CodeVis
             return Context.EMPTY;
         }
 
-        return ReadAction.compute(() -> {
-            PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument());
-            if (psiFile == null) {
-                return Context.EMPTY;
-            }
+        VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
+        if (virtualFile == null || !MarkdownUtils.isMardownFile(virtualFile)) {
+            return Context.EMPTY;
+        }
 
-            VirtualFile virtualFile = psiFile.getVirtualFile();
-            if (virtualFile == null || !MarkdownUtils.isMardownFile(virtualFile)) {
-                return Context.EMPTY;
-            }
+        MikState state = MikPersistenComponent.getInstance().getState();
+        if (!state.isEnablePlugin()) {
+            return Context.EMPTY;
+        }
 
-            MikState state = MikPersistenComponent.getInstance().getState();
-            if (!state.isEnablePlugin()) {
-                return Context.EMPTY;
-            }
-
-            return new Context(project, virtualFile, true);
-        });
+        return new Context(project, virtualFile, true);
     }
 
     /**

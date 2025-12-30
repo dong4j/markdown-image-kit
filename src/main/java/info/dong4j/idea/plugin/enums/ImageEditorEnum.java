@@ -22,7 +22,13 @@ public enum ImageEditorEnum {
     /** CleanShot X 图片编辑器 */
     CLEANSHOT_X(0, "CleanShot X", "cleanshot://open-annotate?filepath="),
     /** Shottr 图片编辑器 */
-    SHOTTR(1, "Shottr", "shottr://load/clipboard");
+    SHOTTR(1, "Shottr", "shottr://load/clipboard"),
+    /**
+     * Draw.io 图片编辑器
+     *
+     * @see ImageEditorEnum
+     */
+    DRAWIO(2, "Draw.io", "drawio://open?title=Image&url=");
 
     /** 索引值 */
     public final int value;
