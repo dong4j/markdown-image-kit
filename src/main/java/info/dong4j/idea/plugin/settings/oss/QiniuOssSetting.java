@@ -11,6 +11,7 @@ import info.dong4j.idea.plugin.util.PasswordManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.event.ActionListener;
+import java.util.Objects;
 
 import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
@@ -180,10 +181,10 @@ public class QiniuOssSetting implements OssSetting<QiniuOssState> {
 
         // 只比较非敏感字段，避免在 EDT 上调用 PasswordManager.getPassword()（慢操作）
         // 密码字段的修改会在 apply() 时保存
-        return !(bucketName.equals(state.getBucketName())
-                 && accessKey.equals(state.getAccessKey())
+        return !(Objects.equals(bucketName, state.getBucketName())
+                 && Objects.equals(accessKey, state.getAccessKey())
                  && zoneIndex == state.getZoneIndex()
-                 && endpoint.equals(state.getEndpoint()));
+                 && Objects.equals(endpoint, state.getEndpoint()));
     }
 
     /**

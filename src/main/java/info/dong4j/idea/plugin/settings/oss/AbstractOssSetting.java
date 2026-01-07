@@ -9,6 +9,8 @@ import info.dong4j.idea.plugin.util.PasswordManager;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 import javax.swing.JCheckBox;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
@@ -208,12 +210,12 @@ public abstract class AbstractOssSetting<T extends AbstractExtendOssState> imple
 
         // 只比较非敏感字段，避免在 EDT 上调用 PasswordManager.getPassword()（慢操作）
         // 密码字段的修改会在 apply() 时保存
-        return !(bucketName.equals(state.getBucketName())
-                 && accessKey.equals(state.getAccessKey())
-                 && endpoint.equals(state.getEndpoint())
-                 && filedir.equals(state.getFiledir())
+        return !(Objects.equals(bucketName, state.getBucketName())
+                 && Objects.equals(accessKey, state.getAccessKey())
+                 && Objects.equals(endpoint, state.getEndpoint())
+                 && Objects.equals(filedir, state.getFiledir())
                  && state.getIsCustomEndpoint() == isCustomEndpoint
-                 && customEndpoint.equals(state.getCustomEndpoint()));
+                 && Objects.equals(customEndpoint, state.getCustomEndpoint()));
     }
 
     /**

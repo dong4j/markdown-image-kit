@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.util.Objects;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.Icon;
@@ -525,9 +526,9 @@ public class ImageEnhancementPanel {
                  && webpQuality == state.getWebpQuality()
                  && convertToWebp == state.isConvertToWebp()
                  && rename == state.isRename()
-                 && renameTemplate.equals(state.getRenameTemplate() != null ? state.getRenameTemplate() : "${filename}")
+                 && Objects.equals(renameTemplate, state.getRenameTemplate() != null ? state.getRenameTemplate() : "${filename}")
                  && watermark == state.isWatermark()
-                 && watermarkText.equals(state.getWatermarkText())
+                 && Objects.equals(watermarkText, state.getWatermarkText())
                  && enableImageEditor == state.isEnableImageEditor()
                  && editorEquals
                  && deleteImage == state.isDeleteImage()

@@ -8,6 +8,8 @@ import info.dong4j.idea.plugin.util.PasswordManager;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
@@ -91,9 +93,9 @@ public class TencentOssSetting implements OssSetting<TencentOssState> {
 
         // 只比较非敏感字段，避免在 EDT 上调用 PasswordManager.getPassword()（慢操作）
         // 密码字段的修改会在 apply() 时保存
-        return !(bucketName.equals(state.getBucketName())
-                 && accessKey.equals(state.getAccessKey())
-                 && regionName.equals(state.getRegionName()));
+        return !(Objects.equals(bucketName, state.getBucketName())
+                 && Objects.equals(accessKey, state.getAccessKey())
+                 && Objects.equals(regionName, state.getRegionName()));
     }
 
     /**
