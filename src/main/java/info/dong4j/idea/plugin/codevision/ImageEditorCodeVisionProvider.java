@@ -249,8 +249,26 @@ public class ImageEditorCodeVisionProvider extends AbstractMarkdownImageCodeVisi
      * @return 如果插件已安装并加载, 则返回 true; 否则返回 false
      */
     private boolean isPluginInstalledById(@NotNull String pluginId) {
-        IdeaPluginDescriptor plugin = PluginManagerCore.getPlugin(PluginId.getId(pluginId));
-        return plugin != null && PluginManagerCore.isLoaded(PluginId.getId(pluginId));
+        PluginId id = PluginId.getId(pluginId);
+        IdeaPluginDescriptor plugin = PluginManagerCore.getPlugin(id);
+        if (plugin == null) {
+            return false;
+        }
+
+        Method isLoadedMethod = ReflectionUtil.getMethod(PluginManagerCore.class, "isLoaded", PluginId.class);
+        if (isLoadedMethod != null) {
+            try {
+                Object result = isLoadedMethod.invoke(null, id);
+                if (result instanceof Boolean) {
+                    return (Boolean) result;
+                }
+            } catch (Exception e) {
+                log.trace("调用 PluginManagerCore.isLoaded 失败: {}", pluginId, e);
+            }
+        }
+
+        //noinspection deprecation
+        return plugin.isEnabled();
     }
 
     /**
