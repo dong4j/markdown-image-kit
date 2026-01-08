@@ -187,7 +187,7 @@ public final class MarkdownHeadingNumberAction extends AnAction {
             List<HeadingInfo> headings = parseHeadings(psiFile, document);
 
             if (headings.isEmpty()) {
-                log.info("未找到需要编号的标题（从二级标题开始）");
+                log.debug("未找到需要编号的标题（从二级标题开始）");
                 return;
             }
 
@@ -200,9 +200,9 @@ public final class MarkdownHeadingNumberAction extends AnAction {
             // 写入文档
             PsiDocumentUtils.commitAndSaveDocument(project, document, newContent);
 
-            log.info("成功为 {} 个标题生成了编号", headings.size());
+            log.debug("成功为 {} 个标题生成了编号", headings.size());
         } catch (Exception e) {
-            log.error("生成标题编号时发生错误", e);
+            log.debug("生成标题编号时发生错误", e);
         }
     }
 
@@ -277,7 +277,7 @@ public final class MarkdownHeadingNumberAction extends AnAction {
 
                 headings.add(new HeadingInfo(level, text, lineNumber, lineStartOffset, lineEndOffset));
             } catch (Exception e) {
-                log.warn("解析标题 PSI 元素失败: {}", e.getMessage());
+                log.debug("解析标题 PSI 元素失败: {}", e.getMessage());
             }
         }
 

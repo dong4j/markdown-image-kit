@@ -156,17 +156,17 @@ public class ProjectSettingsPage implements SearchableConfigurable {
                 java.awt.image.BufferedImage image = javax.imageio.ImageIO.read(imageUrl);
                 if (image != null) {
                     javax.swing.ImageIcon icon = new javax.swing.ImageIcon(image);
-                    log.info("Image loaded successfully: {}x{} from {}",
+                    log.debug("Image loaded successfully: {}x{} from {}",
                              image.getWidth(), image.getHeight(), resourcePath);
                     return icon;
                 } else {
-                    log.warn("Image is null after loading from: {}", imageUrl);
+                    log.debug("Image is null after loading from: {}", imageUrl);
                 }
             } else {
-                log.warn("Image resource not found: {}", resourcePath);
+                log.debug("Image resource not found: {}", resourcePath);
             }
         } catch (Exception e) {
-            log.warn("Failed to load image from: " + resourcePath, e);
+            log.debug("Failed to load image from: " + resourcePath, e);
         }
         return null;
     }

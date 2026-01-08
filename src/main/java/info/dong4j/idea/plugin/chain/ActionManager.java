@@ -198,7 +198,7 @@ public class ActionManager {
                         log.trace("处理器 {} 执行成功，耗时: {}ms", handler.getName(), handlerDuration);
                     }
                 } catch (Exception e) {
-                    log.error("处理器 {} 执行失败", handler.getName(), e);
+                    log.debug("处理器 {} 执行失败", handler.getName(), e);
                     MikConsoleView.printErrorMessage(this.data.getProject(),
                                                      "[✗] 处理器执行失败: " + handler.getName() + " (" + e.getMessage() + ")");
                     break;

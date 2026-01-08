@@ -1315,7 +1315,7 @@ public class UploadServicePanel {
             oldMethod.invoke(textField, title, description, null, descriptor, accessor);
             log.debug("Using old API for addBrowseFolderListener (2022.3-2024.1)");
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException ex) {
-            log.error("Failed to add browse folder listener using both new and old API", ex);
+            log.debug("Failed to add browse folder listener using both new and old API", ex);
         }
     }
 

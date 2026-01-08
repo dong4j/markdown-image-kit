@@ -109,7 +109,7 @@ public class ActionHandlerAdapter extends BaseActionHandler {
                 try {
                     this.invoke(data, imageIterator, markdownImage);
                 } catch (Exception e) {
-                    log.error("处理图片失败: {}", markdownImage.getImageName(), e);
+                    log.debug("处理图片失败: {}", markdownImage.getImageName(), e);
                     MikConsoleView.printErrorMessage(data.getProject(),
                                                      "[✗] 处理图片失败: " + markdownImage.getImageName() + " (" + e.getMessage() + ")");
                 }
