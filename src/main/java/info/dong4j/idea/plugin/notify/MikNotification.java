@@ -104,11 +104,11 @@ public class MikNotification extends Notification {
                 byte[] res = EntityUtils.toByteArray(response.getEntity());
                 String result = IOUtils.toString(res, StandardCharsets.UTF_8.name());
                 helpResult = new Gson().fromJson(result, HelpResult.class);
-                log.trace("{}", helpResult);
+                log.debug("{}", helpResult);
             }
 
         } catch (IOException e) {
-            log.trace("", e);
+            log.debug("", e);
         } finally {
             try {
                 client.close();

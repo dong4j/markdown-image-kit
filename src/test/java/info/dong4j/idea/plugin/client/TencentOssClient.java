@@ -65,7 +65,7 @@ public class TencentOssClient implements OssClient {
         try {
 
         } catch (Exception e) {
-            log.trace("", e);
+            log.debug("", e);
         }
     }
 

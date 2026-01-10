@@ -126,7 +126,7 @@ public class ImageDownloadHandler extends ActionHandlerAdapter {
 
         // 如果没有需要下载的图片，直接返回
         if (downloadTasks.isEmpty()) {
-            log.trace("没有需要下载的网络图片");
+            log.debug("没有需要下载的网络图片");
             MikConsoleView.printMessage(data.getProject(), "  没有需要下载的网络图片");
             return true;
         }
@@ -135,7 +135,7 @@ public class ImageDownloadHandler extends ActionHandlerAdapter {
         int totalCount = downloadTasks.size();
         int threadPoolSize = Math.min(totalCount, MAX_THREAD_POOL_SIZE);
         ExecutorService executorService = Executors.newFixedThreadPool(threadPoolSize);
-        log.trace("开始下载 {} 张图片，使用 {} 个线程", totalCount, threadPoolSize);
+        log.debug("开始下载 {} 张图片，使用 {} 个线程", totalCount, threadPoolSize);
 
         // 输出到控制台
         MikConsoleView.printMessage(data.getProject(), String.format("  开始下载 %d 张网络图片，使用 %d 个线程", totalCount, threadPoolSize));
@@ -167,7 +167,7 @@ public class ImageDownloadHandler extends ActionHandlerAdapter {
                     // 输出详细下载日志到控制台
                     String imageUrl = markdownImage.getPath();
                     if (imageUrl == null || imageUrl.trim().isEmpty() || !imageUrl.trim().startsWith("http://") && !imageUrl.trim().startsWith("https://")) {
-                        log.trace("无效的网络图片URL: {}", imageUrl);
+                        log.debug("无效的网络图片URL: {}", imageUrl);
                         MikConsoleView.printSmart(task.eventData.getProject(), String.format("  [✗] 无效的网络图片URL: %s", imageUrl));
                         return;
                     }
@@ -177,14 +177,14 @@ public class ImageDownloadHandler extends ActionHandlerAdapter {
 
                     successCount.incrementAndGet();
                     String newImageName = markdownImage.getImageName();
-                    log.trace("下载图片成功: {} -> {}", imageUrl, newImageName);
+                    log.debug("下载图片成功: {} -> {}", imageUrl, newImageName);
 
                     // 输出成功日志和本地保存信息
                     MikConsoleView.printSuccessMessage(task.eventData.getProject(), String.format("  [✓] 下载成功: %s", newImageName));
                     MikConsoleView.printMessage(task.eventData.getProject(), String.format("         本地文件名: %s", newImageName));
                 } catch (Exception e) {
                     failCount.incrementAndGet();
-                    log.trace("下载图片失败: {}: {}", task.markdownImage.getPath(), e.getMessage());
+                    log.debug("下载图片失败: {}: {}", task.markdownImage.getPath(), e.getMessage());
                     MikConsoleView.printSmart(task.eventData.getProject(), String.format("  [✗] 下载失败: %s - %s",
                                                                                          task.markdownImage.getPath(), e.getMessage()));
                     // 下载失败的图片需要移除
@@ -203,7 +203,7 @@ public class ImageDownloadHandler extends ActionHandlerAdapter {
         // 等待所有任务完成
         try {
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-            log.trace("图片下载完成，共处理 {} 张图片，成功 {} 张，失败 {} 张", totalCount, successCount.get(), failCount.get());
+            log.debug("图片下载完成，共处理 {} 张图片，成功 {} 张，失败 {} 张", totalCount, successCount.get(), failCount.get());
             MikConsoleView.printSmart(data.getProject(), String.format("  下载完成: 成功 %d 张，失败 %d 张", successCount.get(), failCount.get()));
         } finally {
             executorService.shutdown();
@@ -231,7 +231,7 @@ public class ImageDownloadHandler extends ActionHandlerAdapter {
     @Deprecated
     public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
         // 此方法已被多线程版本替代，不再使用
-        log.trace("invoke 方法已被多线程 execute 方法替代");
+        log.debug("invoke 方法已被多线程 execute 方法替代");
     }
 
     /**
@@ -271,7 +271,7 @@ public class ImageDownloadHandler extends ActionHandlerAdapter {
         // 如果仍然无法推断，使用默认扩展名
         if (extension == null || extension.isEmpty()) {
             extension = ImageMediaType.PNG.getExtension();
-            log.trace("无法推断图片类型，使用默认扩展名: {}", extension);
+            log.debug("无法推断图片类型，使用默认扩展名: {}", extension);
         }
 
         // 使用 UUID 生成文件名（小写无横线）
@@ -287,7 +287,7 @@ public class ImageDownloadHandler extends ActionHandlerAdapter {
         // 将 location 设置为 LOCAL，以便后续流程可以继续处理
         markdownImage.setLocation(ImageLocationEnum.LOCAL);
 
-        log.trace("下载图片成功: {} -> {} bytes, extension: {}", imageUrl, imageBytes.length, extension);
+        log.debug("下载图片成功: {} -> {} bytes, extension: {}", imageUrl, imageBytes.length, extension);
 
         // 输出详细日志到控制台（注意：这里没有 Project 对象，需要从调用处传入）
         // 详细日志在调用处输出
@@ -355,7 +355,7 @@ public class ImageDownloadHandler extends ActionHandlerAdapter {
                 return ext != null && !ext.isEmpty() ? "." + ext : null;
             }
         } catch (IOException e) {
-            log.trace("从文件头推断图片类型失败", e);
+            log.debug("从文件头推断图片类型失败", e);
         }
 
         return null;

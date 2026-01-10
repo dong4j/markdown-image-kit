@@ -82,7 +82,7 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
             return MikPersistenComponent.getInstance().getState();
         } catch (Exception e) {
             // 在类初始化阶段，服务可能尚未可用，返回 null
-            log.trace("无法获取服务状态，可能处于类初始化阶段: {}", e.getMessage());
+            log.debug("无法获取服务状态，可能处于类初始化阶段: {}", e.getMessage());
             return null;
         }
     }
@@ -203,7 +203,7 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
             return this.getMessage(cloudType.getTitle());
         } catch (Exception e) {
             // 如果服务不可用（可能在类初始化阶段），返回默认文本
-            log.trace("无法获取云类型，返回默认文本: {}", e.getMessage());
+            log.debug("无法获取云类型，返回默认文本: {}", e.getMessage());
             return "Configure image";
         }
     }
@@ -318,10 +318,10 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
         int linestartoffset = editor.getDocument().getLineStartOffset(documentLine);
         int lineendoffset = editor.getDocument().getLineEndOffset(documentLine);
 
-        log.trace("documentLine = {}, linestartoffset = {}, lineendoffset = {}", documentLine, linestartoffset, lineendoffset);
+        log.debug("documentLine = {}, linestartoffset = {}, lineendoffset = {}", documentLine, linestartoffset, lineendoffset);
 
         String text = editor.getDocument().getText(new TextRange(linestartoffset, lineendoffset));
-        log.trace("text = {}", text);
+        log.debug("text = {}", text);
         return text;
     }
 

@@ -1728,7 +1728,7 @@ public class UploadServicePanel {
 
                         InputStream inputStream = this.getClass().getResourceAsStream("/" + TEST_FILE_NAME);
                         url = client.upload(inputStream, TEST_FILE_NAME, state);
-                        log.trace("测试按钮上传的图片返回结果: {}", url);
+                        log.debug("测试按钮上传的图片返回结果: {}", url);
 
                         if (StringUtils.isNotBlank(url)) {
                             if (log.isTraceEnabled()) {

@@ -44,7 +44,7 @@ public final class ClientUtils {
             // 获取特定包下所有的类(包括接口和类, 排除内部类)
             // cache(ClassUtils.getAllClassByInterface(OssClient.class));
         } catch (Exception e) {
-            log.trace("", e);
+            log.debug("", e);
         }
     }
 
@@ -82,7 +82,7 @@ public final class ClientUtils {
                         OssClient uploader = (OssClient) constructor.newInstance();
                         OssClient.INSTANCES.put(client.value(), uploader);
                     } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                        log.trace("", e);
+                        log.debug("", e);
                     }
                 }
             }

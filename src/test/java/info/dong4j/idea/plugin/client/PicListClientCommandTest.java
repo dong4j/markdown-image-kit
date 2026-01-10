@@ -41,7 +41,7 @@ public class PicListClientCommandTest {
      */
     @BeforeEach
     public void setUp() {
-        log.trace("PicList 测试路径: {}", PICLIST_EXE_PATH);
+        log.debug("PicList 测试路径: {}", PICLIST_EXE_PATH);
     }
 
     /**
@@ -59,11 +59,11 @@ public class PicListClientCommandTest {
         // 检查 PicList 是否存在
         File picListExe = new File(resolveExecutablePath(PICLIST_EXE_PATH));
         if (!picListExe.exists()) {
-            log.trace("PicList 可执行文件不存在: {}, 跳过测试", picListExe.getAbsolutePath());
+            log.debug("PicList 可执行文件不存在: {}, 跳过测试", picListExe.getAbsolutePath());
             return;
         }
 
-        log.trace("PicList 可执行文件路径: {}", picListExe.getAbsolutePath());
+        log.debug("PicList 可执行文件路径: {}", picListExe.getAbsolutePath());
 
         // 创建测试图片文件
         // File testImageFile = createTestImageFile(tempDir.toFile(), "test.jpg");
@@ -78,7 +78,7 @@ public class PicListClientCommandTest {
 
         processBuilder.redirectErrorStream(false); // stderr 单独处理
 
-        log.trace("执行命令: {} upload {}", picListExe.getName(), testImageFile.getAbsolutePath());
+        log.debug("执行命令: {} upload {}", picListExe.getName(), testImageFile.getAbsolutePath());
         Process process = processBuilder.start();
 
         // 读取 stdout
@@ -89,10 +89,10 @@ public class PicListClientCommandTest {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     stdout.append(line).append("\n");
-                    log.trace("STDOUT: {}", line);
+                    log.debug("STDOUT: {}", line);
                 }
             } catch (IOException e) {
-                log.trace("读取 stdout 失败", e);
+                log.debug("读取 stdout 失败", e);
             }
         });
         stdoutThread.start();
@@ -105,10 +105,10 @@ public class PicListClientCommandTest {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     stderr.append(line).append("\n");
-                    log.trace("STDERR: {}", line);
+                    log.debug("STDERR: {}", line);
                 }
             } catch (IOException e) {
-                log.trace("读取 stderr 失败", e);
+                log.debug("读取 stderr 失败", e);
             }
         });
         stderrThread.start();
@@ -125,12 +125,12 @@ public class PicListClientCommandTest {
         String stderrContent = stderr.toString();
         int exitCode = finished ? process.exitValue() : -1;
 
-        log.trace("========================================");
-        log.trace("命令执行结果:");
-        log.trace("  退出码: {}", exitCode);
-        log.trace("  STDOUT: {}", stdoutContent);
-        log.trace("  STDERR: {}", stderrContent);
-        log.trace("========================================");
+        log.debug("========================================");
+        log.debug("命令执行结果:");
+        log.debug("  退出码: {}", exitCode);
+        log.debug("  STDOUT: {}", stdoutContent);
+        log.debug("  STDERR: {}", stderrContent);
+        log.debug("========================================");
 
         // 验证结果
         assertTrue(finished, "命令执行超时");
@@ -140,14 +140,14 @@ public class PicListClientCommandTest {
         boolean hasUrlInStdout = stdoutContent.contains("http://") || stdoutContent.contains("https://");
         boolean hasUrlInStderr = stderrContent.contains("http://") || stderrContent.contains("https://");
 
-        log.trace("STDOUT 是否包含 URL: {}", hasUrlInStdout);
-        log.trace("STDERR 是否包含 URL: {}", hasUrlInStderr);
+        log.debug("STDOUT 是否包含 URL: {}", hasUrlInStdout);
+        log.debug("STDERR 是否包含 URL: {}", hasUrlInStderr);
 
         // 断言或日志输出
         if (hasUrlInStdout || hasUrlInStderr) {
-            log.trace("✓ PicList 会输出 URL 到标准输出或标准错误输出");
+            log.debug("✓ PicList 会输出 URL 到标准输出或标准错误输出");
         } else {
-            log.trace("✗ PicList 可能不会输出 URL 到 stdout/stderr，" +
+            log.debug("✗ PicList 可能不会输出 URL 到 stdout/stderr，" +
                      "或者 URL 输出在剪贴板中");
         }
     }
@@ -165,7 +165,7 @@ public class PicListClientCommandTest {
         // 检查 PicList 是否存在
         File picListExe = new File(resolveExecutablePath(PICLIST_EXE_PATH));
         if (!picListExe.exists()) {
-            log.trace("PicList 可执行文件不存在: {}, 跳过测试", picListExe.getAbsolutePath());
+            log.debug("PicList 可执行文件不存在: {}, 跳过测试", picListExe.getAbsolutePath());
             return;
         }
 
@@ -187,9 +187,9 @@ public class PicListClientCommandTest {
         boolean finished = process.waitFor(5, TimeUnit.SECONDS);
         int exitCode = finished ? process.exitValue() : -1;
 
-        log.trace("PicList 版本信息:");
-        log.trace("  退出码: {}", exitCode);
-        log.trace("  输出: {}", output);
+        log.debug("PicList 版本信息:");
+        log.debug("  退出码: {}", exitCode);
+        log.debug("  输出: {}", output);
     }
 
     /**
@@ -254,7 +254,7 @@ public class PicListClientCommandTest {
         fos.write(jpegBytes);
         fos.close();
 
-        log.trace("创建测试图片文件: {}", file.getAbsolutePath());
+        log.debug("创建测试图片文件: {}", file.getAbsolutePath());
         return file;
     }
 

@@ -67,7 +67,7 @@ public class RefreshFileSystemHandler extends ActionHandlerAdapter {
                 VirtualFileManager.getInstance().syncRefresh();
             }
         });
-        log.trace("文件系统刷新完成");
+        log.debug("文件系统刷新完成");
     }
 
     /**
@@ -101,7 +101,7 @@ public class RefreshFileSystemHandler extends ActionHandlerAdapter {
                         }
                     }
                 } catch (Exception e) {
-                    log.trace("从当前文档解析路径失败", e);
+                    log.debug("从当前文档解析路径失败", e);
                 }
             }
 
@@ -120,12 +120,12 @@ public class RefreshFileSystemHandler extends ActionHandlerAdapter {
                 if (virtualDir != null) {
                     // 刷新目录，确保新文件显示
                     virtualDir.refresh(false, false);
-                    log.trace("已刷新目录: {}", parentDir.getAbsolutePath());
+                    log.debug("已刷新目录: {}", parentDir.getAbsolutePath());
                     return;
                 }
             }
         } catch (Exception e) {
-            log.trace("刷新特定目录失败，将刷新整个文件系统", e);
+            log.debug("刷新特定目录失败，将刷新整个文件系统", e);
         }
 
         // 如果刷新特定目录失败，则刷新整个文件系统

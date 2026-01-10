@@ -92,7 +92,7 @@ public abstract class ImageActionBase extends AnAction {
             event.getPresentation().setEnabled(false);
             return;
         }
-        
+
         ActionUtils.isAvailable(true, event, this.getIcon(), ImageContents.IMAGE_TYPE_NAME);
     }
 
@@ -112,7 +112,7 @@ public abstract class ImageActionBase extends AnAction {
             return;
         }
 
-        log.trace("project's base path = {}", project.getBasePath());
+        log.debug("project's base path = {}", project.getBasePath());
 
         // 如果选中编辑器
         DataContext dataContext = event.getDataContext();
@@ -202,7 +202,7 @@ public abstract class ImageActionBase extends AnAction {
                                         @NotNull VirtualFile virtualFile) {
         // 调用子类的过滤方法
         if (!shouldProcessFile(virtualFile)) {
-            log.trace("文件被过滤，跳过处理: {}", virtualFile.getPath());
+            log.debug("文件被过滤，跳过处理: {}", virtualFile.getPath());
             return;
         }
 
@@ -213,7 +213,7 @@ public abstract class ImageActionBase extends AnAction {
         try {
             markdownImage.setInputStream(virtualFile.getInputStream());
         } catch (IOException e) {
-            log.trace("读取文件输入流失败: {}", virtualFile.getPath(), e);
+            log.debug("读取文件输入流失败: {}", virtualFile.getPath(), e);
             return;
         }
         markdownImage.setFilename(virtualFile.getName());
@@ -221,7 +221,7 @@ public abstract class ImageActionBase extends AnAction {
         markdownImage.setLocation(ImageLocationEnum.LOCAL);
         markdownImage.setImageMarkType(ImageMarkEnum.ORIGINAL);
 
-        log.trace("添加图片到等待处理列表: {}", markdownImage.getFilename());
+        log.debug("添加图片到等待处理列表: {}", markdownImage.getFilename());
         // 使用线程安全的方式添加到映射中
         Document document = new DocumentImpl("");
         waitingProcessMap.computeIfAbsent(document, k -> Collections.synchronizedList(new ArrayList<>())).add(markdownImage);
@@ -311,7 +311,7 @@ public abstract class ImageActionBase extends AnAction {
                         // 动态计算线程池大小，最多使用15个线程
                         int threadPoolSize = Math.min(totalCount, 15);
                         ExecutorService executorService = Executors.newFixedThreadPool(threadPoolSize);
-                        log.trace("开始收集 {} 个文件，使用 {} 个线程", totalCount, threadPoolSize);
+                        log.debug("开始收集 {} 个文件，使用 {} 个线程", totalCount, threadPoolSize);
 
                         // 使用原子变量跟踪进度
                         AtomicInteger processedCount = new AtomicInteger(0);
@@ -337,7 +337,7 @@ public abstract class ImageActionBase extends AnAction {
                                     // 处理文件
                                     ImageActionBase.this.buildWaitingProcessMap(waitingProcessMap, imageFile);
                                 } catch (Exception e) {
-                                    log.trace("处理文件时发生异常: {}", imageFile.getPath(), e);
+                                    log.debug("处理文件时发生异常: {}", imageFile.getPath(), e);
                                 }
                             }, executorService);
 
@@ -347,7 +347,7 @@ public abstract class ImageActionBase extends AnAction {
                         // 等待所有任务完成
                         try {
                             CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-                            log.trace("文件收集完成，共处理 {} 个文件", totalCount);
+                            log.debug("文件收集完成，共处理 {} 个文件", totalCount);
                         } finally {
                             executorService.shutdown();
                         }

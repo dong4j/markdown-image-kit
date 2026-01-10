@@ -103,7 +103,7 @@ public class TencentOssClientTest {
 
             this.upload();
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            log.trace("", e);
+            log.debug("", e);
         } catch (Exception ignored) {
         }
     }
@@ -117,9 +117,9 @@ public class TencentOssClientTest {
      */
     private void upload() throws Exception {
         OssClient uploader = OssClient.INSTANCES.get(CloudEnum.TENCENT_CLOUD);
-        log.trace("{}", uploader.getName());
+        log.debug("{}", uploader.getName());
         String url = uploader.upload(new FileInputStream("/Users/dong4j/Downloads/mik.webp"), "x2.png");
-        log.trace("url = {}", url);
+        log.debug("url = {}", url);
     }
 
     /**

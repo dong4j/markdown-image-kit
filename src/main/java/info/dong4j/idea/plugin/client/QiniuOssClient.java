@@ -150,7 +150,7 @@ public class QiniuOssClient implements OssClient {
         } catch (MalformedURLException | URISyntaxException e) {
             throw new IOException("Invalid URL: " + endpoint, e);
         }
-        log.trace("getUserInfo = {}", url.getUserInfo());
+        log.debug("getUserInfo = {}", url.getUserInfo());
         if (StringUtils.isBlank(url.getPath())) {
             endpoint = endpoint + "/";
         } else {

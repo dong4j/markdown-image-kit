@@ -30,7 +30,7 @@ public class AbstractOssClientTest extends LightPlatformTestCase {
     public void test() {
         ServiceLoader<OssClient> loader = ServiceLoader.load(OssClient.class);
         for (OssClient ossClient : loader) {
-            log.trace("{}", ossClient);
+            log.debug("{}", ossClient);
         }
     }
 

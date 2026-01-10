@@ -134,7 +134,7 @@ public final class MarkdownUtils {
                 if (illegalImageMark(project, originalLineText)) {
                     continue;
                 }
-                log.trace("originalLineText: {}", originalLineText);
+                log.debug("originalLineText: {}", originalLineText);
                 MarkdownImage markdownImage;
                 if ((markdownImage = analysisImageMark(virtualFile, originalLineText, line)) != null) {
                     markdownImageList.add(markdownImage);
@@ -224,7 +224,7 @@ public final class MarkdownUtils {
 
                 VirtualFile imageVirtualFile = UploadUtils.searchVirtualFileByName(project, imagename);
                 if (imageVirtualFile == null) {
-                    log.trace("未找到本地图片文件: {}", imagename);
+                    log.debug("未找到本地图片文件: {}", imagename);
                     return null;
                 }
 
@@ -235,7 +235,7 @@ public final class MarkdownUtils {
             }
             return markdownImage;
         } catch (IOException e) {
-            log.trace("markdown imge mark analysis error", e);
+            log.debug("markdown imge mark analysis error", e);
         }
         return null;
     }
@@ -298,7 +298,7 @@ public final class MarkdownUtils {
             }
             return LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
         } catch (Exception e) {
-            log.trace("refreshAndFindLocalFile error, path={}", path, e);
+            log.debug("refreshAndFindLocalFile error, path={}", path, e);
             return null;
         }
     }
@@ -359,7 +359,7 @@ public final class MarkdownUtils {
                 imageName = path.substring(path.lastIndexOf(File.separator) + 1);
             }
         } catch (Exception e) {
-            log.trace("get iamge name from path error. path = {}", path);
+            log.debug("get iamge name from path error. path = {}", path);
         }
         return imageName;
     }
@@ -379,7 +379,7 @@ public final class MarkdownUtils {
         if (StringUtils.isBlank(mark)) {
             return "";
         }
-        log.trace("find mark: {}", mark);
+        log.debug("find mark: {}", mark);
         try {
             // 找到最后一个 "](" 的位置
             int start = mark.lastIndexOf(ImageContents.IMAGE_MARK_MIDDLE);
@@ -433,7 +433,7 @@ public final class MarkdownUtils {
         if (!hasImageTagSuffix) {
             return null;
         }
-        log.trace("image text: {}", lineText);
+        log.debug("image text: {}", lineText);
 
         offset[0] = indexPrefix;
         offset[1] = indexSuffix + 1;
@@ -465,7 +465,7 @@ public final class MarkdownUtils {
                                                    boolean allowAccept =
                                                        file.isDirectory() && !file.getName().equals(MikContents.NODE_MODULES_FILE);
                                                    if (allowAccept || file.getName().endsWith(MarkdownContents.MARKDOWN_FILE_SUFIX)) {
-                                                       log.trace("accept = {}", file.getPath());
+                                                       log.debug("accept = {}", file.getPath());
                                                        return true;
                                                    }
                                                    return false;
@@ -473,7 +473,7 @@ public final class MarkdownUtils {
                                                fileOrDir -> {
                                                    // todo-dong4j : (2019年03月15日 13:04) [处理 markdown 逻辑实现]
                                                    if (!fileOrDir.isDirectory()) {
-                                                       log.trace("processFile = {}", fileOrDir.getName());
+                                                       log.debug("processFile = {}", fileOrDir.getName());
                                                        markdownFiles.add(fileOrDir);
                                                    }
                                                    return true;
@@ -497,7 +497,7 @@ public final class MarkdownUtils {
 
         Map<Document, List<MarkdownImage>> waitingProcessMap = new HashMap<>(20);
 
-        log.trace("project's base path = {}", project.getBasePath());
+        log.debug("project's base path = {}", project.getBasePath());
         // 如果选中编辑器
         DataContext dataContext = event.getDataContext();
 

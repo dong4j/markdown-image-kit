@@ -249,7 +249,7 @@ public class ImageStorageHandler extends ActionHandlerAdapter {
         try {
             markdownImage.setInputStream(new FileInputStream(saveFile));
         } catch (FileNotFoundException e) {
-            log.trace("", e);
+            log.debug("", e);
         }
     }
 
@@ -297,7 +297,7 @@ public class ImageStorageHandler extends ActionHandlerAdapter {
             try {
                 markdownImage.setInputStream(new FileInputStream(saveFile));
             } catch (FileNotFoundException e) {
-                log.trace("", e);
+                log.debug("", e);
             }
         } else {
             // 不拷贝，使用原文件路径
@@ -360,17 +360,17 @@ public class ImageStorageHandler extends ActionHandlerAdapter {
 
         boolean checkDir = imageDir.exists() && imageDir.isDirectory();
         if (!checkDir && !imageDir.mkdirs()) {
-            log.trace("无法创建目录: {}", imageDir.getAbsolutePath());
+            log.debug("无法创建目录: {}", imageDir.getAbsolutePath());
             return null;
         }
 
         File saveFile = new File(imageDir, markdownImage.getImageName());
         try {
             FileUtil.copy(markdownImage.getInputStream(), new FileOutputStream(saveFile));
-            log.trace("图片已保存到: {}", saveFile.getAbsolutePath());
+            log.debug("图片已保存到: {}", saveFile.getAbsolutePath());
             return saveFile;
         } catch (IOException e) {
-            log.trace("Failed to save image file", e);
+            log.debug("Failed to save image file", e);
             return null;
         }
     }
@@ -434,7 +434,7 @@ public class ImageStorageHandler extends ActionHandlerAdapter {
         markdownImage.setLocation(ImageLocationEnum.LOCAL);
         markdownImage.setFinalMark(mark);
 
-        log.trace("图片路径已更新: {}", finalPath);
+        log.debug("图片路径已更新: {}", finalPath);
     }
 
     /**

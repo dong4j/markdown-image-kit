@@ -122,7 +122,7 @@ public class QiniuOssUtils {
                         this.put("response", result.toString());
                     }
                 };
-                log.trace("{}", map);
+                log.debug("{}", map);
                 throw new RuntimeException(connection.getResponseCode() + " " + connection.getResponseMessage());
             }
 
@@ -150,7 +150,7 @@ public class QiniuOssUtils {
         while ((line = br.readLine()) != null) {
             buffer.append(line);
         }
-        log.trace("{}", buffer);
+        log.debug("{}", buffer);
     }
 
     /**

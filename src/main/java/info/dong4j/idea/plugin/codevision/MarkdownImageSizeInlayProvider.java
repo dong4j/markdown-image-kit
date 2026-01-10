@@ -202,7 +202,7 @@ public class MarkdownImageSizeInlayProvider implements InlayHintsProvider {
                 return Paths.get(parent.getPath()).resolve(imagePath).normalize();
             }
         } catch (InvalidPathException e) {
-            log.trace("解析图片路径失败: {}", path, e);
+            log.debug("解析图片路径失败: {}", path, e);
         }
 
         return null;
@@ -223,7 +223,7 @@ public class MarkdownImageSizeInlayProvider implements InlayHintsProvider {
             }
             return Files.size(imagePath);
         } catch (IOException e) {
-            log.trace("读取图片字节大小失败: {}", imagePath, e);
+            log.debug("读取图片字节大小失败: {}", imagePath, e);
             return null;
         }
     }
@@ -283,7 +283,7 @@ public class MarkdownImageSizeInlayProvider implements InlayHintsProvider {
             }
             return new Dimension(image.getWidth(), image.getHeight());
         } catch (Exception e) {
-            log.trace("读取图片尺寸失败: {}", imagePath, e);
+            log.debug("读取图片尺寸失败: {}", imagePath, e);
             return null;
         }
     }

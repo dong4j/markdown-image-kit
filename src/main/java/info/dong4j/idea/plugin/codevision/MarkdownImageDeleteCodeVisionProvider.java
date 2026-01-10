@@ -177,7 +177,7 @@ public class MarkdownImageDeleteCodeVisionProvider extends AbstractMarkdownImage
                                     Files.copy(finalBackupPath, finalImagePath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
                                     VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
                                 } catch (IOException e) {
-                                    log.trace("撤销删除图片失败: {}", finalImagePath, e);
+                                    log.debug("撤销删除图片失败: {}", finalImagePath, e);
                                 }
                             }
 
@@ -187,13 +187,13 @@ public class MarkdownImageDeleteCodeVisionProvider extends AbstractMarkdownImage
                                     deleteFileToTrash(finalImagePath);
                                     VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
                                 } catch (IOException e) {
-                                    log.trace("重做删除图片失败: {}", finalImagePath, e);
+                                    log.debug("重做删除图片失败: {}", finalImagePath, e);
                                 }
                             }
                         });
                     }
                 } catch (IOException e) {
-                    log.trace("删除图片文件失败: {}", imagePath, e);
+                    log.debug("删除图片文件失败: {}", imagePath, e);
                 }
             }
 
@@ -337,7 +337,7 @@ public class MarkdownImageDeleteCodeVisionProvider extends AbstractMarkdownImage
                 return baseDir.resolve(imagePath).normalize();
             }
         } catch (InvalidPathException e) {
-            log.trace("解析图片路径失败: {}", path, e);
+            log.debug("解析图片路径失败: {}", path, e);
         }
 
         return null;

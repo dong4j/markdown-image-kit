@@ -151,7 +151,7 @@ public class ActionManager {
 
         // 如果没有启用的 handler，直接返回
         if (enabledHandlers.isEmpty()) {
-            log.trace("没有启用的处理器");
+            log.debug("没有启用的处理器");
             return;
         }
 
@@ -176,7 +176,7 @@ public class ActionManager {
                     progressTracker.startStep(stepIndex);
                 }
 
-                log.trace("invoke {}", handler.getName());
+                log.debug("invoke {}", handler.getName());
 
                 // 记录处理器开始执行时间
                 long handlerStartTime = System.currentTimeMillis();
@@ -189,13 +189,13 @@ public class ActionManager {
                     long handlerDuration = System.currentTimeMillis() - handlerStartTime;
 
                     if (!success) {
-                        log.trace("处理器 {} 执行失败，中断处理链", handler.getName());
+                        log.debug("处理器 {} 执行失败，中断处理链", handler.getName());
                         MikConsoleView.printErrorMessage(this.data.getProject(),
                                                          "[✗] 处理器执行失败: " + handler.getName() + " (耗时: " + formatDuration(handlerDuration) +
                                                          ")");
                         break;
                     } else {
-                        log.trace("处理器 {} 执行成功，耗时: {}ms", handler.getName(), handlerDuration);
+                        log.debug("处理器 {} 执行成功，耗时: {}ms", handler.getName(), handlerDuration);
                     }
                 } catch (Exception e) {
                     log.debug("处理器 {} 执行失败", handler.getName(), e);
@@ -292,7 +292,7 @@ public class ActionManager {
             OssClient client = data.getClient();
 
             for (Map.Entry<Document, List<MarkdownImage>> entry : waitingProcessMap.entrySet()) {
-                log.trace("old waitingProcessMap = {}", waitingProcessMap);
+                log.debug("old waitingProcessMap = {}", waitingProcessMap);
                 List<MarkdownImage> images = entry.getValue();
 
 
@@ -302,15 +302,15 @@ public class ActionManager {
                     if (!markdownImage.getPath().contains(filterString)
                         || (client != null && markdownImage.getPath().contains(client.getCloudType().feature))) {
 
-                        log.trace("排除与用户输入不匹配的标签: {}", markdownImage.getPath());
+                        log.debug("排除与用户输入不匹配的标签: {}", markdownImage.getPath());
                         toRemove.add(markdownImage);
                     } else {
                         final String path = markdownImage.getPath();
                         if (path != null && (path.trim().startsWith("http://") || path.trim().startsWith("https://"))) {
-                            log.trace("标记为网络图片: {}", path);
+                            log.debug("标记为网络图片: {}", path);
                             markdownImage.setLocation(ImageLocationEnum.NETWORK);
                         } else {
-                            log.trace("标记为本地图片: {}", path);
+                            log.debug("标记为本地图片: {}", path);
                             markdownImage.setLocation(ImageLocationEnum.LOCAL);
                         }
                     }
@@ -322,7 +322,7 @@ public class ActionManager {
                 entry.getValue().removeAll(toRemove);
             }
 
-            log.trace("new waitingProcessMap = {}", waitingProcessMap);
+            log.debug("new waitingProcessMap = {}", waitingProcessMap);
         });
 
 

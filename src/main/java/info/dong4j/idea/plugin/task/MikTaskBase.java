@@ -80,7 +80,7 @@ public abstract class MikTaskBase extends Task.Backgroundable {
      */
     @Override
     public void onCancel() {
-        log.trace("cancel callback");
+        log.debug("cancel callback");
     }
 
     /**
@@ -92,7 +92,7 @@ public abstract class MikTaskBase extends Task.Backgroundable {
      */
     @Override
     public void onSuccess() {
-        log.trace("success callback");
+        log.debug("success callback");
         for (TaskCallback callback : this.manager.getCallbacks()) {
             callback.onSuccess();
         }
@@ -107,7 +107,7 @@ public abstract class MikTaskBase extends Task.Backgroundable {
      */
     @Override
     public void onFinished() {
-        log.trace("finished callback");
+        log.debug("finished callback");
     }
 
     /**
@@ -121,6 +121,6 @@ public abstract class MikTaskBase extends Task.Backgroundable {
     @Override
     public void onThrowable(@NotNull Throwable throwable) {
         super.onThrowable(throwable);
-        log.trace("", throwable);
+        log.debug("", throwable);
     }
 }

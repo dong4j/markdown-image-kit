@@ -138,7 +138,7 @@ public class UploadNotification extends MikNotification {
                     try {
                         RevealFileAction.openFile(new File(firstFile.getPath()));
                     } catch (Exception ex) {
-                        log.trace("Failed to open file: {}", firstFile.getPath(), ex);
+                        log.debug("Failed to open file: {}", firstFile.getPath(), ex);
                     }
                 }
                 notification.expire();

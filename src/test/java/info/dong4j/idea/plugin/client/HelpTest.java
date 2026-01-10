@@ -55,11 +55,11 @@ public class HelpTest {
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 byte[] res = EntityUtils.toByteArray(response.getEntity());
                 String result = IOUtils.toString(res, StandardCharsets.UTF_8.name());
-                log.trace("{}", result);
+                log.debug("{}", result);
             }
 
         } catch (IOException e) {
-            log.trace("", e);
+            log.debug("", e);
         } finally {
             try {
                 client.close();

@@ -71,7 +71,7 @@ public class SmmsUtils {
                 byte[] res = EntityUtils.toByteArray(response.getEntity());
                 String result = IOUtils.toString(res, StandardCharsets.UTF_8.name());
                 SmmsResult smmsResult = new Gson().fromJson(result, SmmsResult.class);
-                log.trace("{}", smmsResult);
+                log.debug("{}", smmsResult);
                 if (smmsResult.getCode().equals("image_repeated")) {
                     return smmsResult.getImages();
                 }

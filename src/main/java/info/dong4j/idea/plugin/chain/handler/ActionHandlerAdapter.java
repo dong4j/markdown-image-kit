@@ -84,7 +84,7 @@ public class ActionHandlerAdapter extends BaseActionHandler {
             .sum();
 
         if (totalCount == 0) {
-            log.trace("没有待处理的图片数据");
+            log.debug("没有待处理的图片数据");
             return true;
         }
 
@@ -102,7 +102,7 @@ public class ActionHandlerAdapter extends BaseActionHandler {
                 }
 
                 if (!this.shouldProcess(markdownImage)) {
-                    log.trace("[{}:{}] 跳过图片: {}", data.getAction(), getName(), markdownImage.getImageName());
+                    log.debug("[{}:{}] 跳过图片: {}", data.getAction(), getName(), markdownImage.getImageName());
                     continue;
                 }
 
@@ -130,6 +130,6 @@ public class ActionHandlerAdapter extends BaseActionHandler {
      */
     @Override
     public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
-        log.trace("执行特定逻辑");
+        log.debug("执行特定逻辑");
     }
 }

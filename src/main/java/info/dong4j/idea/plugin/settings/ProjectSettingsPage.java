@@ -270,7 +270,7 @@ public class ProjectSettingsPage implements SearchableConfigurable {
      */
     @Override
     public boolean isModified() {
-        log.trace("isModified invoke");
+        log.debug("isModified invoke");
         MikState state = this.config.getState();
         // 检查全局设置是否修改
         boolean globalSettingsModified = globalSettingsPanel.isGlobalSettingsModified(state);

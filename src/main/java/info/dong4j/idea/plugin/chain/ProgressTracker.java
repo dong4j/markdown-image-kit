@@ -157,7 +157,7 @@ public class ProgressTracker {
      */
     public void startStep(int stepIndex) {
         if (stepIndex < 0 || stepIndex >= steps.size()) {
-            log.trace("无效的步骤索引: {}", stepIndex);
+            log.debug("无效的步骤索引: {}", stepIndex);
             return;
         }
 
@@ -198,7 +198,7 @@ public class ProgressTracker {
             updateProgress(0.0);
         } catch (Exception e) {
             // 在预览模式下可能会抛出 SideEffectNotAllowedException，忽略这些异常
-            log.trace("更新进度时发生异常（可能是预览模式）: {}", e.getMessage());
+            log.debug("更新进度时发生异常（可能是预览模式）: {}", e.getMessage());
         }
     }
 
@@ -213,7 +213,7 @@ public class ProgressTracker {
     @SuppressWarnings("D")
     public void updateItemProgress(int stepIndex, String itemName, int current, int total) {
         if (stepIndex < 0 || stepIndex >= steps.size()) {
-            log.trace("无效的步骤索引: {}", stepIndex);
+            log.debug("无效的步骤索引: {}", stepIndex);
             return;
         }
 
@@ -269,7 +269,7 @@ public class ProgressTracker {
             updateProgress(overallProgress);
         } catch (Exception e) {
             // 在预览模式下可能会抛出 SideEffectNotAllowedException，忽略这些异常
-            log.trace("更新进度时发生异常（可能是预览模式）: {}", e.getMessage());
+            log.debug("更新进度时发生异常（可能是预览模式）: {}", e.getMessage());
         }
     }
 
@@ -290,7 +290,7 @@ public class ProgressTracker {
             indicator.setFraction(progress);
         } catch (Exception e) {
             // 在预览模式下可能会抛出 SideEffectNotAllowedException，忽略这些异常
-            log.trace("设置进度时发生异常（可能是预览模式）: {}", e.getMessage());
+            log.debug("设置进度时发生异常（可能是预览模式）: {}", e.getMessage());
         }
     }
 
@@ -332,7 +332,7 @@ public class ProgressTracker {
             updateProgress(1.0);
         } catch (Exception e) {
             // 在预览模式下可能会抛出 SideEffectNotAllowedException，忽略这些异常
-            log.trace("完成步骤时发生异常（可能是预览模式）: {}", e.getMessage());
+            log.debug("完成步骤时发生异常（可能是预览模式）: {}", e.getMessage());
         }
     }
 

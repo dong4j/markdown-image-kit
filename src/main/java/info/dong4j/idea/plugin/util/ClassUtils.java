@@ -163,12 +163,12 @@ public final class ClassUtils {
                             }
                         }
                     } catch (IOException e) {
-                        log.trace("", e);
+                        log.debug("", e);
                     }
                 }
             }
         } catch (IOException e) {
-            log.trace("", e);
+            log.debug("", e);
         }
 
         return classes;

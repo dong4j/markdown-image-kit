@@ -203,7 +203,7 @@ public class ImageEditorCodeVisionProvider extends AbstractMarkdownImageCodeVisi
             }
         } catch (Exception e) {
             // disconnectQuietly(connection);
-            log.trace("打开图片编辑器失败: {}", absolutePath, e);
+            log.debug("打开图片编辑器失败: {}", absolutePath, e);
             Messages.showErrorDialog(
                 context.project,
                 MikBundle.message("mik.codevision.annotate.path.missing", editor.getName()),
@@ -263,7 +263,7 @@ public class ImageEditorCodeVisionProvider extends AbstractMarkdownImageCodeVisi
                     return (Boolean) result;
                 }
             } catch (Exception e) {
-                log.trace("调用 PluginManagerCore.isLoaded 失败: {}", pluginId, e);
+                log.debug("调用 PluginManagerCore.isLoaded 失败: {}", pluginId, e);
             }
         }
 
@@ -414,7 +414,7 @@ public class ImageEditorCodeVisionProvider extends AbstractMarkdownImageCodeVisi
                     return true;
                 }
             } catch (Exception e) {
-                log.trace("刷新 Markdown 预览失败: {}", methodName, e);
+                log.debug("刷新 Markdown 预览失败: {}", methodName, e);
             }
         }
         return false;
@@ -445,7 +445,7 @@ public class ImageEditorCodeVisionProvider extends AbstractMarkdownImageCodeVisi
             try {
                 connection.disconnect();
             } catch (Exception e) {
-                log.trace("断开 VFS 监听连接失败", e);
+                log.debug("断开 VFS 监听连接失败", e);
             }
         }
     }
@@ -463,7 +463,7 @@ public class ImageEditorCodeVisionProvider extends AbstractMarkdownImageCodeVisi
         // Shottr 需要先将图片复制到剪切板, 然后调用 scheme
         File imageFile = new File(absolutePath);
         if (!imageFile.exists() || !imageFile.isFile()) {
-            log.trace("图片文件不存在: {}", absolutePath);
+            log.debug("图片文件不存在: {}", absolutePath);
             Messages.showErrorDialog(
                 context.project,
                 MikBundle.message("mik.codevision.annotate.path.missing", editor.getName()),
@@ -476,7 +476,7 @@ public class ImageEditorCodeVisionProvider extends AbstractMarkdownImageCodeVisi
             // 读取图片文件
             Image image = ImageIO.read(imageFile);
             if (image == null) {
-                log.trace("无法读取图片文件: {}", absolutePath);
+                log.debug("无法读取图片文件: {}", absolutePath);
                 Messages.showErrorDialog(
                     context.project,
                     MikBundle.message("mik.codevision.annotate.path.missing", editor.getName()),
@@ -492,7 +492,7 @@ public class ImageEditorCodeVisionProvider extends AbstractMarkdownImageCodeVisi
             String url = editor.getScheme();
             BrowserUtil.browse(url);
         } catch (IOException e) {
-            log.trace("读取图片文件失败: {}", absolutePath, e);
+            log.debug("读取图片文件失败: {}", absolutePath, e);
             Messages.showErrorDialog(
                 context.project,
                 MikBundle.message("mik.codevision.annotate.path.missing", editor.getName()),
@@ -546,7 +546,7 @@ public class ImageEditorCodeVisionProvider extends AbstractMarkdownImageCodeVisi
                 return baseDir.resolve(imagePath).normalize().toString();
             }
         } catch (InvalidPathException e) {
-            log.trace("解析图片路径失败: {}", path, e);
+            log.debug("解析图片路径失败: {}", path, e);
         }
 
         return null;

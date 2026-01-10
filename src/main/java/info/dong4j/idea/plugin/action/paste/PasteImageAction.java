@@ -267,7 +267,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
         try {
             caret = editor.getCaretModel().getCurrentCaret();
         } catch (Exception e) {
-            log.trace("无法获取当前 caret", e);
+            log.debug("无法获取当前 caret", e);
         }
 
         // 获取当前文档名
@@ -605,7 +605,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
                     }
                 }
             } catch (Exception e) {
-                log.trace("处理文件粘贴时出错", e);
+                log.debug("处理文件粘贴时出错", e);
             }
         }
 
@@ -736,7 +736,7 @@ public class PasteImageAction extends EditorActionHandler implements EditorTextI
             try {
                 currentCaret = editor.getCaretModel().getCurrentCaret();
             } catch (Exception e) {
-                log.trace("无法获取当前 caret", e);
+                log.debug("无法获取当前 caret", e);
                 return false;
             }
         }

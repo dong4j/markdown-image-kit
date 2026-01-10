@@ -521,7 +521,7 @@ public final class ImageUtils {
                 .outputQuality(percent * 1.0 / 100)
                 .toFile(out);
         } catch (IOException e) {
-            log.trace("", e);
+            log.debug("", e);
         }
     }
 
@@ -541,7 +541,7 @@ public final class ImageUtils {
                 .outputQuality(percent * 1.0 / 100)
                 .toOutputStream(out);
         } catch (IOException e) {
-            log.trace("", e);
+            log.debug("", e);
         }
     }
 
@@ -563,7 +563,7 @@ public final class ImageUtils {
                 .outputQuality(percent * 1.0 / 100)
                 .toFile(out);
         } catch (IOException e) {
-            log.trace("", e);
+            log.debug("", e);
         }
     }
 
@@ -582,7 +582,7 @@ public final class ImageUtils {
                 .outputFormat("webp")
                 .toOutputStream(out);
         } catch (IOException e) {
-            log.trace("", e);
+            log.debug("", e);
         }
     }
 
@@ -605,7 +605,7 @@ public final class ImageUtils {
                 .outputQuality(percent * 1.0 / 100)
                 .toOutputStream(out);
         } catch (Exception e) {
-            log.trace("", e);
+            log.debug("", e);
         }
     }
 
@@ -724,7 +724,7 @@ public final class ImageUtils {
                 // todo-dong4j : (2019年03月15日 13:02) [从 .gitignore 中获取忽略的文件]
                 boolean allowAccept = file.isDirectory() && !file.getName().equals(MikContents.NODE_MODULES_FILE);
                 if (allowAccept || ImageUtils.isImageFile(file)) {
-                    log.trace("accept = {}", file.getPath());
+                    log.debug("accept = {}", file.getPath());
                     return true;
                 }
                 return false;
@@ -732,7 +732,7 @@ public final class ImageUtils {
             fileOrDir -> {
                 // todo-dong4j : (2019年03月15日 13:04) [处理 markdown 逻辑实现]
                 if (!fileOrDir.isDirectory()) {
-                    log.trace("processFile = {}", fileOrDir.getName());
+                    log.debug("processFile = {}", fileOrDir.getName());
                     imageFiles.add(fileOrDir);
                 }
                 return true;

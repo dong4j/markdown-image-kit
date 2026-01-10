@@ -131,7 +131,7 @@ public final class MikConsoleView implements Disposable {
                     showToolWindow();
                 }
             } catch (Exception e) {
-                log.trace("输出到控制台失败", e);
+                log.debug("输出到控制台失败", e);
             }
         });
     }
@@ -148,7 +148,7 @@ public final class MikConsoleView implements Disposable {
                     toolWindow.show(null);
                 }
             } catch (Exception e) {
-                log.trace("显示工具窗口失败", e);
+                log.debug("显示工具窗口失败", e);
             }
         });
     }
@@ -190,7 +190,7 @@ public final class MikConsoleView implements Disposable {
         try {
             return !MikPersistenComponent.getInstance().getState().isEnableConsoleLog();
         } catch (Exception e) {
-            log.trace("获取控制台日志开关失败，默认启用", e);
+            log.debug("获取控制台日志开关失败，默认启用", e);
             return false;
         }
     }
@@ -208,7 +208,7 @@ public final class MikConsoleView implements Disposable {
         try {
             getInstance(project).print(message);
         } catch (Exception e) {
-            log.trace("输出到控制台失败", e);
+            log.debug("输出到控制台失败", e);
         }
     }
 
@@ -225,7 +225,7 @@ public final class MikConsoleView implements Disposable {
         try {
             getInstance(project).printSuccess(message);
         } catch (Exception e) {
-            log.trace("输出到控制台失败", e);
+            log.debug("输出到控制台失败", e);
         }
     }
 
@@ -242,7 +242,7 @@ public final class MikConsoleView implements Disposable {
         try {
             getInstance(project).printError(message);
         } catch (Exception e) {
-            log.trace("输出到控制台失败", e);
+            log.debug("输出到控制台失败", e);
         }
     }
 
@@ -259,7 +259,7 @@ public final class MikConsoleView implements Disposable {
         try {
             getInstance(project).printWarning(message);
         } catch (Exception e) {
-            log.trace("输出到控制台失败", e);
+            log.debug("输出到控制台失败", e);
         }
     }
 
@@ -286,7 +286,7 @@ public final class MikConsoleView implements Disposable {
                 consoleView.print(message);
             }
         } catch (Exception e) {
-            log.trace("输出到控制台失败", e);
+            log.debug("输出到控制台失败", e);
         }
     }
 }

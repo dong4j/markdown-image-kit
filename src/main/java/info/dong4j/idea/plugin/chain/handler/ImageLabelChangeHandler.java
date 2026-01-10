@@ -102,7 +102,7 @@ public class ImageLabelChangeHandler extends ActionHandlerAdapter {
 
         // 如果目标标签类型与当前标签类型不同，则执行转换
         if (targetMarkType != null && !targetMarkType.equals(currentMarkType)) {
-            log.trace("标签转换: {} -> {}, 图片: {}",
+            log.debug("标签转换: {} -> {}, 图片: {}",
                       currentMarkType != null ? currentMarkType.getText() : "null",
                       targetMarkType.getText(),
                       markdownImage.getImageName());
@@ -116,7 +116,7 @@ public class ImageLabelChangeHandler extends ActionHandlerAdapter {
             
             changeMarkType(markdownImage, targetMarkType);
         } else {
-            log.trace("标签类型一致，跳过转换: {}, 图片: {}",
+            log.debug("标签类型一致，跳过转换: {}, 图片: {}",
                       currentMarkType != null ? currentMarkType.getText() : "null",
                       markdownImage.getImageName());
         }
@@ -146,7 +146,7 @@ public class ImageLabelChangeHandler extends ActionHandlerAdapter {
             // 自定义类型需要从配置中获取自定义代码
             typeCode = IntentionActionBase.getState().getCustomTagCode();
             if (StringUtils.isBlank(typeCode)) {
-                log.trace("自定义标签代码为空，跳过转换: {}", markdownImage.getImageName());
+                log.debug("自定义标签代码为空，跳过转换: {}", markdownImage.getImageName());
                 return;
             }
         } else {
@@ -168,7 +168,7 @@ public class ImageLabelChangeHandler extends ActionHandlerAdapter {
         markdownImage.setImageMarkType(targetMarkType);
         markdownImage.setFinalMark(finalMark);
 
-        log.trace("标签转换完成: {}, 新标记: {}", markdownImage.getImageName(), finalMark);
+        log.debug("标签转换完成: {}, 新标记: {}", markdownImage.getImageName(), finalMark);
     }
 
     /**
@@ -183,7 +183,7 @@ public class ImageLabelChangeHandler extends ActionHandlerAdapter {
     public static void change(MarkdownImage markdownImage) {
         ImageMarkEnum targetMarkType = IntentionActionBase.getState().getImageMarkEnum();
         if (targetMarkType == null) {
-            log.trace("目标标签类型为空，跳过转换");
+            log.debug("目标标签类型为空，跳过转换");
             return;
         }
         new ImageLabelChangeHandler().changeMarkType(markdownImage, targetMarkType);

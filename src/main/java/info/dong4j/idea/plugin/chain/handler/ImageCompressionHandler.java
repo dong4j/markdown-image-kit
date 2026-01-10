@@ -80,7 +80,7 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
     public void invoke(EventData data, Iterator<MarkdownImage> imageIterator, MarkdownImage markdownImage) {
         String imageName = markdownImage.getImageName();
         if (markdownImage.getInputStream() == null) {
-            log.trace("inputstream 为 null, remove markdownImage = {}", markdownImage);
+            log.debug("inputstream 为 null, remove markdownImage = {}", markdownImage);
             imageIterator.remove();
             return;
         }
@@ -115,7 +115,7 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
                     boolean webpSuccess = tryConvertToWebp(markdownImage, originalBytes, webpQuality, imageName);
                     if (!webpSuccess) {
                         // webp转换失败，回退到普通压缩
-                        log.trace("webp转换失败，回退到普通压缩: {}", imageName);
+                        log.debug("webp转换失败，回退到普通压缩: {}", imageName);
                         compressImage(markdownImage, originalBytes, compressPercent);
                     } else {
                         long newSize = markdownImage.getInputStream().available();
@@ -140,7 +140,7 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
                     boolean webpSuccess = tryConvertToWebp(markdownImage, originalBytes, webpQuality, imageName);
                     if (!webpSuccess) {
                         // webp转换失败，不压缩，保持原样
-                        log.trace("WebP 转换失败，保持原样: {}", imageName);
+                        log.debug("WebP 转换失败，保持原样: {}", imageName);
                         markdownImage.setInputStream(new ByteArrayInputStream(originalBytes));
                     } else {
                         long newSize = markdownImage.getInputStream().available();
@@ -148,7 +148,7 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
                     }
                 } else {
                     // 如果已经是webp，不需要转换，但需要重新设置输入流（因为原始流已被读取）
-                    log.trace("图片已经是webp格式，不需要转换: {}", imageName);
+                    log.debug("图片已经是webp格式，不需要转换: {}", imageName);
                     markdownImage.setInputStream(new ByteArrayInputStream(originalBytes));
                 }
             }
@@ -159,7 +159,7 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
             } catch (Exception ignored) {
             }
         } catch (Exception e) {
-            log.trace("", e);
+            log.debug("", e);
             // 发生异常时也要确保关闭流
             try {
                 inputStream.close();
@@ -212,7 +212,7 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
                 return true;
             }
         } catch (Exception e) {
-            log.trace("转换为webp时发生异常: {}", imageName, e);
+            log.debug("转换为webp时发生异常: {}", imageName, e);
         }
         return false;
     }
@@ -231,7 +231,7 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
             }
             markdownImage.setInputStream(new ByteArrayInputStream(outputStream.toByteArray()));
         } catch (Exception e) {
-            log.trace("压缩图片时发生异常", e);
+            log.debug("压缩图片时发生异常", e);
         }
     }
 
@@ -302,7 +302,7 @@ public class ImageCompressionHandler extends ActionHandlerAdapter {
                                            imageName, oldSizeStr, newSizeStr, percent);
             MikConsoleView.printMessage(data.getProject(), message);
         } catch (Exception e) {
-            log.trace("输出压缩信息失败", e);
+            log.debug("输出压缩信息失败", e);
         }
     }
 

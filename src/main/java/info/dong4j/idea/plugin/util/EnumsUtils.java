@@ -38,7 +38,7 @@ public final class EnumsUtils {
      */
     public static <T> Optional<T> getEnumObject(Class<T> className, Predicate<T> predicate) {
         if (!className.isEnum()) {
-            log.trace("Class 不是枚举类");
+            log.debug("Class 不是枚举类");
             return Optional.empty();
         }
         Object obj = map.get(className);
