@@ -1,5 +1,6 @@
 package info.dong4j.idea.plugin.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -18,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * @date 2025.10.24
  * @since 1.0.0
  */
+@Slf4j
 public class ImageUtilsPureTest {
 
     /**
@@ -64,6 +66,20 @@ public class ImageUtilsPureTest {
     void extension() {
         assertEquals(".png", ImageUtils.getFileExtension("a.png"));
     }
-}
 
+    /**
+     * 测试获取文件扩展名功能在无扩展名情况下的行为
+     * <p>
+     * 测试场景: 输入文件名不包含点号后缀, 如 "image"
+     * 预期结果: 应返回空字符串 ""
+     * <p>
+     * 该测试验证了当文件名无扩展名时,getFileExtension 方法能正确处理并返回空字符串, 符合预期行为.
+     */
+    @Test
+    @DisplayName("getFileExtension 无扩展名返回空字符串")
+    void extensionWithoutDot() {
+        log.info("{}", ImageUtils.getFileExtension("image"));
+        assertEquals("", ImageUtils.getFileExtension("image"));
+    }
+}
 

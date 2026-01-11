@@ -14,6 +14,8 @@ repositories {
     }
 }
 
+val testSlf4j by configurations.creating
+
 // Configure Gradle IntelliJ Plugin 2.x
 intellijPlatform {
     pluginConfiguration {
@@ -168,7 +170,6 @@ dependencies {
 
     // 主要依赖
     implementation("net.coobird:thumbnailator:0.4.20")
-    compileOnly("org.slf4j:slf4j-simple:2.0.13")
 
     // 测试依赖
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
@@ -179,7 +180,7 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.24.2")
     testImplementation("org.assertj:assertj-swing-junit:3.9.2")
     testImplementation("com.aliyun.oss:aliyun-sdk-oss:3.17.4")
-
+    testSlf4j("org.slf4j:slf4j-jdk14:1.7.36")
     testCompileOnly("org.projectlombok:lombok:1.18.26")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.26")
 }
@@ -190,6 +191,17 @@ tasks {
     withType<JavaCompile> {
         sourceCompatibility = javaVersion
         targetCompatibility = javaVersion
+    }
+
+    withType<Test> {
+        classpath += testSlf4j
+        systemProperty("java.util.logging.config.file", file("test-log.properties").absolutePath)
+    }
+
+    withType<JavaExec> {
+        if (name.startsWith("testIde")) {
+            systemProperty("java.util.logging.config.file", file("test-log.properties").absolutePath)
+        }
     }
 
     buildPlugin {

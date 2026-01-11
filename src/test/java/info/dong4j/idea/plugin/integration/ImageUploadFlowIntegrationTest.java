@@ -2,7 +2,6 @@ package info.dong4j.idea.plugin.integration;
 
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.progress.ProgressIndicator;
-
 import info.dong4j.idea.plugin.chain.ActionManager;
 import info.dong4j.idea.plugin.chain.handler.CheckAvailableClientHandler;
 import info.dong4j.idea.plugin.chain.handler.ImageUploadHandler;
@@ -13,7 +12,6 @@ import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.CloudEnum;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
 import info.dong4j.idea.plugin.enums.ImageMarkEnum;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,13 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.anyDouble;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 /**
  * 图片上传全流程集成测试类
@@ -290,7 +283,6 @@ public class ImageUploadFlowIntegrationTest {
          * @return 上传结果的字符串表示
          * @throws Exception 上传过程中发生异常时抛出
          */
-        @Override
         public String upload(InputStream inputStream, String filename, javax.swing.JPanel jPanel) throws Exception {
             return upload(inputStream, filename);
         }

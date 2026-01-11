@@ -2,12 +2,10 @@ package info.dong4j.idea.plugin.client;
 
 
 import info.dong4j.idea.plugin.enums.CloudEnum;
-
-import java.io.InputStream;
-
-import javax.swing.JPanel;
-
 import lombok.extern.slf4j.Slf4j;
+
+import javax.swing.*;
+import java.io.InputStream;
 
 /**
  * 腾讯云对象存储服务（OSS）客户端实现类
@@ -110,7 +108,6 @@ public class TencentOssClient implements OssClient {
      * @throws Exception 上传过程中发生异常时抛出
      * @since 1.1.0
      */
-    @Override
     public String upload(InputStream inputStream, String filename, JPanel jPanel) throws Exception {
         return null;
     }

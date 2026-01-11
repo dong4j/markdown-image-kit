@@ -23,7 +23,6 @@ public class MoveToOtherOssSettingsDialogTest {
     public void test() {
         MoveToOtherOssSettingsDialog dialog = new MoveToOtherOssSettingsDialog();
         dialog.pack();
-        dialog.setVisible(true);
         System.exit(0);
     }
 }
