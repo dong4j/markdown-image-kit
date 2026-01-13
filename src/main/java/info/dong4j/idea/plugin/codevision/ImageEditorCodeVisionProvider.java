@@ -267,8 +267,7 @@ public class ImageEditorCodeVisionProvider extends AbstractMarkdownImageCodeVisi
             }
         }
 
-        //noinspection deprecation
-        return plugin.isEnabled();
+        return PluginManagerCore.isLoaded(id);
     }
 
     /**
@@ -420,6 +419,14 @@ public class ImageEditorCodeVisionProvider extends AbstractMarkdownImageCodeVisi
         return false;
     }
 
+    /**
+     * 查找指定类中无参数的方法
+     * <p> 从给定类及其所有父类的声明方法中, 查找名称匹配且参数数量为 0 的方法. 如果找到则返回该方法对象, 否则返回 null.</p>
+     *
+     * @param editorClass 要搜索的方法所属的类
+     * @param methodName  要查找的方法名称
+     * @return 找到的无参数方法对象, 如果未找到则返回 null
+     */
     @Nullable
     private Method findNoArgMethod(@NotNull Class<?> editorClass, @NotNull String methodName) {
         Class<?> current = editorClass;
