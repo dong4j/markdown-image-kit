@@ -165,8 +165,8 @@ dependencies {
     }
 
     // Lombok
-    compileOnly("org.projectlombok:lombok:1.18.26")
-    annotationProcessor("org.projectlombok:lombok:1.18.26")
+    compileOnly("org.projectlombok:lombok:1.18.32")
+    annotationProcessor("org.projectlombok:lombok:1.18.32")
 
     // 主要依赖
     implementation("net.coobird:thumbnailator:0.4.20")
@@ -181,8 +181,8 @@ dependencies {
     testImplementation("org.assertj:assertj-swing-junit:3.9.2")
     testImplementation("com.aliyun.oss:aliyun-sdk-oss:3.17.4")
     testSlf4j("org.slf4j:slf4j-jdk14:1.7.36")
-    testCompileOnly("org.projectlombok:lombok:1.18.26")
-    testAnnotationProcessor("org.projectlombok:lombok:1.18.26")
+    testCompileOnly("org.projectlombok:lombok:1.18.32")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.32")
 }
 
 tasks {
