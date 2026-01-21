@@ -8,7 +8,7 @@
  * @version 1.0.0
  * @email "mailto:dong4j@gmail.com"
  * @date 2025.11.02 18:06
- * @since x.x.x
+ * @since 2025.3.1200
  */
 
 package info.dong4j.idea.plugin.action.intention;
