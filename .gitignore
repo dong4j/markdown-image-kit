@@ -1,6 +1,6 @@
 ai-javadoc/.gradle
 build/
-!gradle/wrapper/gradle-wrapper.jar
+
 !**/src/main/**/build/
 !**/src/test/**/build/
 
@@ -48,3 +48,5 @@ AGENTS.md
 IFLOW.md
 README_PRIVATE.md
 markdown.image.kit.configs.xml
+
+!gradle-wrapper.jar
