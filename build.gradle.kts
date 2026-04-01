@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    id("org.jetbrains.intellij.platform") version "2.10.5"
+    id("org.jetbrains.intellij.platform") version "2.13.1"
 }
 
 group = providers.gradleProperty("pluginGroup").get()
@@ -28,7 +28,9 @@ intellijPlatform {
 
         ideaVersion {
             sinceBuild = providers.gradleProperty("platformSinceBuild")
-            untilBuild = providers.gradleProperty("platformUntilBuild")
+            // https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-extension.html#intellijPlatform-pluginConfiguration-ideaVersion-untilBuild
+            // untilBuild = providers.gradleProperty("platformUntilBuild")
+            untilBuild = provider { null }
         }
     }
 
@@ -43,6 +45,8 @@ intellijPlatform {
             create("IC", "2024.3")
             create("IC", "2025.1")
             create("IC", "2025.2")
+            create("IC", "2025.3")
+            create("IC", "2026.1")
 
             create("IU", "2022.3")
             create("IU", "2023.1")
@@ -53,6 +57,8 @@ intellijPlatform {
             create("IU", "2024.3")
             create("IU", "2025.1")
             create("IU", "2025.2")
+            create("IU", "2025.3")
+            create("IU", "2026.1")
 
             create("WS", "2022.3")
             create("WS", "2023.1")
@@ -63,6 +69,8 @@ intellijPlatform {
             create("WS", "2024.3")
             create("WS", "2025.1")
             create("WS", "2025.2")
+            create("WS", "2025.3")
+            create("WS", "2026.1")
 
             create("PS", "2022.3")
             create("PS", "2023.1")
@@ -73,6 +81,8 @@ intellijPlatform {
             create("PS", "2024.3")
             create("PS", "2025.1")
             create("PS", "2025.2")
+            create("PS", "2025.3")
+            create("PS", "2026.1")
 
             create("PY", "2022.3")
             create("PY", "2023.1")
@@ -83,6 +93,8 @@ intellijPlatform {
             create("PY", "2024.3")
             create("PY", "2025.1")
             create("PY", "2025.2")
+            create("PY", "2025.3")
+            create("PY", "2026.1")
 
             create("GO", "2022.3")
             create("GO", "2023.1")
@@ -93,6 +105,8 @@ intellijPlatform {
             create("GO", "2024.3")
             create("GO", "2025.1")
             create("GO", "2025.2")
+            create("GO", "2025.3")
+            create("GO", "2026.1")
 
             create("RD", "2022.3")
             create("RD", "2023.1")
@@ -103,6 +117,8 @@ intellijPlatform {
             create("RD", "2024.3")
             create("RD", "2025.1")
             create("RD", "2025.2")
+            create("RD", "2025.3")
+            create("RD", "2026.1")
 
             create("CL", "2022.3")
             create("CL", "2023.1")
@@ -113,6 +129,8 @@ intellijPlatform {
             create("CL", "2024.3")
             create("CL", "2025.1")
             create("CL", "2025.2")
+            create("CL", "2025.3")
+            create("CL", "2026.1")
 
             create("RM", "2022.3")
             create("RM", "2023.1")
@@ -123,6 +141,8 @@ intellijPlatform {
             create("RM", "2024.3")
             create("RM", "2025.1")
             create("RM", "2025.2")
+            create("RM", "2025.3")
+            create("RM", "2026.1")
 
             create("DB", "2022.3")
             create("DB", "2023.1")
@@ -133,6 +153,8 @@ intellijPlatform {
             create("DB", "2024.3")
             create("DB", "2025.1")
             create("DB", "2025.2")
+            create("DB", "2025.3")
+            create("DB", "2026.1")
 
             create("RR", "2023.1")
             create("RR", "2023.2")
@@ -142,6 +164,8 @@ intellijPlatform {
             create("RR", "2024.3")
             create("RR", "2025.1")
             create("RR", "2025.2")
+            create("RR", "2025.3")
+            create("RR", "2026.1")
         }
     }
 }
@@ -149,7 +173,8 @@ intellijPlatform {
 dependencies {
     // IntelliJ Platform
     intellijPlatform {
-        create(providers.gradleProperty("platformType"), providers.gradleProperty("platformVersion"))
+        // create(providers.gradleProperty("platformType"), providers.gradleProperty("platformVersion"))
+        intellijIdea(providers.gradleProperty("platformVersion"))
 
         // Markdown plugin (for PSI image elements)
         bundledPlugins("org.intellij.plugins.markdown")
