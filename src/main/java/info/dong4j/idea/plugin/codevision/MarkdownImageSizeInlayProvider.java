@@ -56,22 +56,12 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class MarkdownImageSizeInlayProvider implements InlayHintsProvider {
+    /** 内联提示提供者标识符, 用于唯一标识 Markdown 图片大小提示功能 */
     private static final String PROVIDER_ID = "markdown.image.kit.inlay.image.size";
     /** 默认的提示格式, 用于显示内联提示信息 */
     private static final HintFormat FORMAT = HintFormat.Companion.getDefault().withColorKind(HintColorKind.TextWithoutBackground);
     /** 用于格式化数字, 保留两位小数 */
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
-
-    /**
-     * 指示此提供程序是否在“dumb”模式下运行
-     * <p> 返回 true 表示该提供程序可以在 IntelliJ IDEA 的“dumb”模式下运行, 即在索引未完成时也能提供内联提示
-     *
-     * @return 始终返回 true, 表示该提供程序是 dumb-aware 的
-     */
-    @Override
-    public boolean isDumbAware() {
-        return true;
-    }
 
     /**
      * 创建用于显示内联提示的收集器
@@ -248,6 +238,13 @@ public class MarkdownImageSizeInlayProvider implements InlayHintsProvider {
         return DECIMAL_FORMAT.format(mb) + "MB";
     }
 
+    /**
+     * 判断指定的 Psi 文件是否为 Markdown 文件
+     * <p> 通过检查文件的虚拟文件对象是否有效, 并调用工具类方法判断其是否为 Markdown 文件 </p>
+     *
+     * @param file 要判断的 Psi 文件对象
+     * @return 如果文件有效且为 Markdown 文件则返回 true, 否则返回 false
+     */
     private boolean isMarkdownFile(@NotNull PsiFile file) {
         VirtualFile virtualFile = file.getVirtualFile();
         return virtualFile != null && MarkdownUtils.isMardownFile(virtualFile);
@@ -288,6 +285,13 @@ public class MarkdownImageSizeInlayProvider implements InlayHintsProvider {
         }
     }
 
+    /**
+     * 格式化图片尺寸为 "宽度 x 高度" 字符串
+     * <p> 将 Dimension 对象中的宽度和高度属性拼接为 "宽度 x 高度" 格式的字符串, 例如 "1920x1080"</p>
+     *
+     * @param dimension 需要格式化的图片尺寸对象, 不能为空
+     * @return 格式化后的尺寸字符串, 如 "1920x1080"
+     */
     @NotNull
     private String formatDimension(@NotNull Dimension dimension) {
         return dimension.width + "x" + dimension.height;
