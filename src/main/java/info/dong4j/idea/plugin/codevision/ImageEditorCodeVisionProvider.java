@@ -242,16 +242,24 @@ public class ImageEditorCodeVisionProvider extends AbstractMarkdownImageCodeVisi
     }
 
     /**
-     * 检查指定插件 ID 的插件是否已安装并加载
-     * <p> 通过 PluginManagerCore 获取插件描述符, 并判断插件是否已加载.</p>
+     * 检查指定插件 ID 的插件是否已安装并可用
+     * <p>
+     * 在较新平台优先通过反射调用 {@code PluginManagerCore.isLoaded(PluginId)}（若存在）；
+     * 在仅含 {@link PluginManagerCore#getPlugin(PluginId)} / {@link PluginManagerCore#isDisabled(PluginId)}
+     * 的旧平台上，以“已安装且未在设置中禁用”作为等价判断，避免字节码直接引用可能不存在的 {@code isLoaded}，
+     * 从而通过 Plugin Verifier 并与 IU-251 等版本兼容。
+     * </p>
      *
      * @param pluginId 插件的唯一标识符
-     * @return 如果插件已安装并加载, 则返回 true; 否则返回 false
+     * @return 若插件已安装且（在支持时）判定为已加载 / 未禁用时为 true
      */
     private boolean isPluginInstalledById(@NotNull String pluginId) {
         PluginId id = PluginId.getId(pluginId);
         IdeaPluginDescriptor plugin = PluginManagerCore.getPlugin(id);
         if (plugin == null) {
+            return false;
+        }
+        if (PluginManagerCore.isDisabled(id)) {
             return false;
         }
 
@@ -267,7 +275,7 @@ public class ImageEditorCodeVisionProvider extends AbstractMarkdownImageCodeVisi
             }
         }
 
-        return PluginManagerCore.isLoaded(id);
+        return true;
     }
 
     /**
