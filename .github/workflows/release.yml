@@ -76,6 +76,14 @@ jobs:
           echo "----- changelog preview -----"
           cat changelog.md
 
+      - name: Cleanup existing release
+        # 删除可能残留的同 tag release, 防止 softprops/action-gh-release 复用旧 release 时
+        # 只更新 assets 而不更新 name/body 导致页面显示与 changelog 不一致
+        continue-on-error: true
+        run: gh release delete "${{ github.ref_name }}" --yes --repo "${{ github.repository }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create Release
         if: steps.artifact.outputs.ZIP_FILE != ''
         uses: softprops/action-gh-release@v2
