@@ -1,0 +1,85 @@
+name: Release Plugin
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Build Plugin
+        run: ./gradlew buildPlugin -Porg.gradle.project.pluginVersion=${{ steps.version.outputs.VERSION }}
+
+      - name: Find built zip
+        id: artifact
+        run: |
+          ZIP_PATH=$(find build/distributions -name "*.zip" | head -1)
+          echo "ZIP_PATH=$ZIP_PATH" >> $GITHUB_OUTPUT
+          echo "ZIP_NAME=$(basename $ZIP_PATH)" >> $GITHUB_OUTPUT
+
+      - name: Extract changelog for version
+        id: changelog
+        run: |
+          # Extract the changelog section for this version
+          # The changelog format is: <h3>VERSION</h3><ul>...</ul>
+          VERSION=${{ steps.version.outputs.VERSION }}
+          # Convert to HTML entity for matching if needed
+
+          # Use awk to extract changelog section between VERSION h3 tags
+          CHANGELOG=$(awk -v ver="$VERSION" '
+            /<h3>[0-9]+\.[0-9]+\.[0-9]+<\/h3>/ {
+              if (found) exit
+              if ($0 ~ "<h3>" ver "</h3>") {
+                found=1
+                printf "%s\n", $0
+                next
+              }
+            }
+            found {
+              print
+              if (/<\/ul>/) exit
+            }
+          ' includes/pluginChanges.html)
+
+          # Clean up HTML tags for release body, keep list items
+          BODY=$(echo "$CHANGELOG" | sed 's/<[^>]*>//g' | sed 's/^[[:space:]]*//' | grep -v '^$')
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          echo "$BODY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ steps.version.outputs.VERSION }}
+          body: ${{ steps.changelog.outputs.body }}
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+          assets: |
+            ${{ steps.artifact.outputs.ZIP_PATH }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
