@@ -41,13 +41,34 @@ jobs:
           echo "ZIP_FILE=$ZIP_FILE"
           echo "ZIP_FILE=$ZIP_FILE" >> $GITHUB_OUTPUT
 
+      - name: Extract changelog for version
+        id: changelog
+        run: |
+          VERSION=${{ steps.version.outputs.VERSION }}
+          python3 -c "
+import re
+with open('includes/pluginChanges.html', 'r', encoding='utf-8') as f:
+    content = f.read()
+pattern = rf'<h3>{re.escape(VERSION)}</h3>(.*?)</ul>'
+match = re.search(pattern, content, re.DOTALL)
+if match:
+    section = match.group(1)
+    items = re.findall(r'<li>(.*?)</li>', section, re.DOTALL)
+    for item in items:
+        text = re.sub(r'<[^>]+>', '', item).strip()
+        if text:
+            print(f'- {text}')
+else:
+    print('No changelog found')
+" >> $GITHUB_OUTPUT
+
       - name: Create Release
         if: steps.artifact.outputs.ZIP_FILE != ''
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           name: Release ${{ steps.version.outputs.VERSION }}
-          body: "See pluginChanges.html for version details."
+          body: ${{ steps.changelog.outputs }}
           draft: false
           prerelease: false
           generate_release_notes: false
