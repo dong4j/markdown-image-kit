@@ -49,4 +49,7 @@ IFLOW.md
 README_PRIVATE.md
 markdown.image.kit.configs.xml
 
+# 本地发布备忘 (各开发者自行维护, 不进仓库)
+notes.md
+
 !gradle-wrapper.jar
