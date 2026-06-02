@@ -45,16 +45,43 @@ jobs:
         id: changelog
         run: |
           VERSION=${{ steps.version.outputs.VERSION }}
-          # Extract changelog between <h3>VERSION</h3> and next </ul>, strip HTML tags
-          sed -n "/<h3>$VERSION<\/h3>/,/<\/ul>/p" includes/pluginChanges.html | sed 's/<[^>]*>//g' | sed '/^$/d' > changelog.txt
-          echo "CHANGELOG_FILE=changelog.txt" >> $GITHUB_OUTPUT
+          # 从 includes/pluginChanges.html 中提取与当前 VERSION 匹配的两个连续 <h3> 块
+          # (中文 + 英文双语), 遇到下一个不同版本号的 <h3> 即停止; 之后将 HTML 转为 Markdown
+          awk -v ver="$VERSION" '
+            /<h3>/ {
+              m = $0
+              sub(/.*<h3>/, "", m)
+              sub(/<\/h3>.*/, "", m)
+              if (m == ver) {
+                if (section == 1) print ""   # 两段之间插入空行作为分隔
+                capture = 1
+                section++
+                next
+              }
+              if (capture) { exit }
+            }
+            capture { print }
+          ' includes/pluginChanges.html \
+            | sed -E \
+                -e 's#<strong>#**#g' -e 's#</strong>#**#g' \
+                -e 's#<a [^>]*href="([^"]+)"[^>]*>([^<]+)</a>#[\2](\1)#g' \
+                -e 's#<li>#- #g'   -e 's#</li>##g' \
+                -e 's#<ul>##g'     -e 's#</ul>##g' \
+                -e 's#<[^>]+>##g' \
+                -e 's/^[[:space:]]+//' \
+                -e 's/[[:space:]]+$//' \
+            | awk 'NF { found = 1; blank = 0; print; next } found && !blank { blank = 1; print }' \
+            > changelog.md
+          echo "CHANGELOG_FILE=changelog.md" >> $GITHUB_OUTPUT
+          echo "----- changelog preview -----"
+          cat changelog.md
 
       - name: Create Release
         if: steps.artifact.outputs.ZIP_FILE != ''
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          name: Release ${{ steps.version.outputs.VERSION }}
+          name: ${{ github.ref_name }}
           body_path: ${{ steps.changelog.outputs.CHANGELOG_FILE }}
           draft: false
           prerelease: false
