@@ -118,7 +118,7 @@ public class TencentOssClientTest {
     private void upload() throws Exception {
         OssClient uploader = OssClient.INSTANCES.get(CloudEnum.TENCENT_CLOUD);
         log.debug("{}", uploader.getName());
-        String url = uploader.upload(new FileInputStream("/Users/dong4j/Downloads/mik.webp"), "x2.png");
+        String url = uploader.upload(new FileInputStream("~/Downloads/mik.jpg"), "x2.png");
         log.debug("url = {}", url);
     }
 
@@ -138,7 +138,7 @@ public class TencentOssClientTest {
 
         // key 必须使用 / 为前缀
         String putResult = TencentCosUtils.putObject("/yguy.jpg",
-                                                     new FileInputStream("/Users/dong4j/Downloads/mik.webp"),
+                                                     new FileInputStream("~/Downloads/mik.jpg"),
                                                      bucketName,
                                                      "ap-chengdu",
                                                      secretId,
@@ -641,7 +641,7 @@ public class TencentOssClientTest {
         public static void main(String[] args) throws FileNotFoundException {
 
             String putResult = putObj("/10A914D0CC18.jpg",
-                                      new FileInputStream("/Users/dong4j/Downloads/05B3AB1C-BBA9-4113-B212" +
+                                      new FileInputStream("~/Downloads/05B3AB1C-BBA9-4113-B212" +
                                                           "-10A914D0CC18.jpg"),
                                       bucketName, "ap-chengdu", secretKey, secretId
                                      );

@@ -42,7 +42,7 @@ public class AliyunOssUtilsTest {
 
         // key 必须使用 / 为前缀
         String putResult = AliyunOssUtils.putObject("/dddd.jpg",
-                                                    new FileInputStream("/Users/dong4j/Downloads/mik.webp"),
+                                                    new FileInputStream("~/Downloads/mik.jpg"),
                                                     bucketName,
                                                     "oss-cn-hangzhou.aliyuncs.com",
                                                     secretId,

@@ -52,7 +52,7 @@ public class SmmsClientTest {
      */
     @Test
     public void test1() throws IOException {
-        log.debug("{}", this.start("https://sm.ms/api/v2/upload", "/Users/dong4j/Downloads/mik.webp"));
+        log.debug("{}", this.start("https://sm.ms/api/v2/upload", "~/Downloads/mik.jpg"));
     }
 
     /**
@@ -101,8 +101,8 @@ public class SmmsClientTest {
 
     @Test
     public void test_2() throws FileNotFoundException {
-        log.debug("{}", this.upload(new FileInputStream("/Users/dong4j/Downloads/mik.webp"),
-                                   "mik.webp"));
+        log.debug("{}", this.upload(new FileInputStream("~/Downloads/mik.jpg"),
+                                    "mik.jpg"));
     }
 
     /**

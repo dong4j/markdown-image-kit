@@ -49,12 +49,12 @@
 
 优先使用相对路径
 
-![image-20251031190700713](/Users/dong4j/Developer/0.Worker/opensource/idea/mik/markdown-image-kit/imgs//image-20251031190700713.png)
+![image-20251031190700713](~/Developer/0.Worker/opensource/idea/mik/markdown-image-kit/imgs//image-20251031190700713.png)
 
 复制到绝对路径是, 在未开启 **优先使用相对路径** 时, 图片会是全路径格式:
 
 ```
-![image-20251031190700713](/Users/dong4j/Developer/0.Worker/opensource/idea/mik/markdown-image-kit/imgs//image-20251031190700713.png)
+![image-20251031190700713](~/Developer/0.Worker/opensource/idea/mik/markdown-image-kit/imgs//image-20251031190700713.png)
 ```
 
 ![image-20251031190751433](imgs//image-20251031190751433.png)
