@@ -41,16 +41,21 @@ jobs:
           echo "ZIP_FILE=$ZIP_FILE"
           echo "ZIP_FILE=$ZIP_FILE" >> $GITHUB_OUTPUT
 
+      - name: Extract changelog
+        id: changelog
+        run: |
+          VERSION=${{ steps.version.outputs.VERSION }}
+          # Extract changelog between <h3>VERSION</h3> and next </ul>, strip HTML tags
+          sed -n "/<h3>$VERSION<\/h3>/,/<\/ul>/p" includes/pluginChanges.html | sed 's/<[^>]*>//g' | sed '/^$/d' > changelog.txt
+          echo "CHANGELOG_FILE=changelog.txt" >> $GITHUB_OUTPUT
+
       - name: Create Release
         if: steps.artifact.outputs.ZIP_FILE != ''
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           name: Release ${{ steps.version.outputs.VERSION }}
-          body: |
-            ## What's Changed
-
-            - See pluginChanges.html for full changelog
+          body_path: ${{ steps.changelog.outputs.CHANGELOG_FILE }}
           draft: false
           prerelease: false
           generate_release_notes: false
