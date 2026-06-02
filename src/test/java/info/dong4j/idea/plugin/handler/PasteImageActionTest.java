@@ -48,7 +48,7 @@ public class PasteImageActionTest {
             Image image = (Image) cc.getTransferData(DataFlavor.imageFlavor);
             // 保存图片
             BufferedImage bufferedImage = ImageUtils.toBufferedImage(image);
-            File imageFile = new File("/Users/dong4j/Develop/", "test.png");
+            File imageFile = new File("~/Develop/", "test.png");
             Assert.assertNotNull(bufferedImage);
             ImageIO.write(bufferedImage, "png", imageFile);
         }

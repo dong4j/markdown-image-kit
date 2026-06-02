@@ -71,7 +71,7 @@ import lombok.extern.slf4j.Slf4j;
 @SuppressWarnings( {"D", "DuplicatedCode"})
 public class UploadServicePanel {
     /** 测试文件名，用于测试场景中的文件标识 */
-    public static final String TEST_FILE_NAME = "mik.webp";
+    public static final String TEST_FILE_NAME = "mik.jpg";
 
     // ========== 上传服务设定区域 ==========
     /** 上传服务的配置面板，用于展示和修改上传服务相关设置 */

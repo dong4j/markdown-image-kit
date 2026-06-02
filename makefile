@@ -1,5 +1,5 @@
 # 构建产物输出目录
-IDEA_PLUGINS_DIR := /Users/dong4j/Developer/4.Tools/JetBrains/IDEA/plugins
+IDEA_PLUGINS_DIR := ~/Developer/4.Tools/JetBrains/IDEA/plugins
 MIK_DIR := .
 
 # asdf Java 环境支持

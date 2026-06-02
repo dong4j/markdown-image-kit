@@ -67,7 +67,7 @@ public class PicListClientCommandTest {
 
         // 创建测试图片文件
         // File testImageFile = createTestImageFile(tempDir.toFile(), "test.jpg");
-        File testImageFile = new File("/Users/dong4j/Downloads/IntelliJ IDEA 2025-10-26 16.07.02.png");
+        File testImageFile = new File("~/Downloads/IntelliJ IDEA 2025-10-26 16.07.02.png");
 
         // 执行命令
         ProcessBuilder processBuilder = new ProcessBuilder(

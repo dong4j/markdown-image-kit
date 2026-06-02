@@ -194,7 +194,7 @@ public class ImageUtilsTest {
             }
         }
 
-        // setImageClipboard(ImageUtils.loadImageFromFile(new File("/Users/dong4j/Downloads/我可要开始皮了.png")));
+        // setImageClipboard(ImageUtils.loadImageFromFile(new File("~/Downloads/我可要开始皮了.png")));
     }
 
     /**
@@ -364,8 +364,8 @@ public class ImageUtilsTest {
      */
     @Test
     public void test10() {
-        // ImageUtils.compress(new File("/Users/dong4j/Downloads/c.gif"),
-        //                     new File("/Users/dong4j/Downloads/d.gif"), 60);
+        // ImageUtils.compress(new File("~/Downloads/c.gif"),
+        //                     new File("~/Downloads/d.gif"), 60);
         // 注释掉硬编码路径的测试
     }
 
@@ -392,7 +392,7 @@ public class ImageUtilsTest {
      */
     @Test
     public void test12() {
-        // Thumbnails.of("/Users/dong4j/Downloads/wade-meng-LgCj9qcrfhI.jpg").size(1280, 1024).outputFormat("png").toFile("/Users/dong4j" +
+        // Thumbnails.of("~/Downloads/wade-meng-LgCj9qcrfhI.jpg").size(1280, 1024).outputFormat("png").toFile("~" +
         //                                                                                                                "/Develop/test
         //                                                                                                                .png");
         // 注释掉硬编码路径的测试
@@ -409,10 +409,10 @@ public class ImageUtilsTest {
     @Test
     public void test13() {
         // 注释掉硬编码路径的测试
-        // ImageUtils.compress(new File("/Users/dong4j/Downloads/wade-meng-LgCj9qcrfhI.jpg"),
-        //                     new File("/Users/dong4j/Develop/test.jpg"), 60);
+        // ImageUtils.compress(new File("~/Downloads/wade-meng-LgCj9qcrfhI.jpg"),
+        //                     new File("~/Develop/test.jpg"), 60);
 
-        // BufferedImage bufferedImage = Thumbnails.of(new File("/Users/dong4j/Downloads/wade-meng-LgCj9qcrfhI.jpg"))
+        // BufferedImage bufferedImage = Thumbnails.of(new File("~/Downloads/wade-meng-LgCj9qcrfhI.jpg"))
         //     .scale(1f)
         //     .outputQuality(0.6)
         //     .asBufferedImage();
@@ -423,9 +423,9 @@ public class ImageUtilsTest {
         //     Thumbnails.of(bufferedImage)
         //         .size(bufferedImage.getWidth(), bufferedImage.getHeight())
         //         .outputFormat("jpg")
-        //         .toFile("/Users/dong4j/Develop/test2.jpg");
+        //         .toFile("~/Develop/test2.jpg");
 
-        //     // ImageIO.write(compressedImage, "png", new File("/Users/dong4j/Develop/test.png"));
+        //     // ImageIO.write(compressedImage, "png", new File("~/Develop/test.png"));
         // }
     }
 
@@ -440,11 +440,11 @@ public class ImageUtilsTest {
     @Test
     public void test14() {
         // 注释掉硬编码路径的测试
-        // File in = new File("/Users/dong4j/Downloads/2019-03-25 23.18.31.gif");
-        // File out = new File("/Users/dong4j/Develop/test.gif");
+        // File in = new File("~/Downloads/2019-03-25 23.18.31.gif");
+        // File out = new File("~/Develop/test.gif");
         // FileUtils.copyFile(in, out);
         // BufferedImage bufferedImage = ImageIO.read(out);
-        // File out1 = new File("/Users/dong4j/Develop/test1.gif");
+        // File out1 = new File("~/Develop/test1.gif");
         // ImageIO.write(bufferedImage, "gif", out1);
         // Image image = ImageIO.read(out);
     }
@@ -460,12 +460,12 @@ public class ImageUtilsTest {
     @Test
     public void test15() {
         // 注释掉硬编码路径的测试
-        // File in = new File("/Users/dong4j/Downloads/mik.webp");
+        // File in = new File("~/Downloads/mik.jpg");
         // BufferedImage image = ImageIO.read(in);
         // ByteArrayOutputStream os = new ByteArrayOutputStream();
         // ImageIO.write(image, "png", os);
         // InputStream is = new ByteArrayInputStream(os.toByteArray());
-        // FileUtils.saveStreamContentAsFile("/Users/dong4j/Develop/test.png", is);
+        // FileUtils.saveStreamContentAsFile("~/Develop/test.png", is);
     }
 
     /**
@@ -511,8 +511,8 @@ public class ImageUtilsTest {
     @Test
     public void fileCopyTest() {
         // 注释掉硬编码路径的测试
-        // File file1 = new File("/Users/dong4j/Downloads/mik.webp");
-        // File file2 = new File("/Users/dong4j/Downloads/xu1.png");
+        // File file1 = new File("~/Downloads/mik.jpg");
+        // File file2 = new File("~/Downloads/xu1.png");
         // FileUtils.copyFile(file1, file2);
     }
 }
