@@ -220,11 +220,8 @@ public abstract class IntentionActionBase extends PsiElementBaseIntentionAction 
     @NotNull
     @Override
     public String getFamilyName() {
-        // 如果处于预览模式，返回简单的文本，避免访问设置和状态
-        if (IntentionPreviewUtils.isIntentionPreviewActive()) {
-            return "Configure image";
-        }
-        return this.getText();
+        // 直接返回常量，避免在类初始化阶段调用 getText() 触发服务访问
+        return "Configure image";
     }
 
     /**
