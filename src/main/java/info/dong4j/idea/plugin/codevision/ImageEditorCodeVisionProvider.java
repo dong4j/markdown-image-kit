@@ -4,7 +4,6 @@ import com.intellij.codeInsight.codeVision.CodeVisionEntry;
 import com.intellij.codeInsight.codeVision.ui.model.ClickableTextCodeVisionEntry;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
-import com.intellij.ide.plugins.PluginManager;
 import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.extensions.PluginId;
@@ -245,35 +244,18 @@ public class ImageEditorCodeVisionProvider extends AbstractMarkdownImageCodeVisi
     /**
      * 检查指定插件 ID 的插件是否已安装并可用
      * <p>
-     * 使用公开 API {@link PluginManager#getInstance()#findEnabledPlugin(PluginId)} 获取插件描述符，
-     * 该方法在较新平台可用；若不可用则通过反射调用 {@code PluginManagerCore.isLoaded(PluginId)}。
+     * 使用公开 API {@link PluginManagerCore#getPlugin(PluginId)} 获取插件描述符，
+     * 该方法在所有支持的平台版本均为公开 API。
      * 从而通过 Plugin Verifier 并与 IU-251 等版本兼容。
      * </p>
      *
      * @param pluginId 插件的唯一标识符
-     * @return 若插件已安装且（在支持时）判定为已加载 / 未禁用时为 true
+     * @return 若插件已安装则返回 true
      */
     private boolean isPluginInstalledById(@NotNull String pluginId) {
         PluginId id = PluginId.getId(pluginId);
-        IdeaPluginDescriptor plugin = PluginManager.getInstance().findEnabledPlugin(id);
-        if (plugin == null) {
-            return false;
-        }
-
-        // 尝试使用反射调用 isLoaded 方法（较新平台支持）
-        Method isLoadedMethod = ReflectionUtil.getMethod(PluginManagerCore.class, "isLoaded", PluginId.class);
-        if (isLoadedMethod != null) {
-            try {
-                Object result = isLoadedMethod.invoke(null, id);
-                if (result instanceof Boolean) {
-                    return (Boolean) result;
-                }
-            } catch (Exception e) {
-                log.debug("调用 PluginManagerCore.isLoaded 失败: {}", pluginId, e);
-            }
-        }
-
-        return true;
+        IdeaPluginDescriptor plugin = PluginManagerCore.getPlugin(id);
+        return plugin != null;
     }
 
     /**
