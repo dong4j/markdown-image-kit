@@ -3,8 +3,7 @@ package info.dong4j.idea.plugin.codevision;
 import com.intellij.codeInsight.codeVision.CodeVisionEntry;
 import com.intellij.codeInsight.codeVision.ui.model.ClickableTextCodeVisionEntry;
 import com.intellij.ide.BrowserUtil;
-import com.intellij.ide.plugins.IdeaPluginDescriptor;
-import com.intellij.ide.plugins.PluginManagerCore;
+import com.intellij.ide.plugins.PluginManager;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -244,8 +243,8 @@ public class ImageEditorCodeVisionProvider extends AbstractMarkdownImageCodeVisi
     /**
      * 检查指定插件 ID 的插件是否已安装并可用
      * <p>
-     * 使用公开 API {@link PluginManagerCore#getPlugin(PluginId)} 获取插件描述符，
-     * 该方法在所有支持的平台版本均为公开 API。
+     * 使用公开 API {@link PluginManager#isPluginInstalled(PluginId)} 获取插件描述符，
+     * 该方法是 2024.3+ 版本的公开 API。
      * 从而通过 Plugin Verifier 并与 IU-251 等版本兼容。
      * </p>
      *
@@ -254,8 +253,7 @@ public class ImageEditorCodeVisionProvider extends AbstractMarkdownImageCodeVisi
      */
     private boolean isPluginInstalledById(@NotNull String pluginId) {
         PluginId id = PluginId.getId(pluginId);
-        IdeaPluginDescriptor plugin = PluginManagerCore.getPlugin(id);
-        return plugin != null;
+        return PluginManager.isPluginInstalled(id);
     }
 
     /**
