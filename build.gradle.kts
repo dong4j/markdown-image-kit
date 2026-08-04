@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    id("org.jetbrains.intellij.platform") version "2.16.0"
+    id("org.jetbrains.intellij.platform") version "2.18.1"
 }
 
 group = providers.gradleProperty("pluginGroup").get()
@@ -28,9 +28,8 @@ intellijPlatform {
 
         ideaVersion {
             sinceBuild = providers.gradleProperty("platformSinceBuild")
-            // https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-extension.html#intellijPlatform-pluginConfiguration-ideaVersion-untilBuild
-            // untilBuild = providers.gradleProperty("platformUntilBuild")
-            untilBuild = provider { null }
+            // 限定到已验证的 2026.2 分支，避免对尚未验证的未来 IDE 版本宣称兼容。
+            untilBuild = providers.gradleProperty("platformUntilBuild")
         }
     }
 
@@ -45,9 +44,6 @@ intellijPlatform {
             create("IC", "2024.3")
             create("IC", "2025.1")
             create("IC", "2025.2")
-            create("IC", "2025.3")
-            create("IC", "2026.1")
-
             create("IU", "2022.3")
             create("IU", "2023.1")
             create("IU", "2023.2")
@@ -59,6 +55,7 @@ intellijPlatform {
             create("IU", "2025.2")
             create("IU", "2025.3")
             create("IU", "2026.1")
+            create("IU", "2026.2.0.1")
 
             create("WS", "2022.3")
             create("WS", "2023.1")
@@ -190,8 +187,8 @@ dependencies {
     }
 
     // Lombok
-    compileOnly("org.projectlombok:lombok:1.18.32")
-    annotationProcessor("org.projectlombok:lombok:1.18.32")
+    compileOnly("org.projectlombok:lombok:1.18.46")
+    annotationProcessor("org.projectlombok:lombok:1.18.46")
 
     // 主要依赖
     implementation("net.coobird:thumbnailator:0.4.20")
@@ -206,8 +203,8 @@ dependencies {
     testImplementation("org.assertj:assertj-swing-junit:3.9.2")
     testImplementation("com.aliyun.oss:aliyun-sdk-oss:3.17.4")
     testSlf4j("org.slf4j:slf4j-jdk14:1.7.36")
-    testCompileOnly("org.projectlombok:lombok:1.18.32")
-    testAnnotationProcessor("org.projectlombok:lombok:1.18.32")
+    testCompileOnly("org.projectlombok:lombok:1.18.46")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.46")
 }
 
 tasks {

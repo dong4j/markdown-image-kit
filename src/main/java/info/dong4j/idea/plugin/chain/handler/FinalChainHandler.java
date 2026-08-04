@@ -7,8 +7,6 @@ import info.dong4j.idea.plugin.action.intention.IntentionActionBase;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 
-import org.apache.commons.collections.CollectionUtils;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -69,7 +67,8 @@ public class FinalChainHandler extends ActionHandlerAdapter {
         Map<Document, List<MarkdownImage>> processededData = data.getWaitingProcessMap();
         for (Map.Entry<Document, List<MarkdownImage>> imageEntry : processededData.entrySet()) {
             List<MarkdownImage> markdownImages = imageEntry.getValue();
-            if (CollectionUtils.isEmpty(markdownImages)) {
+            // 2026.2 不再随平台暴露 Commons Collections，使用 JDK 集合判断避免依赖 IDE 内部传递库。
+            if (markdownImages == null || markdownImages.isEmpty()) {
                 continue;
             }
             for (MarkdownImage markdownImage : markdownImages) {

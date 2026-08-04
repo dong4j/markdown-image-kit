@@ -62,6 +62,11 @@
                                 implementation="info.dong4j.idea.plugin.statusbar.MikStatusBarWidgetFactory"
                                 order="last"/>
 
+        <!-- Starcat 推广仅在 macOS 15+ 生效，并通过活动 ID 保证只提示一次 -->
+        <postStartupActivity implementation="info.dong4j.idea.plugin.promotion.StarcatPromotionStartupActivity"/>
+        <!--suppress PluginXmlI18n -->
+        <notificationGroup displayType="BALLOON" id="Markdown Image Kit" isLogByDefault="false"/>
+
         <!-- alt + enter -->
         <!--suppress PluginXmlExtensionRegistration -->
         <intentionAction>
@@ -104,6 +109,11 @@
     </extensions>
 
     <actions>
+        <action id="MarkdownImageKit.StarcatPromotionAction"
+                class="info.dong4j.idea.plugin.promotion.StarcatPromotionAction">
+            <add-to-group group-id="HelpMenu" anchor="last"/>
+        </action>
+
         <action id="SmmsObjectStorageServiceAction" class="info.dong4j.idea.plugin.action.menu.markdown.UploadSmmsCloudAction"
                 popup="true" text="SM.MS">
         </action>

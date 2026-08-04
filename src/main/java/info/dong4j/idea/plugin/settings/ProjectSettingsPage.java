@@ -5,6 +5,7 @@ import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 
+import info.dong4j.idea.plugin.promotion.StarcatPromotion;
 import info.dong4j.idea.plugin.settings.panel.GlobalSettingsPanel;
 import info.dong4j.idea.plugin.settings.panel.ImageEnhancementPanel;
 import info.dong4j.idea.plugin.settings.panel.ImageProcessingPanel;
@@ -111,7 +112,13 @@ public class ProjectSettingsPage implements SearchableConfigurable {
         // 添加间距
         contentPanel.add(new JPanel()); // 占位符
 
-        // 4. 个人信息面板（作者信息）
+        // 4. Starcat 推广仅面向 macOS 15+，不参与插件配置和全局开关联动
+        if (StarcatPromotion.isEligible()) {
+            contentPanel.add(StarcatPromotion.createSettingsPanel());
+            contentPanel.add(new JPanel()); // 占位符
+        }
+
+        // 5. 个人信息面板（作者信息）
         PersonalInfoPanel personalInfoPanel = createPersonalInfoPanel();
         contentPanel.add(personalInfoPanel.getContent());
 
