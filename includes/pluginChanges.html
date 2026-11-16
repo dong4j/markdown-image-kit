@@ -21,6 +21,16 @@
   ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   ~ SOFTWARE.
   -->
+<h3>2026.3.0</h3>
+<ul>
+    <li>✨ 适配 IntelliJ Platform 2026.3，兼容范围到 263.*</li>
+    <li>🐛 上传任务不再直接依赖 External System 的 TaskCallback，避免 2026.3 独立 classloader 导致任务类加载失败</li>
+</ul>
+<h3>2026.3.0</h3>
+<ul>
+    <li>✨ Support IntelliJ Platform 2026.3, with compatibility up to 263.*</li>
+    <li>🐛 Upload tasks no longer link External System TaskCallback directly, so task classes still load when that module uses its own classloader in 2026.3</li>
+</ul>
 <h3>2026.2.0</h3>
 <ul>
     <li>✨ 适配 IntelliJ Platform 2026.2</li>

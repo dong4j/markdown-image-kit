@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    id("org.jetbrains.intellij.platform") version "2.18.1"
+    id("org.jetbrains.intellij.platform") version "2.20.1"
 }
 
 group = providers.gradleProperty("pluginGroup").get()
@@ -28,7 +28,7 @@ intellijPlatform {
 
         ideaVersion {
             sinceBuild = providers.gradleProperty("platformSinceBuild")
-            // 限定到已验证的 2026.2 分支，避免对尚未验证的未来 IDE 版本宣称兼容。
+            // 已核对 2026.3 拆出的模块依赖，兼容上限到 263.*。
             untilBuild = providers.gradleProperty("platformUntilBuild")
         }
     }
@@ -44,6 +44,7 @@ intellijPlatform {
             create("IC", "2024.3")
             create("IC", "2025.1")
             create("IC", "2025.2")
+            create("IC", "2026.3")
             create("IU", "2022.3")
             create("IU", "2023.1")
             create("IU", "2023.2")
@@ -56,6 +57,7 @@ intellijPlatform {
             create("IU", "2025.3")
             create("IU", "2026.1")
             create("IU", "2026.2.0.1")
+            create("IU", "2026.3")
 
             create("WS", "2022.3")
             create("WS", "2023.1")
@@ -68,6 +70,7 @@ intellijPlatform {
             create("WS", "2025.2")
             create("WS", "2025.3")
             create("WS", "2026.1")
+            create("WS", "2026.3")
 
             create("PS", "2022.3")
             create("PS", "2023.1")
@@ -80,6 +83,7 @@ intellijPlatform {
             create("PS", "2025.2")
             create("PS", "2025.3")
             create("PS", "2026.1")
+            create("PS", "2026.3")
 
             create("PY", "2022.3")
             create("PY", "2023.1")
@@ -92,6 +96,7 @@ intellijPlatform {
             create("PY", "2025.2")
             create("PY", "2025.3")
             create("PY", "2026.1")
+            create("PY", "2026.3")
 
             create("GO", "2022.3")
             create("GO", "2023.1")
@@ -104,6 +109,7 @@ intellijPlatform {
             create("GO", "2025.2")
             create("GO", "2025.3")
             create("GO", "2026.1")
+            create("GO", "2026.3")
 
             create("RD", "2022.3")
             create("RD", "2023.1")
@@ -116,6 +122,7 @@ intellijPlatform {
             create("RD", "2025.2")
             create("RD", "2025.3")
             create("RD", "2026.1")
+            create("RD", "2026.3")
 
             create("CL", "2022.3")
             create("CL", "2023.1")
@@ -128,6 +135,7 @@ intellijPlatform {
             create("CL", "2025.2")
             create("CL", "2025.3")
             create("CL", "2026.1")
+            create("CL", "2026.3")
 
             create("RM", "2022.3")
             create("RM", "2023.1")
@@ -140,6 +148,7 @@ intellijPlatform {
             create("RM", "2025.2")
             create("RM", "2025.3")
             create("RM", "2026.1")
+            create("RM", "2026.3")
 
             create("DB", "2022.3")
             create("DB", "2023.1")
@@ -152,6 +161,7 @@ intellijPlatform {
             create("DB", "2025.2")
             create("DB", "2025.3")
             create("DB", "2026.1")
+            create("DB", "2026.3")
 
             create("RR", "2023.1")
             create("RR", "2023.2")
@@ -163,6 +173,7 @@ intellijPlatform {
             create("RR", "2025.2")
             create("RR", "2025.3")
             create("RR", "2026.1")
+            create("RR", "2026.3")
         }
     }
 }

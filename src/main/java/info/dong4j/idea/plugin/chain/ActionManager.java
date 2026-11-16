@@ -1,7 +1,6 @@
 package info.dong4j.idea.plugin.chain;
 
 import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.externalSystem.task.TaskCallback;
 import com.intellij.openapi.progress.ProgressIndicator;
 
 import info.dong4j.idea.plugin.action.intention.ImageMigrationIntentionAction;
@@ -22,6 +21,7 @@ import info.dong4j.idea.plugin.console.MikConsoleView;
 import info.dong4j.idea.plugin.entity.EventData;
 import info.dong4j.idea.plugin.entity.MarkdownImage;
 import info.dong4j.idea.plugin.enums.ImageLocationEnum;
+import info.dong4j.idea.plugin.task.MikTaskCallback;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -52,7 +52,7 @@ public class ActionManager {
     private final List<IActionHandler> handlersChain = new LinkedList<>();
     /** 回调函数列表，用于存储任务执行后的回调操作 */
     @Getter
-    private final List<TaskCallback> callbacks = new ArrayList<>();
+    private final List<MikTaskCallback> callbacks = new ArrayList<>();
     /** 事件数据对象，用于封装事件相关的信息 */
     private final EventData data;
     /** 主任务标题 */
@@ -109,7 +109,7 @@ public class ActionManager {
      * @return 当前 ActionManager 实例，支持方法链式调用
      * @since 0.0.1
      */
-    public ActionManager addCallback(TaskCallback callback) {
+    public ActionManager addCallback(MikTaskCallback callback) {
         this.callbacks.add(callback);
         return this;
     }
